@@ -1,0 +1,36 @@
+name: Validate Marketplace
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Validate marketplace schema
+        run: python scripts/validate_schema.py
+
+      - name: Lint plugins
+        run: python scripts/lint_plugins.py
+
+      - name: Check auto-sync
+        run: |
+          python scripts/sync_marketplace.py
+          if ! git diff --quiet .claude-plugin/marketplace.json; then
+            echo "Error: marketplace.json is out of sync"
+            echo "Run 'python scripts/sync_marketplace.py' locally"
+            git diff .claude-plugin/marketplace.json
+            exit 1
+          fi
