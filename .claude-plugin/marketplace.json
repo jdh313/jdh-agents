@@ -1,16 +1,27 @@
 {
   "name": "cc-marketplace",
+  "description": "Personal Claude Code plugin marketplace",
   "owner": {
     "name": "Jacob Hoehler",
     "email": "jacob@example.com"
   },
-  "metadata": {
-    "description": "Personal Claude Code plugin marketplace",
-    "version": "1.0.0",
-    "homepage": "https://github.com/jacob/cc-marketplace",
-    "pluginRoot": "../plugins",
-    "totalPlugins": 0,
-    "lastUpdated": "2025-12-18"
-  },
-  "plugins": []
+  "plugins": [
+    {
+      "name": "api-docs",
+      "source": "./plugins/api-docs",
+      "description": "OpenAPI documentation best practices for FastAPI, Django Ninja, and manual specs",
+      "version": "0.1.0",
+      "author": {
+        "name": "Jacob Hoehler"
+      },
+      "keywords": [
+        "openapi",
+        "fastapi",
+        "django-ninja",
+        "api",
+        "documentation",
+        "swagger"
+      ]
+    }
+  ]
 }
