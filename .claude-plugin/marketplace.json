@@ -8,7 +8,7 @@
   "plugins": [
     {
       "name": "api-docs",
-      "source": "api-docs/.claude-plugin",
+      "source": "./plugins/api-docs/.claude-plugin",
       "description": "OpenAPI documentation best practices for FastAPI, Django Ninja, and manual specs",
       "version": "0.1.0",
       "author": {
@@ -25,13 +25,12 @@
     },
     {
       "name": "homelab-ops",
-      "source": "homelab-ops/.claude-plugin",
+      "source": "./plugins/homelab-ops/.claude-plugin",
       "description": "Create, troubleshoot, and migrate Docker services in a Jinja2-templated homelab with Tailscale networking, Traefik routing, and 1Password secrets",
       "version": "1.0.0",
       "author": {
         "name": "Jacob Hoehler"
       },
-      "category": "devops",
       "keywords": [
         "homelab",
         "docker",
