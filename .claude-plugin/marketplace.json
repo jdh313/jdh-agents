@@ -8,7 +8,7 @@
   "plugins": [
     {
       "name": "api-docs",
-      "source": "./plugins/api-docs",
+      "source": "api-docs/.claude-plugin",
       "description": "OpenAPI documentation best practices for FastAPI, Django Ninja, and manual specs",
       "version": "0.1.0",
       "author": {
@@ -22,6 +22,33 @@
         "documentation",
         "swagger"
       ]
+    },
+    {
+      "name": "homelab-ops",
+      "source": "homelab-ops/.claude-plugin",
+      "description": "Create, troubleshoot, and migrate Docker services in a Jinja2-templated homelab with Tailscale networking, Traefik routing, and 1Password secrets",
+      "version": "1.0.0",
+      "author": {
+        "name": "Jacob Hoehler"
+      },
+      "category": "devops",
+      "keywords": [
+        "homelab",
+        "docker",
+        "docker-compose",
+        "jinja2",
+        "tailscale",
+        "traefik",
+        "ansible",
+        "1password"
+      ]
     }
-  ]
+  ],
+  "metadata": {
+    "description": "Personal Claude Code plugin marketplace",
+    "version": "1.0.0",
+    "homepage": "https://github.com/jdh313/cc-marketplace",
+    "totalPlugins": 2,
+    "lastUpdated": "2025-12-23"
+  }
 }
