@@ -1,0 +1,227 @@
+# CLAUDE.md
+
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+
+## Project Overview
+
+**cc-marketplace** is a personal Claude Code plugin marketplace with automated validation and synchronization. It provides:
+- A centralized registry of Claude Code plugins (skills, agents, commands)
+- Automated marketplace discovery from the `plugins/` directory
+- Schema validation and plugin linting
+- GitHub Actions CI/CD for marketplace integrity
+
+## High-Level Architecture
+
+### Directory Structure
+
+```
+cc-marketplace/
+├── .claude-plugin/
+│   └── marketplace.json          # Central plugin registry (auto-synced)
+├── .github/workflows/
+│   └── validate.yml              # CI/CD: validates + lints + syncs
+├── plugins/                      # Plugin source directory
+│   └── [plugin-name]/
+│       ├── .claude-plugin/
+│       │   └── plugin.json       # Plugin metadata
+│       ├── skills/               # Skills (optional)
+│       ├── agents/               # Agents (optional)
+│       ├── commands/             # Commands (optional)
+│       └── README.md
+├── scripts/                      # Automation utilities
+│   ├── validate_schema.py        # Validates marketplace.json schema
+│   ├── sync_marketplace.py       # Discovers plugins and updates marketplace.json
+│   └── lint_plugins.py           # Checks plugin files for errors
+└── README.md
+```
+
+### Core Concepts
+
+**Plugin Registry Flow:**
+1. Developer adds plugin to `plugins/[plugin-name]/`
+2. Run `python scripts/sync_marketplace.py` → discovers plugin metadata and updates `.claude-plugin/marketplace.json`
+3. Run `python scripts/validate_schema.py` → validates marketplace.json structure
+4. Run `python scripts/lint_plugins.py` → checks plugin files for issues
+5. Commit both `plugin.json` and updated `marketplace.json`
+6. GitHub Actions automatically re-runs all 3 checks on push/PR
+
+**Plugin Structure:**
+- Each plugin has a `plugin.json` in `.claude-plugin/` containing metadata (name, version, description, author, keywords)
+- Optional subdirectories: `skills/`, `agents/`, `commands/` containing the actual plugin components
+- README.md documents the plugin's features and usage
+
+### Marketplace.json Schema
+
+Top-level fields (required):
+- `name` (string): Marketplace name
+- `description` (string): Marketplace description
+- `owner` (object): Marketplace owner with `name` and `email`
+- `plugins` (array): List of discovered plugins
+- `metadata` (object): Publishing metadata with `description`, `version`, `homepage`, `totalPlugins`, `lastUpdated`
+
+Plugin entry schema:
+- `name` (string, required): Plugin name
+- `source` (string, required): Path to plugin relative to `plugins/` directory
+- `description` (string, required): Plugin description
+- `version` (string, required): Semantic version (e.g., "0.1.0")
+- `author` (object, required): Author with required `name` field; optional `email`, `url`
+- `category` (string, optional): Plugin category (productivity, devops, testing, security, ai-ml, api-development, database, performance, documentation, custom)
+- `keywords` (array, optional): Search keywords
+- `homepage` (string, optional): Plugin homepage URL
+- `repository` (string, optional): Repository URL
+
+## Common Development Tasks
+
+### Adding a New Plugin
+
+```bash
+# 1. Create plugin directory
+mkdir -p plugins/my-plugin
+
+# 2. Create metadata file: plugins/my-plugin/.claude-plugin/plugin.json
+{
+  "name": "my-plugin",
+  "version": "1.0.0",
+  "description": "What the plugin does",
+  "author": {
+    "name": "Your Name",
+    "email": "you@example.com"
+  },
+  "category": "productivity",
+  "keywords": ["automation", "workflow"]
+}
+
+# 3. Add plugin files (skills/, agents/, commands/, README.md, etc.)
+
+# 4. Auto-sync marketplace.json
+python scripts/sync_marketplace.py
+
+# 5. Validate schema and lint
+python scripts/validate_schema.py
+python scripts/lint_plugins.py
+
+# 6. Commit both plugin files and updated marketplace.json
+git add plugins/ .claude-plugin/marketplace.json
+git commit -m "feat: add my-plugin"
+```
+
+### Validating Changes Locally
+
+Before pushing, always run the full validation suite:
+
+```bash
+# Validate marketplace.json schema
+python scripts/validate_schema.py
+
+# Lint all plugin files
+python scripts/lint_plugins.py
+
+# Sync marketplace.json (re-discovers plugins)
+python scripts/sync_marketplace.py
+```
+
+If `sync_marketplace.py` modified `marketplace.json`, re-validate:
+
+```bash
+python scripts/validate_schema.py
+```
+
+### Updating an Existing Plugin
+
+1. Edit plugin files in `plugins/[plugin-name]/`
+2. If you changed `plugin.json`, run sync: `python scripts/sync_marketplace.py`
+3. Validate and lint: `python scripts/validate_schema.py && python scripts/lint_plugins.py`
+4. Commit changes
+
+### Reviewing Plugin Changes
+
+**Plugin.json validation:**
+- Check required fields are present (name, version, description, author.name)
+- Verify `source` path exists relative to `plugins/` directory
+- Ensure version follows semantic versioning (major.minor.patch)
+
+**Common issues (caught by linter):**
+- Missing required fields in plugin.json
+- Invalid JSON in plugin.json
+- Empty markdown files
+- Inconsistent file extensions
+
+## CI/CD Pipeline
+
+**Workflow:** `.github/workflows/validate.yml` runs on every push and PR:
+1. Checks out code
+2. Sets up Python 3.11
+3. Runs `validate_schema.py`
+4. Runs `lint_plugins.py`
+5. Runs `sync_marketplace.py` and fails if marketplace.json is out of sync
+
+**Common CI failures:**
+- **"marketplace.json is out of sync"** → Run `python scripts/sync_marketplace.py` locally and commit the changes
+- **"Validation failed: Missing required X field"** → Add missing field to `.claude-plugin/marketplace.json` or plugin.json
+- **Linting issues** → Fix JSON syntax or markdown formatting in plugin files
+
+## Plugin Development Patterns
+
+### Plugin.json Metadata
+
+Minimal example:
+```json
+{
+  "name": "simple-plugin",
+  "version": "1.0.0",
+  "description": "Brief description",
+  "author": {
+    "name": "Your Name"
+  }
+}
+```
+
+Full example with all optional fields:
+```json
+{
+  "name": "comprehensive-plugin",
+  "version": "2.1.0",
+  "description": "Detailed description of what the plugin does",
+  "author": {
+    "name": "Your Name",
+    "email": "you@example.com",
+    "url": "https://github.com/yourusername"
+  },
+  "category": "api-development",
+  "keywords": ["openapi", "fastapi", "documentation"],
+  "homepage": "https://github.com/yourusername/comprehensive-plugin",
+  "repository": "https://github.com/yourusername/comprehensive-plugin"
+}
+```
+
+### Plugin Categories
+
+Use these when categorizing plugins:
+- **productivity**: Workflow automation, time-saving tools
+- **devops**: Infrastructure, deployment, CI/CD
+- **testing**: Test frameworks, test automation, QA tools
+- **security**: Security scanning, authentication, encryption
+- **ai-ml**: Machine learning, AI integration
+- **api-development**: API design, documentation, validation
+- **database**: Database tools, migrations, queries
+- **performance**: Optimization, profiling, monitoring
+- **documentation**: Documentation generation, wikis
+- **custom**: Other categories
+
+## Key Files and Responsibilities
+
+| File | Purpose | Responsibility |
+|------|---------|-----------------|
+| `.claude-plugin/marketplace.json` | Central plugin registry | Auto-generated by `sync_marketplace.py` |
+| `plugins/[name]/.claude-plugin/plugin.json` | Plugin metadata | Manually created and maintained |
+| `scripts/sync_marketplace.py` | Discover plugins → update marketplace.json | Maintains accuracy of plugin registry |
+| `scripts/validate_schema.py` | Check marketplace.json structure | Ensures schema compliance |
+| `scripts/lint_plugins.py` | Check plugin files for errors | Catches common issues early |
+| `.github/workflows/validate.yml` | CI/CD pipeline | Automated validation on push/PR |
+
+## Notes for Future Development
+
+- **Plugin discovery:** `sync_marketplace.py` uses `rglob("plugin.json")` to find all plugins recursively. Ensure plugin metadata is always in `.claude-plugin/plugin.json` relative to the plugin directory root.
+- **Marketplace.json stability:** This file is auto-generated. Never manually edit plugin entries; instead, update the source plugin.json and re-sync.
+- **Metadata freshness:** Each sync updates `metadata.lastUpdated` to the current date. Use this to track when plugins were last discovered.
+- **Semantic versioning:** Enforce semantic versioning (major.minor.patch) for all plugin versions to maintain marketplace stability.
