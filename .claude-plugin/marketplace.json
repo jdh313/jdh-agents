@@ -8,7 +8,7 @@
   "plugins": [
     {
       "name": "api-docs",
-      "source": "api-docs",
+      "source": "./api-docs",
       "description": "OpenAPI documentation best practices for FastAPI, Django Ninja, and manual specs",
       "version": "0.1.0",
       "author": {
@@ -25,7 +25,7 @@
     },
     {
       "name": "atomic-commits",
-      "source": "atomic-commits",
+      "source": "./atomic-commits",
       "description": "Create atomic commits with conventional commit messages. Supports git and jj (Jujutsu).",
       "version": "1.0.0",
       "author": {
@@ -42,7 +42,7 @@
     },
     {
       "name": "homelab-ops",
-      "source": "homelab-ops",
+      "source": "./homelab-ops",
       "description": "Create, troubleshoot, and migrate Docker services in a Jinja2-templated homelab with Tailscale networking, Traefik routing, and 1Password secrets",
       "version": "1.0.0",
       "author": {
