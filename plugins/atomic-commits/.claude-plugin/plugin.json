@@ -5,6 +5,5 @@
   "author": {
     "name": "Jacob Waites"
   },
-  "category": "devops",
   "keywords": ["git", "jj", "jujutsu", "commits", "conventional-commits", "atomic"]
 }
