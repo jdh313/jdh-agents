@@ -1,0 +1,9 @@
+{
+  "name": "permissions-manager",
+  "version": "1.0.0",
+  "description": "Manage Claude Code permissions and troubleshoot permission errors",
+  "author": {
+    "name": "Jacob Waites"
+  },
+  "keywords": ["permissions", "claude-code", "settings", "allowlist", "configuration", "troubleshooting"]
+}

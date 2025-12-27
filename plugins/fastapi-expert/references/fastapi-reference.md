@@ -1,0 +1,1871 @@
+# FastAPI REST API - Comprehensive Reference Guide
+
+> **Last updated:** 2025-11-12
+> **FastAPI version:** 0.115+ (patterns compatible with 0.100+)
+>
+> A complete reference for building production-grade FastAPI applications. Bookmark this for quick lookup of best practices, patterns, and implementation guidance.
+
+---
+
+## Table of Contents
+
+1. [Project Structure](#1-project-structure)
+2. [Database & ORM](#2-database--orm)
+3. [API Design](#3-api-design)
+4. [Security](#4-security)
+5. [Error Handling](#5-error-handling)
+6. [Testing](#6-testing)
+7. [Performance](#7-performance)
+8. [Background Tasks](#8-background-tasks)
+9. [Configuration](#9-configuration)
+10. [API Versioning](#10-api-versioning)
+11. [Monitoring](#11-monitoring)
+12. [Documentation](#12-documentation)
+13. [Code Quality](#13-code-quality)
+14. [Additional Topics](#14-additional-topics)
+
+---
+
+## 1. Project Structure
+
+### Layered Architecture
+
+**Purpose**: Separate concerns for maintainability and testability
+
+```
+project/
+├── app/
+│   ├── __init__.py
+│   ├── main.py              # FastAPI app initialization
+│   ├── config/
+│   │   └── settings.py      # Configuration management
+│   ├── models/              # Database models (SQLModel/SQLAlchemy)
+│   ├── schemas/             # Pydantic request/response models
+│   ├── repositories/        # Database access layer
+│   ├── services/            # Business logic layer
+│   ├── routers/             # API endpoints/controllers
+│   ├── dependencies.py      # Reusable dependencies
+│   ├── exceptions.py        # Custom exceptions
+│   └── constants.py         # Constants and enums
+├── tests/
+│   ├── unit/
+│   ├── integration/
+│   └── e2e/
+├── migrations/              # Alembic migrations
+├── scripts/                 # Utility scripts
+├── pyproject.toml          # Project dependencies
+└── .env.example            # Environment variable template
+```
+
+### Organization Strategies
+
+**File-Type Structure** (Microservices):
+- Group by technical function: `/routers`, `/schemas`, `/models`, `/services`
+- Best for: Small services with clear boundaries
+
+**Module-Functionality Structure** (Monolith):
+- Group by domain/feature: `/users`, `/products`, `/orders` (each with own routers/schemas/services)
+- Best for: Larger applications with multiple domains
+
+### Dependency Injection Pattern
+
+```python
+from typing import Annotated
+from fastapi import Depends
+from sqlalchemy.ext.asyncio import AsyncSession
+
+# Database session dependency
+async def get_session() -> AsyncSession:
+    async with async_session_maker() as session:
+        yield session
+
+# Type alias for cleaner annotations
+SessionDep = Annotated[AsyncSession, Depends(get_session)]
+
+# Service dependency with chaining
+def get_user_service(session: SessionDep) -> UserService:
+    repo = UserRepository(session)
+    return UserService(repo)
+
+UserServiceDep = Annotated[UserService, Depends(get_user_service)]
+
+# Usage in endpoint
+@router.get("/users/{user_id}")
+async def get_user(
+    user_id: int,
+    service: UserServiceDep
+) -> UserResponse:
+    return await service.get_user(user_id)
+```
+
+**Key Benefits**:
+- Testability: Override dependencies in tests
+- Modularity: Clear dependency chains
+- Type safety: Full IDE support with Annotated
+
+---
+
+## 2. Database & ORM
+
+### Async SQLAlchemy 2.0+
+
+**Engine Setup**:
+```python
+from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
+from sqlalchemy.orm import sessionmaker
+
+engine = create_async_engine(
+    DATABASE_URL,
+    echo=False,                    # Set True for SQL logging
+    pool_size=10,                  # Max connections in pool
+    max_overflow=20,               # Additional connections under load
+    pool_recycle=3600,             # Recycle connections after 1 hour
+    pool_pre_ping=True             # Test connections before use
+)
+
+async_session_maker = sessionmaker(
+    engine,
+    class_=AsyncSession,
+    expire_on_commit=False         # Don't expire objects after commit
+)
+```
+
+**Connection Pooling Best Practices**:
+- Default pool_size=5, increase for high-traffic apps
+- Use NullPool for testing (no pooling)
+- Monitor pool usage with metrics
+- Set pool_recycle to prevent stale connections
+
+### Alembic Migrations
+
+**Initial Setup**:
+```bash
+# Initialize with async template
+alembic init -t async migrations
+
+# Edit alembic.ini - use env variable for URL
+sqlalchemy.url =
+
+# In env.py, import models and set config
+from app.models import Base
+target_metadata = Base.metadata
+```
+
+**Migration Workflow**:
+```bash
+# Create migration (autogenerate)
+alembic revision --autogenerate -m "add user table"
+
+# ALWAYS review generated migration before applying
+
+# Apply migrations
+alembic upgrade head
+
+# Rollback one migration
+alembic downgrade -1
+
+# View migration history
+alembic history
+```
+
+**Critical Rules**:
+- Import all models in `env.py` before metadata
+- Use environment variables for DB URLs
+- Always review autogenerated migrations
+- Test migrations on staging before production
+- Run migrations before server startup in production
+
+### Model Design
+
+**SQLModel Example** (Combines SQLAlchemy + Pydantic):
+```python
+from sqlmodel import SQLModel, Field
+from datetime import datetime
+from typing import Optional
+
+class UserBase(SQLModel):
+    email: str = Field(unique=True, index=True)
+    full_name: str
+
+class User(UserBase, table=True):
+    __tablename__ = "users"
+
+    id: Optional[int] = Field(default=None, primary_key=True)
+    hashed_password: str
+    is_active: bool = Field(default=True)
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+    updated_at: datetime = Field(default_factory=datetime.utcnow)
+
+    # Indexes
+    __table_args__ = (
+        Index('ix_users_email_active', 'email', 'is_active'),
+    )
+```
+
+**Separate API Schemas**:
+```python
+# API request/response schemas
+class UserCreate(UserBase):
+    password: str
+
+class UserUpdate(SQLModel):
+    email: Optional[str] = None
+    full_name: Optional[str] = None
+
+class UserResponse(UserBase):
+    id: int
+    is_active: bool
+    created_at: datetime
+```
+
+### Query Optimization
+
+**Avoid N+1 Queries**:
+```python
+from sqlalchemy.orm import selectinload
+
+# Bad - causes N+1
+users = await session.execute(select(User))
+for user in users:
+    orders = user.orders  # Separate query per user
+
+# Good - eager loading
+stmt = select(User).options(selectinload(User.orders))
+users = await session.execute(stmt)
+```
+
+**Pagination**:
+```python
+def paginate_query(stmt, page: int = 1, page_size: int = 50):
+    offset = (page - 1) * page_size
+    return stmt.offset(offset).limit(page_size)
+```
+
+**Indexes**:
+- Add indexes on foreign keys
+- Index columns used in WHERE, ORDER BY
+- Composite indexes for multi-column filters
+- Use EXPLAIN to analyze query performance
+
+---
+
+## 3. API Design
+
+### HTTP Methods & Status Codes
+
+| Method | Purpose | Success Code | Error Codes |
+|--------|---------|--------------|-------------|
+| GET | Retrieve resource(s) | 200 | 404, 401, 403 |
+| POST | Create resource | 201 | 400, 409, 422 |
+| PUT | Full update | 200 | 404, 400, 422 |
+| PATCH | Partial update | 200 | 404, 400, 422 |
+| DELETE | Remove resource | 204 | 404, 401, 403 |
+
+**Use `status` Constants**:
+```python
+from fastapi import status
+
+@router.post("/users", status_code=status.HTTP_201_CREATED)
+async def create_user(user: UserCreate) -> UserResponse:
+    ...
+
+@router.delete("/users/{id}", status_code=status.HTTP_204_NO_CONTENT)
+async def delete_user(id: int):
+    ...
+```
+
+### Endpoint Design Principles
+
+**RESTful Naming**:
+- Use nouns, not verbs: `/users` not `/getUsers`
+- Plural for collections: `/users`, `/products`
+- Nested resources: `/users/{id}/orders`
+- Keep URLs short and readable
+
+**Example Structure**:
+```python
+# Collection operations
+GET    /api/v1/users              # List users
+POST   /api/v1/users              # Create user
+
+# Individual resource
+GET    /api/v1/users/{id}         # Get user
+PUT    /api/v1/users/{id}         # Full update
+PATCH  /api/v1/users/{id}         # Partial update
+DELETE /api/v1/users/{id}         # Delete user
+
+# Nested resources
+GET    /api/v1/users/{id}/orders  # User's orders
+POST   /api/v1/users/{id}/orders  # Create order for user
+```
+
+### Request/Response Models
+
+**Separate Schemas by Operation**:
+```python
+# Base fields
+class ProductBase(BaseModel):
+    name: str = Field(min_length=1, max_length=100)
+    description: str | None = None
+    price: Decimal = Field(gt=0, decimal_places=2)
+
+# Creation - all required fields
+class ProductCreate(ProductBase):
+    category_id: int
+
+# Update - all optional
+class ProductUpdate(BaseModel):
+    name: str | None = None
+    description: str | None = None
+    price: Decimal | None = Field(default=None, gt=0)
+    category_id: int | None = None
+
+# Response - includes computed/DB fields
+class ProductResponse(ProductBase):
+    id: int
+    category_id: int
+    created_at: datetime
+    updated_at: datetime
+
+    model_config = ConfigDict(
+        from_attributes=True,  # Enable ORM mode
+        json_schema_extra={
+            "example": {
+                "id": 1,
+                "name": "Laptop",
+                "price": "999.99"
+            }
+        }
+    )
+```
+
+### Pagination
+
+**Offset/Limit Pattern**:
+```python
+from pydantic import BaseModel, Field
+
+class PaginationParams(BaseModel):
+    page: int = Field(1, ge=1)
+    page_size: int = Field(50, ge=1, le=100)
+
+class PaginatedResponse[T](BaseModel):
+    items: list[T]
+    total: int
+    page: int
+    page_size: int
+    pages: int
+
+@router.get("/users")
+async def list_users(
+    pagination: Annotated[PaginationParams, Query()],
+    service: UserServiceDep
+) -> PaginatedResponse[UserResponse]:
+    return await service.list_users(pagination)
+```
+
+### Filtering & Sorting
+
+```python
+class UserFilters(BaseModel):
+    email: str | None = None
+    is_active: bool | None = None
+    created_after: datetime | None = None
+
+class SortParams(BaseModel):
+    sort_by: str = Field("created_at", pattern="^(email|created_at|name)$")
+    order: str = Field("desc", pattern="^(asc|desc)$")
+
+@router.get("/users")
+async def list_users(
+    filters: Annotated[UserFilters, Query()],
+    sort: Annotated[SortParams, Query()]
+):
+    ...
+```
+
+---
+
+## 4. Security
+
+### Authentication Methods
+
+**JWT Token Authentication**:
+```python
+from datetime import datetime, timedelta
+from jose import jwt, JWTError
+from passlib.context import CryptContext
+
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+
+def create_access_token(data: dict, expires_delta: timedelta = None):
+    to_encode = data.copy()
+    expire = datetime.utcnow() + (expires_delta or timedelta(minutes=15))
+    to_encode.update({"exp": expire})
+    return jwt.encode(to_encode, SECRET_KEY, algorithm="HS256")
+
+def verify_password(plain_password: str, hashed_password: str) -> bool:
+    return pwd_context.verify(plain_password, hashed_password)
+
+def get_password_hash(password: str) -> str:
+    return pwd_context.hash(password)
+
+# Dependency
+async def get_current_user(
+    token: Annotated[str, Depends(oauth2_scheme)]
+) -> User:
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=["HS256"])
+        user_id: int = payload.get("sub")
+        if user_id is None:
+            raise HTTPException(status_code=401, detail="Invalid token")
+    except JWTError:
+        raise HTTPException(status_code=401, detail="Invalid token")
+
+    user = await get_user_by_id(user_id)
+    if user is None:
+        raise HTTPException(status_code=401, detail="User not found")
+    return user
+```
+
+**OAuth2 Password Flow**:
+```python
+from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
+
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
+
+@router.post("/token")
+async def login(
+    form_data: Annotated[OAuth2PasswordRequestForm, Depends()]
+):
+    user = await authenticate_user(form_data.username, form_data.password)
+    if not user:
+        raise HTTPException(
+            status_code=401,
+            detail="Incorrect username or password",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
+    access_token = create_access_token(data={"sub": str(user.id)})
+    return {"access_token": access_token, "token_type": "bearer"}
+```
+
+### Authorization (RBAC)
+
+```python
+from enum import Enum
+
+class Role(str, Enum):
+    USER = "user"
+    ADMIN = "admin"
+    MODERATOR = "moderator"
+
+def require_role(required_role: Role):
+    async def role_checker(
+        current_user: Annotated[User, Depends(get_current_user)]
+    ):
+        if current_user.role != required_role:
+            raise HTTPException(
+                status_code=403,
+                detail="Insufficient permissions"
+            )
+        return current_user
+    return role_checker
+
+# Usage
+@router.delete("/users/{id}")
+async def delete_user(
+    id: int,
+    admin: Annotated[User, Depends(require_role(Role.ADMIN))]
+):
+    ...
+```
+
+### Security Best Practices Checklist
+
+**Critical**:
+- Always use HTTPS in production
+- Hash passwords with bcrypt/argon2 (never store plaintext)
+- Never log or expose secrets (passwords, tokens, API keys)
+- Use environment variables for secrets, not code
+- Implement rate limiting (see Performance section)
+
+**Important**:
+- CORS middleware with explicit allowed origins (no `["*"]` in prod)
+- Security headers: HSTS, X-Content-Type-Options, X-Frame-Options
+- Input validation via Pydantic (automatic)
+- SQL injection protection (SQLAlchemy parameterization)
+- Token expiration and refresh mechanism
+- Dependency scanning (Snyk, Trivy)
+
+**CORS Configuration**:
+```python
+from fastapi.middleware.cors import CORSMiddleware
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["https://yourdomain.com"],  # Explicit in prod
+    allow_credentials=True,
+    allow_methods=["GET", "POST", "PUT", "DELETE"],
+    allow_headers=["*"],
+)
+```
+
+---
+
+## 5. Error Handling
+
+### Custom Exceptions
+
+```python
+# exceptions.py
+class AppException(Exception):
+    """Base exception"""
+    def __init__(self, message: str, code: str):
+        self.message = message
+        self.code = code
+        super().__init__(self.message)
+
+class NotFoundError(AppException):
+    def __init__(self, resource: str, id: Any):
+        super().__init__(
+            message=f"{resource} with id {id} not found",
+            code="RESOURCE_NOT_FOUND"
+        )
+
+class DuplicateError(AppException):
+    def __init__(self, resource: str, field: str, value: Any):
+        super().__init__(
+            message=f"{resource} with {field}='{value}' already exists",
+            code="DUPLICATE_RESOURCE"
+        )
+```
+
+### Global Exception Handlers
+
+```python
+from fastapi import Request
+from fastapi.responses import JSONResponse
+
+@app.exception_handler(NotFoundError)
+async def not_found_handler(request: Request, exc: NotFoundError):
+    return JSONResponse(
+        status_code=404,
+        content={
+            "error": {
+                "code": exc.code,
+                "message": exc.message,
+                "request_id": request.state.request_id
+            }
+        }
+    )
+
+@app.exception_handler(RequestValidationError)
+async def validation_exception_handler(
+    request: Request,
+    exc: RequestValidationError
+):
+    return JSONResponse(
+        status_code=422,
+        content={
+            "error": {
+                "code": "VALIDATION_ERROR",
+                "message": "Invalid request data",
+                "details": exc.errors(),
+                "request_id": request.state.request_id
+            }
+        }
+    )
+
+# Catch-all for unexpected errors
+@app.exception_handler(Exception)
+async def general_exception_handler(request: Request, exc: Exception):
+    # Log the full exception
+    logger.error(f"Unhandled exception: {exc}", exc_info=True)
+
+    # Return generic error to client (don't expose internals)
+    return JSONResponse(
+        status_code=500,
+        content={
+            "error": {
+                "code": "INTERNAL_SERVER_ERROR",
+                "message": "An unexpected error occurred",
+                "request_id": request.state.request_id
+            }
+        }
+    )
+```
+
+### Error Response Format
+
+**Consistent Structure**:
+```json
+{
+  "error": {
+    "code": "RESOURCE_NOT_FOUND",
+    "message": "User with id 123 not found",
+    "details": {},
+    "request_id": "a1b2c3d4"
+  }
+}
+```
+
+**Error Code Conventions**:
+- Use UPPER_SNAKE_CASE
+- Prefix by domain: `USER_NOT_FOUND`, `ORDER_INVALID_STATUS`
+- Create enum of all error codes
+- Document in API docs
+
+### Logging
+
+```python
+import logging
+import json
+from contextvars import ContextVar
+
+# Request ID context
+request_id_var: ContextVar[str] = ContextVar('request_id', default='')
+
+# Structured JSON logging
+class JSONFormatter(logging.Formatter):
+    def format(self, record):
+        log_data = {
+            "timestamp": self.formatTime(record),
+            "level": record.levelname,
+            "message": record.getMessage(),
+            "logger": record.name,
+            "request_id": request_id_var.get(),
+        }
+        if record.exc_info:
+            log_data["exception"] = self.formatException(record.exc_info)
+        return json.dumps(log_data)
+
+# Middleware to add request ID
+@app.middleware("http")
+async def add_request_id(request: Request, call_next):
+    request_id = str(uuid.uuid4())
+    request_id_var.set(request_id)
+    request.state.request_id = request_id
+
+    response = await call_next(request)
+    response.headers["X-Request-ID"] = request_id
+    return response
+```
+
+---
+
+## 6. Testing
+
+### Test Organization
+
+```
+tests/
+├── conftest.py              # Shared fixtures
+├── unit/
+│   ├── test_models.py
+│   ├── test_schemas.py
+│   └── test_services.py
+├── integration/
+│   ├── test_repositories.py
+│   └── test_database.py
+└── e2e/
+    └── test_api_endpoints.py
+```
+
+### Essential Fixtures
+
+```python
+# conftest.py
+import pytest
+from httpx import AsyncClient, ASGITransport
+from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
+from sqlalchemy.orm import sessionmaker
+
+# Test database engine
+@pytest.fixture(scope="function")
+async def async_engine():
+    engine = create_async_engine(
+        "postgresql+asyncpg://test:test@localhost/test_db",
+        poolclass=NullPool  # No pooling for tests
+    )
+    async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.create_all)
+
+    yield engine
+
+    async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.drop_all)
+    await engine.dispose()
+
+# Test session
+@pytest.fixture
+async def session(async_engine):
+    async_session = sessionmaker(
+        async_engine, class_=AsyncSession, expire_on_commit=False
+    )
+    async with async_session() as session:
+        yield session
+
+# Override app dependency
+@pytest.fixture
+async def client(session):
+    def override_get_session():
+        return session
+
+    app.dependency_overrides[get_session] = override_get_session
+
+    async with AsyncClient(
+        transport=ASGITransport(app=app),
+        base_url="http://test"
+    ) as ac:
+        yield ac
+
+    app.dependency_overrides.clear()
+
+# Test data factory
+@pytest.fixture
+def user_factory(session):
+    async def create_user(**kwargs):
+        user = User(
+            email=kwargs.get("email", "test@example.com"),
+            hashed_password=get_password_hash("password"),
+            **kwargs
+        )
+        session.add(user)
+        await session.commit()
+        await session.refresh(user)
+        return user
+    return create_user
+```
+
+### Unit Tests
+
+```python
+# Test schemas
+def test_user_create_schema():
+    data = {"email": "test@example.com", "password": "secure123"}
+    user = UserCreate(**data)
+    assert user.email == data["email"]
+
+# Test services
+@pytest.mark.asyncio
+async def test_user_service_create(session, user_factory):
+    service = UserService(UserRepository(session))
+
+    user_data = UserCreate(email="new@example.com", password="pass")
+    user = await service.create_user(user_data)
+
+    assert user.id is not None
+    assert user.email == "new@example.com"
+```
+
+### Integration Tests
+
+```python
+@pytest.mark.asyncio
+async def test_user_repository_get_by_email(session, user_factory):
+    created_user = await user_factory(email="find@example.com")
+
+    repo = UserRepository(session)
+    found_user = await repo.get_by_email("find@example.com")
+
+    assert found_user.id == created_user.id
+```
+
+### E2E/API Tests
+
+```python
+@pytest.mark.asyncio
+async def test_create_user_endpoint(client):
+    response = await client.post(
+        "/api/v1/users",
+        json={"email": "new@example.com", "password": "secure123"}
+    )
+
+    assert response.status_code == 201
+    data = response.json()
+    assert data["email"] == "new@example.com"
+    assert "id" in data
+    assert "password" not in data  # Never return password
+
+@pytest.mark.asyncio
+async def test_get_user_unauthorized(client):
+    response = await client.get("/api/v1/users/1")
+    assert response.status_code == 401
+
+@pytest.mark.asyncio
+async def test_get_nonexistent_user(client, auth_headers):
+    response = await client.get(
+        "/api/v1/users/99999",
+        headers=auth_headers
+    )
+    assert response.status_code == 404
+    assert response.json()["error"]["code"] == "RESOURCE_NOT_FOUND"
+```
+
+### Test Coverage
+
+**Configuration** (`pyproject.toml`):
+```toml
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+
+[tool.coverage.run]
+source = ["app"]
+omit = ["*/tests/*", "*/migrations/*"]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "raise NotImplementedError",
+    "if TYPE_CHECKING:",
+]
+```
+
+**Run with Coverage**:
+```bash
+pytest --cov=app --cov-report=html --cov-report=term
+```
+
+**Coverage Goals**:
+- Overall: 80%+
+- Critical paths (auth, payments): 95%+
+- Test happy paths and error cases
+- Test boundary conditions
+
+---
+
+## 7. Performance
+
+### Async Best Practices
+
+**When to Use Async**:
+```python
+# Use async def for I/O-bound operations
+async def get_user_from_db(id: int) -> User:
+    # Database call - async
+    return await session.get(User, id)
+
+async def fetch_external_api() -> dict:
+    # HTTP call - async
+    async with httpx.AsyncClient() as client:
+        response = await client.get("https://api.example.com")
+        return response.json()
+
+# Use regular def for CPU-bound operations (runs in threadpool)
+def calculate_complex_report(data: list) -> dict:
+    # CPU-intensive computation
+    return process_data(data)
+```
+
+**Don't Mix Sync I/O in Async**:
+```python
+# Bad - blocks event loop
+async def bad_endpoint():
+    with open("file.txt") as f:  # Blocking!
+        data = f.read()
+    return data
+
+# Good - use aiofiles
+async def good_endpoint():
+    async with aiofiles.open("file.txt") as f:
+        data = await f.read()
+    return data
+```
+
+### Caching
+
+**Redis Setup**:
+```python
+import aioredis
+from functools import wraps
+
+redis = aioredis.from_url("redis://localhost")
+
+def cache(expire: int = 300):
+    def decorator(func):
+        @wraps(func)
+        async def wrapper(*args, **kwargs):
+            # Create cache key from function name and args
+            cache_key = f"{func.__name__}:{args}:{kwargs}"
+
+            # Try to get from cache
+            cached = await redis.get(cache_key)
+            if cached:
+                return json.loads(cached)
+
+            # Execute function
+            result = await func(*args, **kwargs)
+
+            # Store in cache
+            await redis.setex(
+                cache_key,
+                expire,
+                json.dumps(result)
+            )
+            return result
+        return wrapper
+    return decorator
+
+# Usage
+@cache(expire=600)
+async def get_popular_products():
+    # Expensive query
+    return await db.execute(...)
+```
+
+**HTTP Caching Headers**:
+```python
+from fastapi import Response
+
+@router.get("/products/{id}")
+async def get_product(id: int, response: Response):
+    product = await get_product_by_id(id)
+
+    # Cache for 1 hour
+    response.headers["Cache-Control"] = "public, max-age=3600"
+    response.headers["ETag"] = generate_etag(product)
+
+    return product
+```
+
+### Rate Limiting
+
+**Using slowapi**:
+```python
+from slowapi import Limiter, _rate_limit_exceeded_handler
+from slowapi.util import get_remote_address
+from slowapi.errors import RateLimitExceeded
+
+limiter = Limiter(key_func=get_remote_address)
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
+
+# Apply to endpoint
+@router.post("/api/resource")
+@limiter.limit("5/minute")
+async def create_resource(request: Request):
+    ...
+
+# Different limits for authenticated users
+@limiter.limit("100/hour", key_func=lambda: get_current_user_id())
+async def heavy_operation():
+    ...
+```
+
+**Using fastapi-limiter** (Redis-backed):
+```python
+from fastapi_limiter import FastAPILimiter
+from fastapi_limiter.depends import RateLimiter
+import aioredis
+
+@app.on_event("startup")
+async def startup():
+    redis = await aioredis.from_url("redis://localhost")
+    await FastAPILimiter.init(redis)
+
+@router.get("/items")
+@app.get("/", dependencies=[Depends(RateLimiter(times=2, seconds=5))])
+async def list_items():
+    ...
+```
+
+### Database Optimization
+
+**Connection Pooling** (see Database section)
+
+**Query Optimization**:
+- Use indexes on filtered columns
+- Eager load relationships (avoid N+1)
+- Select only needed columns
+- Use pagination for large results
+- Implement database read replicas for read-heavy loads
+
+**Example**:
+```python
+# Efficient query with explicit columns and eager loading
+stmt = (
+    select(User.id, User.email, User.name)
+    .options(selectinload(User.orders))
+    .where(User.is_active == True)
+    .limit(50)
+)
+```
+
+### Response Optimization
+
+**Gzip Compression**:
+```python
+from fastapi.middleware.gzip import GZipMiddleware
+
+app.add_middleware(GZipMiddleware, minimum_size=1000)
+```
+
+**Field Selection**:
+```python
+@router.get("/users/{id}")
+async def get_user(
+    id: int,
+    fields: list[str] | None = Query(None)
+) -> dict:
+    user = await get_user_by_id(id)
+
+    if fields:
+        return {k: v for k, v in user.dict().items() if k in fields}
+    return user
+```
+
+**Streaming Large Responses**:
+```python
+from fastapi.responses import StreamingResponse
+
+@router.get("/export")
+async def export_data():
+    async def generate():
+        async for row in fetch_rows():
+            yield f"{row}\n"
+
+    return StreamingResponse(generate(), media_type="text/csv")
+```
+
+---
+
+## 8. Background Tasks
+
+### FastAPI BackgroundTasks
+
+**Use For**: Lightweight tasks (<2 seconds), same process
+
+```python
+from fastapi import BackgroundTasks
+
+def send_email(email: str, message: str):
+    # Send email logic
+    print(f"Sending email to {email}: {message}")
+
+@router.post("/users")
+async def create_user(
+    user: UserCreate,
+    background_tasks: BackgroundTasks
+):
+    created_user = await create_user_in_db(user)
+
+    # Queue background task
+    background_tasks.add_task(
+        send_email,
+        created_user.email,
+        "Welcome!"
+    )
+
+    return created_user
+```
+
+### Celery for Heavy Tasks
+
+**Use For**: CPU-intensive work, long-running tasks, distributed processing
+
+**Setup**:
+```python
+# celery_app.py
+from celery import Celery
+
+celery_app = Celery(
+    "tasks",
+    broker="redis://localhost:6379/0",
+    backend="redis://localhost:6379/0"
+)
+
+celery_app.conf.update(
+    task_serializer="json",
+    accept_content=["json"],
+    result_serializer="json",
+    timezone="UTC",
+    enable_utc=True,
+)
+
+# tasks.py
+@celery_app.task
+def process_image(image_path: str):
+    # Heavy image processing
+    ...
+    return {"status": "processed"}
+
+@celery_app.task
+def generate_report(user_id: int):
+    # Long-running report generation
+    ...
+```
+
+**Usage in FastAPI**:
+```python
+from tasks import process_image
+
+@router.post("/images")
+async def upload_image(file: UploadFile):
+    # Save file
+    file_path = await save_file(file)
+
+    # Queue Celery task
+    task = process_image.delay(file_path)
+
+    return {
+        "task_id": task.id,
+        "status": "processing"
+    }
+
+@router.get("/tasks/{task_id}")
+async def get_task_status(task_id: str):
+    task = celery_app.AsyncResult(task_id)
+    return {
+        "task_id": task_id,
+        "status": task.state,
+        "result": task.result if task.ready() else None
+    }
+```
+
+**Worker**:
+```bash
+# Start Celery worker
+celery -A celery_app worker --loglevel=info
+
+# Start Celery Beat for periodic tasks
+celery -A celery_app beat --loglevel=info
+
+# Monitor with Flower
+celery -A celery_app flower
+```
+
+**Periodic Tasks**:
+```python
+from celery.schedules import crontab
+
+celery_app.conf.beat_schedule = {
+    'cleanup-old-data': {
+        'task': 'tasks.cleanup_old_data',
+        'schedule': crontab(hour=2, minute=0),  # Daily at 2 AM
+    },
+}
+```
+
+---
+
+## 9. Configuration
+
+### Pydantic Settings
+
+```python
+# config/settings.py
+from pydantic_settings import BaseSettings, SettingsConfigDict
+from pydantic import Field, PostgresDsn
+from functools import lru_cache
+
+class Settings(BaseSettings):
+    # App config
+    app_name: str = "My API"
+    debug: bool = False
+
+    # Database
+    database_url: PostgresDsn = Field(
+        default="postgresql+asyncpg://user:pass@localhost/db",
+        validation_alias="DATABASE_URL"
+    )
+
+    # Redis
+    redis_url: str = "redis://localhost:6379/0"
+
+    # Security
+    secret_key: str = Field(..., min_length=32)
+    algorithm: str = "HS256"
+    access_token_expire_minutes: int = 30
+
+    # External APIs
+    external_api_key: str = Field(..., validation_alias="API_KEY")
+    external_api_url: str = "https://api.example.com"
+
+    # Environment
+    environment: str = Field("development", pattern="^(development|staging|production)$")
+
+    model_config = SettingsConfigDict(
+        env_file=".env",
+        env_file_encoding="utf-8",
+        case_sensitive=False,
+        extra="ignore"
+    )
+
+@lru_cache()
+def get_settings() -> Settings:
+    return Settings()
+
+# Usage
+settings = get_settings()
+```
+
+**Environment Files**:
+```bash
+# .env.example (commit this)
+APP_NAME=My API
+DATABASE_URL=postgresql+asyncpg://user:pass@localhost/db
+SECRET_KEY=your-secret-key-here-min-32-chars
+ENVIRONMENT=development
+
+# .env (DON'T commit this)
+DATABASE_URL=postgresql+asyncpg://prod_user:prod_pass@db.prod/mydb
+SECRET_KEY=actual-production-secret-key
+```
+
+**Usage in App**:
+```python
+from config.settings import get_settings
+
+settings = get_settings()
+
+engine = create_async_engine(str(settings.database_url))
+
+@router.get("/info")
+async def info():
+    return {
+        "app_name": settings.app_name,
+        "environment": settings.environment
+    }
+```
+
+---
+
+## 10. API Versioning
+
+### URL Path Versioning (Recommended)
+
+**Sub-Applications Approach**:
+```python
+# main.py
+from fastapi import FastAPI
+from api.v1.main import app as app_v1
+from api.v2.main import app as app_v2
+
+app = FastAPI(title="My API")
+
+# Mount versioned sub-apps
+app.mount("/api/v1", app_v1)
+app.mount("/api/v2", app_v2)
+
+# api/v1/main.py
+app = FastAPI(
+    title="My API v1",
+    version="1.0.0",
+    docs_url="/docs",  # Available at /api/v1/docs
+)
+
+@app.get("/users")
+async def list_users_v1():
+    return {"version": "1", "users": [...]}
+
+# api/v2/main.py
+app = FastAPI(
+    title="My API v2",
+    version="2.0.0",
+    docs_url="/docs",  # Available at /api/v2/docs
+)
+
+@app.get("/users")
+async def list_users_v2():
+    # V2 with different response format
+    return {"version": "2", "data": {"users": [...]}}
+```
+
+**Router Prefix Approach**:
+```python
+from fastapi import APIRouter
+
+router_v1 = APIRouter(prefix="/api/v1", tags=["v1"])
+router_v2 = APIRouter(prefix="/api/v2", tags=["v2"])
+
+@router_v1.get("/users")
+async def get_users_v1():
+    ...
+
+@router_v2.get("/users")
+async def get_users_v2():
+    ...
+
+app.include_router(router_v1)
+app.include_router(router_v2)
+```
+
+### Header-Based Versioning
+
+```python
+from fastapi import Header
+
+@app.get("/users")
+async def get_users(api_version: str = Header("1", alias="X-API-Version")):
+    if api_version == "1":
+        return v1_response()
+    elif api_version == "2":
+        return v2_response()
+    else:
+        raise HTTPException(400, "Unsupported API version")
+```
+
+### Version Management
+
+**Deprecation Policy**:
+1. **Announce**: Document deprecation in changelog, add warnings to docs
+2. **Warn**: Return `Deprecation` header in responses
+3. **Sunset**: Set sunset date, include `Sunset` header
+4. **Remove**: After sunset period (e.g., 6 months)
+
+```python
+@router_v1.get("/users")
+async def get_users(response: Response):
+    response.headers["Deprecation"] = "true"
+    response.headers["Sunset"] = "2025-12-31"
+    response.headers["Link"] = '</api/v2/users>; rel="successor-version"'
+    return users
+```
+
+---
+
+## 11. Monitoring
+
+### OpenTelemetry (Recommended)
+
+**Setup**:
+```python
+from opentelemetry import trace
+from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import OTLPSpanExporter
+from opentelemetry.sdk.trace import TracerProvider
+from opentelemetry.sdk.trace.export import BatchSpanProcessor
+from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
+from opentelemetry.instrumentation.sqlalchemy import SQLAlchemyInstrumentor
+
+# Configure tracing
+trace.set_tracer_provider(TracerProvider())
+trace.get_tracer_provider().add_span_processor(
+    BatchSpanProcessor(OTLPSpanExporter(endpoint="http://localhost:4317"))
+)
+
+# Auto-instrument FastAPI
+FastAPIInstrumentor.instrument_app(app)
+
+# Auto-instrument SQLAlchemy
+SQLAlchemyInstrumentor().instrument(engine=engine)
+```
+
+### Prometheus Metrics
+
+```python
+from prometheus_fastapi_instrumentator import Instrumentator
+
+# Basic instrumentation
+Instrumentator().instrument(app).expose(app)
+
+# Access metrics at /metrics endpoint
+
+# Custom metrics
+from prometheus_client import Counter, Histogram
+
+user_registration_counter = Counter(
+    "user_registrations_total",
+    "Total number of user registrations"
+)
+
+@router.post("/users")
+async def create_user(user: UserCreate):
+    created = await service.create_user(user)
+    user_registration_counter.inc()
+    return created
+```
+
+### Health Checks
+
+```python
+@app.get("/health", include_in_schema=False)
+async def health_check():
+    return {"status": "healthy"}
+
+@app.get("/readiness")
+async def readiness_check(session: SessionDep):
+    try:
+        # Check database
+        await session.execute(select(1))
+
+        # Check Redis
+        await redis.ping()
+
+        return {"status": "ready"}
+    except Exception as e:
+        raise HTTPException(
+            status_code=503,
+            detail="Service not ready"
+        )
+```
+
+### Structured Logging
+
+```python
+import structlog
+
+# Configure structlog
+structlog.configure(
+    processors=[
+        structlog.stdlib.filter_by_level,
+        structlog.stdlib.add_logger_name,
+        structlog.stdlib.add_log_level,
+        structlog.stdlib.PositionalArgumentsFormatter(),
+        structlog.processors.TimeStamper(fmt="iso"),
+        structlog.processors.StackInfoRenderer(),
+        structlog.processors.format_exc_info,
+        structlog.processors.UnicodeDecoder(),
+        structlog.processors.JSONRenderer()
+    ],
+    wrapper_class=structlog.stdlib.BoundLogger,
+    logger_factory=structlog.stdlib.LoggerFactory(),
+    cache_logger_on_first_use=True,
+)
+
+logger = structlog.get_logger()
+
+# Usage
+@router.post("/users")
+async def create_user(user: UserCreate, request: Request):
+    logger.info(
+        "user_registration_started",
+        email=user.email,
+        request_id=request.state.request_id
+    )
+
+    created = await service.create_user(user)
+
+    logger.info(
+        "user_registration_completed",
+        user_id=created.id,
+        email=created.email,
+        request_id=request.state.request_id
+    )
+
+    return created
+```
+
+---
+
+## 12. Documentation
+
+### OpenAPI Customization
+
+```python
+from fastapi import FastAPI
+from fastapi.openapi.utils import get_openapi
+
+def custom_openapi():
+    if app.openapi_schema:
+        return app.openapi_schema
+
+    openapi_schema = get_openapi(
+        title="My API",
+        version="1.0.0",
+        description="""
+        # My API Documentation
+
+        This API provides access to...
+
+        ## Authentication
+        All endpoints require Bearer token authentication.
+
+        ## Rate Limiting
+        Rate limits: 100 requests/hour for authenticated users.
+        """,
+        routes=app.routes,
+        tags=[
+            {
+                "name": "users",
+                "description": "Operations with users"
+            },
+            {
+                "name": "products",
+                "description": "Product management"
+            }
+        ]
+    )
+
+    # Custom x-logo
+    openapi_schema["info"]["x-logo"] = {
+        "url": "https://yoursite.com/logo.png"
+    }
+
+    app.openapi_schema = openapi_schema
+    return app.openapi_schema
+
+app.openapi = custom_openapi
+```
+
+### Route Documentation
+
+```python
+@router.post(
+    "/users",
+    response_model=UserResponse,
+    status_code=status.HTTP_201_CREATED,
+    summary="Create a new user",
+    description="Creates a new user account with the provided information.",
+    responses={
+        201: {
+            "description": "User created successfully",
+            "content": {
+                "application/json": {
+                    "example": {
+                        "id": 1,
+                        "email": "user@example.com",
+                        "created_at": "2025-01-12T10:00:00Z"
+                    }
+                }
+            }
+        },
+        409: {
+            "description": "User with this email already exists"
+        },
+        422: {
+            "description": "Validation error"
+        }
+    },
+    tags=["users"]
+)
+async def create_user(user: UserCreate) -> UserResponse:
+    """
+    Create a new user with the following information:
+
+    - **email**: Must be unique and valid email format
+    - **password**: Minimum 8 characters
+    - **full_name**: Optional display name
+    """
+    return await service.create_user(user)
+```
+
+### Additional Documentation
+
+Create these files in your repo:
+
+**README.md**:
+- Project overview
+- Setup instructions
+- Environment variables
+- Running locally
+- Running tests
+
+**API_CHANGELOG.md**:
+- Version history
+- Breaking changes
+- New features
+- Bug fixes
+
+**ARCHITECTURE.md**:
+- System architecture diagram
+- Technology choices
+- Deployment architecture
+- Database schema
+
+**CONTRIBUTING.md**:
+- Development workflow
+- Code review process
+- Testing requirements
+- Style guide
+
+---
+
+## 13. Code Quality
+
+### Tool Configuration
+
+**pyproject.toml**:
+```toml
+[tool.ruff]
+line-length = 100
+target-version = "py313"
+
+[tool.ruff.lint]
+select = [
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # pyflakes
+    "I",   # isort
+    "B",   # flake8-bugbear
+    "C4",  # flake8-comprehensions
+    "UP",  # pyupgrade
+]
+
+[tool.mypy]
+python_version = "3.13"
+strict = true
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = true
+
+[[tool.mypy.overrides]]
+module = "tests.*"
+disallow_untyped_defs = false
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+addopts = "--strict-markers --cov=app --cov-report=term-missing"
+```
+
+### Pre-commit Hooks
+
+**.pre-commit-config.yaml**:
+```yaml
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.5.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-yaml
+      - id: check-added-large-files
+      - id: check-json
+      - id: check-toml
+
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.1.9
+    hooks:
+      - id: ruff
+        args: [--fix]
+      - id: ruff-format
+
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v1.8.0
+    hooks:
+      - id: mypy
+        additional_dependencies: [pydantic, sqlalchemy]
+```
+
+**Setup**:
+```bash
+# Install pre-commit
+uv add --dev pre-commit
+
+# Install hooks
+pre-commit install
+
+# Run manually
+pre-commit run --all-files
+```
+
+### CI/CD Pipeline
+
+**GitHub Actions** (`.github/workflows/ci.yml`):
+```yaml
+name: CI
+
+on: [push, pull_request]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_PASSWORD: postgres
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v1
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - name: Install dependencies
+        run: uv sync --all-extras --dev
+
+      - name: Run linting
+        run: |
+          uv run ruff check .
+          uv run ruff format --check .
+
+      - name: Run type checking
+        run: uv run mypy app
+
+      - name: Run tests
+        run: uv run pytest
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@localhost/test
+
+      - name: Upload coverage
+        uses: codecov/codecov-action@v3
+```
+
+---
+
+## 14. Additional Topics
+
+### WebSockets
+
+```python
+from fastapi import WebSocket, WebSocketDisconnect
+
+class ConnectionManager:
+    def __init__(self):
+        self.active_connections: list[WebSocket] = []
+
+    async def connect(self, websocket: WebSocket):
+        await websocket.accept()
+        self.active_connections.append(websocket)
+
+    def disconnect(self, websocket: WebSocket):
+        self.active_connections.remove(websocket)
+
+    async def broadcast(self, message: str):
+        for connection in self.active_connections:
+            await connection.send_text(message)
+
+manager = ConnectionManager()
+
+@app.websocket("/ws/{client_id}")
+async def websocket_endpoint(websocket: WebSocket, client_id: int):
+    await manager.connect(websocket)
+    try:
+        while True:
+            data = await websocket.receive_text()
+            await manager.broadcast(f"Client {client_id}: {data}")
+    except WebSocketDisconnect:
+        manager.disconnect(websocket)
+        await manager.broadcast(f"Client {client_id} left")
+```
+
+### File Uploads
+
+```python
+from fastapi import UploadFile, File
+import aiofiles
+
+ALLOWED_EXTENSIONS = {".jpg", ".jpeg", ".png", ".pdf"}
+MAX_FILE_SIZE = 10 * 1024 * 1024  # 10 MB
+
+@router.post("/upload")
+async def upload_file(file: UploadFile = File(...)):
+    # Validate extension
+    ext = Path(file.filename).suffix.lower()
+    if ext not in ALLOWED_EXTENSIONS:
+        raise HTTPException(400, "Invalid file type")
+
+    # Validate size
+    content = await file.read()
+    if len(content) > MAX_FILE_SIZE:
+        raise HTTPException(413, "File too large")
+
+    # Save file
+    file_path = f"uploads/{uuid.uuid4()}{ext}"
+    async with aiofiles.open(file_path, 'wb') as f:
+        await f.write(content)
+
+    return {"filename": file.filename, "path": file_path}
+```
+
+### Middleware
+
+```python
+import time
+from starlette.middleware.base import BaseHTTPMiddleware
+
+class TimingMiddleware(BaseHTTPMiddleware):
+    async def dispatch(self, request: Request, call_next):
+        start_time = time.time()
+
+        response = await call_next(request)
+
+        process_time = time.time() - start_time
+        response.headers["X-Process-Time"] = str(process_time)
+
+        return response
+
+app.add_middleware(TimingMiddleware)
+```
+
+### GraphQL (Optional)
+
+```python
+# Using Strawberry
+import strawberry
+from strawberry.fastapi import GraphQLRouter
+
+@strawberry.type
+class User:
+    id: int
+    email: str
+    name: str
+
+@strawberry.type
+class Query:
+    @strawberry.field
+    async def user(self, id: int) -> User:
+        return await get_user_by_id(id)
+
+schema = strawberry.Schema(query=Query)
+graphql_app = GraphQLRouter(schema)
+
+app.include_router(graphql_app, prefix="/graphql")
+```
+
+---
+
+## Quick Reference: Common Commands
+
+```bash
+# Development
+uv run uvicorn app.main:app --reload
+uv run pytest
+uv run pytest --cov=app
+
+# Linting & Formatting
+uv run ruff check .
+uv run ruff format .
+uv run mypy app
+
+# Database Migrations
+alembic revision --autogenerate -m "message"
+alembic upgrade head
+alembic downgrade -1
+
+# Pre-commit
+pre-commit install
+pre-commit run --all-files
+```
+
+---
+
+## Further Reading
+
+**Official Documentation**:
+- FastAPI: https://fastapi.tiangolo.com
+- Pydantic: https://docs.pydantic.dev
+- SQLAlchemy: https://docs.sqlalchemy.org
+- Alembic: https://alembic.sqlalchemy.org
+
+**Best Practices**:
+- FastAPI Best Practices: https://github.com/zhanymkanov/fastapi-best-practices
+- 12 Factor App: https://12factor.net
+
+**Tools**:
+- OpenTelemetry: https://opentelemetry.io
+- Prometheus: https://prometheus.io
+- Redis: https://redis.io
+
+---
+
+*End of reference guide. Bookmark this file for quick consultation during development.*

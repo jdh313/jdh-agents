@@ -1,0 +1,9 @@
+{
+  "name": "fastapi-expert",
+  "version": "1.0.0",
+  "description": "Expert patterns for FastAPI development: authentication, async database integration, and testing",
+  "author": {
+    "name": "Jacob Waites"
+  },
+  "keywords": ["fastapi", "python", "rest-api", "async", "web-development", "api"]
+}
