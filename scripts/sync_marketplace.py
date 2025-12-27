@@ -33,7 +33,7 @@ def discover_plugins(plugins_dir: Path) -> list[dict[str, Any]]:
 
             plugin_entry = {
                 "name": plugin_data.get("name", plugin_dir.name),
-                "source": f"./{source_path}",
+                "source": f"./plugins/{source_path}",
                 "description": plugin_data.get("description", ""),
                 "version": plugin_data.get("version", "1.0.0"),
                 "author": plugin_data.get("author", {"name": "Unknown"}),
