@@ -41,6 +41,40 @@
       ]
     },
     {
+      "name": "fastapi-expert",
+      "source": "./plugins/fastapi-expert",
+      "description": "Expert patterns for FastAPI development: authentication, async database integration, and testing",
+      "version": "1.0.0",
+      "author": {
+        "name": "Jacob Waites"
+      },
+      "keywords": [
+        "fastapi",
+        "python",
+        "rest-api",
+        "async",
+        "web-development",
+        "api"
+      ]
+    },
+    {
+      "name": "github-actions-expert",
+      "source": "./plugins/github-actions-expert",
+      "description": "Expert guidance for GitHub Actions workflows, CI/CD, and deployment automation",
+      "version": "1.0.0",
+      "author": {
+        "name": "Jacob Waites"
+      },
+      "keywords": [
+        "github-actions",
+        "ci-cd",
+        "workflow",
+        "deployment",
+        "automation",
+        "github"
+      ]
+    },
+    {
       "name": "homelab-ops",
       "source": "./plugins/homelab-ops",
       "description": "Create, troubleshoot, and migrate Docker services in a Jinja2-templated homelab with Tailscale networking, Traefik routing, and 1Password secrets",
@@ -60,6 +94,23 @@
       ]
     },
     {
+      "name": "lambda-to-fastapi-documenter",
+      "source": "./plugins/lambda-to-fastapi-documenter",
+      "description": "Extract and document Lambda function configurations for FastAPI migration",
+      "version": "1.0.0",
+      "author": {
+        "name": "Jacob Waites"
+      },
+      "keywords": [
+        "lambda",
+        "fastapi",
+        "migration",
+        "aws",
+        "documentation",
+        "api"
+      ]
+    },
+    {
       "name": "opentelemetry-expert",
       "source": "./plugins/opentelemetry-expert",
       "description": "Expert guidance for OpenTelemetry instrumentation, tracing, and observability",
@@ -75,13 +126,30 @@
         "instrumentation",
         "telemetry"
       ]
+    },
+    {
+      "name": "permissions-manager",
+      "source": "./plugins/permissions-manager",
+      "description": "Manage Claude Code permissions and troubleshoot permission errors",
+      "version": "1.0.0",
+      "author": {
+        "name": "Jacob Waites"
+      },
+      "keywords": [
+        "permissions",
+        "claude-code",
+        "settings",
+        "allowlist",
+        "configuration",
+        "troubleshooting"
+      ]
     }
   ],
   "metadata": {
     "description": "Personal Claude Code plugin marketplace",
     "version": "1.0.0",
     "homepage": "https://github.com/jdh313/cc-marketplace",
-    "totalPlugins": 4,
+    "totalPlugins": 8,
     "lastUpdated": "2025-12-27"
   }
 }
