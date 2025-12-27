@@ -26,12 +26,14 @@ def discover_plugins(plugins_dir: Path) -> list[dict[str, Any]]:
                 plugin_data = json.load(f)
 
             # Calculate relative path from plugins dir
-            rel_path = plugin_json.parent.relative_to(plugins_dir)
-            source_path = str(rel_path) if str(rel_path) != "." else plugin_json.parent.name
+            # plugin_json is at: plugins/<plugin-name>/.claude-plugin/plugin.json
+            # We want source to be just the plugin directory name (relative to plugins/)
+            plugin_dir = plugin_json.parent.parent  # Go up from .claude-plugin to plugin root
+            source_path = plugin_dir.relative_to(plugins_dir)
 
             plugin_entry = {
-                "name": plugin_data.get("name", plugin_json.parent.name),
-                "source": f"./plugins/{source_path}",
+                "name": plugin_data.get("name", plugin_dir.name),
+                "source": str(source_path),
                 "description": plugin_data.get("description", ""),
                 "version": plugin_data.get("version", "1.0.0"),
                 "author": plugin_data.get("author", {"name": "Unknown"}),
