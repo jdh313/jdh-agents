@@ -66,11 +66,12 @@ def validate_plugin(plugin: dict[str, Any], idx: int) -> list[str]:
         else:
             errors.append(f"{prefix}.author must be an object")
 
-    # Validate source path exists
+    # Validate source path exists (source is relative to plugins/ directory)
     if "source" in plugin:
         source_path = Path(__file__).parent.parent / "plugins" / plugin["source"]
-        if not source_path.exists():
-            errors.append(f"{prefix}: Source file not found: {plugin['source']}")
+        plugin_json = source_path / ".claude-plugin" / "plugin.json"
+        if not plugin_json.exists():
+            errors.append(f"{prefix}: Plugin not found at: plugins/{plugin['source']}")
 
     return errors
 
