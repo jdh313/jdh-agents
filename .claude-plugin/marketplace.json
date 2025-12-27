@@ -58,13 +58,30 @@
         "ansible",
         "1password"
       ]
+    },
+    {
+      "name": "opentelemetry-expert",
+      "source": "./plugins/opentelemetry-expert",
+      "description": "Expert guidance for OpenTelemetry instrumentation, tracing, and observability",
+      "version": "1.0.0",
+      "author": {
+        "name": "Jacob Prince"
+      },
+      "keywords": [
+        "opentelemetry",
+        "otel",
+        "observability",
+        "tracing",
+        "instrumentation",
+        "telemetry"
+      ]
     }
   ],
   "metadata": {
     "description": "Personal Claude Code plugin marketplace",
     "version": "1.0.0",
     "homepage": "https://github.com/jdh313/cc-marketplace",
-    "totalPlugins": 3,
+    "totalPlugins": 4,
     "lastUpdated": "2025-12-27"
   }
 }
