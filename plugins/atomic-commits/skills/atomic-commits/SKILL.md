@@ -278,6 +278,90 @@ If user wants to proceed with the improved message, use the appropriate VCS comm
 
 ---
 
+## ⚠️ Safety Rules
+
+**These rules are mandatory. Violating them can result in lost work.**
+
+### Never Discard Changes Without Permission
+
+The primary goal of this skill is to organize changes into commits, NOT to delete them. All working copy changes must be preserved—moved between commits, never discarded.
+
+### Forbidden Operations
+
+The following commands discard uncommitted changes and **must NEVER be used** during commit workflows without explicit user permission:
+
+| Command | Risk | Safe Alternative |
+|---------|------|------------------|
+| `jj restore` | Discards working copy changes | `jj split` or `jj describe` |
+| `jj restore <file>` | Discards changes to specific file | Move file to different commit with `jj split` |
+| `jj abandon` (on change with modifications) | Discards all modifications in the change | `jj describe` + `jj new` |
+| `git checkout -- <file>` | Discards working copy changes to file | Stage/commit first, or `git stash` |
+| `git restore <file>` | Discards working copy changes to file | Stage/commit first, or `git stash` |
+| `git restore .` | Discards ALL working copy changes | Stage/commit first, or `git stash` |
+| `git reset --hard` | Discards all uncommitted changes | `git stash` or commit first |
+
+### Safe Splitting Patterns
+
+**For jj (Jujutsu):**
+```bash
+# CORRECT: Describe current change, then create new for remaining work
+jj describe -m "feat: first change"
+jj new  # Remaining changes stay in working copy
+
+# CORRECT: Split specific files into a described change
+jj split <file1> <file2> -m "fix: second change"
+# Remaining changes stay in current working copy
+
+# WRONG: Never use restore to "clean up"
+jj restore  # FORBIDDEN - discards changes!
+```
+
+**For git:**
+```bash
+# CORRECT: Stage and commit specific files, leaving others for later
+git add <file1> <file2>
+git commit -m "feat: first change"
+# Remaining changes stay in working copy
+
+# CORRECT: Stash if you need to set aside changes temporarily
+git stash push -m "WIP: changes for later"
+git stash pop  # Restore when ready
+
+# WRONG: Never discard working copy changes
+git checkout -- .  # FORBIDDEN - discards changes!
+git restore .      # FORBIDDEN - discards changes!
+```
+
+### Confirmation Required for Destructive Operations
+
+If a user explicitly requests an operation that would discard changes, you **MUST**:
+
+1. Warn them clearly what will be lost
+2. List the specific files/changes that will be discarded
+3. Ask for explicit confirmation before proceeding
+
+**Example confirmation prompt:**
+```
+⚠️ This will permanently discard the following uncommitted changes:
+  - src/handler.js (15 lines modified)
+  - tests/handler.test.js (new file, 42 lines)
+
+These changes cannot be recovered. Proceed? (yes/no)
+```
+
+Only proceed after receiving explicit "yes" confirmation.
+
+### Summary: The Safe Commit Workflow
+
+1. **Analyze** all changes to identify atomic units
+2. **Organize** changes into commits using staging (git) or split (jj)
+3. **Preserve** all changes—every modification ends up in a commit
+4. **Verify** no changes were lost with `git status` or `jj status`
+
+**If you're unsure whether an operation will discard changes, ASK before executing.**
+
+---
+
 ## Best Practices
 
 ### Atomic Commit Guidelines
