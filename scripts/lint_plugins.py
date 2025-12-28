@@ -20,8 +20,18 @@ def lint_plugin_file(plugin_path: Path) -> list[str]:
     if not plugin_path.exists():
         return [f"File not found: {plugin_path}"]
 
-    # Check file extension
-    if plugin_path.suffix not in [".json", ".md", ".py", ".js"]:
+    # Check file extension - allow common plugin and asset file types
+    allowed_extensions = [
+        # Core plugin files
+        ".json", ".md", ".py", ".js", ".ts",
+        # Asset/config files
+        ".yaml", ".yml", ".txt", ".toml",
+        # Web assets
+        ".html", ".css", ".svg",
+        # Shell scripts
+        ".sh", ".bash",
+    ]
+    if plugin_path.suffix not in allowed_extensions:
         warnings.append(f"Unusual plugin file extension: {plugin_path.suffix}")
 
     # If JSON, validate structure
