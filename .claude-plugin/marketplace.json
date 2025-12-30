@@ -159,13 +159,30 @@
         "configuration",
         "troubleshooting"
       ]
+    },
+    {
+      "name": "review-prep",
+      "source": "./plugins/review-prep",
+      "description": "Automate code review preparation with PR descriptions, commit cleanup, and diff analysis for git and jj",
+      "version": "0.1.0",
+      "author": {
+        "name": "Jacob Waites"
+      },
+      "keywords": [
+        "git",
+        "jj",
+        "code-review",
+        "pr",
+        "diff",
+        "squash"
+      ]
     }
   ],
   "metadata": {
     "description": "Personal Claude Code plugin marketplace",
     "version": "1.0.0",
     "homepage": "https://github.com/jdh313/cc-marketplace",
-    "totalPlugins": 9,
+    "totalPlugins": 10,
     "lastUpdated": "2025-12-29"
   }
 }
