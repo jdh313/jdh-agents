@@ -91,6 +91,24 @@
       ]
     },
     {
+      "name": "history-detective",
+      "source": "./plugins/history-detective",
+      "description": "History investigation tools: bisect, blame, file evolution, and branch comparison for git and jj",
+      "version": "0.1.0",
+      "author": {
+        "name": "Jacob Waites"
+      },
+      "keywords": [
+        "git",
+        "jj",
+        "bisect",
+        "blame",
+        "history",
+        "evolution",
+        "debugging"
+      ]
+    },
+    {
       "name": "homelab-ops",
       "source": "./plugins/homelab-ops",
       "description": "Create, troubleshoot, and migrate Docker services in a Jinja2-templated homelab with Tailscale networking, Traefik routing, and 1Password secrets",
@@ -199,7 +217,7 @@
     "description": "Personal Claude Code plugin marketplace",
     "version": "1.0.0",
     "homepage": "https://github.com/jdh313/cc-marketplace",
-    "totalPlugins": 11,
+    "totalPlugins": 12,
     "lastUpdated": "2025-12-30"
   }
 }
