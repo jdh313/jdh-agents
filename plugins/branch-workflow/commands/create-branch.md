@@ -1,5 +1,6 @@
 ---
 description: Create a new branch (git) or change (jj) with proper naming validation
+argument-hint: <branch-name>
 allowed-tools:
   - Bash(git:*)
   - Bash(jj:*)

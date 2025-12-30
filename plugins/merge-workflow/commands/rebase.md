@@ -1,5 +1,6 @@
 ---
 description: Rebase current branch (git) or change (jj) onto main/master with conflict detection
+argument-hint: [target-branch]
 allowed-tools:
   - Bash(git:*)
   - Bash(jj:*)

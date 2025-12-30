@@ -1,5 +1,6 @@
 ---
 description: Guided conflict resolution workflow for git and jj repositories
+argument-hint: [file-path]
 allowed-tools:
   - Bash(git:*)
   - Bash(jj:*)

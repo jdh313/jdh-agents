@@ -1,5 +1,6 @@
 ---
 description: Trace file evolution and line-by-line blame for understanding code history
+argument-hint: <file-path> [--blame] [--history]
 allowed-tools:
   - Bash(git:*)
   - Bash(jj:*)

@@ -1,5 +1,6 @@
 ---
 description: Merge a branch (git) or create a merge change (jj) with custom message
+argument-hint: <source-branch> [message]
 allowed-tools:
   - Bash(git:*)
   - Bash(jj:*)

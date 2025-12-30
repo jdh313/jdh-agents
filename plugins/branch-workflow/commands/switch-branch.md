@@ -1,5 +1,6 @@
 ---
 description: Switch to an existing branch (git) or change (jj) with safety checks for uncommitted changes
+argument-hint: <branch-name>
 allowed-tools:
   - Bash(git:*)
   - Bash(jj:*)

@@ -1,5 +1,6 @@
 ---
 description: Search commit messages and code changes with filters for author, date, and path
+argument-hint: <pattern> [--author=<name>] [--since=<date>] [--path=<path>]
 allowed-tools:
   - Bash(git:*)
   - Bash(jj:*)

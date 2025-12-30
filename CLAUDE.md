@@ -2,6 +2,16 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## Important: Check Latest Documentation
+
+**Claude Code's plugin system is evolving rapidly.** Before making changes to plugins, skills, agents, or commands in this repo:
+
+1. **Always check the latest Claude Code documentation** using `Skill(docs)` or the `claude-code-guide` agent
+2. **Verify current plugin.json schema** — fields and requirements change frequently
+3. **Test installation** of any modified plugins before committing
+
+Do not rely solely on this CLAUDE.md or existing plugin examples — they may be outdated.
+
 ## Project Overview
 
 **cc-marketplace** is a personal Claude Code plugin marketplace with automated validation and synchronization. It provides:
