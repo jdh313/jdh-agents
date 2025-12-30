@@ -3,6 +3,8 @@ description: Split changes into multiple atomic commits with conventional messag
 allowed-tools:
   - Bash(git:*)
   - Bash(jj:*)
+  - Bash([[:*)
+  - Bash(if:*)
   - Read
   - Glob
 ---

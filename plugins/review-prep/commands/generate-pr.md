@@ -3,6 +3,8 @@ description: Generate a PR description from commits/changes and diffs
 allowed-tools:
   - Bash(git:*)
   - Bash(jj:*)
+  - Bash([[:*)
+  - Bash(if:*)
   - Read
 ---
 

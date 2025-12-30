@@ -3,6 +3,8 @@ description: Clean up old, merged, or abandoned branches/changes with guided sel
 allowed-tools:
   - Bash(git:*)
   - Bash(jj:*)
+  - Bash([[:*)
+  - Bash(if:*)
   - Read
 ---
 

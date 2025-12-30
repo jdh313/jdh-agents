@@ -3,6 +3,8 @@ description: Abort an in-progress merge or rebase operation and return to clean 
 allowed-tools:
   - Bash(git:*)
   - Bash(jj:*)
+  - Bash([[:*)
+  - Bash(if:*)
   - Read
 ---
 

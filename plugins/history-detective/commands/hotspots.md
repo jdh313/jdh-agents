@@ -3,6 +3,8 @@ description: Identify frequently changed files, code churn, and contributor patt
 allowed-tools:
   - Bash(git:*)
   - Bash(jj:*)
+  - Bash([[:*)
+  - Bash(if:*)
   - Read
 ---
 

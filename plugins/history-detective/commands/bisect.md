@@ -3,6 +3,8 @@ description: Binary search through history to find bug-introducing commits (git 
 argument-hint: <bad-commit> [good-commit] [--auto=<test-command>]
 allowed-tools:
   - Bash(git:*)
+  - Bash([[:*)
+  - Bash(if:*)
   - Read
 ---
 

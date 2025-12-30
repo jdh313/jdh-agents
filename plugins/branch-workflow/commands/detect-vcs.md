@@ -3,6 +3,8 @@ description: Detect which VCS (git or jj) is in use and display the detected sys
 allowed-tools:
   - Bash(git:*)
   - Bash(jj:*)
+  - Bash([[:*)
+  - Bash(if:*)
 ---
 
 # Detect VCS Command

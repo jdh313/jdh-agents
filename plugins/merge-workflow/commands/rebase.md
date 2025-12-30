@@ -4,6 +4,8 @@ argument-hint: [target-branch]
 allowed-tools:
   - Bash(git:*)
   - Bash(jj:*)
+  - Bash([[:*)
+  - Bash(if:*)
   - Read
 ---
 

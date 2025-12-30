@@ -4,6 +4,8 @@ argument-hint: <pattern> [--author=<name>] [--since=<date>] [--path=<path>]
 allowed-tools:
   - Bash(git:*)
   - Bash(jj:*)
+  - Bash([[:*)
+  - Bash(if:*)
   - Read
 ---
 

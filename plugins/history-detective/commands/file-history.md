@@ -4,6 +4,8 @@ argument-hint: <file-path> [--blame] [--history]
 allowed-tools:
   - Bash(git:*)
   - Bash(jj:*)
+  - Bash([[:*)
+  - Bash(if:*)
   - Read
 ---
 

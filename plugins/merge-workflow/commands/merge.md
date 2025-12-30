@@ -4,6 +4,8 @@ argument-hint: <source-branch> [message]
 allowed-tools:
   - Bash(git:*)
   - Bash(jj:*)
+  - Bash([[:*)
+  - Bash(if:*)
   - Read
 ---
 

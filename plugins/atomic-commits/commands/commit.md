@@ -3,6 +3,8 @@ description: Create a single atomic commit with a conventional commit message
 allowed-tools:
   - Bash(git:*)
   - Bash(jj:*)
+  - Bash([[:*)
+  - Bash(if:*)
   - Read
   - Glob
 ---

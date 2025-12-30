@@ -3,6 +3,8 @@ description: Detect and categorize conflicts in the current repository
 allowed-tools:
   - Bash(git:*)
   - Bash(jj:*)
+  - Bash([[:*)
+  - Bash(if:*)
   - Read
 ---
 

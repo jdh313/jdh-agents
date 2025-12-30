@@ -4,6 +4,8 @@ argument-hint: <branch1> <branch2>
 allowed-tools:
   - Bash(git:*)
   - Bash(jj:*)
+  - Bash([[:*)
+  - Bash(if:*)
   - Read
 ---
 

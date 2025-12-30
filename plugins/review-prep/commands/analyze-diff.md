@@ -3,6 +3,8 @@ description: Comprehensive diff analysis with risk detection and impact metrics 
 allowed-tools:
   - Bash(git:*)
   - Bash(jj:*)
+  - Bash([[:*)
+  - Bash(if:*)
   - Read
 ---
 

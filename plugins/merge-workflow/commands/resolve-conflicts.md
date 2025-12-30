@@ -4,6 +4,8 @@ argument-hint: [file-path]
 allowed-tools:
   - Bash(git:*)
   - Bash(jj:*)
+  - Bash([[:*)
+  - Bash(if:*)
   - Read
   - Edit
   - AskUserQuestion
