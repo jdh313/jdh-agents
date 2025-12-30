@@ -41,6 +41,22 @@
       ]
     },
     {
+      "name": "branch-workflow",
+      "source": "./plugins/branch-workflow",
+      "description": "Automate branch/change management for git and jj",
+      "version": "0.1.0",
+      "author": {
+        "name": "Your Name"
+      },
+      "keywords": [
+        "git",
+        "jj",
+        "branch",
+        "workflow",
+        "vcs"
+      ]
+    },
+    {
       "name": "fastapi-expert",
       "source": "./plugins/fastapi-expert",
       "description": "Expert patterns for FastAPI development: authentication, async database integration, and testing",
@@ -149,7 +165,7 @@
     "description": "Personal Claude Code plugin marketplace",
     "version": "1.0.0",
     "homepage": "https://github.com/jdh313/cc-marketplace",
-    "totalPlugins": 8,
-    "lastUpdated": "2025-12-28"
+    "totalPlugins": 9,
+    "lastUpdated": "2025-12-29"
   }
 }
