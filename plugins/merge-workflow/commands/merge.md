@@ -88,7 +88,7 @@ List recent changes available to merge:
 ```bash
 # Show recent changes
 echo "=== Recent Changes ==="
-jj log -T 'change_id.short() " | " description.first_line()' --no-graph -r "ancestors(root())" --limit 10
+jj log -T 'change_id.short() ++ " | " ++ description.first_line()' --no-graph -r "ancestors(root())" --limit 10
 
 echo ""
 echo "=== Current Workspace ==="
@@ -285,7 +285,7 @@ else
   echo ""
   if [[ -d .jj ]]; then
     echo "Merge change created:"
-    jj log -T 'change_id.short() " | " description.first_line()' --no-graph -r @ -1
+    jj log -T 'change_id.short() ++ " | " ++ description.first_line()' --no-graph -r @ -1
   else
     echo "Merged successfully. Repository state:"
     git log -1 --oneline

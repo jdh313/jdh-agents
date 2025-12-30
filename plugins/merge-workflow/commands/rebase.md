@@ -157,8 +157,7 @@ if [[ "$VCS" == "git" ]]; then
   echo "────────────────────────────────────────────────"
   echo ""
 
-  git rebase "$TARGET_BRANCH" --no-edit
-  REBASE_EXIT=$?
+  git rebase "$TARGET_BRANCH"   REBASE_EXIT=$?
 
   if [[ $REBASE_EXIT -eq 0 ]]; then
     echo ""
@@ -482,8 +481,7 @@ Target branch: origin/main
 Fetching latest from remote...
 ✓ Fetch completed
 
-Executing: git rebase origin/main --no-edit
-────────────────────────────────────────────────
+Executing: git rebase origin/main ────────────────────────────────────────────────
 
 ✓ Rebase completed successfully
 
@@ -524,8 +522,7 @@ Target branch: origin/main
 Fetching latest from remote...
 ✓ Fetch completed
 
-Executing: git rebase origin/main --no-edit
-────────────────────────────────────────────────
+Executing: git rebase origin/main ────────────────────────────────────────────────
 
 ⚠ Rebase encountered conflicts
 
@@ -600,8 +597,7 @@ git rev-parse --verify origin/main
 git fetch origin
 
 # Execute rebase
-git rebase origin/main --no-edit
-
+git rebase origin/main 
 # List conflicted files
 git diff --name-only --diff-filter=U
 
