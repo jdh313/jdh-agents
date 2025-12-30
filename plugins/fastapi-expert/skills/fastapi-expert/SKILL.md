@@ -1,6 +1,12 @@
 ---
 name: fastapi-expert
 description: INVOKE when working with FastAPI code or REST API development in Python. This skill should be used when building, refactoring, or troubleshooting FastAPI REST APIs. Trigger phrases include "FastAPI", "REST API in Python", "API endpoint", "add authentication", "database integration", "async SQLAlchemy", "Alembic migrations", "API testing", "rate limiting", or any production-grade FastAPI development. Provides comprehensive patterns covering project setup, JWT/OAuth2 auth, async database access, error handling, testing strategies, and performance optimization.
+allowed-tools:
+  - Read
+  - Grep
+  - Glob
+  - WebSearch
+  - WebFetch
 ---
 
 # FastAPI Expert
