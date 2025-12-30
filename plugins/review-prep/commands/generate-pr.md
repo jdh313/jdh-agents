@@ -87,7 +87,7 @@ git diff $MAIN_BRANCH..HEAD --no-color | head -100
 
 ```bash
 # Get diff summary (first 50 lines to avoid overwhelming output)
-jj diff --no-color | head -100
+jj diff --git | head -100
 ```
 
 ### Step 4: Analyze Changes and Generate PR Template

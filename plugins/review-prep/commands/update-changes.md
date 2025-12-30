@@ -20,7 +20,7 @@ Update jj change descriptions and squash changes together for review preparation
 !`jj status`
 
 **Current Change Details:**
-!`jj log --limit 1 --template '{change_id|short} - {description.first_line}' && echo ""`
+!`jj log --limit 1 -T 'change_id.short() ++ " - " ++ description.first_line()' && echo ""`
 
 ## Instructions
 
@@ -33,7 +33,7 @@ Display the current change you're working on and its full description:
 ```bash
 echo "Current Change Details"
 echo "════════════════════════════════════════════════════"
-jj log --limit 1 --template '{change_id} - {description}' && echo ""
+jj log --limit 1 -T 'change_id ++ " - " ++ description' && echo ""
 echo ""
 echo "Current change status:"
 jj status
@@ -56,7 +56,7 @@ Display the recent change history so you can see what's available to squash or m
 ```bash
 echo "Recent Changes"
 echo "════════════════════════════════════════════════════"
-jj log --limit 10 --template '{change_id|short} {if(description.first_line, description.first_line, "(empty)")}'
+jj log --limit 10 -T 'change_id.short() ++ " " ++ if(description.first_line(), description.first_line(), "(empty)")'
 echo ""
 ```
 
@@ -85,7 +85,7 @@ jj diff --stat
 
 echo ""
 echo "File list for reference:"
-jj diff --name-status | sed 's/^/  /'
+jj diff --summary | sed 's/^/  /'
 
 echo ""
 
@@ -106,7 +106,7 @@ echo ""
 # Suggest a description based on files changed
 echo "Suggested description based on changes:"
 echo "──────────────────────────────────────────"
-CHANGED_FILES=$(jj diff --name-status | awk '{print $2}' | head -5 | sed 's|src/||g' | sed 's|tests/||g' | sed 's|\..*$||g' | paste -sd ',' - | sed 's/,/, /g')
+CHANGED_FILES=$(jj diff --summary | awk '{print $2}' | head -5 | sed 's|src/||g' | sed 's|tests/||g' | sed 's|\..*$||g' | paste -sd ',' - | sed 's/,/, /g')
 
 if [[ -z "$CHANGED_FILES" ]]; then
   echo "  (unable to determine from files)"
@@ -159,7 +159,7 @@ If the user selects Option A, prompt for the new description and update it:
 echo "Update Change Description"
 echo "════════════════════════════════════════════════════"
 echo "Current description:"
-jj log --limit 1 --template '{description}'
+jj log --limit 1 -T 'description'
 echo ""
 echo ""
 echo "Enter new description (use conventional format: type: summary):"
@@ -181,13 +181,13 @@ fi
 # Update the change description
 echo ""
 echo "Updating change description..."
-jj describe -m "$NEW_DESCRIPTION" --no-edit
+jj describe -m "$NEW_DESCRIPTION"
 
 if [[ $? -eq 0 ]]; then
   echo "✓ Description updated successfully"
   echo ""
   echo "New description:"
-  jj log --limit 1 --template '{description}'
+  jj log --limit 1 -T 'description'
 else
   echo "✗ Failed to update description"
   exit 1
@@ -196,7 +196,7 @@ fi
 
 **Key details:**
 - Uses `-m` flag to set description non-interactively
-- `--no-edit` flag prevents opening editor
+- The `-m` flag prevents opening editor automatically
 - Confirms success and shows new description
 
 ### Step 6: Execute Option B - Squash Into Parent
@@ -209,12 +209,12 @@ echo "════════════════════════�
 
 # Show current change details
 echo "Current change details:"
-jj log --limit 1 --template '{change_id|short} - {description.first_line}'
+jj log --limit 1 -T 'change_id.short() ++ " - " ++ description.first_line()'
 echo ""
 
 # Show parent change
 echo "Parent change (target for squash):"
-jj log --limit 1 -r '@-' --template '{change_id|short} - {description.first_line}'
+jj log --limit 1 -r '@-' -T 'change_id.short() ++ " - " ++ description.first_line()'
 echo ""
 
 echo "Warning: This will combine the current change into its parent."
@@ -231,13 +231,13 @@ echo ""
 echo "Squashing current change into parent..."
 
 # Squash with no arguments (uses default: squash @ into @-)
-jj squash
+jj squash --use-destination-message
 
 if [[ $? -eq 0 ]]; then
   echo "✓ Squash completed successfully"
   echo ""
   echo "Updated change history:"
-  jj log --limit 5 --template '{change_id|short} {if(description.first_line, description.first_line, "(empty)")}'
+  jj log --limit 5 -T 'change_id.short() ++ " " ++ if(description.first_line(), description.first_line(), "(empty)")'
 else
   echo "✗ Squash failed"
   exit 1
@@ -260,7 +260,7 @@ echo "════════════════════════�
 echo ""
 echo "Available changes (select change ID to squash):"
 echo "──────────────────────────────────────────────────"
-jj log --limit 20 --template '{change_id|short} {if(description.first_line, description.first_line, "(empty)")}'
+jj log --limit 20 -T 'change_id.short() ++ " " ++ if(description.first_line(), description.first_line(), "(empty)")'
 echo ""
 echo ""
 
@@ -273,7 +273,7 @@ fi
 
 echo ""
 echo "Available target changes:"
-jj log --limit 20 --template '{change_id|short} {if(description.first_line, description.first_line, "(empty)")}'
+jj log --limit 20 -T 'change_id.short() ++ " " ++ if(description.first_line(), description.first_line(), "(empty)")'
 echo ""
 
 read -p "Enter target change ID (the change to squash INTO): " TARGET_CHANGE
@@ -299,10 +299,10 @@ fi
 # Show what will happen
 echo ""
 echo "Source change (will be squashed):"
-jj log -r "$SOURCE_CHANGE" --template '{change_id|short} - {description.first_line}'
+jj log -r "$SOURCE_CHANGE" -T 'change_id.short() ++ " - " ++ description.first_line()'
 echo ""
 echo "Target change (will receive changes):"
-jj log -r "$TARGET_CHANGE" --template '{change_id|short} - {description.first_line}'
+jj log -r "$TARGET_CHANGE" -T 'change_id.short() ++ " - " ++ description.first_line()'
 echo ""
 
 read -p "Proceed with squash? (y/n): " CONFIRM
@@ -316,13 +316,13 @@ echo ""
 echo "Squashing $SOURCE_CHANGE into $TARGET_CHANGE..."
 
 # Squash the specified changes
-jj squash --from "$SOURCE_CHANGE" --into "$TARGET_CHANGE"
+jj squash --from "$SOURCE_CHANGE" --into "$TARGET_CHANGE" --use-destination-message
 
 if [[ $? -eq 0 ]]; then
   echo "✓ Squash completed successfully"
   echo ""
   echo "Updated change history:"
-  jj log --limit 5 --template '{change_id|short} {if(description.first_line, description.first_line, "(empty)")}'
+  jj log --limit 5 -T 'change_id.short() ++ " " ++ if(description.first_line(), description.first_line(), "(empty)")'
 else
   echo "✗ Squash failed"
   exit 1
@@ -344,7 +344,7 @@ After any modification, show the final state of changes:
 echo ""
 echo "Final Change History"
 echo "════════════════════════════════════════════════════"
-jj log --limit 5 --template '{change_id|short} {if(description.first_line, description.first_line, "(empty)")}'
+jj log --limit 5 -T 'change_id.short() ++ " " ++ if(description.first_line(), description.first_line(), "(empty)")'
 echo ""
 echo "Current status:"
 jj status
