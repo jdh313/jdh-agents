@@ -127,6 +127,23 @@
       ]
     },
     {
+      "name": "merge-workflow",
+      "source": "./plugins/merge-workflow",
+      "description": "Branch and change merge operations for git and jj with conflict detection and resolution",
+      "version": "0.1.0",
+      "author": {
+        "name": "Jacob Prince"
+      },
+      "keywords": [
+        "git",
+        "jj",
+        "merge",
+        "rebase",
+        "conflict",
+        "workflow"
+      ]
+    },
+    {
       "name": "opentelemetry-expert",
       "source": "./plugins/opentelemetry-expert",
       "description": "Expert guidance for OpenTelemetry instrumentation, tracing, and observability",
@@ -182,7 +199,7 @@
     "description": "Personal Claude Code plugin marketplace",
     "version": "1.0.0",
     "homepage": "https://github.com/jdh313/cc-marketplace",
-    "totalPlugins": 10,
+    "totalPlugins": 11,
     "lastUpdated": "2025-12-30"
   }
 }
