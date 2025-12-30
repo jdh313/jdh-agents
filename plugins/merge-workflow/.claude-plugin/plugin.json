@@ -1,0 +1,9 @@
+{
+  "name": "merge-workflow",
+  "version": "0.1.0",
+  "description": "Branch and change merge operations for git and jj with conflict detection and resolution",
+  "author": {
+    "name": "Jacob Waites"
+  },
+  "keywords": ["git", "jj", "merge", "rebase", "conflict", "workflow"]
+}
