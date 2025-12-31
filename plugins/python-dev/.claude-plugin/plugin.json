@@ -1,0 +1,19 @@
+{
+  "name": "python-dev",
+  "version": "1.0.0",
+  "description": "Comprehensive Python development skills: write Pythonic code, debug systematically, and fix failing tests",
+  "author": {
+    "name": "Jacob Hoehler"
+  },
+  "keywords": [
+    "python",
+    "debugging",
+    "testing",
+    "pep8",
+    "pythonic",
+    "code-quality",
+    "pytest",
+    "type-hints",
+    "modern-python"
+  ]
+}
