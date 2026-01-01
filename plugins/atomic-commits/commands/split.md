@@ -3,8 +3,10 @@ description: Split changes into multiple atomic commits with conventional messag
 allowed-tools:
   - Bash(git:*)
   - Bash(jj:*)
-  - Bash([[:*)
-  - Bash(if:*)
+  - Bash(test:*)
+  - mcp__git__git_status
+  - mcp__git__git_diff_unstaged
+  - mcp__git__git_diff_staged
   - Read
   - Glob
 ---
@@ -13,10 +15,16 @@ allowed-tools:
 
 ## Immediate Execution
 
-**VCS:** !`[[ -d .jj ]] && echo "jj" || echo "git"`
+**VCS Detection:** !`test -d .jj && echo "jj" || echo "git"`
 
-**All Changes:**
-!`if [[ -d .jj ]]; then jj status && echo "---DIFF---" && jj diff; else git status && echo "---DIFF---" && git diff && echo "---STAGED---" && git diff --staged; fi`
+**If jj detected, show jj changes:**
+!`test -d .jj && jj status || true`
+!`test -d .jj && jj diff || true`
+
+**If git detected, show git changes:**
+!`test -d .jj || git status`
+!`test -d .jj || git diff`
+!`test -d .jj || git diff --staged`
 
 ## Instructions
 

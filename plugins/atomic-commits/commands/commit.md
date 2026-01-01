@@ -3,8 +3,10 @@ description: Create a single atomic commit with a conventional commit message
 allowed-tools:
   - Bash(git:*)
   - Bash(jj:*)
-  - Bash([[:*)
-  - Bash(if:*)
+  - Bash(test:*)
+  - mcp__git__git_status
+  - mcp__git__git_diff_unstaged
+  - mcp__git__git_diff_staged
   - Read
   - Glob
 ---
@@ -13,13 +15,16 @@ allowed-tools:
 
 ## Immediate Execution
 
-**VCS:** !`[[ -d .jj ]] && echo "jj" || echo "git"`
+**VCS Detection:** !`test -d .jj && echo "jj" || echo "git"`
 
-**Status:**
-!`if [[ -d .jj ]]; then jj status; else git status; fi`
+**If jj detected:**
+!`test -d .jj && jj status || true`
+!`test -d .jj && jj diff || true`
 
-**Changes:**
-!`if [[ -d .jj ]]; then jj diff; else git diff && echo "---STAGED---" && git diff --staged; fi`
+**If git detected:**
+!`test -d .jj || git status`
+!`test -d .jj || git diff`
+!`test -d .jj || git diff --staged`
 
 ## Instructions
 
