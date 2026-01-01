@@ -1,0 +1,48 @@
+name: Weekly Plugin Review
+
+on:
+  schedule:
+    - cron: '0 9 * * 1'  # Monday 9am UTC
+  workflow_dispatch:
+
+jobs:
+  review:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+
+      - name: Install Claude Code
+        run: bun install -g @anthropic-ai/claude-code
+
+      - name: Review plugins
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: |
+          claude -p "First, search the web for the latest Claude Code plugin best practices,
+          skill development guidelines, and any recent changes to plugin.json schema.
+
+          Then review all plugins in plugins/ against what you found.
+
+          For each plugin, check:
+          - plugin.json schema compliance
+          - Skill descriptions and trigger phrases
+          - Agent configurations
+          - Command structure
+          - Alignment with current best practices
+
+          Output a markdown report with:
+          1. Sources consulted (with URLs)
+          2. Issues found per plugin
+          3. Recommendations
+          4. Any new best practices plugins should adopt" \
+          --output-format text > review-results.md
+
+      - name: Create issue with findings
+        uses: peter-evans/create-issue-from-file@v5
+        with:
+          title: "Weekly Plugin Review - ${{ github.run_id }}"
+          content-filepath: review-results.md
+          labels: review, automated
