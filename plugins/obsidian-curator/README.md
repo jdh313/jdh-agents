@@ -77,6 +77,53 @@ Example session-end summary:
 Draft any of these? (1, 2, both, or skip)
 ```
 
+### Phase 3: Maintenance
+
+#### 🏥 Vault Health Check
+
+`/obsidian-curator:vault-health` — Quick audit of your vault's health:
+
+```
+/obsidian-curator:vault-health
+/obsidian-curator:vault-health --focus=orphans
+/obsidian-curator:vault-health --folder="50 Developer Notes"
+```
+
+Returns a scannable report:
+```markdown
+## Vault Health Report
+
+| Category | Issues | Status |
+|----------|--------|--------|
+| Orphaned notes | 7 | Needs attention |
+| Broken links | 0 | Healthy |
+| Missing frontmatter | 3 | Minor |
+
+**Overall Health:** 85/100
+```
+
+#### 🧹 Interactive Cleanup
+
+`/obsidian-curator:cleanup` — Start a guided cleanup session:
+
+```
+/obsidian-curator:cleanup
+/obsidian-curator:cleanup --type=orphans
+/obsidian-curator:cleanup --type=duplicates
+```
+
+The vault-curator agent guides you through:
+- **Orphaned notes** — Link, add to MOC, or archive
+- **Duplicates** — Merge or differentiate
+- **Stale notes** — Update, archive, or mark reviewed
+- **Convention violations** — Fix frontmatter, move to correct folders
+
+ADHD-friendly features:
+- One question at a time
+- Progress tracking ("Fixed 3/7 issues")
+- Batch operations ("Fix all 5 similar issues?")
+- Clear recommendations with easy choices
+
 ## Prerequisites
 
 1. **Obsidian** with **Local REST API plugin** installed and running
@@ -204,11 +251,19 @@ Claude: [Creates note]
 |------|-------|--------------|
 | Session end | Stop | Reviews session, presents batched capture suggestions |
 
+### Agents (Subagents)
+
+| Agent | Purpose | Invocation |
+|-------|---------|------------|
+| `vault-curator` | Interactive cleanup sessions | Via `/cleanup` command |
+
 ### Commands (Explicit)
 
 | Command | Purpose |
 |---------|---------|
 | `/obsidian-curator:capture` | Quick capture to daily note |
+| `/obsidian-curator:vault-health` | Run vault health audit |
+| `/obsidian-curator:cleanup` | Start interactive cleanup session |
 
 ## Principles
 
@@ -230,7 +285,7 @@ Claude: [Creates note]
 - `note-suggester` skill — Recognizes capture-worthy moments
 - Session end hooks — Batch suggestions at session end
 
-### Phase 3: Maintenance
+### ✅ Phase 3: Maintenance (Complete)
 - `vault-curator` agent — Dedicated cleanup sessions
 - `/vault-health` command — Run vault audit
 - `/cleanup` command — Interactive cleanup
