@@ -12,76 +12,75 @@ Obsidian Curator transforms Claude from a tool executor into a vault-aware colla
 
 ## Features
 
-### Phase 1: Core
+### Automatic (No Action Needed)
+
+These features work in the background without any commands.
 
 #### 🔍 Contextual Search
-Claude automatically searches your vault during:
+
+Claude automatically searches your vault when relevant:
 - **Topic exploration** — "How does X work?" → checks your notes first
 - **Debugging** — "This is failing" → looks for similar past problems
 - **Decision points** — "Should we use X or Y?" → finds prior decisions, ADRs
 
-No permission needed for searches. Findings are woven naturally into responses.
+Findings are woven naturally into responses:
+```
+You: "How did we handle authentication in the Gateway API?"
+Claude: "According to your Gateway API repo note, authentication uses JWT tokens..."
+```
 
-#### 📝 Vault Knowledge
-Claude understands your vault's:
+#### 📝 Vault Awareness
+
+Claude understands your vault's organization:
 - Folder structure (PARA-inspired numbered areas)
 - Note types and templates
 - Naming conventions and frontmatter
 - Tag patterns and link conventions
 
-Vault conventions are stored in `~/Loose Ends/.claude/CLAUDE.md` (easy to update).
+Conventions are stored in `~/Loose Ends/.claude/CLAUDE.md` (easy to update).
+
+#### 📋 Meeting Follow-up
+
+Surfaces relevant action items when working on related code:
+
+```markdown
+> 📋 Found a related action item from your 1-on-1 on 2025-01-02:
+> - [ ] Update Gateway API rate limiting documentation
+>
+> Since we're touching this code, want to update the docs too?
+```
+
+#### 🔄 Repo Note Suggestions
+
+When working on a known repo, Claude notices patterns and gotchas worth documenting:
+
+```markdown
+> 💡 This rate limiting pattern might be worth adding to the Gateway Config API repo note.
+```
+
+---
+
+### On Request (Commands & Requests)
+
+Explicit actions you can trigger.
 
 #### ⚡ Quick Capture
-`/obsidian-curator:capture` — Append quick thoughts to today's daily note with timestamps.
+
+`/obsidian-curator:capture` — Append quick thoughts to today's daily note:
 
 ```
 /obsidian-curator:capture Lambda cold starts fixed with provisioned concurrency
 ```
 
-Result:
+Result in daily note:
 ```markdown
 ## Captured
 - **14:23** — Lambda cold starts fixed with provisioned concurrency
 ```
 
-### Phase 2: Suggestions
-
-#### 💡 Note Suggester
-
-Claude recognizes capture-worthy moments during your session:
-- **Debugging wins** — Steps that solved a tricky problem
-- **Patterns discovered** — Reusable code patterns, architectural approaches
-- **Decisions made** — Choices with clear rationale (ADR candidates)
-- **Gotchas found** — Things that weren't obvious, edge cases
-
-Suggestions are non-interrupting:
-- **Inline hints** — Brief suggestion at end of response when relevant
-- **Batched summary** — All captures presented together at session end
-
-#### 🔔 Session End Hooks
-
-At session end, Claude automatically:
-1. Reviews the session for capture-worthy items
-2. Presents a batched summary if anything is worth noting
-3. Asks which items to draft (if any)
-
-Example session-end summary:
-```markdown
-## Session Captures
-
-| # | Topic | Type | Location |
-|---|-------|------|----------|
-| 1 | Lambda cold start fix | Pattern | `50 Developer Notes/Patterns/` |
-| 2 | Gateway 429 behavior | Gotcha | `80 Waites/Repos/Gateway Config API.md` |
-
-Draft any of these? (1, 2, both, or skip)
-```
-
-### Phase 3: Maintenance
-
 #### 🏥 Vault Health Check
 
-`/obsidian-curator:vault-health` — Quick audit of your vault's health:
+`/obsidian-curator:vault-health` — Audit your vault's health:
 
 ```
 /obsidian-curator:vault-health
@@ -112,69 +111,69 @@ Returns a scannable report:
 /obsidian-curator:cleanup --type=duplicates
 ```
 
-The vault-curator agent guides you through:
+Guides you through fixing:
 - **Orphaned notes** — Link, add to MOC, or archive
 - **Duplicates** — Merge or differentiate
 - **Stale notes** — Update, archive, or mark reviewed
 - **Convention violations** — Fix frontmatter, move to correct folders
 
-ADHD-friendly features:
-- One question at a time
-- Progress tracking ("Fixed 3/7 issues")
-- Batch operations ("Fix all 5 similar issues?")
-- Clear recommendations with easy choices
+ADHD-friendly: one question at a time, progress tracking, batch operations.
 
-### Phase 4: Advanced
+#### ✏️ Complex Editing
 
-#### ✏️ Note Editor Agent
+Ask Claude to perform advanced note operations:
 
-Complex editing operations handled by a specialized agent:
-
-| Operation | What It Does |
-|-----------|--------------|
-| **Merge notes** | Combine duplicates, preserve all content |
-| **Restructure** | Reorganize sections, fix header hierarchy |
-| **Template migration** | Update notes to follow new templates |
-| **Link enrichment** | Add `[[wikilinks]]` to related notes |
-| **Content enrichment** | Expand sparse notes with vault/memory content |
+| Request | What Happens |
+|---------|--------------|
+| "Merge these Python notes" | Combines content, preserves everything |
+| "Restructure this note" | Reorganizes sections with preview |
+| "Update this to the new template" | Migrates to current template format |
+| "Add links to this note" | Finds and adds relevant `[[wikilinks]]` |
+| "Flesh out this stub" | Enriches from vault and memory |
 
 All operations show previews before applying changes.
 
-#### 📋 Meeting Follow-up
+---
 
-Surfaces relevant action items from meeting notes:
+### At Session End (Automatic Prompts)
 
-```markdown
-> 📋 Found a related action item from your 1-on-1 on 2025-01-02:
-> - [ ] Update Gateway API rate limiting documentation
->
-> Since we're touching this code, want to update the docs too?
-```
+These trigger when you finish a session.
 
-- Searches `80 Waites/Meetings/` for unchecked items
-- Presents contextually when relevant to current work
-- Offers to mark items complete when work is done
+#### 💡 Capture Suggestions
 
-#### 🔄 Repo Note Enrichment
-
-Suggests updates to repo notes based on session work:
+Reviews the session for knowledge worth saving:
 
 ```markdown
-## Repo Note Updates
+## Session Captures
 
-During this session on **Gateway Config API**, I noticed:
+During this session, these items seemed worth noting:
 
-| Section | Addition |
-|---------|----------|
-| Patterns | Repository pattern for config access |
-| Gotchas | Rate limiting exponential backoff |
+| # | Topic | Type | Location |
+|---|-------|------|----------|
+| 1 | Lambda cold start fix | Pattern | `50 Developer Notes/Patterns/` |
+| 2 | Gateway 429 behavior | Gotcha | `80 Waites/Repos/Gateway Config API.md` |
 
-Update the repo note? [All / Select / Skip]
+Draft any of these? (1, 2, both, or skip)
 ```
 
-- Detects when working on known repos
-- Captures patterns, gotchas, key files
-- Batches suggestions at session end
+Only appears if there's something worth capturing.
+
+#### 📓 Session Summary
+
+For significant work sessions, offers to log a summary:
+
+```markdown
+Want me to add a summary to today's daily note?
+
+### 14:30 — Gateway API Rate Limiting
+- Implemented exponential backoff for 429 responses
+- Updated repo note with new pattern
+- Tests passing
+
+Add to daily note? [Yes / Edit / Skip]
+```
+
+Skips silently for quick questions or minor sessions.
 
 ## Prerequisites
 
@@ -329,27 +328,6 @@ Claude: [Creates note]
 4. **Link everything** — Proposes `[[wikilinks]]` to connect content
 5. **Match your system** — Follows your folders, templates, conventions
 6. **ADHD-friendly** — Scannable output, batched suggestions, one question at a time
-
-## Roadmap
-
-### ✅ Phase 1: Core (Complete)
-- `vault-knowledge` skill — Vault conventions awareness
-- `contextual-search` skill — Auto-search during exploration/debugging
-- `/capture` command — Quick capture to daily note
-
-### ✅ Phase 2: Suggestions (Complete)
-- `note-suggester` skill — Recognizes capture-worthy moments
-- Session end hooks — Batch suggestions at session end
-
-### ✅ Phase 3: Maintenance (Complete)
-- `vault-curator` agent — Dedicated cleanup sessions
-- `/vault-health` command — Run vault audit
-- `/cleanup` command — Interactive cleanup
-
-### ✅ Phase 4: Advanced (Complete)
-- `note-editor` agent — Complex merging, restructuring
-- `meeting-followup` skill — Surface unchecked action items
-- `repo-enrichment` skill — Auto-suggest repo note updates
 
 ## Configuration
 
