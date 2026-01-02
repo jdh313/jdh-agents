@@ -10,9 +10,11 @@ Obsidian Curator transforms Claude from a tool executor into a vault-aware colla
 - **Helps edit and maintain** your vault (following your conventions)
 - **Respects your organization** (folders, templates, ADHD needs)
 
-## Features (Phase 1 MVP)
+## Features
 
-### 🔍 Contextual Search
+### Phase 1: Core
+
+#### 🔍 Contextual Search
 Claude automatically searches your vault during:
 - **Topic exploration** — "How does X work?" → checks your notes first
 - **Debugging** — "This is failing" → looks for similar past problems
@@ -20,7 +22,7 @@ Claude automatically searches your vault during:
 
 No permission needed for searches. Findings are woven naturally into responses.
 
-### 📝 Vault Knowledge
+#### 📝 Vault Knowledge
 Claude understands your vault's:
 - Folder structure (PARA-inspired numbered areas)
 - Note types and templates
@@ -29,7 +31,7 @@ Claude understands your vault's:
 
 Vault conventions are stored in `~/Loose Ends/.claude/CLAUDE.md` (easy to update).
 
-### ⚡ Quick Capture
+#### ⚡ Quick Capture
 `/obsidian-curator:capture` — Append quick thoughts to today's daily note with timestamps.
 
 ```
@@ -40,6 +42,39 @@ Result:
 ```markdown
 ## Captured
 - **14:23** — Lambda cold starts fixed with provisioned concurrency
+```
+
+### Phase 2: Suggestions
+
+#### 💡 Note Suggester
+
+Claude recognizes capture-worthy moments during your session:
+- **Debugging wins** — Steps that solved a tricky problem
+- **Patterns discovered** — Reusable code patterns, architectural approaches
+- **Decisions made** — Choices with clear rationale (ADR candidates)
+- **Gotchas found** — Things that weren't obvious, edge cases
+
+Suggestions are non-interrupting:
+- **Inline hints** — Brief suggestion at end of response when relevant
+- **Batched summary** — All captures presented together at session end
+
+#### 🔔 Session End Hooks
+
+At session end, Claude automatically:
+1. Reviews the session for capture-worthy items
+2. Presents a batched summary if anything is worth noting
+3. Asks which items to draft (if any)
+
+Example session-end summary:
+```markdown
+## Session Captures
+
+| # | Topic | Type | Location |
+|---|-------|------|----------|
+| 1 | Lambda cold start fix | Pattern | `50 Developer Notes/Patterns/` |
+| 2 | Gateway 429 behavior | Gotcha | `80 Waites/Repos/Gateway Config API.md` |
+
+Draft any of these? (1, 2, both, or skip)
 ```
 
 ## Prerequisites
@@ -161,6 +196,13 @@ Claude: [Creates note]
 |-------|---------------|--------------|
 | `vault-knowledge` | Working with Obsidian | Reads `~/Loose Ends/.claude/CLAUDE.md` for conventions |
 | `contextual-search` | Exploring, stuck, or deciding | Searches vault, weaves findings into responses |
+| `note-suggester` | During coding sessions | Recognizes capture-worthy moments, suggests notes |
+
+### Hooks (Automatic)
+
+| Hook | Event | What It Does |
+|------|-------|--------------|
+| Session end | Stop | Reviews session, presents batched capture suggestions |
 
 ### Commands (Explicit)
 
@@ -179,9 +221,14 @@ Claude: [Creates note]
 
 ## Roadmap
 
-### Phase 2: Suggestions
+### ✅ Phase 1: Core (Complete)
+- `vault-knowledge` skill — Vault conventions awareness
+- `contextual-search` skill — Auto-search during exploration/debugging
+- `/capture` command — Quick capture to daily note
+
+### ✅ Phase 2: Suggestions (Complete)
 - `note-suggester` skill — Recognizes capture-worthy moments
-- Session end hooks — Batch suggestions, session summaries
+- Session end hooks — Batch suggestions at session end
 
 ### Phase 3: Maintenance
 - `vault-curator` agent — Dedicated cleanup sessions

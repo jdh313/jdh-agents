@@ -1,0 +1,15 @@
+{
+  "hooks": {
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "prompt",
+            "prompt": "Before ending this session, check if there are note suggestions to present.\n\n## Instructions\n\n1. Review the session for capture-worthy moments:\n   - Debugging approaches that worked\n   - Patterns or techniques discovered\n   - Decisions made with rationale\n   - Gotchas or surprises found\n   - Cross-project knowledge gained\n\n2. If there are items worth capturing:\n   - Present them in a batched summary table\n   - Suggest location for each (daily note vs proper note)\n   - Ask which ones to draft\n\n3. If working on a known repo (e.g., Gateway Config API):\n   - Check if the repo note should be updated with new learnings\n   - Suggest specific additions\n\n4. If nothing worth capturing:\n   - End normally without mentioning it\n\n## Format for Suggestions\n\n```markdown\n## Session Captures\n\nDuring this session, these items seemed worth noting:\n\n| # | Topic | Type | Location |\n|---|-------|------|----------|\n| 1 | Topic name | Pattern/Gotcha/Decision | `path/to/note.md` |\n\nDraft any of these? (numbers, all, or skip)\n```\n\nKeep it brief and ADHD-friendly. One clear question at the end.",
+            "timeout": 30
+          }
+        ]
+      }
+    ]
+  }
+}
