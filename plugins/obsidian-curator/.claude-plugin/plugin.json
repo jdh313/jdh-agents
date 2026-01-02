@@ -1,0 +1,20 @@
+{
+  "name": "obsidian-curator",
+  "version": "0.1.0",
+  "description": "A vault-aware collaborator that helps you search, capture, edit, and maintain your Obsidian notes intelligently",
+  "author": {
+    "name": "Jacob Waites",
+    "email": "jacob@example.com"
+  },
+  "keywords": [
+    "obsidian",
+    "notes",
+    "knowledge-management",
+    "vault",
+    "capture",
+    "search",
+    "maintenance"
+  ],
+  "homepage": "https://github.com/yourusername/cc-marketplace/tree/main/plugins/obsidian-curator",
+  "license": "MIT"
+}

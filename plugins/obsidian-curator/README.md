@@ -1,0 +1,244 @@
+# Obsidian Curator
+
+A Claude Code plugin that makes Claude a note-aware collaborator for your Obsidian vault.
+
+## What It Does
+
+Obsidian Curator transforms Claude from a tool executor into a vault-aware collaborator that:
+- **Automatically searches** your notes when relevant (no permission needed)
+- **Suggests captures** for reusable knowledge (with your approval)
+- **Helps edit and maintain** your vault (following your conventions)
+- **Respects your organization** (folders, templates, ADHD needs)
+
+## Features (Phase 1 MVP)
+
+### 🔍 Contextual Search
+Claude automatically searches your vault during:
+- **Topic exploration** — "How does X work?" → checks your notes first
+- **Debugging** — "This is failing" → looks for similar past problems
+- **Decision points** — "Should we use X or Y?" → finds prior decisions, ADRs
+
+No permission needed for searches. Findings are woven naturally into responses.
+
+### 📝 Vault Knowledge
+Claude understands your vault's:
+- Folder structure (PARA-inspired numbered areas)
+- Note types and templates
+- Naming conventions and frontmatter
+- Tag patterns and link conventions
+
+Vault conventions are stored in `~/Loose Ends/.claude/CLAUDE.md` (easy to update).
+
+### ⚡ Quick Capture
+`/obsidian-curator:capture` — Append quick thoughts to today's daily note with timestamps.
+
+```
+/obsidian-curator:capture Lambda cold starts fixed with provisioned concurrency
+```
+
+Result:
+```markdown
+## Captured
+- **14:23** — Lambda cold starts fixed with provisioned concurrency
+```
+
+## Prerequisites
+
+1. **Obsidian** with **Local REST API plugin** installed and running
+2. **Claude Code** with MCP Obsidian tools configured
+3. **Vault CLAUDE.md** — Create `~/Loose Ends/.claude/CLAUDE.md` (see setup below)
+
+## Installation
+
+```bash
+# From your Claude Code plugins directory
+cd ~/.claude/plugins/marketplaces/your-marketplace/plugins
+
+# Clone or copy the plugin
+cp -r /path/to/cc-marketplace/plugins/obsidian-curator .
+
+# Install the plugin
+claude plugin install obsidian-curator
+
+# Restart Claude Code to load the plugin
+```
+
+## Setup
+
+### Step 1: Create Vault CLAUDE.md
+
+The plugin reads vault conventions from `~/Loose Ends/.claude/CLAUDE.md`.
+
+**Option A:** This file was created during plugin setup. Verify it exists:
+```bash
+ls -la ~/Loose\ Ends/.claude/CLAUDE.md
+```
+
+**Option B:** If missing, create it manually or use the template in `DESIGN.md`.
+
+### Step 2: Verify Obsidian MCP Tools
+
+Ensure these MCP tools are available:
+- `mcp__CodeMCP__Obsidian__obsidian_simple_search`
+- `mcp__CodeMCP__Obsidian__obsidian_complex_search`
+- `mcp__CodeMCP__Obsidian__obsidian_get_file_contents`
+- `mcp__CodeMCP__Obsidian__obsidian_get_periodic_note`
+- `mcp__CodeMCP__Obsidian__obsidian_put_content`
+- `mcp__CodeMCP__Obsidian__obsidian_append_content`
+
+Test by running:
+```
+/tools | grep obsidian
+```
+
+### Step 3: Test the Plugin
+
+1. **Test contextual search:**
+   ```
+   Ask Claude: "How does Python's attrs library work?"
+   ```
+   Claude should search your vault and reference any existing notes.
+
+2. **Test quick capture:**
+   ```
+   /obsidian-curator:capture Test capture from new plugin
+   ```
+   Check `01 Daily Notes/YYYY-MM-DD.md` for the capture.
+
+3. **Test vault knowledge:**
+   ```
+   Ask Claude: "Where should I put a note about a new debugging pattern?"
+   ```
+   Claude should reference your folder structure and suggest `50 Developer Notes/Patterns/`.
+
+## Usage
+
+### Automatic Search
+
+Just ask questions. Claude will search your vault when relevant:
+
+```
+You: "How did we handle authentication in the Gateway API?"
+Claude: [Searches vault, finds Gateway Config API repo note]
+"According to your Gateway API repo note, authentication uses JWT tokens..."
+```
+
+### Quick Captures
+
+Capture quick thoughts to today's daily note:
+
+```
+/obsidian-curator:capture Learned that FastAPI auto-validates with Pydantic
+```
+
+### Creating Proper Notes
+
+Ask Claude to create a note. It will:
+1. Search for existing related notes
+2. Suggest the right location and template
+3. Show you the full content for approval
+4. Create it only after you confirm
+
+```
+You: "Create a note about the Repository Pattern"
+Claude: [Searches, finds no existing note]
+"I'll create a reference note in 50 Developer Notes/Patterns/Repository Pattern.md
+
+Here's the proposed content:
+[Shows full markdown with template]
+
+Create this note?"
+
+You: "Yes"
+Claude: [Creates note]
+```
+
+## How It Works
+
+### Skills (Auto-Triggered)
+
+| Skill | Triggers When | What It Does |
+|-------|---------------|--------------|
+| `vault-knowledge` | Working with Obsidian | Reads `~/Loose Ends/.claude/CLAUDE.md` for conventions |
+| `contextual-search` | Exploring, stuck, or deciding | Searches vault, weaves findings into responses |
+
+### Commands (Explicit)
+
+| Command | Purpose |
+|---------|---------|
+| `/obsidian-curator:capture` | Quick capture to daily note |
+
+## Principles
+
+1. **Reads are automatic** — Claude searches without asking
+2. **Writes need consent** — Never modifies vault without approval
+3. **Edit over create** — Prefers appending to existing notes
+4. **Link everything** — Proposes `[[wikilinks]]` to connect content
+5. **Match your system** — Follows your folders, templates, conventions
+6. **ADHD-friendly** — Scannable output, batched suggestions, one question at a time
+
+## Roadmap
+
+### Phase 2: Suggestions
+- `note-suggester` skill — Recognizes capture-worthy moments
+- Session end hooks — Batch suggestions, session summaries
+
+### Phase 3: Maintenance
+- `vault-curator` agent — Dedicated cleanup sessions
+- `/vault-health` command — Run vault audit
+- `/cleanup` command — Interactive cleanup
+
+### Phase 4: Advanced
+- `note-editor` agent — Complex merging, restructuring
+- Meeting follow-up — Surface unchecked action items
+- Repo note enrichment — Auto-suggest repo note updates
+
+## Configuration
+
+### Vault Path
+
+Default: `~/Loose Ends`
+
+To use a different vault, edit your vault's CLAUDE.md path in:
+- `skills/vault-knowledge/SKILL.md` (line ~90)
+- `skills/contextual-search/SKILL.md` (if it references the path)
+
+### Template Customization
+
+Update `~/Loose Ends/.claude/CLAUDE.md` with your:
+- Folder structure changes
+- New note templates
+- Modified frontmatter fields
+- Different naming conventions
+
+The plugin reads from there, so changes apply immediately.
+
+## Troubleshooting
+
+### "No vault conventions found"
+- Verify `~/Loose Ends/.claude/CLAUDE.md` exists
+- Check the path in `skills/vault-knowledge/SKILL.md`
+
+### "Obsidian MCP tools not available"
+- Ensure Obsidian is running
+- Verify Local REST API plugin is enabled
+- Check MCP server configuration in Claude Code
+
+### Quick capture not working
+- Verify today's daily note exists: `01 Daily Notes/YYYY-MM-DD.md`
+- Check daily note has proper frontmatter
+- Ensure Obsidian API is responding
+
+### Search finds nothing
+- Check spelling and keywords
+- Try broader search terms
+- Verify notes exist in the expected location
+- Use `/tools mcp__CodeMCP__Obsidian__obsidian_simple_search` to test directly
+
+## Contributing
+
+See `DESIGN.md` for the full plugin architecture and design decisions.
+
+## License
+
+MIT
