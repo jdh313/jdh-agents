@@ -124,6 +124,58 @@ ADHD-friendly features:
 - Batch operations ("Fix all 5 similar issues?")
 - Clear recommendations with easy choices
 
+### Phase 4: Advanced
+
+#### ✏️ Note Editor Agent
+
+Complex editing operations handled by a specialized agent:
+
+| Operation | What It Does |
+|-----------|--------------|
+| **Merge notes** | Combine duplicates, preserve all content |
+| **Restructure** | Reorganize sections, fix header hierarchy |
+| **Template migration** | Update notes to follow new templates |
+| **Link enrichment** | Add `[[wikilinks]]` to related notes |
+| **Content enrichment** | Expand sparse notes with vault/memory content |
+
+All operations show previews before applying changes.
+
+#### 📋 Meeting Follow-up
+
+Surfaces relevant action items from meeting notes:
+
+```markdown
+> 📋 Found a related action item from your 1-on-1 on 2025-01-02:
+> - [ ] Update Gateway API rate limiting documentation
+>
+> Since we're touching this code, want to update the docs too?
+```
+
+- Searches `80 Waites/Meetings/` for unchecked items
+- Presents contextually when relevant to current work
+- Offers to mark items complete when work is done
+
+#### 🔄 Repo Note Enrichment
+
+Suggests updates to repo notes based on session work:
+
+```markdown
+## Repo Note Updates
+
+During this session on **Gateway Config API**, I noticed:
+
+| Section | Addition |
+|---------|----------|
+| Patterns | Repository pattern for config access |
+| Gotchas | Rate limiting exponential backoff |
+
+Update the repo note? [All / Select / Skip]
+```
+
+- Detects when working on known repos
+- Captures patterns, gotchas, key files
+- Batches suggestions at session end
+
 ## Prerequisites
 
 1. **Obsidian** with **Local REST API plugin** installed and running
@@ -244,6 +296,8 @@ Claude: [Creates note]
 | `vault-knowledge` | Working with Obsidian | Reads `~/Loose Ends/.claude/CLAUDE.md` for conventions |
 | `contextual-search` | Exploring, stuck, or deciding | Searches vault, weaves findings into responses |
 | `note-suggester` | During coding sessions | Recognizes capture-worthy moments, suggests notes |
+| `meeting-followup` | Working on projects | Surfaces relevant unchecked action items |
+| `repo-enrichment` | Working on known repos | Suggests updates to repo notes |
 
 ### Hooks (Automatic)
 
@@ -256,6 +310,7 @@ Claude: [Creates note]
 | Agent | Purpose | Invocation |
 |-------|---------|------------|
 | `vault-curator` | Interactive cleanup sessions | Via `/cleanup` command |
+| `note-editor` | Complex note editing (merge, restructure) | Via direct request |
 
 ### Commands (Explicit)
 
@@ -290,10 +345,10 @@ Claude: [Creates note]
 - `/vault-health` command — Run vault audit
 - `/cleanup` command — Interactive cleanup
 
-### Phase 4: Advanced
+### ✅ Phase 4: Advanced (Complete)
 - `note-editor` agent — Complex merging, restructuring
-- Meeting follow-up — Surface unchecked action items
-- Repo note enrichment — Auto-suggest repo note updates
+- `meeting-followup` skill — Surface unchecked action items
+- `repo-enrichment` skill — Auto-suggest repo note updates
 
 ## Configuration
 
