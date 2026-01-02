@@ -15,16 +15,21 @@ allowed-tools:
 
 ## Immediate Execution
 
-**VCS Detection:** !`test -d .jj && echo "jj" || echo "git"`
+**VCS Detection:**
+First, check which version control system is in use by checking for the `.jj` directory. Then execute the appropriate status and diff commands.
 
-**If jj detected:**
-!`test -d .jj && jj status || true`
-!`test -d .jj && jj diff || true`
+**Check for jj:**
+- If `.jj/` exists, this is a Jujutsu repository
+- Otherwise, this is a git repository
 
-**If git detected:**
-!`test -d .jj || git status`
-!`test -d .jj || git diff`
-!`test -d .jj || git diff --staged`
+**For Jujutsu repositories:**
+- Run: `jj status`
+- Run: `jj diff`
+
+**For git repositories:**
+- Use MCP tool `mcp__git__git_status`
+- Use MCP tool `mcp__git__git_diff_unstaged`
+- Use MCP tool `mcp__git__git_diff_staged`
 
 ## Instructions
 
