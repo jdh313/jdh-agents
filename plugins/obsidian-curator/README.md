@@ -303,7 +303,8 @@ Claude: [Creates note]
 
 | Hook | Event | What It Does |
 |------|-------|--------------|
-| Session end | Stop | Reviews session, presents batched capture suggestions |
+| Capture suggestions | Stop | Reviews session, presents batched capture suggestions |
+| Session summary | Stop | Offers to append work summary to daily note |
 
 ### Agents (Subagents)
 

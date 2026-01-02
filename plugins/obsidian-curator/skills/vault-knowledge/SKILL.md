@@ -104,6 +104,68 @@ When creating or editing notes:
 4. Use `up` frontmatter field to link to parent MOC if hierarchical
 5. Suggest adding new note to relevant MOCs/Dashboards
 
+### MOC Maintenance
+
+When creating notes in folders that have MOCs or Dashboards, ensure the new note is properly integrated.
+
+**Detection:**
+```python
+# Check if folder has a dashboard/MOC
+obsidian_list_files_in_dir("50 Developer Notes")
+# Look for: "00 Dashboard.md", "[Folder Name] MOC.md", or similar
+```
+
+**Common MOC patterns:**
+- `00 Dashboard.md` — Usually has dataview queries that auto-list notes
+- `[Topic] MOC.md` — Map of Content with manually curated links
+- Folder notes (same name as folder) — Index for the folder
+
+**After creating a note:**
+
+1. **Check for dataview queries:**
+   - Read the folder's dashboard/MOC
+   - Check if it uses dataview to auto-list notes
+   - If yes, verify new note will be caught by the query (correct folder, tags, etc.)
+
+2. **Check for manual links:**
+   - If MOC has manually curated links (not dataview)
+   - Suggest adding the new note to the appropriate section
+   - Provide the exact link to add: `- [[New Note Name]]`
+
+3. **Suggest MOC update if needed:**
+   ```markdown
+   The new note won't automatically appear in the folder's MOC.
+
+   Add to `50 Developer Notes/00 Dashboard.md`?
+
+   Under "## Patterns" section, add:
+   - [[New Pattern Name]]
+
+   [Add link / Skip]
+   ```
+
+**Example MOC check:**
+```python
+# After creating "Repository Pattern.md" in "50 Developer Notes/Patterns/"
+# 1. Check parent folder for MOC
+moc = obsidian_get_file_contents("50 Developer Notes/00 Dashboard.md")
+
+# 2. Check if dataview will catch it
+# If MOC has: ```dataview LIST FROM "50 Developer Notes" ```
+# Then new note WILL appear automatically
+
+# 3. If MOC has manual links under "## Patterns":
+# Suggest adding: - [[Repository Pattern]]
+```
+
+**MOC types and behavior:**
+
+| MOC Type | Auto-includes new notes? | Action needed |
+|----------|--------------------------|---------------|
+| Dataview query | Yes (if matches query) | Verify tags/folder match |
+| Manual links | No | Suggest adding link |
+| Hybrid (both) | Partial | Check both parts |
+
 ## Common Operations
 
 ### Get Today's Daily Note

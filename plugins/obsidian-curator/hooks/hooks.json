@@ -9,6 +9,15 @@
             "timeout": 30
           }
         ]
+      },
+      {
+        "hooks": [
+          {
+            "type": "prompt",
+            "prompt": "If this was a significant work session, offer to append a brief summary to today's daily note.\n\n## When to Offer\n\nOffer session summary when the session included:\n- Code changes to a project\n- Debugging or problem-solving\n- Architecture decisions\n- Multiple files touched\n- Meaningful progress on a task\n\nDo NOT offer for:\n- Quick questions/answers\n- Simple file reads\n- Conversations without code work\n- Sessions under 5 minutes of actual work\n\n## Instructions\n\n1. Check if session was significant (see criteria above)\n2. If not significant, skip silently\n3. If significant, ask user if they want a session summary added to daily note\n4. If yes, use obsidian_get_periodic_note to get today's daily note\n5. Append under '## Session Summaries' section (create if missing)\n6. Keep summary to 3-5 bullet points max\n\n## Summary Format\n\n```markdown\n### HH:MM — Brief Title\n- Main accomplishment or change\n- Key decision made (if any)\n- Files/repos touched\n- Next steps (if relevant)\n```\n\n## Example Interaction\n\n```\nThis was a productive session. Want me to add a summary to today's daily note?\n\nProposed summary:\n### 14:30 — Gateway API Rate Limiting\n- Implemented exponential backoff for 429 responses\n- Updated repo note with new pattern\n- Tests passing\n\nAdd to daily note? [Yes / Edit / Skip]\n```\n\nAsk permission before writing. Keep it brief.",
+            "timeout": 30
+          }
+        ]
       }
     ]
   }
