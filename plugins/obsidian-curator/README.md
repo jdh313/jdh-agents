@@ -58,6 +58,23 @@ When working on a known repo, Claude notices patterns and gotchas worth document
 > 💡 This rate limiting pattern might be worth adding to the Gateway Config API repo note.
 ```
 
+#### 🗄️ Base-Aware Context
+
+Claude understands your Obsidian Bases and queries them automatically:
+
+| Working On | Relevant Base | What Claude Does |
+|------------|---------------|------------------|
+| Repository code | Waites Repos | Finds repo patterns, gotchas |
+| Architecture decision | ADRs | Searches prior decisions |
+| Evaluating tools | Software | Checks if already tracked |
+| Debugging | Jira Tickets | Finds related tasks |
+
+```
+You: "Should we add Redis caching?"
+Claude: "Your ADRs base shows you chose Memcached for the Gateway API in October.
+        The Software base has Redis marked as 'considering' with a note about complexity..."
+```
+
 ---
 
 ### On Request (Commands & Requests)
@@ -77,6 +94,24 @@ Result in daily note:
 ## Captured
 - **14:23** — Lambda cold starts fixed with provisioned concurrency
 ```
+
+#### 🗃️ Add to Base
+
+`/obsidian-curator:add-to-base` — Create structured entries for your Bases:
+
+```
+/obsidian-curator:add-to-base ideas New authentication pattern
+/obsidian-curator:add-to-base software Ruff - Fast Python linter
+/obsidian-curator:add-to-base adr Use PostgreSQL for user data
+```
+
+Claude will:
+1. Identify the target base
+2. Prompt for required properties (status, category, etc.)
+3. Show the proposed note with frontmatter
+4. Create in the correct location after approval
+
+Supported bases: `ideas`, `software`, `prompts`, `adr`, `repo`, `hobby`
 
 #### 🏥 Vault Health Check
 
@@ -139,23 +174,25 @@ All operations show previews before applying changes.
 
 These trigger when you finish a session.
 
-#### 💡 Capture Suggestions
+#### 💡 Capture Suggestions (Base-Focused)
 
-Reviews the session for knowledge worth saving:
+Reviews the session for knowledge worth saving — prioritizing Base entries:
 
 ```markdown
 ## Session Captures
 
 During this session, these items seemed worth noting:
 
-| # | Topic | Type | Location |
-|---|-------|------|----------|
-| 1 | Lambda cold start fix | Pattern | `50 Developer Notes/Patterns/` |
-| 2 | Gateway 429 behavior | Gotcha | `80 Waites/Repos/Gateway Config API.md` |
+| # | Topic | Type | Target Base |
+|---|-------|------|-------------|
+| 1 | Rate limiting pattern | Pattern | Waites Repos (Gateway) |
+| 2 | Ruff linter setup | Tool | Software |
+| 3 | Use PostgreSQL for X | Decision | ADRs |
 
-Draft any of these? (1, 2, both, or skip)
+Create any of these? (numbers, all, or skip)
 ```
 
+Prefers structured Base entries over daily note captures.
 Only appears if there's something worth capturing.
 
 #### 📓 Session Summary
@@ -293,8 +330,9 @@ Claude: [Creates note]
 | Skill | Triggers When | What It Does |
 |-------|---------------|--------------|
 | `vault-knowledge` | Working with Obsidian | Reads `~/Loose Ends/.claude/CLAUDE.md` for conventions |
-| `contextual-search` | Exploring, stuck, or deciding | Searches vault, weaves findings into responses |
-| `note-suggester` | During coding sessions | Recognizes capture-worthy moments, suggests notes |
+| `bases-knowledge` | Working with Obsidian | Understands Bases, their filters, and required properties |
+| `contextual-search` | Exploring, stuck, or deciding | Searches vault and relevant Bases, weaves findings into responses |
+| `note-suggester` | During coding sessions | Recognizes capture-worthy moments, suggests notes or Base entries |
 | `meeting-followup` | Working on projects | Surfaces relevant unchecked action items |
 | `repo-enrichment` | Working on known repos | Suggests updates to repo notes |
 
@@ -302,7 +340,7 @@ Claude: [Creates note]
 
 | Hook | Event | What It Does |
 |------|-------|--------------|
-| Capture suggestions | Stop | Reviews session, presents batched capture suggestions |
+| Capture suggestions | Stop | Reviews session, suggests Base entries (prioritized) or notes |
 | Session summary | Stop | Offers to append work summary to daily note |
 
 ### Agents (Subagents)
@@ -317,6 +355,7 @@ Claude: [Creates note]
 | Command | Purpose |
 |---------|---------|
 | `/obsidian-curator:capture` | Quick capture to daily note |
+| `/obsidian-curator:add-to-base` | Create structured Base entry |
 | `/obsidian-curator:vault-health` | Run vault health audit |
 | `/obsidian-curator:cleanup` | Start interactive cleanup session |
 

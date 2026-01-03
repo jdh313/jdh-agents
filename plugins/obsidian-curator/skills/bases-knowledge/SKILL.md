@@ -1,0 +1,195 @@
+---
+name: bases-knowledge
+description: >
+  INVOKE when working with Obsidian to understand user's Bases. Reads all .base
+  files, extracts filters and required properties, and knows which base is
+  relevant for current context. Essential for base-aware operations.
+allowed-tools:
+  - Read
+  - Glob
+  - mcp__CodeMCP__Obsidian__obsidian_simple_search
+  - mcp__CodeMCP__Obsidian__obsidian_get_file_contents
+  - mcp__CodeMCP__Obsidian__obsidian_list_files_in_dir
+---
+
+# Bases Knowledge
+
+You understand the user's Obsidian Bases system and can determine which bases
+are relevant for current work.
+
+## First Step: Load Bases Registry
+
+When invoked, read the bases registry from the vault's CLAUDE.md:
+
+```
+Read /Users/jacob/Loose Ends/.claude/CLAUDE.md
+```
+
+Look for the `## Bases` section which documents all bases, their purposes,
+filters, and required properties.
+
+## Base File Format
+
+Bases are stored as `.base` files (YAML) in `Bases/` folder:
+
+```yaml
+filters:
+  and:
+    - file.inFolder("80 Waites/Repos")
+formulas:
+  Days Worked: note["working-days"].length
+views:
+  - type: table
+    name: Backend
+    order:
+      - file.name
+      - github-url
+      - status
+    groupBy:
+      property: status
+```
+
+### Key Components
+
+- **filters** — Determine which notes appear in the base
+  - `file.inFolder("path")` — Notes in specific folder
+  - `file.hasTag("tag")` — Notes with specific tag
+  - `type == "value"` — Property equals value
+  - `and: [...]` / `or: [...]` — Combine conditions
+
+- **views** — Display configurations (table, cards, list)
+  - `order` — Properties shown as columns
+  - `groupBy` — Grouping property
+  - `sort` — Sort order
+
+- **formulas** — Calculated fields
+
+## Context-to-Base Mapping
+
+Map current work context to relevant bases:
+
+| Context | Relevant Bases | Why |
+|---------|----------------|-----|
+| Working on a repo | Waites Repos | Find repo notes, patterns |
+| Making architecture decision | ADRs | Check prior decisions |
+| Debugging/fixing | Jira Tickets | Related tasks, history |
+| Meeting notes | Meetings | Find related meetings |
+| New tool/library | Software | Check if already tracked |
+| New technique/pattern | Ideas | Capture for later |
+| Created useful prompt | Prompts | Add to prompt library |
+| Hobby project | Hobbies, Hobby Reviews | Track hobby work |
+
+## Determining Required Properties
+
+To create an entry that appears in a base correctly:
+
+1. **Read the base file** to understand its filters
+2. **Check existing entries** to see property patterns
+3. **Ensure new note meets filter criteria**:
+   - Correct folder location
+   - Required tags
+   - Required property values
+
+### Example: Creating an ADR Entry
+
+The ADRs base has filters:
+```yaml
+filters:
+  or:
+    - file.folder == "80 Waites/ADRs"
+    - contains(tags, "type/adr")
+```
+
+Required properties (from views):
+- `decision_date` — Date of decision
+- `status` — proposed/accepted/deprecated/superseded
+- `area` — Domain area
+- `context` — Why this decision was needed
+- `jira_tickets` — Related tickets
+- `decision_makers` — Who decided
+
+## Operations
+
+### Find Relevant Base for Context
+
+```python
+# User is working on Gateway Config API
+# Check Waites Repos base for repo note
+grep for "Gateway" in notes matching Waites Repos filter
+```
+
+### Check if Entry Exists
+
+Before suggesting a new base entry:
+1. Identify the target base
+2. Search notes matching that base's filter
+3. Check if similar entry already exists
+
+### Suggest Base Entry
+
+When user discovers something worth capturing:
+
+```markdown
+> 💡 **Base suggestion**
+> This rate limiting pattern could be an entry in your **Ideas** base.
+>
+> Required properties:
+> - `status`: proposed
+>
+> Create this entry? [Yes / No]
+```
+
+## User's Bases Reference
+
+### Work Bases
+
+**Waites Repos** (`Bases/Waites Repos.base`)
+- Filter: `file.inFolder("80 Waites/Repos")`
+- Properties: github-url, used-in, uses, status
+- Use: Repository documentation
+
+**ADRs** (`Bases/ADRs.base`)
+- Filter: `file.folder == "80 Waites/ADRs"` OR `tags contains "type/adr"`
+- Properties: decision_date, status, area, context, jira_tickets, decision_makers
+- Use: Architecture Decision Records
+
+**Jira Tickets** (`Bases/Jira Tickets.base`)
+- Filter: Complex (type == "task" with epic, or in Jira Tickets folder)
+- Properties: title, estimated-days, status, epic, epic-order, type, working-days
+- Use: Task tracking
+
+**Meetings** (`Bases/Meetings.base`)
+- Filter: Meeting notes folder
+- Use: Meeting documentation
+
+### Knowledge Bases
+
+**Ideas** (`Bases/Ideas.base`)
+- Filter: `file.inFolder("Ideas")`
+- Properties: status
+- Use: Capture ideas for later
+
+**Prompts** (`Bases/Prompts.base`)
+- Filter: `file.inFolder("Prompts")`
+- Properties: description
+- Use: Useful prompts library
+
+**Software** (`Bases/Software.base`)
+- Filter: Software Catalog folder OR AWS service notes
+- Properties: category, solves, status, alternatives, url, integrations
+- Use: Software/tool catalog
+
+### Personal Bases
+
+**Hobbies** (`Bases/Hobbies.base`)
+- Filter: `file.inFolder("20 Hobbies/Hobby Catalog")`
+- Properties: status, time_commitment, financial_commitment
+- Use: Hobby inventory
+
+## Remember
+
+- **Bases are views, not storage** — Notes live in folders, bases display them
+- **Filters determine membership** — Note must match filter to appear in base
+- **Properties shown in order** — The `order` array lists expected properties
+- **Check before suggesting** — Search base for existing entries first
+- **Prefer existing bases** — Suggest entries in user's established bases

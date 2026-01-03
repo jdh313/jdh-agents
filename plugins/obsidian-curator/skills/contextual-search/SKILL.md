@@ -203,6 +203,68 @@ obsidian_get_recent_periodic_notes(period="daily", limit=7, include_content=True
 }
 ```
 
+## Base-Aware Search
+
+The user has Bases — database-like views of their notes. When searching,
+consider which bases are relevant and query notes that would appear in them.
+
+### Context-to-Base Mapping
+
+| Working On | Relevant Base | Search Pattern |
+|------------|---------------|----------------|
+| Repository code | **Waites Repos** | `file.inFolder("80 Waites/Repos")` |
+| Architecture decision | **ADRs** | `file.folder == "80 Waites/ADRs"` |
+| Bug/task | **Jira Tickets** | Notes with `type == "task"` |
+| New tool/library | **Software** | `file.inFolder("30 Productivity and Tools/Software Catalog")` |
+| Meeting follow-up | **Meetings** | `file.inFolder("80 Waites/Meetings")` |
+
+### Base Query Examples
+
+**Search for repo info:**
+```json
+{
+  "and": [
+    {"glob": ["**/80 Waites/Repos/*.md", {"var": "path"}]},
+    {"regexp": ["Gateway", {"var": "content"}]}
+  ]
+}
+```
+
+**Search ADRs for prior decisions:**
+```json
+{
+  "and": [
+    {"glob": ["**/80 Waites/ADRs/*.md", {"var": "path"}]},
+    {"regexp": ["caching|cache", {"var": "content"}]}
+  ]
+}
+```
+
+**Search Software catalog:**
+```json
+{
+  "glob": ["**/30 Productivity and Tools/Software Catalog/*.md", {"var": "path"}]
+}
+```
+
+### Referencing Bases in Responses
+
+When search results come from a base-tracked folder, reference it naturally:
+
+**Good:**
+- "Your Waites Repos base shows Gateway Config API uses FastAPI..."
+- "According to your ADRs base, you decided on PostgreSQL in October..."
+- "The Software base tracks this — you're using Ruff for linting..."
+
+### Suggesting Base Entries
+
+If search finds nothing but the topic is capture-worthy:
+
+```markdown
+> 💡 This debugging approach isn't documented yet.
+> Add to your **Ideas** base for future reference?
+```
+
 ## What to Do With Results
 
 ### Relevant Hit Found
