@@ -40,13 +40,15 @@ def lint_plugin_file(plugin_path: Path) -> list[str]:
             with plugin_path.open() as f:
                 data = json.load(f)
 
-            # Check for common plugin.json fields
-            if "name" not in data:
-                warnings.append("Missing 'name' field in plugin.json")
-            if "version" not in data:
-                warnings.append("Missing 'version' field in plugin.json")
-            if "description" not in data:
-                warnings.append("Missing 'description' field in plugin.json")
+            # Only check plugin.json files for plugin metadata fields
+            # (skip hooks.json, mcp-config.json, etc.)
+            if plugin_path.name == "plugin.json":
+                if "name" not in data:
+                    warnings.append("Missing 'name' field in plugin.json")
+                if "version" not in data:
+                    warnings.append("Missing 'version' field in plugin.json")
+                if "description" not in data:
+                    warnings.append("Missing 'description' field in plugin.json")
 
         except json.JSONDecodeError as e:
             errors.append(f"Invalid JSON: {e}")
