@@ -1,0 +1,9 @@
+{
+  "name": "doing",
+  "version": "0.1.0",
+  "description": "Time tracking with doing CLI. Start/stop tasks, backdate entries, query work history.",
+  "author": {
+    "name": "Jacob Hoehler"
+  },
+  "keywords": ["time-tracking", "doing", "timesheet", "productivity"]
+}
