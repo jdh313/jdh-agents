@@ -57,6 +57,21 @@
       ]
     },
     {
+      "name": "doing",
+      "source": "./plugins/doing",
+      "description": "Time tracking with doing CLI. Start/stop tasks, backdate entries, query work history.",
+      "version": "0.1.0",
+      "author": {
+        "name": "Jacob Hoehler"
+      },
+      "keywords": [
+        "time-tracking",
+        "doing",
+        "timesheet",
+        "productivity"
+      ]
+    },
+    {
       "name": "fastapi-expert",
       "source": "./plugins/fastapi-expert",
       "description": "Expert patterns for FastAPI development: authentication, async database integration, and testing",
@@ -259,7 +274,7 @@
     "description": "Personal Claude Code plugin marketplace",
     "version": "1.0.0",
     "homepage": "https://github.com/jdh313/cc-marketplace",
-    "totalPlugins": 14,
-    "lastUpdated": "2026-01-05"
+    "totalPlugins": 15,
+    "lastUpdated": "2026-01-06"
   }
 }
