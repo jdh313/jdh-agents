@@ -216,6 +216,65 @@ Full example with all optional fields:
 | `scripts/lint_plugins.py` | Check plugin files for errors | Catches common issues early |
 | `.github/workflows/validate.yml` | CI/CD pipeline | Automated validation on push/PR |
 
+## Troubleshooting Broken Plugins
+
+### Symptom: Plugin shows "installed" but can't be used or uninstalled
+
+**Diagnosis:**
+1. Check debug logs for errors like:
+   ```
+   [ERROR] Plugin X has an invalid manifest file... Validation errors: agents: Invalid input: must end with ".md"
+   ```
+2. Check if cache exists and has all components:
+   ```bash
+   ls -laR ~/.claude/plugins/cache/cc-marketplace/[plugin-name]/
+   ```
+
+**Common Causes:**
+
+1. **Explicit component paths in plugin.json pointing to directories instead of files**
+   - Wrong: `"agents": "./agents/"` or `"skills": "./skills/"`
+   - Fix: Remove explicit paths entirely (use auto-discovery) OR specify individual `.md` files
+   - Auto-discovery finds: `skills/`, `agents/`, `commands/`, `hooks/hooks.json` automatically
+
+2. **Stale cache with old/broken plugin.json**
+   - Cache retains old version even after source is fixed
+   - Fix: Bump version in plugin.json, push, then update plugin
+
+3. **Orphaned registry entry (cache deleted but registry remains)**
+   - Symptoms: Shows installed, can't uninstall, can't use
+   - Fix: Remove entry from `~/.claude/plugins/installed_plugins.json`
+
+4. **Incomplete cache (only plugin.json, missing skills/agents/commands)**
+   - Check with: `tree ~/.claude/plugins/cache/cc-marketplace/[plugin-name]/`
+   - Fix: Delete cache dir and remove registry entry
+
+**Full Reset Procedure:**
+```bash
+# 1. Delete the broken cache
+rm -rf ~/.claude/plugins/cache/cc-marketplace/[plugin-name]
+
+# 2. Remove from registry (edit JSON to remove the plugin entry)
+# File: ~/.claude/plugins/installed_plugins.json
+
+# 3. Restart Claude Code
+
+# 4. Reinstall fresh
+/plugin install [plugin-name]@cc-marketplace
+```
+
+### plugin.json Best Practices
+
+**DO:**
+- Keep plugin.json minimal (name, version, description, author, keywords)
+- Let auto-discovery find components in default locations
+- Bump version after any plugin.json changes
+
+**DON'T:**
+- Add explicit paths like `"skills": "./skills/"` — auto-discovery handles this
+- Add `"category"` field — not supported, causes install failure
+- Use `../` paths — paths are relative to plugin root, not `.claude-plugin/`
+
 ## Notes for Future Development
 
 - **Plugin discovery:** `sync_marketplace.py` uses `rglob("plugin.json")` to find all plugins recursively. Ensure plugin metadata is always in `.claude-plugin/plugin.json` relative to the plugin directory root.
