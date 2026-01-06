@@ -1,0 +1,9 @@
+{
+  "name": "atuin-runbooks",
+  "version": "1.0.0",
+  "description": "Create and modify Atuin Desktop runbooks (.atrb files) from natural language",
+  "author": {
+    "name": "Jacob Hoehler"
+  },
+  "keywords": ["atuin", "runbooks", "automation", "executable-docs"]
+}
