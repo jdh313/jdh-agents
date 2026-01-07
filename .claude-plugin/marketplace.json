@@ -27,7 +27,7 @@
       "name": "atomic-commits",
       "source": "./plugins/atomic-commits",
       "description": "Create atomic commits with conventional commit messages. Supports git and jj (Jujutsu).",
-      "version": "1.3.0",
+      "version": "1.4.0",
       "author": {
         "name": "Jacob Prince"
       },
@@ -75,7 +75,7 @@
       "name": "doing",
       "source": "./plugins/doing",
       "description": "Time tracking with doing CLI. Start/stop tasks, backdate entries, query work history.",
-      "version": "0.1.0",
+      "version": "0.2.0",
       "author": {
         "name": "Jacob Hoehler"
       },
@@ -124,7 +124,7 @@
       "name": "history-detective",
       "source": "./plugins/history-detective",
       "description": "History investigation tools: bisect, blame, file evolution, and branch comparison for git and jj",
-      "version": "0.1.0",
+      "version": "0.2.0",
       "author": {
         "name": "Jacob Prince"
       },
@@ -234,7 +234,7 @@
       "name": "permissions-manager",
       "source": "./plugins/permissions-manager",
       "description": "Manage Claude Code permissions and troubleshoot permission errors",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "author": {
         "name": "Jacob Prince"
       },
@@ -251,7 +251,7 @@
       "name": "python-dev",
       "source": "./plugins/python-dev",
       "description": "Comprehensive Python development skills: write Pythonic code, debug systematically, and fix failing tests",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "author": {
         "name": "Jacob Hoehler"
       },
@@ -271,7 +271,7 @@
       "name": "review-prep",
       "source": "./plugins/review-prep",
       "description": "Automate code review preparation with PR descriptions, commit cleanup, and diff analysis for git and jj",
-      "version": "0.1.0",
+      "version": "0.2.0",
       "author": {
         "name": "Jacob Prince"
       },
@@ -290,6 +290,6 @@
     "version": "1.0.0",
     "homepage": "https://github.com/jdh313/cc-marketplace",
     "totalPlugins": 16,
-    "lastUpdated": "2026-01-06"
+    "lastUpdated": "2026-01-07"
   }
 }
