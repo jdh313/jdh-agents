@@ -1,5 +1,6 @@
 ---
 description: View and search doing entries
+context: fork
 allowed-tools:
   - Bash(doing:*)
 ---
