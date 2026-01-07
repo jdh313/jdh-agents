@@ -1,5 +1,6 @@
 ---
 description: Comprehensive diff analysis with risk detection and impact metrics for code review
+context: fork
 allowed-tools:
   - Bash(git:*)
   - Bash(jj:*)

@@ -1,6 +1,6 @@
 {
   "name": "review-prep",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Automate code review preparation with PR descriptions, commit cleanup, and diff analysis for git and jj",
   "author": {
     "name": "Jacob Waites"
