@@ -676,6 +676,97 @@ EOF
 7. **Invalid JSON**: Missing quotes, brackets, or commas
 8. **Overly permissive**: Using `bash:*` when only git needed (security)
 
+## New in Claude Code v2.1.0
+
+### `--tools` Flag
+
+Restrict which built-in tools Claude can use in interactive sessions:
+
+```bash
+# Only allow file reading and grep
+claude --tools Read,Grep
+
+# Allow everything except Write
+claude --tools Read,Edit,Grep,Glob,Bash
+
+# Useful for restricted/audit modes
+claude --tools Read,Grep,Glob  # Read-only exploration
+```
+
+**Use cases:**
+- Read-only auditing sessions
+- Restricting to specific operations
+- Sandboxed exploration of unfamiliar codebases
+
+---
+
+### `Task(AgentName)` Permission Syntax
+
+Disable specific agents using permission syntax:
+
+```json
+{
+  "allowedTools": [
+    "Task(*)",           // Allow all agents by default
+    "!Task(junior-dev)", // But block junior-dev agent
+    "!Task(Explore)"     // And block Explore agent
+  ]
+}
+```
+
+**Pattern syntax:**
+| Pattern | Effect |
+|---------|--------|
+| `Task(*)` | Allow all agents |
+| `Task(AgentName)` | Allow specific agent |
+| `!Task(AgentName)` | Block specific agent |
+| `!Task(*)` | Block all agents |
+
+**Use cases:**
+- Prevent autonomous agent spawning
+- Restrict to specific agent types
+- Audit mode (block all agents, manual control only)
+
+---
+
+### Wildcard Bash Patterns (Updated Syntax)
+
+v2.1.0 supports space-based wildcard patterns:
+
+**Old syntax:**
+```yaml
+allowed-tools:
+  - Bash(npm:*)      # colon before asterisk
+```
+
+**New syntax (v2.1.0):**
+```yaml
+allowed-tools:
+  - Bash(npm *)      # space before asterisk
+```
+
+**Examples:**
+```yaml
+allowed-tools:
+  - Bash(git *)           # All git commands
+  - Bash(uv run pytest *) # pytest via uv
+  - Bash(docker *)        # All docker commands
+```
+
+**In settings.json (allowedTools):**
+```json
+{
+  "allowedTools": [
+    "bash:git*",      // Still uses colon-asterisk in settings.json
+    "bash:docker*"
+  ]
+}
+```
+
+**Note:** The space-asterisk syntax (`Bash(npm *)`) is for skill/command frontmatter `allowed-tools`. The settings.json `allowedTools` array still uses the colon-asterisk pattern (`bash:npm*`).
+
+---
+
 ## When to Escalate
 
 **Ask user for clarification when:**
