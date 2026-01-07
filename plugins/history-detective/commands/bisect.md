@@ -1,6 +1,7 @@
 ---
 description: Binary search through history to find bug-introducing commits (git only)
 argument-hint: <bad-commit> [good-commit] [--auto=<test-command>]
+context: fork
 allowed-tools:
   - Bash(git:*)
   - Bash([[:*)

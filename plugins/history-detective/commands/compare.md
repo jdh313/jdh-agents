@@ -1,6 +1,7 @@
 ---
 description: Compare branches/changes to understand divergence and plan integration
 argument-hint: <branch1> <branch2>
+context: fork
 allowed-tools:
   - Bash(git:*)
   - Bash(jj:*)

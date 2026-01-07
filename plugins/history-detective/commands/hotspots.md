@@ -1,5 +1,6 @@
 ---
 description: Identify frequently changed files, code churn, and contributor patterns
+context: fork
 allowed-tools:
   - Bash(git:*)
   - Bash(jj:*)
