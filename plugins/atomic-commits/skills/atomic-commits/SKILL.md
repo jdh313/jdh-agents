@@ -7,6 +7,17 @@ allowed-tools:
   - Read
   - Grep
   - Glob
+hooks:
+  PostToolUse:
+    - matcher: Bash
+      pattern: "(git restore|git checkout --|git reset --hard|jj restore|jj abandon)"
+      prompt: |
+        ⚠️ SAFETY CHECK: The command just executed may discard uncommitted changes.
+
+        Verify:
+        1. Was this intentional and user-approved?
+        2. Run `git status` or `jj status` to confirm working tree state
+        3. If changes were lost unexpectedly, inform the user immediately
 ---
 
 # Atomic Commits
