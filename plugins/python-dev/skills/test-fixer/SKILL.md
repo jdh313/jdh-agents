@@ -1,7 +1,17 @@
 ---
 name: test-fixer
 description: INVOKE when failing tests need to be diagnosed and fixed. This skill provides systematic test diagnosis to determine whether faults are in tests or source code, then fixes test issues or proposes source changes. Trigger phrases include "fix failing tests", "tests are failing", "debug test failure", "why is this test broken", or when test output shows failures.
-allowed-tools: Read, Edit, Grep, Glob, Bash(uv run pytest:*), Bash(pytest:*), Bash(npm test:*), Bash(cargo test:*), Bash(go test:*)
+agent: junior-dev
+allowed-tools:
+  - Read
+  - Edit
+  - Grep
+  - Glob
+  - Bash(uv run pytest *)
+  - Bash(pytest *)
+  - Bash(npm test *)
+  - Bash(cargo test *)
+  - Bash(go test *)
 ---
 
 # Test Fixer
