@@ -195,7 +195,7 @@
       "name": "obsidian-curator",
       "source": "./plugins/obsidian-curator",
       "description": "A vault-aware collaborator that helps you search, capture, edit, and maintain your Obsidian notes and Bases intelligently",
-      "version": "1.1.4",
+      "version": "1.1.5",
       "author": {
         "name": "Jacob Waites",
         "email": "jacob@example.com"

@@ -1,24 +1,3 @@
 {
-  "hooks": {
-    "Stop": [
-      {
-        "hooks": [
-          {
-            "type": "prompt",
-            "prompt": "Before ending this session, check if there are captures to suggest — prioritizing Bases entries.\n\n## CRITICAL: Silent Skip\n\nIf there is nothing worth capturing, output ONLY the exact text: `{\"skip\": true}`\n\nDo NOT explain why you're skipping. Do NOT mention the session wasn't significant. Just output the JSON and nothing else.\n\n## Instructions\n\n1. Review the session for capture-worthy moments:\n   - Debugging approaches that worked\n   - Patterns or techniques discovered\n   - Decisions made with rationale (ADR candidates)\n   - Gotchas or surprises found\n   - New tools or libraries evaluated\n   - Ideas worth tracking\n\n2. Map discoveries to the user's Bases:\n   - **Ideas base** — New project ideas, things to explore later\n   - **Software base** — Tools/libraries evaluated or adopted\n   - **ADRs base** — Architecture decisions with rationale\n   - **Prompts base** — Useful prompts created during session\n   - **Waites Repos base** — Repo-specific patterns/gotchas\n   - Daily note — Quick thoughts not worth a base entry\n\n3. If there are items worth capturing:\n   - Present them in a batched summary table\n   - Show target Base for each (prefer bases over daily notes)\n   - Ask which ones to create\n\n4. If working on a known repo:\n   - Check if the repo note should be updated\n   - Suggest specific additions\n\n## Format for Suggestions\n\n```markdown\n## Session Captures\n\nDuring this session, these items seemed worth noting:\n\n| # | Topic | Type | Target Base |\n|---|-------|------|-------------|\n| 1 | Rate limiting pattern | Pattern | Waites Repos (Gateway) |\n| 2 | Ruff linter setup | Tool | Software |\n| 3 | Use PostgreSQL for X | Decision | ADRs |\n\nCreate any of these? (numbers, all, or skip)\n```\n\nKeep it brief and ADHD-friendly. One clear question at the end.",
-            "timeout": 30
-          }
-        ]
-      },
-      {
-        "hooks": [
-          {
-            "type": "prompt",
-            "prompt": "Evaluate if this interaction had meaningful progress worth summarizing.\n\n## Critical Output Format\n\n**If NOT significant, output ONLY this (nothing else):**\n```json\n{\"skip\": true}\n```\n\n**Do not add explanations, commas, or any other text before or after.**\n\n## When to Skip (No Summary Needed)\n\nSkip if the conversation had:\n- Quick questions/answers only\n- Simple file reads\n- No code changes\n- No debugging or problem-solving\n- No architecture decisions\n- No meaningful progress on a task\n\n## When to Offer Summary (Significant)\n\nOffer summary if conversation included:\n- Code changes to a project\n- Debugging or problem-solving\n- Architecture decisions\n- Multiple files touched\n- Meaningful progress on a task\n\n## For Significant Interactions\n\nAsk: \"Want me to add a summary to today's daily note?\"\n\nIf yes:\n1. Get today's daily note using obsidian_get_periodic_note(period=\"daily\")\n2. Append under \"## Session Summaries\" section (create if missing)\n3. Format:\n```markdown\n### HH:MM — Brief Title\n- Main accomplishment\n- Key decision (if any)\n- Files/repos touched\n- Next steps (if any)\n```\n4. Keep to 3-5 bullets max\n\nAsk permission before writing.",
-            "timeout": 30
-          }
-        ]
-      }
-    ]
-  }
+  "hooks": {}
 }
