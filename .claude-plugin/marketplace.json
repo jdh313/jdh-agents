@@ -195,7 +195,7 @@
       "name": "obsidian-curator",
       "source": "./plugins/obsidian-curator",
       "description": "A vault-aware collaborator that helps you search, capture, edit, and maintain your Obsidian notes and Bases intelligently",
-      "version": "1.1.3",
+      "version": "1.1.4",
       "author": {
         "name": "Jacob Prince",
         "email": "jacob@example.com"
@@ -290,6 +290,6 @@
     "version": "1.0.0",
     "homepage": "https://github.com/jdh313/cc-marketplace",
     "totalPlugins": 16,
-    "lastUpdated": "2026-01-07"
+    "lastUpdated": "2026-01-09"
   }
 }
