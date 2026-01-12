@@ -1,0 +1,19 @@
+{
+  "name": "job-search",
+  "version": "0.1.0",
+  "description": "Streamline job search workflows with Obsidian note creation, Todoist integration, resume tailoring, and interview preparation",
+  "author": {
+    "name": "Jacob Hoehler"
+  },
+  "keywords": [
+    "job-search",
+    "obsidian",
+    "todoist",
+    "career",
+    "interview-prep",
+    "resume",
+    "application-tracking"
+  ],
+  "homepage": "https://github.com/yourusername/cc-marketplace/tree/main/plugins/job-search",
+  "license": "MIT"
+}
