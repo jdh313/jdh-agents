@@ -5,6 +5,7 @@ description: >
   resume, LinkedIn, or interview preparation. Gathers evidence from git/jj commits,
   Obsidian notes, Word transcripts, and Slack exports. Triggers: "summarize my work",
   "document achievements", "update my resume", "prepare for interview".
+user-invokable: true
 context: fork
 allowed-tools:
   - AskUserQuestion
