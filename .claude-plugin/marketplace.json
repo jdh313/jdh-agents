@@ -10,7 +10,7 @@
       "name": "api-docs",
       "source": "./plugins/api-docs",
       "description": "OpenAPI documentation best practices for FastAPI, Django Ninja, and manual specs",
-      "version": "0.1.0",
+      "version": "0.1.1",
       "author": {
         "name": "Jacob Hoehler"
       },
@@ -44,7 +44,7 @@
       "name": "atuin-runbooks",
       "source": "./plugins/atuin-runbooks",
       "description": "Create and modify Atuin Desktop runbooks (.atrb files) from natural language",
-      "version": "1.0.0",
+      "version": "1.0.1",
       "author": {
         "name": "Jacob Hoehler"
       },
@@ -75,7 +75,7 @@
       "name": "doing",
       "source": "./plugins/doing",
       "description": "Time tracking with doing CLI. Start/stop tasks, backdate entries, query work history.",
-      "version": "0.2.0",
+      "version": "0.2.1",
       "author": {
         "name": "Jacob Hoehler"
       },
@@ -90,7 +90,7 @@
       "name": "fastapi-expert",
       "source": "./plugins/fastapi-expert",
       "description": "Expert patterns for FastAPI development: authentication, async database integration, and testing",
-      "version": "1.0.0",
+      "version": "1.0.1",
       "author": {
         "name": "Jacob Prince"
       },
@@ -107,7 +107,7 @@
       "name": "github-actions-expert",
       "source": "./plugins/github-actions-expert",
       "description": "Expert guidance for GitHub Actions workflows, CI/CD, and deployment automation",
-      "version": "1.0.0",
+      "version": "1.0.1",
       "author": {
         "name": "Jacob Prince"
       },
@@ -142,7 +142,7 @@
       "name": "homelab-ops",
       "source": "./plugins/homelab-ops",
       "description": "Create, troubleshoot, and migrate Docker services in a Jinja2-templated homelab with Tailscale networking, Traefik routing, and 1Password secrets",
-      "version": "1.0.0",
+      "version": "1.0.1",
       "author": {
         "name": "Jacob Hoehler"
       },
@@ -161,7 +161,7 @@
       "name": "job-search",
       "source": "./plugins/job-search",
       "description": "Streamline job search workflows with Obsidian note creation, Todoist integration, resume tailoring, and interview preparation",
-      "version": "0.2.0",
+      "version": "0.2.1",
       "author": {
         "name": "Jacob Hoehler"
       },
@@ -183,7 +183,7 @@
       "name": "lambda-to-fastapi-documenter",
       "source": "./plugins/lambda-to-fastapi-documenter",
       "description": "Extract and document Lambda function configurations for FastAPI migration",
-      "version": "1.0.0",
+      "version": "1.0.1",
       "author": {
         "name": "Jacob Prince"
       },
@@ -239,7 +239,7 @@
       "name": "opentelemetry-expert",
       "source": "./plugins/opentelemetry-expert",
       "description": "Expert guidance for OpenTelemetry instrumentation, tracing, and observability",
-      "version": "1.0.0",
+      "version": "1.0.1",
       "author": {
         "name": "Jacob Prince"
       },
@@ -256,7 +256,7 @@
       "name": "permissions-manager",
       "source": "./plugins/permissions-manager",
       "description": "Manage Claude Code permissions and troubleshoot permission errors",
-      "version": "1.1.0",
+      "version": "1.1.1",
       "author": {
         "name": "Jacob Prince"
       },
@@ -273,7 +273,7 @@
       "name": "python-dev",
       "source": "./plugins/python-dev",
       "description": "Comprehensive Python development skills: write Pythonic code, debug systematically, and fix failing tests",
-      "version": "1.1.0",
+      "version": "1.1.1",
       "author": {
         "name": "Jacob Hoehler"
       },
