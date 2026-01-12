@@ -1,9 +1,9 @@
 ---
 name: meeting-followup
 description: >
-  INVOKE when working on a project to surface relevant unchecked action items
-  from recent meeting notes. Searches meeting notes in 80 Waites/Meetings/ for
-  open tasks related to the current work context. Presents contextually without
+  Use Skill(obsidian-curator:meeting-followup) when working on a project to surface
+  relevant unchecked action items from recent meeting notes. Searches 80 Waites/Meetings/
+  for open tasks related to current work context. Presents contextually without
   interrupting flow.
 allowed-tools:
   - mcp__CodeMCP__Obsidian__obsidian_simple_search

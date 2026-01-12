@@ -1,9 +1,10 @@
 ---
 name: vault-knowledge
 description: >
-  INVOKE when working with Obsidian vault, taking notes, or when user mentions
-  notes, documentation, capturing, or organizing. Reads vault conventions from
-  ~/Loose Ends/.claude/CLAUDE.md for folder structure, templates, and patterns.
+  Use Skill(obsidian-curator:vault-knowledge) when working with Obsidian vault,
+  taking notes, or when user mentions notes, documentation, capturing, or organizing.
+  Reads vault conventions from ~/Loose Ends/.claude/CLAUDE.md for folder structure,
+  templates, and patterns. NOT for simple note creation—use MCP tools directly.
 allowed-tools:
   - mcp__CodeMCP__Obsidian__obsidian_simple_search
   - mcp__CodeMCP__Obsidian__obsidian_complex_search

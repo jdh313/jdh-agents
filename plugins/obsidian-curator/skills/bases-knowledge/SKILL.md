@@ -1,9 +1,10 @@
 ---
 name: bases-knowledge
 description: >
-  INVOKE when working with Obsidian to understand user's Bases. Reads all .base
-  files, extracts filters and required properties, and knows which base is
-  relevant for current context. Essential for base-aware operations.
+  Use Skill(obsidian-curator:bases-knowledge) when working with Obsidian to understand
+  user's Bases. Reads all .base files, extracts filters and required properties,
+  and knows which base is relevant for current context. Essential for base-aware
+  operations.
 allowed-tools:
   - Read
   - Glob

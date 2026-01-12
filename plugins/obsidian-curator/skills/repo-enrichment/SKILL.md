@@ -1,9 +1,10 @@
 ---
 name: repo-enrichment
 description: >
-  INVOKE when working on a known repository to suggest updates to its repo note.
-  At session end or after significant work, checks if new patterns, gotchas,
-  or learnings should be added to the repo's documentation in the vault.
+  Use Skill(obsidian-curator:repo-enrichment) when working on a known repository
+  to suggest updates to its repo note. At session end or after significant work,
+  checks if new patterns, gotchas, or learnings should be added to the repo's
+  documentation in the vault.
 allowed-tools:
   - mcp__CodeMCP__Obsidian__obsidian_simple_search
   - mcp__CodeMCP__Obsidian__obsidian_get_file_contents

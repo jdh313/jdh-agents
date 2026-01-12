@@ -1,9 +1,9 @@
 ---
 name: contextual-search
 description: >
-  INVOKE automatically during: (1) topic exploration - search for existing notes
-  on the topic, (2) debugging/stuck - search for similar past problems or solutions,
-  (3) decision points - search for prior art, past decisions, or related context.
+  Use Skill(obsidian-curator:contextual-search) automatically during: (1) topic
+  exploration—search for existing notes, (2) debugging/stuck—search for similar
+  past problems, (3) decision points—search for prior art or related context.
   Weave findings into responses naturally without asking permission to search.
 allowed-tools:
   - mcp__CodeMCP__Obsidian__obsidian_simple_search

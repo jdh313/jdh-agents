@@ -1,10 +1,10 @@
 ---
 name: note-suggester
 description: >
-  INVOKE during coding sessions to recognize reusable knowledge worth capturing.
-  Suggests note captures inline when: debugging approaches work, patterns emerge,
-  decisions are made with rationale, or techniques could apply elsewhere.
-  Suggests inline (not interrupting) and batches for end-of-session summary.
+  Use Skill(obsidian-curator:note-suggester) during coding sessions to recognize
+  reusable knowledge worth capturing. Suggests note captures inline when: debugging
+  approaches work, patterns emerge, decisions are made with rationale, or techniques
+  could apply elsewhere. Batches suggestions for end-of-session summary.
 ---
 
 # Note Suggester
