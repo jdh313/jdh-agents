@@ -161,7 +161,7 @@
       "name": "job-search",
       "source": "./plugins/job-search",
       "description": "Streamline job search workflows with Obsidian note creation, Todoist integration, resume tailoring, and interview preparation",
-      "version": "0.2.1",
+      "version": "0.3.0",
       "author": {
         "name": "Jacob Hoehler"
       },
@@ -170,6 +170,7 @@
         "obsidian",
         "todoist",
         "career",
+        "career-themes",
         "interview-prep",
         "resume",
         "application-tracking",
@@ -217,7 +218,7 @@
       "name": "obsidian-curator",
       "source": "./plugins/obsidian-curator",
       "description": "A vault-aware collaborator that helps you search, capture, edit, and maintain your Obsidian notes and Bases intelligently",
-      "version": "1.1.6",
+      "version": "1.1.7",
       "author": {
         "name": "Jacob Prince",
         "email": "jacob@example.com"
