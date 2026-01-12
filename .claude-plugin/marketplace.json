@@ -161,7 +161,7 @@
       "name": "job-search",
       "source": "./plugins/job-search",
       "description": "Streamline job search workflows with Obsidian note creation, Todoist integration, resume tailoring, and interview preparation",
-      "version": "0.1.0",
+      "version": "0.2.0",
       "author": {
         "name": "Jacob Hoehler"
       },
@@ -172,7 +172,10 @@
         "career",
         "interview-prep",
         "resume",
-        "application-tracking"
+        "application-tracking",
+        "achievements",
+        "work-summary",
+        "linkedin"
       ],
       "homepage": "https://github.com/yourusername/cc-marketplace/tree/main/plugins/job-search"
     },

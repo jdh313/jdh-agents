@@ -201,6 +201,71 @@ Verify your vault has this folder structure:
 
 Create these folders if missing.
 
+### Work Summary Skill
+
+`/work-summary` - Gather work evidence and generate achievement documentation
+
+**What it does:**
+1. Asks for date range (30/90 days, 6 months, year, or custom)
+2. Collects evidence from multiple sources:
+   - Git/JJ commits from specified repositories
+   - Obsidian meeting and project notes
+   - Word transcripts (.docx files)
+   - Slack exports (JSON format)
+3. Analyzes and categorizes contributions (features, fixes, refactors)
+4. Creates raw evidence note with all collected data
+5. Generates formatted note with resume bullets, LinkedIn summary, and STAR stories
+
+**Example:**
+```
+/work-summary
+```
+
+**Interactive prompts:**
+```
+What date range would you like to summarize?
+> Last 90 days
+
+Which sources should I scan?
+> Git/JJ repositories, Obsidian notes
+
+Enter repository paths to scan:
+> ~/Projects/api, ~/Projects/frontend
+
+What is your current role/title?
+> Senior Software Engineer
+```
+
+**Result:**
+
+Two Obsidian notes created in `70 Career/Achievements/`:
+
+1. **Raw Note** (`YYYY-MM-DD Work Summary Raw.md`):
+   - All collected evidence organized by source
+   - Commit history categorized by type
+   - Meeting notes and project references
+   - Extracted excerpts from transcripts/Slack
+
+2. **Formatted Note** (`YYYY-MM-DD Work Summary.md`):
+   - Resume-ready bullet points (Action + What + Impact)
+   - LinkedIn narrative summary with hashtags
+   - STAR stories for behavioral interviews
+   - Quick stats dashboard
+
+**Supported Sources:**
+
+| Source | What's Collected | Requirements |
+|--------|------------------|--------------|
+| Git/JJ | Commits, stats, history | Local repos |
+| Obsidian | Meeting notes, project docs | Obsidian MCP |
+| Word | Transcripts, meeting notes | macOS (textutil) |
+| Slack | Channel messages | Slack export JSON |
+
+**Error handling:**
+- Unavailable sources are skipped with a warning
+- Individual file failures don't stop the process
+- Works with any subset of sources available
+
 ## Roadmap
 
 Future skills planned for this plugin:
