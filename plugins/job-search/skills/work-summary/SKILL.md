@@ -21,6 +21,8 @@ allowed-tools:
   - mcp__CodeMCP__Obsidian__obsidian_batch_get_file_contents
   - mcp__CodeMCP__Obsidian__obsidian_list_files_in_dir
   - mcp__CodeMCP__Obsidian__obsidian_put_content
+  - mcp__CodeMCP__Obsidian__obsidian_patch_content
+  - mcp__CodeMCP__Obsidian__obsidian_append_content
 ---
 
 # Work Summary Skill
@@ -245,6 +247,147 @@ Process collected evidence to identify themes and achievements.
    - For each significant contribution, draft an impact statement
    - Use format: Action verb + What + Quantifiable result
 
+### Phase 3.5: Theme Integration
+
+Integrate identified themes with Career Themes in Obsidian (`70 Career/Themes/`).
+
+#### Step 3.5.1: Check existing themes
+
+```
+obsidian_list_files_in_dir(dirpath="70 Career/Themes")
+```
+
+Parse filenames to extract theme names:
+- Strip `.md` extension
+- Skip `00 Themes Dashboard.md` (folder note)
+- Store as list of existing themes
+
+#### Step 3.5.2: Match identified themes to existing notes
+
+For each theme identified in Phase 3:
+
+1. **Normalize theme name** for comparison:
+   - Convert to title case
+   - Replace special characters: `CI/CD` → `CI-CD`, `&` → `and`
+   - Map common abbreviations: `IaC` → `Infrastructure as Code`
+
+2. **Check for match** against existing theme notes (case-insensitive)
+
+3. **Categorize** as `existing` (match found) or `new` (no match)
+
+#### Step 3.5.3: Present theme summary to user
+
+```
+AskUserQuestion(
+  question="I identified these themes from your work. Which should I update or create?",
+  multiSelect=true,
+  options=[
+    "Update: [Theme Name] (exists)",
+    "Update: [Theme Name] (exists)",
+    "Create: [New Theme Name] (new)",
+    "Skip all theme updates"
+  ]
+)
+```
+
+**Option formatting:**
+- Existing themes: `Update: [Theme Name] (exists)`
+- New themes: `Create: [Theme Name] (new)`
+- Always include: `Skip all theme updates`
+
+If user selects "Skip all theme updates", proceed directly to Phase 4.
+
+#### Step 3.5.4: Update existing theme notes
+
+For each selected existing theme:
+
+1. **Check for duplicate** - Read the theme note and check if an H3 heading for this project already exists under `## Evidence`
+
+2. **If duplicate exists**, skip with message: "Evidence for [Project] already exists in [Theme]"
+
+3. **If no duplicate**, append new evidence section:
+
+```
+obsidian_patch_content(
+  filepath="70 Career/Themes/[Theme Name].md",
+  operation="append",
+  target_type="heading",
+  target="Evidence",
+  content="""
+
+### [Project Name] ([Date Range])
+- [Brief evidence bullet 1]
+- [Brief evidence bullet 2]
+- [[YYYY-MM-DD Work Summary Raw|Full details]]
+"""
+)
+```
+
+**Evidence content guidelines:**
+- 2-4 brief bullets summarizing key contributions
+- Link to raw work summary for full details
+- Keep bullets action-oriented
+
+#### Step 3.5.5: Create new theme notes
+
+For each selected new theme:
+
+1. **Generate overview** based on evidence context and identified patterns
+
+2. **Auto-suggest related themes** by analyzing:
+   - Shared keywords/technologies with existing themes
+   - Overlapping project references
+   - Select 2-3 most relevant existing themes
+
+3. **Create theme note:**
+
+```
+obsidian_put_content(
+  filepath="70 Career/Themes/[Theme Name].md",
+  content="""---
+date created: YYYY-MM-DD HH:mm
+date_modified: YYYY-MM-DD HH:mm
+type: career-theme
+status: active
+---
+
+%%CLAUDE WRITTEN START%%
+
+# [Theme Name]
+
+## Overview
+[Generated overview based on evidence context - 2-3 sentences describing this competency area]
+
+## Evidence
+
+### [Project Name] ([Date Range])
+- [Brief evidence bullet 1]
+- [Brief evidence bullet 2]
+- [[YYYY-MM-DD Work Summary Raw|Full details]]
+
+## Impact Statements
+- [Draft impact statement from Phase 3]
+
+## Related
+- [[Related Theme 1]]
+- [[Related Theme 2]]
+
+%%CLAUDE WRITTEN END%%
+"""
+)
+```
+
+#### Step 3.5.6: Track theme actions
+
+Store a record of all theme actions for use in Phase 4 and 5:
+
+| Theme | Status | Action |
+|-------|--------|--------|
+| [Theme Name] | Existing | Updated |
+| [Theme Name] | New | Created |
+| [Theme Name] | Existing | Skipped (duplicate) |
+| [Theme Name] | Existing | Skipped (user choice) |
+
 ### Phase 4: Raw Output
 
 Create raw evidence note in Obsidian.
@@ -261,6 +404,8 @@ date_range: START_DATE to END_DATE
 sources: [list of sources used]
 status: raw
 ---
+
+%%CLAUDE WRITTEN START%%
 
 # Work Summary Raw - DATE_RANGE
 
@@ -336,6 +481,18 @@ status: raw
 | Bugs fixed | X |
 | Projects touched | X |
 | Meeting notes referenced | X |
+
+## Themes Referenced
+
+Career themes updated or created from this work summary.
+
+| Theme | Status | Action |
+|-------|--------|--------|
+| [[CI-CD Pipeline Automation]] | Existing | Updated |
+| [[New Theme Name]] | New | Created |
+| [[Skipped Theme]] | Existing | Skipped |
+
+%%CLAUDE WRITTEN END%%
 ```
 
 Use `obsidian_put_content` to create the note.
@@ -357,6 +514,8 @@ role: USER_ROLE
 date_range: START_DATE to END_DATE
 status: formatted
 ---
+
+%%CLAUDE WRITTEN START%%
 
 # Work Summary - DATE_RANGE
 
@@ -425,12 +584,23 @@ Use these structured stories for behavioral interview questions.
 | Bugs Fixed | X |
 | Projects | X |
 
+## Theme Contributions
+
+This summary contributed evidence to these career themes:
+
+- [[CI-CD Pipeline Automation]] — Updated with [project] evidence
+- [[New Theme Name]] — Created new theme
+
+See [[70 Career/Themes/00 Themes Dashboard|Themes Dashboard]] for all themes.
+
 ## Next Steps
 
 - [ ] Review and refine resume bullets
 - [ ] Select 2-3 STAR stories for upcoming interviews
 - [ ] Update LinkedIn profile/post
 - [ ] Add additional context to evidence notes
+
+%%CLAUDE WRITTEN END%%
 ```
 
 Use `obsidian_put_content` to create the note.
@@ -462,10 +632,18 @@ After creating both notes, present:
 2. [Top achievement 2]
 3. [Top achievement 3]
 
+### Theme Updates
+| Theme | Action |
+|-------|--------|
+| CI-CD Pipeline Automation | Updated |
+| New Theme Name | Created |
+| Skipped Theme | Skipped |
+
 ### Next Steps
 1. Review raw evidence for additional context
 2. Refine resume bullets in formatted note
 3. Practice STAR stories for interviews
+4. Review theme notes for accuracy
 ```
 
 ## Error Handling Summary
@@ -478,6 +656,9 @@ After creating both notes, present:
 | File parse failure | Log warning for specific file, continue |
 | All sources fail | Report error, suggest manual data entry |
 | Obsidian folder missing | Create folder before writing |
+| Theme folder missing | Create `70 Career/Themes/` before operations |
+| Theme patch target not found | Log warning, skip theme update |
+| Duplicate project evidence | Skip with message, don't duplicate |
 
 ## Remember
 
@@ -488,3 +669,8 @@ After creating both notes, present:
 - Use kebab-case for any extracted skills
 - Present clear completion summary
 - Handle all error cases without crashing
+- **AI content markers:** New notes include `%%CLAUDE WRITTEN START%%` after frontmatter and `%%CLAUDE WRITTEN END%%` at the end (hidden in reading view, visible in edit mode)
+- **Theme integration:** Always run Phase 3.5 after analysis to integrate with Career Themes
+- **Theme name normalization:** Use filesystem-safe names (`CI-CD` not `CI/CD`, `and` not `&`)
+- **Duplicate prevention:** Check for existing project H3 under Evidence before appending
+- **Related themes:** Auto-suggest 2-3 related themes for new theme notes based on keyword overlap

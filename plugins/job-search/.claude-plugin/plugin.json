@@ -1,6 +1,6 @@
 {
   "name": "job-search",
-  "version": "0.2.1",
+  "version": "0.3.0",
   "description": "Streamline job search workflows with Obsidian note creation, Todoist integration, resume tailoring, and interview preparation",
   "author": {
     "name": "Jacob Hoehler"
@@ -10,6 +10,7 @@
     "obsidian",
     "todoist",
     "career",
+    "career-themes",
     "interview-prep",
     "resume",
     "application-tracking",
