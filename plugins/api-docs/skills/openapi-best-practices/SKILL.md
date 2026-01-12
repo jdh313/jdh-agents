@@ -1,6 +1,6 @@
 ---
 name: OpenAPI Best Practices
-description: This skill should be used when the user asks to "write an API endpoint", "create a FastAPI route", "add a Django Ninja endpoint", "document an API", "write OpenAPI spec", "fix API documentation", "review API code", or when writing code that involves FastAPI, Django Ninja, or OpenAPI specifications. Provides naming conventions, schema reuse patterns, and error standardization guidance.
+description: Use Skill(api-docs:openapi-best-practices) when the user asks to "write an API endpoint", "create a FastAPI route", "add a Django Ninja endpoint", "document an API", "write OpenAPI spec", "fix API documentation", "review API code", or when writing code that involves FastAPI, Django Ninja, or OpenAPI specifications. Provides naming conventions, schema reuse patterns, and error standardization guidance.
 version: 0.1.0
 ---
 

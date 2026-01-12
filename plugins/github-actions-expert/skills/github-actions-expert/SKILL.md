@@ -1,6 +1,6 @@
 ---
 name: github-actions-expert
-description: INVOKE for ANY GitHub Actions workflow task. Do NOT use generic task agents for CI/CD work. Triggers: "GitHub Actions", "CI/CD", "workflow", "GitHub automation", "matrix build", "Docker deployment", "action auth", "set up deployment", "troubleshoot workflow". Provides comprehensive patterns for workflow creation, authentication, debugging, performance optimization, and deployment strategies.
+description: Use Skill(github-actions-expert:github-actions-expert) for ANY GitHub Actions workflow task. Do NOT use generic task agents for CI/CD work. Triggers: "GitHub Actions", "CI/CD", "workflow", "GitHub automation", "matrix build", "Docker deployment", "action auth", "set up deployment", "troubleshoot workflow". Provides comprehensive patterns for workflow creation, authentication, debugging, performance optimization, and deployment strategies.
 allowed-tools: Read, Grep, Glob, Write, Edit, WebSearch, WebFetch, mcp__CodeMCP__Context7__*, Bash(gh:*)
 ---
 

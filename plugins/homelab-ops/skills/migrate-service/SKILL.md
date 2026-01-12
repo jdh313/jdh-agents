@@ -1,6 +1,6 @@
 ---
 name: Homelab Migrate Service
-description: This skill should be used when moving services between homelab hosts, changing service assignments in inventory, handling path differences between hosts (NAS vs Pi vs Jetson), or migrating data volumes. Trigger phrases include "move service to", "migrate from tower to", "relocate service", "change host for", or when discussing service placement optimization.
+description: Use Skill(homelab-ops:migrate-service) when moving services between homelab hosts, changing service assignments in inventory, handling path differences between hosts (NAS vs Pi vs Jetson), or migrating data volumes. Trigger phrases include "move service to", "migrate from tower to", "relocate service", "change host for", or when discussing service placement optimization.
 version: 1.0.0
 ---
 

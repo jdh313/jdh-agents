@@ -1,6 +1,6 @@
 ---
 name: opentelemetry-expert
-description: This skill should be used when instrumenting applications with OpenTelemetry, troubleshooting telemetry issues, designing observability architecture, or migrating from proprietary APM agents (Datadog, New Relic) to OpenTelemetry. Covers traces, metrics, logs, sampling strategies, collectors, semantic conventions, and modern best practices (2025). Includes Python-specific guidance and Pydantic Logfire integration. INVOKE when the user mentions "OpenTelemetry", "OTel", "observability", "tracing", "distributed tracing", "instrumentation", "telemetry", "OTLP", "Jaeger", "Logfire", or asks about monitoring, APM migration, or adding traces/metrics to applications.
+description: Use Skill(opentelemetry-expert:opentelemetry-expert) when instrumenting applications with OpenTelemetry, troubleshooting telemetry issues, designing observability architecture, or migrating from proprietary APM agents (Datadog, New Relic) to OpenTelemetry. Covers traces, metrics, logs, sampling strategies, collectors, semantic conventions, and modern best practices (2025). Includes Python-specific guidance and Pydantic Logfire integration. Triggers include "OpenTelemetry", "OTel", "observability", "tracing", "distributed tracing", "instrumentation", "telemetry", "OTLP", "Jaeger", "Logfire", or when user asks about monitoring, APM migration, or adding traces/metrics to applications.
 allowed-tools:
   - Read
   - Grep

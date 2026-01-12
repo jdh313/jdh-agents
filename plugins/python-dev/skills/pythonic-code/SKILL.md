@@ -1,6 +1,6 @@
 ---
 name: pythonic-code
-description: INVOKE for ANY Python code reading, writing, reviewing, or refactoring. Do NOT write Python without checking this skill first. Triggers: "make this pythonic", "improve Python code", "review Python style", "modernize this code", "Python code review", "refactor Python", "write Python", "PEP 8". Checks pyproject.toml for version/dependencies. Covers style, type hints, comprehensions, dataclasses, and modern patterns (3.10+).
+description: Use Skill(python-dev:pythonic-code) for ANY Python code reading, writing, reviewing, or refactoring. Do NOT write Python without checking this skill first. Triggers: "make this pythonic", "improve Python code", "review Python style", "modernize this code", "Python code review", "refactor Python", "write Python", "PEP 8". Checks pyproject.toml for version/dependencies. Covers style, type hints, comprehensions, dataclasses, and modern patterns (3.10+).
 ---
 
 # Pythonic Code

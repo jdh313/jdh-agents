@@ -1,6 +1,6 @@
 ---
 name: permissions-manager
-description: INVOKE when encountering permission denied errors or when managing Claude Code allowlists. Triggers include "permission denied", "auto-denied", "add to allowlist", "why is blocked", "settings.json", "sandbox error", "command not allowed", "tool blocked", or when troubleshooting any Claude Code permission issues. Provides systematic diagnosis of permission errors and guidance on configuring allowlists correctly.
+description: Use Skill(permissions-manager:permissions-manager) when encountering permission denied errors or when managing Claude Code allowlists. Triggers include "permission denied", "auto-denied", "add to allowlist", "why is blocked", "settings.json", "sandbox error", "command not allowed", "tool blocked", or when troubleshooting any Claude Code permission issues. Provides systematic diagnosis of permission errors and guidance on configuring allowlists correctly.
 ---
 
 # Permissions Manager

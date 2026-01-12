@@ -1,9 +1,10 @@
 ---
 name: runbook-builder
 description: >
-  INVOKE when creating Atuin runbooks, adding blocks to runbooks, or working with
-  .atrb files. Trigger phrases: "create runbook", "add to runbook", "atuin runbook",
-  "new runbook", or when discussing executable documentation for Atuin Desktop.
+  Use Skill(atuin-runbooks:runbook-builder) when creating Atuin runbooks, adding blocks
+  to runbooks, or working with .atrb files. Trigger phrases: "create runbook", "add to
+  runbook", "atuin runbook", "new runbook", or when discussing executable documentation
+  for Atuin Desktop.
 allowed-tools:
   - Read
   - Write

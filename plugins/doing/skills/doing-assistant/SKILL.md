@@ -1,9 +1,10 @@
 ---
 name: doing-assistant
 description: >
-  INVOKE for time tracking requests. Triggers: "track time", "log work", "start task",
-  "finish task", "what did I do", "backdate", "add past task". Handles starting/stopping
-  time entries, backdating entries, and querying work history using the doing CLI.
+  Use Skill(doing:doing-assistant) for time tracking requests. Triggers: "track time",
+  "log work", "start task", "finish task", "what did I do", "backdate", "add past task".
+  Handles starting/stopping time entries, backdating entries, and querying work history
+  using the doing CLI.
 allowed-tools:
   - Bash(doing:*)
   - Read

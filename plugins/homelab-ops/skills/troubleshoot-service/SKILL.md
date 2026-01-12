@@ -1,6 +1,6 @@
 ---
 name: Homelab Troubleshoot Service
-description: This skill should be used when diagnosing issues with homelab Docker services, debugging Tailscale connectivity, fixing health check failures, resolving 1Password lookup errors, troubleshooting Traefik routing, or investigating container startup failures. Trigger phrases include "service not working", "container failing", "can't connect to", "health check failing", "tailscale not connecting", "traefik not routing", or when a service shows as unhealthy.
+description: Use Skill(homelab-ops:troubleshoot-service) when diagnosing issues with homelab Docker services, debugging Tailscale connectivity, fixing health check failures, resolving 1Password lookup errors, troubleshooting Traefik routing, or investigating container startup failures. Trigger phrases include "service not working", "container failing", "can't connect to", "health check failing", "tailscale not connecting", "traefik not routing", or when a service shows as unhealthy.
 version: 1.0.0
 ---
 

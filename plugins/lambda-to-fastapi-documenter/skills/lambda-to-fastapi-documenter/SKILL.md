@@ -1,6 +1,6 @@
 ---
 name: lambda-to-fastapi-documenter
-description: This skill should be used when analyzing AWS Lambda functions (Python or Node.js) for migration to FastAPI. Use when extracting configuration fields, documenting CRUD logic, or mapping Lambda handlers to REST API specifications. Specifically invoke when the user says things like "document this Lambda", "extract config from this Lambda", "analyze this Lambda for FastAPI migration", or "help me understand the configuration logic in this Lambda".
+description: Use Skill(lambda-to-fastapi-documenter:lambda-to-fastapi-documenter) when analyzing AWS Lambda functions (Python or Node.js) for migration to FastAPI. Use for extracting configuration fields, documenting CRUD logic, or mapping Lambda handlers to REST API specifications. Triggers include "document this Lambda", "extract config from this Lambda", "analyze this Lambda for FastAPI migration", or "help me understand the configuration logic in this Lambda".
 ---
 
 # Lambda to FastAPI Documenter

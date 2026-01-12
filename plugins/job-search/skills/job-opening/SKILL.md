@@ -1,6 +1,6 @@
 ---
 name: job-opening
-description: This skill should be used when the user provides a job posting URL and wants to create structured Obsidian notes for tracking the application. Invoke when user says "create job opening from", "add job posting", "track this application", or provides a URL to a job board. Creates both company and job opening notes with proper linking, skill extraction, and optional Todoist task creation.
+description: Use Skill(job-search:job-opening) when the user provides a job posting URL and wants to create structured Obsidian notes for tracking the application. Triggers include "create job opening from", "add job posting", "track this application", or when user provides a URL to a job board. Creates both company and job opening notes with proper linking, skill extraction, and optional Todoist task creation.
 context: fork
 allowed-tools:
   - WebFetch

@@ -1,6 +1,6 @@
 ---
 name: python-debugger
-description: INVOKE when user provides Python tracebacks, error messages, or failing tests. This skill should be used when debugging Python code, diagnosing errors, or fixing bugs. Trigger phrases include "debug", "fix bug", "why is this failing", "getting an error", "traceback", "exception", "pytest failure", "test failing", or when user pastes Python error output. Provides systematic hypothesis-driven debugging methodology with structured diagnosis, evidence gathering, and minimal fix proposals.
+description: Use Skill(python-dev:python-debugger) when user provides Python tracebacks, error messages, or failing tests. Use for debugging Python code, diagnosing errors, or fixing bugs. Trigger phrases include "debug", "fix bug", "why is this failing", "getting an error", "traceback", "exception", "pytest failure", "test failing", or when user pastes Python error output. Provides systematic hypothesis-driven debugging methodology with structured diagnosis, evidence gathering, and minimal fix proposals.
 ---
 
 # Python Debugger

@@ -1,10 +1,10 @@
 ---
 name: work-summary
 description: >
-  INVOKE when user needs to document work achievements for resume, LinkedIn, or
-  interview preparation. Gathers evidence from git/jj commits, Obsidian notes,
-  Word transcripts, and Slack exports. Trigger: "summarize my work", "document
-  achievements", "update my resume", "prepare for interview".
+  Use Skill(job-search:work-summary) when user needs to document work achievements for
+  resume, LinkedIn, or interview preparation. Gathers evidence from git/jj commits,
+  Obsidian notes, Word transcripts, and Slack exports. Triggers: "summarize my work",
+  "document achievements", "update my resume", "prepare for interview".
 context: fork
 allowed-tools:
   - AskUserQuestion

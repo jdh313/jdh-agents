@@ -1,6 +1,6 @@
 ---
 name: Homelab New Service
-description: This skill should be used when creating new Docker services in the homelab, writing docker-compose.yaml.j2 templates, setting up Tailscale networking, configuring Traefik routing, or integrating 1Password secrets. Trigger phrases include "add a new service", "create docker compose", "set up [service-name]", "homelab service", "add to homelab", or when discussing Jinja2 templates for Docker services.
+description: Use Skill(homelab-ops:new-service) when creating new Docker services in the homelab, writing docker-compose.yaml.j2 templates, setting up Tailscale networking, configuring Traefik routing, or integrating 1Password secrets. Trigger phrases include "add a new service", "create docker compose", "set up [service-name]", "homelab service", "add to homelab", or when discussing Jinja2 templates for Docker services.
 version: 1.0.0
 ---
 

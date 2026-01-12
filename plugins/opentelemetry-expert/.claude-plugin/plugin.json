@@ -1,6 +1,6 @@
 {
   "name": "opentelemetry-expert",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Expert guidance for OpenTelemetry instrumentation, tracing, and observability",
   "author": {
     "name": "Jacob Waites"

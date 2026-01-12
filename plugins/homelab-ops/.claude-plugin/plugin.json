@@ -1,6 +1,6 @@
 {
   "name": "homelab-ops",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Create, troubleshoot, and migrate Docker services in a Jinja2-templated homelab with Tailscale networking, Traefik routing, and 1Password secrets",
   "author": {
     "name": "Jacob Hoehler"
