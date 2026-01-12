@@ -139,9 +139,22 @@ python scripts/validate_schema.py
 ### Updating an Existing Plugin
 
 1. Edit plugin files in `plugins/[plugin-name]/`
-2. If you changed `plugin.json`, run sync: `python scripts/sync_marketplace.py`
-3. Validate and lint: `python scripts/validate_schema.py && python scripts/lint_plugins.py`
-4. Commit changes
+2. **Bump the version** in `plugin.json` (see below)
+3. Run sync: `python scripts/sync_marketplace.py`
+4. Validate and lint: `python scripts/validate_schema.py && python scripts/lint_plugins.py`
+5. Commit changes
+
+### Version Bumping
+
+**Always bump the version in `plugin.json` when modifying a plugin:**
+
+| Change Type | Version Bump | Example |
+|-------------|--------------|---------|
+| New feature/skill | Minor | 0.1.0 → 0.2.0 |
+| Bug fix | Patch | 0.1.0 → 0.1.1 |
+| Breaking change | Major | 0.1.0 → 1.0.0 |
+
+Then re-run `python scripts/sync_marketplace.py` to update marketplace.json.
 
 ### Reviewing Plugin Changes
 
