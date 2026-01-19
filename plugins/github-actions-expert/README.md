@@ -119,4 +119,4 @@ The plugin includes reusable YAML workflow snippets in `assets/snippets/`:
 
 ## Author
 
-Jacob Waites
+Jacob Hoehler

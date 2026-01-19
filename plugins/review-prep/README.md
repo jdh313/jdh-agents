@@ -123,4 +123,4 @@ This plugin is part of Phase 2 of the VCS Tools project. Planned commands:
 
 ## Author
 
-Jacob Waites
+Jacob Hoehler

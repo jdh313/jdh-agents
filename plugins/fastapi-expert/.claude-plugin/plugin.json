@@ -3,7 +3,7 @@
   "version": "1.0.1",
   "description": "Expert patterns for FastAPI development: authentication, async database integration, and testing",
   "author": {
-    "name": "Jacob Waites"
+    "name": "Jacob Hoehler"
   },
   "keywords": ["fastapi", "python", "rest-api", "async", "web-development", "api"]
 }

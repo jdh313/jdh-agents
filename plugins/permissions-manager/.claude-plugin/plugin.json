@@ -3,7 +3,7 @@
   "version": "1.1.1",
   "description": "Manage Claude Code permissions and troubleshoot permission errors",
   "author": {
-    "name": "Jacob Waites"
+    "name": "Jacob Hoehler"
   },
   "keywords": ["permissions", "claude-code", "settings", "allowlist", "configuration", "troubleshooting"]
 }

@@ -102,7 +102,7 @@ When working on a FastAPI project:
 
 ## Maintainer
 
-Jacob Waites
+Jacob Hoehler
 
 ## Version
 
