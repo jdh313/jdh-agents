@@ -250,12 +250,12 @@ Process collected evidence to identify themes and achievements.
 
 ### Phase 3.5: Theme Integration
 
-Integrate identified themes with Career Themes in Obsidian (`70 Career/Themes/`).
+Integrate identified themes with Career Themes in Obsidian (`Personal/Career/Themes/`).
 
 #### Step 3.5.1: Check existing themes
 
 ```
-obsidian_list_files_in_dir(dirpath="70 Career/Themes")
+obsidian_list_files_in_dir(dirpath="Personal/Career/Themes")
 ```
 
 Parse filenames to extract theme names:
@@ -310,7 +310,7 @@ For each selected existing theme:
 
 ```
 obsidian_patch_content(
-  filepath="70 Career/Themes/[Theme Name].md",
+  filepath="Personal/Career/Themes/[Theme Name].md",
   operation="append",
   target_type="heading",
   target="Evidence",
@@ -344,7 +344,7 @@ For each selected new theme:
 
 ```
 obsidian_put_content(
-  filepath="70 Career/Themes/[Theme Name].md",
+  filepath="Personal/Career/Themes/[Theme Name].md",
   content="""---
 date created: YYYY-MM-DD HH:mm
 date_modified: YYYY-MM-DD HH:mm
@@ -393,7 +393,7 @@ Store a record of all theme actions for use in Phase 4 and 5:
 
 Create raw evidence note in Obsidian.
 
-**File path:** `70 Career/Achievements/YYYY-MM-DD Work Summary Raw.md`
+**File path:** `Personal/Career/Achievements/YYYY-MM-DD Work Summary Raw.md`
 
 **Template:**
 
@@ -502,7 +502,7 @@ Use `obsidian_put_content` to create the note.
 
 Create formatted achievement note in Obsidian.
 
-**File path:** `70 Career/Achievements/YYYY-MM-DD Work Summary.md`
+**File path:** `Personal/Career/Achievements/YYYY-MM-DD Work Summary.md`
 
 **Template:**
 
@@ -592,7 +592,7 @@ This summary contributed evidence to these career themes:
 - [[CI-CD Pipeline Automation]] — Updated with [project] evidence
 - [[New Theme Name]] — Created new theme
 
-See [[70 Career/Themes/00 Themes Dashboard|Themes Dashboard]] for all themes.
+See [[Personal/Career/Themes/00 Themes Dashboard|Themes Dashboard]] for all themes.
 
 ## Next Steps
 
@@ -657,7 +657,7 @@ After creating both notes, present:
 | File parse failure | Log warning for specific file, continue |
 | All sources fail | Report error, suggest manual data entry |
 | Obsidian folder missing | Create folder before writing |
-| Theme folder missing | Create `70 Career/Themes/` before operations |
+| Theme folder missing | Create `Personal/Career/Themes/` before operations |
 | Theme patch target not found | Log warning, skip theme update |
 | Duplicate project evidence | Skip with message, don't duplicate |
 

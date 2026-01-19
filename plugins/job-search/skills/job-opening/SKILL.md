@@ -73,7 +73,7 @@ Search for existing company note:
 obsidian_simple_search(query="<company-name>", context_length=100)
 ```
 
-Filter results to `70 Career/Job Search/Companies/` folder.
+Filter results to `Personal/Career/Job Search/Companies/` folder.
 
 If company note exists:
 - Use existing company note
@@ -86,7 +86,7 @@ If company note does NOT exist:
 
 Create company note at:
 ```
-70 Career/Job Search/Companies/<Company Name>.md
+Personal/Career/Job Search/Companies/<Company Name>.md
 ```
 
 Use this template:
@@ -104,6 +104,8 @@ website:
 glassdoor_url:
 linkedin_url:
 ---
+
+%%CLAUDE WRITTEN START%%
 
 # <Company Name>
 
@@ -136,13 +138,14 @@ linkedin_url:
 
 ```dataview
 TABLE position AS "Position", status AS "Status", applied_date AS "Applied"
-FROM "70 Career/Job Search"
+FROM "Personal/Career/Job Search"
 WHERE company_note = this.file.link
 SORT applied_date DESC
 ```
 
 ## Notes
 
+%%CLAUDE WRITTEN END%%
 ```
 
 Fill in:
@@ -158,7 +161,7 @@ Leave blank fields for user to fill later (size, funding, glassdoor, etc.)
 
 Create job opening note at:
 ```
-70 Career/Job Search/<Company Name> - <Position>.md
+Personal/Career/Job Search/<Company Name> - <Position>.md
 ```
 
 Use this template:
@@ -183,6 +186,8 @@ hiring_manager:
 next_action:
 next_action_date:
 ---
+
+%%CLAUDE WRITTEN START%%
 
 # <Company Name> - <Position>
 
@@ -227,6 +232,8 @@ next_action_date:
 - Outcome:
 - What went well:
 - What to improve:
+
+%%CLAUDE WRITTEN END%%
 ```
 
 Fill in frontmatter:
@@ -337,3 +344,4 @@ When the user confirms they want a Todoist task:
 - Follow vault's existing template structure exactly
 - Always offer Todoist integration after note creation
 - Default to 7-day deadline unless user specifies otherwise
+- **AI content markers:** New notes include `%%CLAUDE WRITTEN START%%` after frontmatter and `%%CLAUDE WRITTEN END%%` at the end (hidden in reading view, visible in edit mode)
