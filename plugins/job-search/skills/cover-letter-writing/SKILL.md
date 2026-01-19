@@ -37,7 +37,7 @@ Generate tailored, evidence-backed cover letters that complement resumes and dem
 | Input | How to Obtain |
 |-------|---------------|
 | **Job posting** | URL (use WebFetch) or pasted content |
-| **Resume** | Check `~/Projects/typst-resume/jhoehler.yml` first, then ask |
+| **Resume** | Check `~/Projects/resume/jhoehler.yml` first, then ask |
 | **Draft (optional)** | User-provided existing draft to refine |
 
 ### Locate Resume
@@ -45,12 +45,18 @@ Generate tailored, evidence-backed cover letters that complement resumes and dem
 Check these paths in order:
 
 ```
+~/Projects/resume/jhoehler.yml
 ~/Projects/typst-resume/jhoehler.yml
-~/Projects/resume/resume.yml
 ~/Documents/Resume/resume.yml
 ```
 
 If not found, use `AskUserQuestion` to request resume path or pasted content.
+
+### Output Location
+
+Cover letters are saved as YAML files for Typst compilation:
+- **Output directory**: `~/Projects/resume/cover_letters/`
+- **Template**: `~/Projects/resume/cover_letter_template.typ`
 
 ### Gathering Missing Inputs
 
@@ -175,38 +181,56 @@ Never apologize, over-explain, or draw attention to gaps.
 
 ## Phase 5: Generation
 
-### Cover Letter Structure (Required)
+### Output Format: YAML
 
+Cover letters are output as YAML files for the Typst template system.
+
+**File naming**: `{company-slug}-{position-slug}.yml`
+- Example: `stripe-senior-backend-engineer.yml`
+
+### YAML Structure
+
+```yaml
+recipient:
+  name: "Hiring Manager"      # Or specific name if known
+  title: ""                   # Optional: "Engineering Manager"
+  company: "Company Name"
+  address: ""                 # Optional
+
+position: "Position Title"
+
+body:
+  - |
+    PARAGRAPH 1 — HOOK (3-4 sentences)
+    State role applying for, why THIS company (specific, researched),
+    and one proof-backed fit hook.
+
+  - |
+    PARAGRAPH 2 — PROOF (3-4 sentences)
+    Two proof points with impact/scope. Prefer numbers over adjectives.
+    Connect achievements directly to their stated needs.
+
+  - |
+    PARAGRAPH 3 — SENIOR SIGNAL
+    In my first 30 days, I would focus on [learning/absorbing].
+    By 60 days, I'd aim to [early contribution].
+    Within 90 days, I expect to [meaningful impact].
+
+  - |
+    PARAGRAPH 4 — CLOSE (2-3 sentences)
+    Confident call-to-action and thanks.
 ```
-1. SALUTATION
-   "Dear [Hiring Team]" or "Dear [Company] team"
-   (Use hiring manager name only if verified)
 
-2. PARAGRAPH 1 — HOOK (3-4 sentences)
-   - State role applying for
-   - Why THIS company (specific, researched)
-   - One proof-backed fit hook
+### Paragraph Guidelines
 
-3. PARAGRAPH 2 — PROOF (3-4 sentences)
-   - 2 proof points with impact/scope
-   - Prefer numbers over adjectives
-   - Connect to their needs
+| Paragraph | Content | Length |
+|-----------|---------|--------|
+| 1 - Hook | Role + why this company + proof-backed fit | 3-4 sentences |
+| 2 - Proof | 2 achievements with metrics, connected to needs | 3-4 sentences |
+| 3 - Senior Signal | Micro 30/60/90 plan | 3-6 lines |
+| 4 - Close | Call-to-action + thanks | 2-3 sentences |
 
-4. PARAGRAPH 3 — SENIOR SIGNAL (max 6 short lines)
-   Micro 30/60/90 plan:
-
-   **First 30 days:** [What you'll learn/absorb]
-   **First 60 days:** [Early contribution]
-   **First 90 days:** [Meaningful impact]
-
-5. OPTIONAL — DIFFERENTIATOR (2-3 sentences)
-   Problem hypothesis based ONLY on job page facts
-   "I noticed you're focused on X, which often means Y challenge..."
-
-6. CLOSE (2 sentences)
-   - Confident call-to-action
-   - Thank them
-```
+**Optional 5th paragraph**: Problem hypothesis based ONLY on job page facts ("I noticed you're focusing on X, which often means Y challenge...")
 
 ### Tone Guidelines
 
@@ -276,16 +300,40 @@ Every cover letter generation must include:
 ## D. Draft Critique (if draft provided)
 [Max 8 bullets on existing draft]
 
-## E. Cover Letter
----
-Dear [Hiring Team],
+## E. Cover Letter YAML
 
-[Full cover letter following required structure]
+Save to: `~/Projects/resume/cover_letters/{company}-{position}.yml`
+```
 
-Best,
-[Name]
----
+```yaml
+recipient:
+  name: "Hiring Manager"
+  title: ""
+  company: "Company Name"
+  address: ""
 
+position: "Position Title"
+
+body:
+  - |
+    [Paragraph 1: Hook]
+
+  - |
+    [Paragraph 2: Proof with metrics]
+
+  - |
+    [Paragraph 3: 30/60/90 plan]
+
+  - |
+    [Paragraph 4: Close]
+```
+
+**Build command:**
+```bash
+typst compile cover_letter_template.typ cover_letter.pdf --input letter=cover_letters/{filename}.yml
+```
+
+```markdown
 ## F. Truth Check
 - [Statement 1]
 - [Statement 2]
