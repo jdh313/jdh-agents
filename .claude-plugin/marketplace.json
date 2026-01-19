@@ -29,7 +29,7 @@
       "description": "Create atomic commits with conventional commit messages. Supports git and jj (Jujutsu).",
       "version": "1.4.0",
       "author": {
-        "name": "Jacob Waites"
+        "name": "Jacob Hoehler"
       },
       "keywords": [
         "git",
@@ -61,7 +61,7 @@
       "description": "Automate branch/change management for git and jj",
       "version": "0.1.0",
       "author": {
-        "name": "Jacob Waites"
+        "name": "Jacob Hoehler"
       },
       "keywords": [
         "git",
@@ -92,7 +92,7 @@
       "description": "Expert patterns for FastAPI development: authentication, async database integration, and testing",
       "version": "1.0.1",
       "author": {
-        "name": "Jacob Waites"
+        "name": "Jacob Hoehler"
       },
       "keywords": [
         "fastapi",
@@ -109,7 +109,7 @@
       "description": "Expert guidance for GitHub Actions workflows, CI/CD, and deployment automation",
       "version": "1.0.1",
       "author": {
-        "name": "Jacob Waites"
+        "name": "Jacob Hoehler"
       },
       "keywords": [
         "github-actions",
@@ -126,7 +126,7 @@
       "description": "History investigation tools: bisect, blame, file evolution, and branch comparison for git and jj",
       "version": "0.2.0",
       "author": {
-        "name": "Jacob Waites"
+        "name": "Jacob Hoehler"
       },
       "keywords": [
         "git",
@@ -160,8 +160,8 @@
     {
       "name": "job-search",
       "source": "./plugins/job-search",
-      "description": "Streamline job search workflows with Obsidian note creation, Todoist integration, resume tailoring, and interview preparation",
-      "version": "0.3.1",
+      "description": "Comprehensive job search toolkit with resume optimization, cover letter writing, application tracking, and interview preparation. Integrates with Obsidian vault and Todoist.",
+      "version": "0.5.0",
       "author": {
         "name": "Jacob Hoehler"
       },
@@ -173,10 +173,14 @@
         "career-themes",
         "interview-prep",
         "resume",
+        "resume-optimization",
+        "cover-letter",
         "application-tracking",
         "achievements",
         "work-summary",
-        "linkedin"
+        "linkedin",
+        "ats",
+        "typst"
       ],
       "homepage": "https://github.com/yourusername/cc-marketplace/tree/main/plugins/job-search"
     },
@@ -186,7 +190,7 @@
       "description": "Extract and document Lambda function configurations for FastAPI migration",
       "version": "1.0.1",
       "author": {
-        "name": "Jacob Waites"
+        "name": "Jacob Hoehler"
       },
       "keywords": [
         "lambda",
@@ -203,7 +207,7 @@
       "description": "Branch and change merge operations for git and jj with conflict detection and resolution",
       "version": "0.1.0",
       "author": {
-        "name": "Jacob Waites"
+        "name": "Jacob Hoehler"
       },
       "keywords": [
         "git",
@@ -220,7 +224,7 @@
       "description": "A vault-aware collaborator that helps you search, capture, edit, and maintain your Obsidian notes and Bases intelligently",
       "version": "1.1.7",
       "author": {
-        "name": "Jacob Waites",
+        "name": "Jacob Hoehler",
         "email": "jacob@example.com"
       },
       "keywords": [
@@ -242,7 +246,7 @@
       "description": "Expert guidance for OpenTelemetry instrumentation, tracing, and observability",
       "version": "1.0.1",
       "author": {
-        "name": "Jacob Waites"
+        "name": "Jacob Hoehler"
       },
       "keywords": [
         "opentelemetry",
@@ -259,7 +263,7 @@
       "description": "Manage Claude Code permissions and troubleshoot permission errors",
       "version": "1.1.1",
       "author": {
-        "name": "Jacob Waites"
+        "name": "Jacob Hoehler"
       },
       "keywords": [
         "permissions",
@@ -296,7 +300,7 @@
       "description": "Automate code review preparation with PR descriptions, commit cleanup, and diff analysis for git and jj",
       "version": "0.2.0",
       "author": {
-        "name": "Jacob Waites"
+        "name": "Jacob Hoehler"
       },
       "keywords": [
         "git",
@@ -313,6 +317,6 @@
     "version": "1.0.0",
     "homepage": "https://github.com/jdh313/cc-marketplace",
     "totalPlugins": 17,
-    "lastUpdated": "2026-01-12"
+    "lastUpdated": "2026-01-19"
   }
 }

@@ -1,14 +1,27 @@
 # Job Search Plugin
 
-A Claude Code plugin that streamlines job search workflows with Obsidian note creation and Todoist task tracking.
+A comprehensive Claude Code plugin for managing your entire job search workflow — from tracking applications to optimizing resumes and preparing for interviews.
 
 ## What It Does
 
-Job Search helps you track job applications efficiently by:
-- **Creating structured notes** from job posting URLs
-- **Extracting skills and requirements** for trend analysis
-- **Linking company and role notes** for cross-referencing
-- **Creating Todoist tasks** for application deadlines
+Job Search helps you through every stage of the job hunt:
+
+- **Track applications** with structured Obsidian notes and Todoist tasks
+- **Optimize your resume** for ATS systems and specific job postings
+- **Write tailored cover letters** that complement your resume
+- **Prepare for interviews** with gap analysis and STAR stories
+- **Document achievements** from git commits, notes, and transcripts
+
+## Components
+
+| Type | Name | Trigger |
+|------|------|---------|
+| **Skill** | `job-opening` | `/job-opening <url>` or "create job opening from..." |
+| **Skill** | `work-summary` | `/work-summary` or "summarize my work..." |
+| **Skill** | `tailor-resume` | `/tailor-resume [[Job Note]]` or "tailor resume for..." |
+| **Skill** | `resume-optimization` | Auto-triggered for resume questions |
+| **Skill** | `cover-letter-writing` | `/cover-letter` or "write cover letter for..." |
+| **Agent** | `resume-reviewer` | "Review my resume" or "score my fit" |
 
 ## Features
 
@@ -19,8 +32,8 @@ Job Search helps you track job applications efficiently by:
 **What it does:**
 1. Fetches and parses the job posting
 2. Extracts company info, requirements, tech stack, and compensation
-3. Creates or updates a Company note in `70 Career/Job Search/Companies/`
-4. Creates a Job Opening note in `70 Career/Job Search/`
+3. Creates or updates a Company note in `Personal/Career/Job Search/Companies/`
+4. Creates a Job Opening note in `Personal/Career/Job Search/`
 5. Links the notes bidirectionally
 6. Offers to create a Todoist task for follow-up
 
@@ -28,178 +41,6 @@ Job Search helps you track job applications efficiently by:
 ```
 /job-opening https://careers.stripe.com/job/123456
 ```
-
-**Result:**
-```markdown
-## Created Job Opening Notes
-
-**Company Note**: [[Stripe]] (new)
-**Opening Note**: [[Stripe - Senior Backend Engineer]]
-
-### Key Details
-- **Position**: Senior Backend Engineer
-- **Location**: San Francisco, CA
-- **Remote**: Hybrid
-- **Compensation**: $180k-$250k
-
-### Skills Extracted
-- **Required** (8): python, go, distributed-systems, postgresql...
-- **Preferred** (4): kubernetes, aws, terraform...
-
----
-
-**Would you like me to create a Todoist task to track this application?**
-```
-
-### Todoist Integration
-
-After creating notes, the skill offers to create a Todoist task:
-
-- **Default**: "Apply to {Company} - {Position}" due in 7 days
-- **Custom due date**: Specify when prompted (e.g., "in 3 days", "next Monday")
-- **Automatic linking**: Task description includes link to opening note
-- **Project detection**: Automatically finds "Job Search" project in Todoist
-
-## Prerequisites
-
-1. **Obsidian** with Local REST API plugin running
-2. **Claude Code** with MCP tools configured:
-   - Obsidian MCP tools (`mcp__CodeMCP__Obsidian__*`)
-   - Todoist MCP tools (`mcp__CodeMCP__Todosit__*`) - optional but recommended
-3. **Vault structure**: Notes are created in `70 Career/Job Search/`
-
-## Installation
-
-```bash
-/plugin install job-search@cc-marketplace
-```
-
-## Usage
-
-### Basic Usage
-
-Provide a job posting URL:
-```
-/job-opening https://boards.greenhouse.io/company/jobs/123456
-```
-
-### With Custom Todoist Due Date
-
-When prompted for Todoist task:
-```
-Yes, due next Friday
-```
-
-Or:
-```
-Yes, in 3 days
-```
-
-### Skip Todoist Task
-
-When prompted:
-```
-No thanks
-```
-
-## Note Structure
-
-### Company Note
-
-Created at: `70 Career/Job Search/Companies/{Company Name}.md`
-
-```yaml
----
-company_status: researching
-industry: technology
-headquarters: San Francisco, CA
----
-```
-
-Includes:
-- Company overview and what they do
-- Culture and reputation tracking
-- Dataview query listing all openings at this company
-
-### Job Opening Note
-
-Created at: `70 Career/Job Search/{Company Name} - {Position}.md`
-
-```yaml
----
-company_note: "[[Company Name]]"
-position: Senior Backend Engineer
-status: researching
-job_url: https://...
-location: San Francisco, CA
-remote: hybrid
-compensation_range: $180k-$250k
-skills_required: [python, go, distributed-systems]
-skills_preferred: [kubernetes, aws]
----
-```
-
-Includes:
-- Collapsible job posting summary
-- Questions to ask in interviews
-- Pros/cons table
-- Compensation breakdown
-- Post-mortem section (for after conclusion)
-
-## Skill Extraction
-
-Skills are extracted in kebab-case for consistency:
-
-| Posting Text | Extracted As |
-|--------------|--------------|
-| "Python 3.10+" | `python` |
-| "AWS (EC2, Lambda, S3)" | `aws` |
-| "CI/CD pipelines" | `ci-cd` |
-| "Machine Learning" | `machine-learning` |
-| "Kubernetes/K8s" | `kubernetes` |
-
-This enables tracking skill trends across applications using Obsidian Dataview.
-
-## Workflow Integration
-
-The plugin integrates with a typical job search workflow:
-
-```
-1. Find interesting job posting
-2. /job-opening <url>
-3. Review extracted details
-4. Create Todoist task (optional)
-5. Fill in "Why This Role" section
-6. Research company (Glassdoor, LinkedIn)
-7. Apply when ready
-8. Update status in note frontmatter
-```
-
-## Troubleshooting
-
-### WebFetch fails to parse job posting
-
-Some job boards block automated requests. Solutions:
-1. Copy the job posting content manually
-2. Paste it when prompted by the skill
-3. The skill will extract details from the pasted content
-
-### Todoist project not found
-
-If no "Job Search" project exists:
-- The skill offers to create the task in Inbox
-- Or create a "Job Search" project in Todoist first
-
-### Notes created in wrong location
-
-Verify your vault has this folder structure:
-```
-70 Career/
-  Job Search/
-    Companies/
-```
-
-Create these folders if missing.
 
 ### Work Summary Skill
 
@@ -212,66 +53,180 @@ Create these folders if missing.
    - Obsidian meeting and project notes
    - Word transcripts (.docx files)
    - Slack exports (JSON format)
-3. Analyzes and categorizes contributions (features, fixes, refactors)
-4. Creates raw evidence note with all collected data
-5. Generates formatted note with resume bullets, LinkedIn summary, and STAR stories
+3. Analyzes and categorizes contributions
+4. Integrates with Career Themes in your vault
+5. Creates raw evidence note + formatted note with resume bullets
+
+**Result:** Two notes in `Personal/Career/Achievements/`:
+- Raw evidence note with all collected data
+- Formatted note with resume bullets, LinkedIn summary, and STAR stories
+
+### Tailor Resume Skill
+
+`/tailor-resume [[Company - Position]]` - Customize resume for a specific job
+
+**What it does:**
+1. Reads your job opening note from Obsidian
+2. Reads your resume YAML (`~/Projects/typst-resume/jhoehler.yml`)
+3. Analyzes skill matches and gaps
+4. Generates specific YAML modifications:
+   - Skills to add/remove
+   - Highlight reordering for relevance
+   - Optional summary suggestions
+5. Outputs ready-to-paste YAML snippets
 
 **Example:**
 ```
-/work-summary
+/tailor-resume [[Lila Sciences - Senior Full Stack Engineer]]
 ```
 
-**Interactive prompts:**
+### Resume Optimization Skill
+
+Auto-triggered when discussing resume best practices, ATS optimization, or achievement quantification.
+
+**Provides guidance on:**
+- ATS keyword optimization
+- Achievement quantification (Action + What + Metrics)
+- Skills-first hiring trends (2025-2026)
+- Your specific Typst/YAML resume structure
+
+### Cover Letter Writing Skill
+
+`/cover-letter` - Generate a tailored cover letter for a job posting
+
+**What it does:**
+1. Gathers job posting (URL or pasted content) and resume
+2. Analyzes success signals and extracts ATS keywords
+3. Maps your resume evidence to job requirements
+4. Generates cover letter with micro 30/60/90 plan
+5. Verifies all claims against resume (Truth Check)
+
+**Output includes:**
+- Job success signals (6-10 items)
+- ATS keywords to mirror (8-15 items)
+- Evidence map (resume proof → job requirements)
+- Final cover letter (250-400 words)
+- Truth Check verification
+
+### Resume Reviewer Agent
+
+Autonomous agent that scores your resume fit against a job posting.
+
+**Triggers:** "review my resume", "score my fit", "how does my resume match"
+
+**Output:**
+- Overall fit score (X/10)
+- Skills match analysis (required + preferred)
+- Experience alignment mapping
+- Gap identification with mitigation suggestions
+- Interview preparation tips
+
+## Resume Setup
+
+This plugin is configured for a Typst resume with YAML data:
+
+| File | Purpose |
+|------|---------|
+| `~/Projects/typst-resume/template.typ` | Typst template (imprecv package) |
+| `~/Projects/typst-resume/jhoehler.yml` | Resume data (YAML) |
+| `~/Projects/typst-resume/resume.pdf` | Compiled output |
+
+All resume suggestions are output as YAML snippets matching your schema.
+
+## Vault Structure
+
+The plugin uses this Obsidian vault structure:
+
 ```
-What date range would you like to summarize?
-> Last 90 days
-
-Which sources should I scan?
-> Git/JJ repositories, Obsidian notes
-
-Enter repository paths to scan:
-> ~/Projects/api, ~/Projects/frontend
-
-What is your current role/title?
-> Senior Software Engineer
+Personal/Career/
+├── Job Search/
+│   ├── 00 Dashboard.md
+│   ├── Companies/           # Company research notes
+│   └── [Job opening notes at root level]
+├── Achievements/            # Work summary outputs
+└── Themes/                  # Career themes for evidence
 ```
 
-**Result:**
+**Bases:**
+- `Bases/Job Openings.base` — Pipeline view of all applications
+- `Bases/Companies.base` — All tracked companies
 
-Two Obsidian notes created in `70 Career/Achievements/`:
+## Prerequisites
 
-1. **Raw Note** (`YYYY-MM-DD Work Summary Raw.md`):
-   - All collected evidence organized by source
-   - Commit history categorized by type
-   - Meeting notes and project references
-   - Extracted excerpts from transcripts/Slack
+1. **Obsidian** with Local REST API plugin running
+2. **Claude Code** with MCP tools configured:
+   - Obsidian MCP tools (`mcp__CodeMCP__Obsidian__*`)
+   - Todoist MCP tools (`mcp__CodeMCP__Todosit__*`) - optional
+3. **Typst resume** at `~/Projects/typst-resume/` (for resume features)
 
-2. **Formatted Note** (`YYYY-MM-DD Work Summary.md`):
-   - Resume-ready bullet points (Action + What + Impact)
-   - LinkedIn narrative summary with hashtags
-   - STAR stories for behavioral interviews
-   - Quick stats dashboard
+## Installation
 
-**Supported Sources:**
+```bash
+/plugin install job-search@cc-marketplace
+```
 
-| Source | What's Collected | Requirements |
-|--------|------------------|--------------|
-| Git/JJ | Commits, stats, history | Local repos |
-| Obsidian | Meeting notes, project docs | Obsidian MCP |
-| Word | Transcripts, meeting notes | macOS (textutil) |
-| Slack | Channel messages | Slack export JSON |
+## Workflow Example
 
-**Error handling:**
-- Unavailable sources are skipped with a warning
-- Individual file failures don't stop the process
-- Works with any subset of sources available
+Complete job application workflow:
 
-## Roadmap
+```
+1. Find job posting
+2. /job-opening <url>                    # Create tracking notes
+3. /tailor-resume [[Company - Position]] # Get YAML changes
+4. Edit jhoehler.yml with suggestions
+5. typst compile template.typ resume.pdf # Rebuild resume
+6. /cover-letter                         # Generate tailored cover letter
+7. "Review my resume for this job"       # Get fit score
+8. Apply and update status in note
+```
 
-Future skills planned for this plugin:
-- **Resume Tailor**: Generate tailored resume bullets from job requirements
-- **Interview Prep**: Create prep notes with likely questions based on role
-- **Application Tracker**: Dashboard view of all applications and statuses
+## Troubleshooting
+
+### WebFetch fails to parse job posting
+
+Some job boards block automated requests:
+1. Copy the job posting content manually
+2. Paste it when prompted
+3. The skill will extract details from pasted content
+
+### Resume file not found
+
+Ensure your resume is at `~/Projects/typst-resume/jhoehler.yml` or update the path in skill files.
+
+### Todoist project not found
+
+Create a "Job Search" project in Todoist, or tasks will go to Inbox.
+
+### Job note not found for tailor-resume
+
+Run `/job-opening <url>` first to create the job note, or search your vault for existing notes.
+
+## Changelog
+
+### v0.5.0
+- Converted `cover-letter-writing` to user-invokable skill
+- Added structured workflow: job analysis → evidence mapping → generation
+- Includes ATS keyword extraction and 30/60/90 micro plan
+- Added Truth Check verification for all claims
+
+### v0.4.2
+- Updated vault paths from `70 Career/` to `Personal/Career/`
+- Job openings now created at root of Job Search folder (not in Openings subfolder)
+
+### v0.4.1
+- Added software engineering-specific resume guidance
+- Improved skill triggers for general resume questions
+
+### v0.4.0
+- Added `tailor-resume` skill for YAML-based resume customization
+- Added `resume-optimization` skill with ATS and best practices knowledge
+- Added `cover-letter-writing` skill with templates
+- Added `resume-reviewer` agent for fit scoring
+- Updated keywords and description
+
+### v0.3.x
+- Initial release with `job-opening` and `work-summary` skills
+- Career Themes integration
 
 ## License
 
