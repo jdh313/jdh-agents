@@ -23,10 +23,10 @@ Generate tailored, evidence-backed cover letters that complement resumes and dem
 
 ## Core Principles
 
-- **Every claim must be verifiable** — sourced from resume or marked with `[PLACEHOLDER]`
-- **Engineer-to-engineer tone** — professional but not corporate-speak
-- **Show, don't tell** — metrics and specifics over buzzwords
-- **250-400 words** — respect the reader's time
+- **Every claim must be verifiable**: sourced from resume or marked with `[PLACEHOLDER]`
+- **Engineer-to-engineer tone**: professional but not corporate-speak
+- **Show, do not tell**: metrics and specifics over buzzwords
+- **250-400 words**: respect the reader's time
 
 ---
 
@@ -61,9 +61,9 @@ Cover letters are saved as YAML files for Typst compilation:
 ### Gathering Missing Inputs
 
 Use `AskUserQuestion` when:
-- **No job posting provided** — Ask for URL or pasted content
-- **Resume not found** — Ask for file path or offer to accept pasted content
-- **Ambiguous role** — Clarify which position if multiple mentioned
+- **No job posting provided**: Ask for URL or pasted content
+- **Resume not found**: Ask for file path or offer to accept pasted content
+- **Ambiguous role**: Clarify which position if multiple mentioned
 
 Example prompt for job posting:
 ```
@@ -127,9 +127,9 @@ Map resume content to job requirements.
 
 ### Evidence Sources
 
-1. **Resume** — Primary source for all claims
-2. **Obsidian job note** — Company research, "Why This Role" section
-3. **OpenMemory** — Prior work context, achievements, patterns
+1. **Resume**: Primary source for all claims
+2. **Obsidian job note**: Company research, "Why This Role" section
+3. **OpenMemory**: Prior work context, achievements, patterns
 
 ### Evidence Map Table
 
@@ -201,23 +201,23 @@ position: "Position Title"
 
 body:
   - |
-    PARAGRAPH 1 — HOOK (3-4 sentences)
+    PARAGRAPH 1: HOOK (3-4 sentences)
     State role applying for, why THIS company (specific, researched),
     and one proof-backed fit hook.
 
   - |
-    PARAGRAPH 2 — PROOF (3-4 sentences)
+    PARAGRAPH 2: PROOF (3-4 sentences)
     Two proof points with impact/scope. Prefer numbers over adjectives.
     Connect achievements directly to their stated needs.
 
   - |
-    PARAGRAPH 3 — SENIOR SIGNAL
+    PARAGRAPH 3: SENIOR SIGNAL
     In my first 30 days, I would focus on [learning/absorbing].
-    By 60 days, I'd aim to [early contribution].
+    By 60 days, I would aim to [early contribution].
     Within 90 days, I expect to [meaningful impact].
 
   - |
-    PARAGRAPH 4 — CLOSE (2-3 sentences)
+    PARAGRAPH 4: CLOSE (2-3 sentences)
     Confident call-to-action and thanks.
 ```
 
@@ -234,11 +234,15 @@ body:
 
 ### Tone Guidelines
 
+**Writing Style Rules:**
+- No emdashes. Use commas, colons, or separate sentences instead.
+- No contractions. Write "I am", "I would", "I have" instead of "I'm", "I'd", "I've".
+
 | Do | Don't |
 |----|-------|
-| "I built systems handling 50k requests" | "I'm passionate about scalability" |
+| "I built systems handling 50k requests" | "I am passionate about scalability" |
 | "Led 3-team migration of 1.2M records" | "Experienced team player" |
-| "Your work on [specific] aligns with..." | "I've always admired your company" |
+| "Your work on [specific] aligns with..." | "I have always admired your company" |
 | Direct, factual statements | Buzzwords without examples |
 
 ### Keyword Integration
@@ -250,7 +254,7 @@ Naturally incorporate 6-10 ATS keywords:
 
 ### Length Target
 
-**250-400 words** — no more than ¾ page
+**250-400 words**: no more than ¾ page
 
 ---
 
@@ -347,10 +351,10 @@ typst compile cover_letter_template.typ cover_letter.pdf --input letter=cover_le
 ### Reference Templates
 
 For structure examples by company type:
-- **`references/templates.md`** — 5 templates (startup, enterprise, mission-driven, career transition, referral)
+- **`references/templates.md`**: 5 templates (startup, enterprise, mission-driven, career transition, referral)
 
 ### Related Skills
 
-- **`job-opening`** — Create job notes with company research
-- **`tailor-resume`** — Ensure resume and cover letter align
-- **`work-summary`** — Generate achievement documentation
+- **`job-opening`**: Create job notes with company research
+- **`tailor-resume`**: Ensure resume and cover letter align
+- **`work-summary`**: Generate achievement documentation
