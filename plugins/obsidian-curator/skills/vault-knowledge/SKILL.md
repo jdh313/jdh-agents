@@ -196,7 +196,7 @@ obsidian_complex_search({
 ```
 obsidian_append_content(
   filepath="01 Daily Notes/2025-01-02.md",
-  content="\n- **10:30** — Captured thought\n"
+  content="\n%%CLAUDE WRITTEN START%%\n- **10:30** — Captured thought\n%%CLAUDE WRITTEN END%%\n"
 )
 ```
 
@@ -204,7 +204,7 @@ obsidian_append_content(
 ```
 obsidian_put_content(
   filepath="50 Developer Notes/New Pattern.md",
-  content="<full markdown content with frontmatter>"
+  content="---\nfrontmatter: here\n---\n\n%%CLAUDE WRITTEN START%%\n\n# Title\n\nContent...\n\n%%CLAUDE WRITTEN END%%\n"
 )
 ```
 
@@ -215,3 +215,4 @@ obsidian_put_content(
 - **Respect user's organization** — follow their folder structure and templates
 - **Get permission** before any write operation
 - **Present clearly** — show location, template, and content for approval
+- **AI content markers:** For new notes, add `%%CLAUDE WRITTEN START%%` after frontmatter and `%%CLAUDE WRITTEN END%%` at end. For appended content, wrap the new section with markers (hidden in reading view, visible in edit mode)

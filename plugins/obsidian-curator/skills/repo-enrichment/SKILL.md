@@ -159,7 +159,7 @@ obsidian_patch_content(
   operation="append",
   target_type="heading",
   target="Patterns & Gotchas",
-  content="\n### Rate Limiting\nUse exponential backoff with Retry-After header.\n"
+  content="\n%%CLAUDE WRITTEN START%%\n\n### Rate Limiting\nUse exponential backoff with Retry-After header.\n\n%%CLAUDE WRITTEN END%%\n"
 )
 ```
 
@@ -168,7 +168,7 @@ obsidian_patch_content(
 ```python
 obsidian_append_content(
   filepath="80 Waites/Repos/Gateway Config API.md",
-  content="\n## Development Notes\n\n### Running Tests\n```bash\nPYTHONPATH=. pytest tests/\n```\n"
+  content="\n%%CLAUDE WRITTEN START%%\n\n## Development Notes\n\n### Running Tests\n```bash\nPYTHONPATH=. pytest tests/\n```\n\n%%CLAUDE WRITTEN END%%\n"
 )
 ```
 
@@ -208,6 +208,8 @@ status: active
 aliases: [gateway-api, config-api]
 ---
 
+%%CLAUDE WRITTEN START%%
+
 # Gateway Config API
 
 ## Overview
@@ -235,6 +237,8 @@ aliases: [gateway-api, config-api]
 ## Related
 - [[Other Repo]]
 - [[Project Note]]
+
+%%CLAUDE WRITTEN END%%
 ```
 
 ## Remember
@@ -245,6 +249,7 @@ aliases: [gateway-api, config-api]
 - **Batch suggestions** — Don't interrupt flow with every discovery
 - **Ask permission** — Never modify repo notes without consent
 - **Link appropriately** — Add [[wikilinks]] to related notes
+- **AI content markers:** Wrap new sections with `%%CLAUDE WRITTEN START%%` and `%%CLAUDE WRITTEN END%%` (hidden in reading view, visible in edit mode)
 
 ## Common Patterns to Capture
 

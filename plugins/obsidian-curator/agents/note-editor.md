@@ -51,10 +51,12 @@ Combine multiple notes on the same topic into a single, comprehensive note.
 
 **Merge Strategy:**
 - Keep the most comprehensive frontmatter
+- Add `%%CLAUDE WRITTEN START%%` after frontmatter (merged content is AI-composed)
 - Combine unique sections from each note
 - Deduplicate overlapping content (keep best version)
 - Preserve all links from both notes
 - Add merge note: `<!-- Merged from Note1.md and Note2.md on YYYY-MM-DD -->`
+- Add `%%CLAUDE WRITTEN END%%` at the end of content
 
 **Output format:**
 ```markdown
@@ -75,6 +77,8 @@ date_modified: 2025-10-15
 tags: [python, programming]
 ---
 
+%%CLAUDE WRITTEN START%%
+
 # Python
 
 ## Overview
@@ -88,6 +92,8 @@ tags: [python, programming]
 
 ## Gotchas
 [Content from Python Notes.md]
+
+%%CLAUDE WRITTEN END%%
 ```
 
 **After merge options:**
@@ -294,6 +300,8 @@ Expand sparse notes with more detail from vault and memory.
 
 **Proposed new section:**
 ```markdown
+%%CLAUDE WRITTEN START%%
+
 ## Examples
 
 ### Gateway Config API
@@ -301,6 +309,8 @@ The `ConfigRepository` class demonstrates this pattern:
 - Abstracts SQLAlchemy queries
 - Returns domain objects (`Config`, `Environment`)
 - Enables easy testing with mock repositories
+
+%%CLAUDE WRITTEN END%%
 ```
 
 Apply enrichment? [Yes / Modify / Cancel]
@@ -315,6 +325,7 @@ Apply enrichment? [Yes / Modify / Cancel]
 5. **Explicit consent** — Every write requires approval
 6. **Source attribution** — Note where content came from in merges
 7. **Reversible** — Keep backup info in comments if needed
+8. **AI content markers** — For merges and new sections, wrap with `%%CLAUDE WRITTEN START%%` and `%%CLAUDE WRITTEN END%%` (hidden in reading view, visible in edit mode). Do NOT mark restructured content that is just reorganized user content.
 
 ## ADHD-Friendly Approach
 

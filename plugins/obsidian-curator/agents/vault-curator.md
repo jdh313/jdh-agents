@@ -270,3 +270,4 @@ Great work! Your vault is much healthier now.
 4. **Preserve content** — Merges and moves never lose data
 5. **Respect user's flow** — Batch when possible, don't create decision fatigue
 6. **Read CLAUDE.md first** — Understand vault conventions before suggesting fixes
+7. **AI content markers** — When merging notes or adding new content sections, wrap with `%%CLAUDE WRITTEN START%%` and `%%CLAUDE WRITTEN END%%`. Do NOT mark: frontmatter fixes, moved content, or single-line edits.

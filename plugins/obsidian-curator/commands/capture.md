@@ -28,10 +28,18 @@ Captures are added under the "## Captured" section in this format:
 ```markdown
 ## Captured
 
+%%CLAUDE WRITTEN START%%
 - **10:30** — This is my quick thought
+%%CLAUDE WRITTEN END%%
+%%CLAUDE WRITTEN START%%
 - **14:15** — Debugging approach: restart the service first
+%%CLAUDE WRITTEN END%%
+%%CLAUDE WRITTEN START%%
 - **16:45** — Pattern: use dataclasses for config objects
+%%CLAUDE WRITTEN END%%
 ```
+
+Note: Each capture is wrapped individually with AI content markers (hidden in reading view).
 
 ## No Arguments?
 
@@ -49,7 +57,8 @@ timestamp = now.strftime("%H:%M")
 daily_note = obsidian_get_periodic_note(period="daily", type="content")
 
 # Parse the note to find or create "## Captured" section
-# Append: \n- **{timestamp}** — {capture_text}\n
+# Append with AI content markers:
+# \n%%CLAUDE WRITTEN START%%\n- **{timestamp}** — {capture_text}\n%%CLAUDE WRITTEN END%%\n
 
 # Write back using obsidian_put_content or obsidian_patch_content
 ```
@@ -80,7 +89,9 @@ User: /obsidian-curator:capture Lambda cold starts fixed with provisioned concur
 Claude: ✓ Captured to today's daily note (01 Daily Notes/2025-01-02.md):
 
 ## Captured
+%%CLAUDE WRITTEN START%%
 - **14:23** — Lambda cold starts fixed with provisioned concurrency
+%%CLAUDE WRITTEN END%%
 ```
 
 ## Related Commands

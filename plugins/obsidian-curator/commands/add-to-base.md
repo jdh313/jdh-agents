@@ -56,12 +56,16 @@ url: https://docs.astral.sh/ruff/
 alternatives: [flake8, pylint, black]
 ---
 
+%%CLAUDE WRITTEN START%%
+
 # Ruff
 
 Fast Python linter and formatter. Replaces flake8 + black in one tool.
 
 ## Overview
 ...
+
+%%CLAUDE WRITTEN END%%
 
 Location: `30 Productivity and Tools/Software Catalog/Ruff.md`
 
@@ -146,6 +150,8 @@ base_file = Read(f"/Users/jacob/Loose Ends/Bases/{base_mapping[base_name]}.base"
 # 5. Prompt user for missing required properties
 
 # 6. Generate frontmatter + content
+#    Add %%CLAUDE WRITTEN START%% after frontmatter
+#    Add %%CLAUDE WRITTEN END%% at end of content
 # 7. Show preview for approval
 # 8. Create note with obsidian_put_content
 ```
