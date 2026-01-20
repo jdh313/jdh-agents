@@ -160,8 +160,8 @@
     {
       "name": "job-search",
       "source": "./plugins/job-search",
-      "description": "Comprehensive job search toolkit with resume optimization, cover letter writing, application tracking, and interview preparation. Integrates with Obsidian vault and Todoist.",
-      "version": "0.5.0",
+      "description": "Job search toolkit for application tracking, work documentation, and interview preparation. Integrates with Obsidian vault and Todoist.",
+      "version": "0.7.0",
       "author": {
         "name": "Jacob Hoehler"
       },
@@ -172,15 +172,10 @@
         "career",
         "career-themes",
         "interview-prep",
-        "resume",
-        "resume-optimization",
-        "cover-letter",
         "application-tracking",
         "achievements",
         "work-summary",
-        "linkedin",
-        "ats",
-        "typst"
+        "linkedin"
       ],
       "homepage": "https://github.com/yourusername/cc-marketplace/tree/main/plugins/job-search"
     },
@@ -217,28 +212,6 @@
         "conflict",
         "workflow"
       ]
-    },
-    {
-      "name": "obsidian-curator",
-      "source": "./plugins/obsidian-curator",
-      "description": "A vault-aware collaborator that helps you search, capture, edit, and maintain your Obsidian notes and Bases intelligently",
-      "version": "1.1.7",
-      "author": {
-        "name": "Jacob Hoehler",
-        "email": "jacob@example.com"
-      },
-      "keywords": [
-        "obsidian",
-        "notes",
-        "knowledge-management",
-        "vault",
-        "capture",
-        "search",
-        "maintenance",
-        "bases",
-        "database"
-      ],
-      "homepage": "https://github.com/yourusername/cc-marketplace/tree/main/plugins/obsidian-curator"
     },
     {
       "name": "opentelemetry-expert",
@@ -316,7 +289,7 @@
     "description": "Personal Claude Code plugin marketplace",
     "version": "1.0.0",
     "homepage": "https://github.com/jdh313/cc-marketplace",
-    "totalPlugins": 17,
-    "lastUpdated": "2026-01-19"
+    "totalPlugins": 16,
+    "lastUpdated": "2026-01-20"
   }
 }
