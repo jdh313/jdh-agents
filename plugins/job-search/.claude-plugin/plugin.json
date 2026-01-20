@@ -1,7 +1,7 @@
 {
   "name": "job-search",
-  "version": "0.5.0",
-  "description": "Comprehensive job search toolkit with resume optimization, cover letter writing, application tracking, and interview preparation. Integrates with Obsidian vault and Todoist.",
+  "version": "0.7.0",
+  "description": "Job search toolkit for application tracking, work documentation, and interview preparation. Integrates with Obsidian vault and Todoist.",
   "author": {
     "name": "Jacob Hoehler"
   },
@@ -12,15 +12,10 @@
     "career",
     "career-themes",
     "interview-prep",
-    "resume",
-    "resume-optimization",
-    "cover-letter",
     "application-tracking",
     "achievements",
     "work-summary",
-    "linkedin",
-    "ats",
-    "typst"
+    "linkedin"
   ],
   "homepage": "https://github.com/yourusername/cc-marketplace/tree/main/plugins/job-search",
   "license": "MIT"

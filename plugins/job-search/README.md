@@ -7,8 +7,6 @@ A comprehensive Claude Code plugin for managing your entire job search workflow 
 Job Search helps you through every stage of the job hunt:
 
 - **Track applications** with structured Obsidian notes and Todoist tasks
-- **Optimize your resume** for ATS systems and specific job postings
-- **Write tailored cover letters** that complement your resume
 - **Prepare for interviews** with gap analysis and STAR stories
 - **Document achievements** from git commits, notes, and transcripts
 
@@ -18,9 +16,6 @@ Job Search helps you through every stage of the job hunt:
 |------|------|---------|
 | **Skill** | `job-opening` | `/job-opening <url>` or "create job opening from..." |
 | **Skill** | `work-summary` | `/work-summary` or "summarize my work..." |
-| **Skill** | `tailor-resume` | `/tailor-resume [[Job Note]]` or "tailor resume for..." |
-| **Skill** | `resume-optimization` | Auto-triggered for resume questions |
-| **Skill** | `cover-letter-writing` | `/cover-letter` or "write cover letter for..." |
 | **Agent** | `resume-reviewer` | "Review my resume" or "score my fit" |
 
 ## Features
@@ -61,53 +56,6 @@ Job Search helps you through every stage of the job hunt:
 - Raw evidence note with all collected data
 - Formatted note with resume bullets, LinkedIn summary, and STAR stories
 
-### Tailor Resume Skill
-
-`/tailor-resume [[Company - Position]]` - Customize resume for a specific job
-
-**What it does:**
-1. Reads your job opening note from Obsidian
-2. Reads your resume YAML (`~/Projects/typst-resume/jhoehler.yml`)
-3. Analyzes skill matches and gaps
-4. Generates specific YAML modifications:
-   - Skills to add/remove
-   - Highlight reordering for relevance
-   - Optional summary suggestions
-5. Outputs ready-to-paste YAML snippets
-
-**Example:**
-```
-/tailor-resume [[Lila Sciences - Senior Full Stack Engineer]]
-```
-
-### Resume Optimization Skill
-
-Auto-triggered when discussing resume best practices, ATS optimization, or achievement quantification.
-
-**Provides guidance on:**
-- ATS keyword optimization
-- Achievement quantification (Action + What + Metrics)
-- Skills-first hiring trends (2025-2026)
-- Your specific Typst/YAML resume structure
-
-### Cover Letter Writing Skill
-
-`/cover-letter` - Generate a tailored cover letter for a job posting
-
-**What it does:**
-1. Gathers job posting (URL or pasted content) and resume
-2. Analyzes success signals and extracts ATS keywords
-3. Maps your resume evidence to job requirements
-4. Generates cover letter with micro 30/60/90 plan
-5. Verifies all claims against resume (Truth Check)
-
-**Output includes:**
-- Job success signals (6-10 items)
-- ATS keywords to mirror (8-15 items)
-- Evidence map (resume proof → job requirements)
-- Final cover letter (250-400 words)
-- Truth Check verification
-
 ### Resume Reviewer Agent
 
 Autonomous agent that scores your resume fit against a job posting.
@@ -120,18 +68,6 @@ Autonomous agent that scores your resume fit against a job posting.
 - Experience alignment mapping
 - Gap identification with mitigation suggestions
 - Interview preparation tips
-
-## Resume Setup
-
-This plugin is configured for a Typst resume with YAML data:
-
-| File | Purpose |
-|------|---------|
-| `~/Projects/typst-resume/template.typ` | Typst template (imprecv package) |
-| `~/Projects/typst-resume/jhoehler.yml` | Resume data (YAML) |
-| `~/Projects/typst-resume/resume.pdf` | Compiled output |
-
-All resume suggestions are output as YAML snippets matching your schema.
 
 ## Vault Structure
 
@@ -157,7 +93,6 @@ Personal/Career/
 2. **Claude Code** with MCP tools configured:
    - Obsidian MCP tools (`mcp__CodeMCP__Obsidian__*`)
    - Todoist MCP tools (`mcp__CodeMCP__Todosit__*`) - optional
-3. **Typst resume** at `~/Projects/typst-resume/` (for resume features)
 
 ## Installation
 
@@ -172,12 +107,8 @@ Complete job application workflow:
 ```
 1. Find job posting
 2. /job-opening <url>                    # Create tracking notes
-3. /tailor-resume [[Company - Position]] # Get YAML changes
-4. Edit jhoehler.yml with suggestions
-5. typst compile template.typ resume.pdf # Rebuild resume
-6. /cover-letter                         # Generate tailored cover letter
-7. "Review my resume for this job"       # Get fit score
-8. Apply and update status in note
+3. "Review my resume for this job"       # Get fit score
+4. Apply and update status in note
 ```
 
 ## Troubleshooting
@@ -189,38 +120,29 @@ Some job boards block automated requests:
 2. Paste it when prompted
 3. The skill will extract details from pasted content
 
-### Resume file not found
-
-Ensure your resume is at `~/Projects/typst-resume/jhoehler.yml` or update the path in skill files.
-
 ### Todoist project not found
 
 Create a "Job Search" project in Todoist, or tasks will go to Inbox.
 
-### Job note not found for tailor-resume
-
-Run `/job-opening <url>` first to create the job note, or search your vault for existing notes.
-
 ## Changelog
 
+### v0.7.0
+- Removed `resume-optimization` and `tailor-resume` skills (now maintained separately in resume project)
+
+### v0.6.0
+- Removed `cover-letter-writing` skill (now maintained separately in resume project)
+
 ### v0.5.0
-- Converted `cover-letter-writing` to user-invokable skill
-- Added structured workflow: job analysis → evidence mapping → generation
-- Includes ATS keyword extraction and 30/60/90 micro plan
-- Added Truth Check verification for all claims
+- Enhanced `cover-letter-writing` skill (now removed in v0.6.0)
 
 ### v0.4.2
 - Updated vault paths from `70 Career/` to `Personal/Career/`
 - Job openings now created at root of Job Search folder (not in Openings subfolder)
 
 ### v0.4.1
-- Added software engineering-specific resume guidance
-- Improved skill triggers for general resume questions
+- Enhanced resume skills (now removed in v0.7.0)
 
 ### v0.4.0
-- Added `tailor-resume` skill for YAML-based resume customization
-- Added `resume-optimization` skill with ATS and best practices knowledge
-- Added `cover-letter-writing` skill with templates
 - Added `resume-reviewer` agent for fit scoring
 - Updated keywords and description
 
