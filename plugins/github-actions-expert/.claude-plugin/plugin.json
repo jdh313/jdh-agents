@@ -1,9 +1,0 @@
-{
-  "name": "github-actions-expert",
-  "version": "1.0.1",
-  "description": "Expert guidance for GitHub Actions workflows, CI/CD, and deployment automation",
-  "author": {
-    "name": "Jacob Hoehler"
-  },
-  "keywords": ["github-actions", "ci-cd", "workflow", "deployment", "automation", "github"]
-}

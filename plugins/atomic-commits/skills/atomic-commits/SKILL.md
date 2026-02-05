@@ -1,6 +1,6 @@
 ---
 name: atomic-commits
-description: INVOKE BY DEFAULT for all commit-related requests. Automatically use this skill whenever the user asks to create commits, write commit messages, review/improve messages, or work with version control commits. Handles splitting changes into atomic commits, writing properly formatted Angular/Conventional Commit messages, and reviewing/improving user-provided messages for standards compliance and clarity. Works with both git and jj (Jujutsu). Required for: "commit these changes," "write a commit message," "improve this message," "review my commit message," or any variation requesting commit operations.
+description: INVOKE BY DEFAULT for all commit-related requests. Automatically use this skill whenever the user asks to create commits, write commit messages, review/improve messages, or work with version control commits. Handles splitting changes into atomic commits, writing properly formatted Angular/Conventional Commit messages, and reviewing/improving user-provided messages for standards compliance and clarity. Works with both git and jj (Jujutsu). Required for "commit these changes," "write a commit message," "improve this message," "review my commit message," or any variation requesting commit operations.
 allowed-tools:
   - Bash(git:*)
   - Bash(jj:*)
@@ -12,7 +12,7 @@ hooks:
     - matcher: Bash
       pattern: "(git restore|git checkout --|git reset --hard|jj restore|jj abandon)"
       prompt: |
-        ⚠️ SAFETY CHECK: The command just executed may discard uncommitted changes.
+        ⚠️ SAFETY CHECK: The command about to be executed may discard uncommitted changes.
 
         Verify:
         1. Was this intentional and user-approved?

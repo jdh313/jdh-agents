@@ -1,9 +1,0 @@
-{
-  "name": "api-docs",
-  "version": "0.1.1",
-  "description": "OpenAPI documentation best practices for FastAPI, Django Ninja, and manual specs",
-  "author": {
-    "name": "Jacob Hoehler"
-  },
-  "keywords": ["openapi", "fastapi", "django-ninja", "api", "documentation", "swagger"]
-}

@@ -1,9 +1,0 @@
-{
-  "name": "lambda-to-fastapi-documenter",
-  "version": "1.0.1",
-  "description": "Extract and document Lambda function configurations for FastAPI migration",
-  "author": {
-    "name": "Jacob Hoehler"
-  },
-  "keywords": ["lambda", "fastapi", "migration", "aws", "documentation", "api"]
-}

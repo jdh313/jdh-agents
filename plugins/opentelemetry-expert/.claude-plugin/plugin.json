@@ -1,9 +1,0 @@
-{
-  "name": "opentelemetry-expert",
-  "version": "1.0.1",
-  "description": "Expert guidance for OpenTelemetry instrumentation, tracing, and observability",
-  "author": {
-    "name": "Jacob Hoehler"
-  },
-  "keywords": ["opentelemetry", "otel", "observability", "tracing", "instrumentation", "telemetry"]
-}
