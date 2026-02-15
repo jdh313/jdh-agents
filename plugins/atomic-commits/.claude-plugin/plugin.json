@@ -1,9 +1,0 @@
-{
-  "name": "atomic-commits",
-  "version": "1.4.0",
-  "description": "Create atomic commits with conventional commit messages. Supports git and jj (Jujutsu).",
-  "author": {
-    "name": "Jacob Hoehler"
-  },
-  "keywords": ["git", "jj", "jujutsu", "commits", "conventional-commits", "atomic"]
-}

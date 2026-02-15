@@ -1,12 +1,11 @@
 ---
-description: Split changes into multiple atomic commits with conventional messages
+name: split
+description: Split changes into multiple atomic commits with properly formatted messages matching the repo's style
+disable-model-invocation: true
 allowed-tools:
   - Bash(git:*)
   - Bash(jj:*)
   - Bash(test:*)
-  - mcp__git__git_status
-  - mcp__git__git_diff_unstaged
-  - mcp__git__git_diff_staged
   - Read
   - Glob
 ---
@@ -15,25 +14,25 @@ allowed-tools:
 
 ## Immediate Execution
 
-**VCS Detection:**
-First, check which version control system is in use by checking for the `.jj` directory. Then execute the appropriate status and diff commands.
+### VCS and Style Detection
 
-**Check for jj:**
-- If `.jj/` exists, this is a Jujutsu repository
-- Otherwise, this is a git repository
+First, determine the VCS and commit style:
+
+1. **Check CLAUDE.md context** — does the repo specify VCS (jj/git) or commit style (conventional/freeform)?
+2. **VCS fallback:** Check if `.jj/` exists (jj) or not (git)
+3. **Style fallback:** Analyze the last ~20 commits — if >60% have type prefixes like `feat:`, `fix:`, etc., use conventional style; otherwise use freeform
 
 **For Jujutsu repositories:**
 - Run: `jj status`
 - Run: `jj diff`
 
 **For git repositories:**
-- Use MCP tool `mcp__git__git_status`
-- Use MCP tool `mcp__git__git_diff_unstaged`
-- Use MCP tool `mcp__git__git_diff_staged`
+- Run: `git status`
+- Run: `git diff` and `git diff --staged`
 
 ## Instructions
 
-Based on the VCS detection and changes shown above:
+Based on the detection and changes shown above:
 
 ### Step 1: Identify Atomic Units
 
@@ -51,8 +50,8 @@ Analyze all changes and group them into atomic commits. Consider:
 **Present your analysis:**
 ```
 Recommended atomic commits:
-1. [type]: [summary] - [files]
-2. [type]: [summary] - [files]
+1. [summary] - [files]
+2. [summary] - [files]
 ...
 ```
 
@@ -62,22 +61,24 @@ Ask user to confirm or adjust the proposed split before proceeding.
 
 ### Step 3: Create Commits
 
-Read `skills/atomic-commits/references/conventional-commits.md` for message formatting.
+Read the appropriate format reference based on detected commit style:
+- **Conventional:** Read `skills/commits/references/conventional-commits.md`
+- **Freeform:** Read `skills/commits/references/freeform-commits.md`
 
 For each atomic unit:
 
 **jj workflow:**
 ```bash
-jj split <files> -m "type: summary"
+jj split <files> -m "message"
 ```
 
 **git workflow:**
 ```bash
 git add <files>
-git commit -m "type: summary"
+git commit -m "message"
 ```
 
-Read `skills/atomic-commits/references/jj-workflow.md` or `skills/atomic-commits/references/git-workflow.md` for VCS-specific command details.
+Read `skills/commits/references/jj-workflow.md` or `skills/commits/references/git-workflow.md` for VCS-specific command details.
 
 ### Step 4: Handle Remaining Changes
 

@@ -101,7 +101,7 @@ This plugin is part of Phase 1 of the VCS Tools project. Planned commands:
 
 ## Related Plugins
 
-- **atomic-commits**: Create atomic commits with conventional messages (also supports both git and jj)
+- **commits**: Format-aware atomic commits for git and jj
 
 ## Author
 
