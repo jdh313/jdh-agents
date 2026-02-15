@@ -119,7 +119,7 @@ This plugin is part of Phase 2 of the VCS Tools project. Planned commands:
 ## Related Plugins
 
 - **branch-workflow**: Create and manage branches/changes (Phase 1)
-- **atomic-commits**: Create atomic commits with conventional messages (also supports both git and jj)
+- **commits**: Format-aware atomic commits for git and jj
 
 ## Author
 

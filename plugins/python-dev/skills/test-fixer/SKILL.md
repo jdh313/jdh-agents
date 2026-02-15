@@ -223,7 +223,7 @@ Provide single, comprehensive response:
 
 - **python-debugger:** Use for complex Python test debugging
 - **pythonic-code:** Ensure fixed tests follow Python best practices
-- **atomic-commits:** Use for committing test fixes
+- **commits:** Use for committing test fixes
 
 ## Principles
 
