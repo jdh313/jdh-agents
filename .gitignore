@@ -42,3 +42,6 @@ htmlcov/
 # Temp
 *.tmp
 *.bak
+
+# Scratch docs
+docs/
