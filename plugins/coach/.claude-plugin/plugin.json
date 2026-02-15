@@ -1,0 +1,9 @@
+{
+  "name": "coach",
+  "version": "0.3.0",
+  "description": "ADHD-friendly productivity coaching: daily planning (/today), end-of-day capture (/checkin), weekly project review (/weekly), life-direction reviews (/review), project re-entry (/reentry), intentional project closure (/sunset), decision journaling (/decide), and historical pattern analysis (momentum) with adaptive tone calibration",
+  "author": {
+    "name": "Jacob Hoehler"
+  },
+  "keywords": ["adhd", "productivity", "coaching", "planning", "daily", "weekly", "review", "projects", "decisions", "patterns", "closure", "journaling"]
+}
