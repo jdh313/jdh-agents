@@ -7,40 +7,6 @@
   },
   "plugins": [
     {
-      "name": "api-docs",
-      "source": "./plugins/api-docs",
-      "description": "OpenAPI documentation best practices for FastAPI, Django Ninja, and manual specs",
-      "version": "0.1.1",
-      "author": {
-        "name": "Jacob Hoehler"
-      },
-      "keywords": [
-        "openapi",
-        "fastapi",
-        "django-ninja",
-        "api",
-        "documentation",
-        "swagger"
-      ]
-    },
-    {
-      "name": "atomic-commits",
-      "source": "./plugins/atomic-commits",
-      "description": "Create atomic commits with conventional commit messages. Supports git and jj (Jujutsu).",
-      "version": "1.4.0",
-      "author": {
-        "name": "Jacob Hoehler"
-      },
-      "keywords": [
-        "git",
-        "jj",
-        "jujutsu",
-        "commits",
-        "conventional-commits",
-        "atomic"
-      ]
-    },
-    {
       "name": "atuin-runbooks",
       "source": "./plugins/atuin-runbooks",
       "description": "Create and modify Atuin Desktop runbooks (.atrb files) from natural language",
@@ -72,6 +38,53 @@
       ]
     },
     {
+      "name": "coach",
+      "source": "./plugins/coach",
+      "description": "ADHD-friendly productivity coaching: daily planning (/today, /energy), end-of-day capture (/checkin), weekly scheduling (/plan-week) and review (/weekly), life-direction reviews (/review), project lifecycle (/intake, /reentry, /sunset), idea capture (/spark), brain dump (/dump), task triage (/triage), decision journaling (/decide), and pattern analysis (momentum, overdue-rescue) with adaptive tone calibration",
+      "version": "0.4.0",
+      "author": {
+        "name": "Jacob Hoehler"
+      },
+      "keywords": [
+        "adhd",
+        "productivity",
+        "coaching",
+        "planning",
+        "daily",
+        "weekly",
+        "review",
+        "projects",
+        "decisions",
+        "patterns",
+        "closure",
+        "journaling",
+        "triage",
+        "energy",
+        "intake",
+        "ideas",
+        "tasks",
+        "brain-dump"
+      ]
+    },
+    {
+      "name": "commits",
+      "source": "./plugins/commits",
+      "description": "Format-aware atomic commits for git and jj (Jujutsu). Auto-detects VCS and commit message style from repo context.",
+      "version": "2.0.0",
+      "author": {
+        "name": "Jacob Hoehler"
+      },
+      "keywords": [
+        "git",
+        "jj",
+        "jujutsu",
+        "commits",
+        "atomic",
+        "conventional-commits",
+        "freeform"
+      ]
+    },
+    {
       "name": "doing",
       "source": "./plugins/doing",
       "description": "Time tracking with doing CLI. Start/stop tasks, backdate entries, query work history.",
@@ -84,40 +97,6 @@
         "doing",
         "timesheet",
         "productivity"
-      ]
-    },
-    {
-      "name": "fastapi-expert",
-      "source": "./plugins/fastapi-expert",
-      "description": "Expert patterns for FastAPI development: authentication, async database integration, and testing",
-      "version": "1.0.1",
-      "author": {
-        "name": "Jacob Hoehler"
-      },
-      "keywords": [
-        "fastapi",
-        "python",
-        "rest-api",
-        "async",
-        "web-development",
-        "api"
-      ]
-    },
-    {
-      "name": "github-actions-expert",
-      "source": "./plugins/github-actions-expert",
-      "description": "Expert guidance for GitHub Actions workflows, CI/CD, and deployment automation",
-      "version": "1.0.1",
-      "author": {
-        "name": "Jacob Hoehler"
-      },
-      "keywords": [
-        "github-actions",
-        "ci-cd",
-        "workflow",
-        "deployment",
-        "automation",
-        "github"
       ]
     },
     {
@@ -180,23 +159,6 @@
       "homepage": "https://github.com/yourusername/cc-marketplace/tree/main/plugins/job-search"
     },
     {
-      "name": "lambda-to-fastapi-documenter",
-      "source": "./plugins/lambda-to-fastapi-documenter",
-      "description": "Extract and document Lambda function configurations for FastAPI migration",
-      "version": "1.0.1",
-      "author": {
-        "name": "Jacob Hoehler"
-      },
-      "keywords": [
-        "lambda",
-        "fastapi",
-        "migration",
-        "aws",
-        "documentation",
-        "api"
-      ]
-    },
-    {
       "name": "merge-workflow",
       "source": "./plugins/merge-workflow",
       "description": "Branch and change merge operations for git and jj with conflict detection and resolution",
@@ -211,23 +173,6 @@
         "rebase",
         "conflict",
         "workflow"
-      ]
-    },
-    {
-      "name": "opentelemetry-expert",
-      "source": "./plugins/opentelemetry-expert",
-      "description": "Expert guidance for OpenTelemetry instrumentation, tracing, and observability",
-      "version": "1.0.1",
-      "author": {
-        "name": "Jacob Hoehler"
-      },
-      "keywords": [
-        "opentelemetry",
-        "otel",
-        "observability",
-        "tracing",
-        "instrumentation",
-        "telemetry"
       ]
     },
     {
@@ -289,7 +234,7 @@
     "description": "Personal Claude Code plugin marketplace",
     "version": "1.0.0",
     "homepage": "https://github.com/jdh313/cc-marketplace",
-    "totalPlugins": 16,
-    "lastUpdated": "2026-01-20"
+    "totalPlugins": 12,
+    "lastUpdated": "2026-02-15"
   }
 }
