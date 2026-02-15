@@ -1,6 +1,6 @@
 # Coach
 
-ADHD-friendly productivity coaching for Claude Code. Seven coaching commands -- `/today`, `/checkin`, `/weekly`, `/reentry`, `/review`, `/sunset`, `/decide` -- plus adaptive tone calibration, a project health scanner, and a historical pattern analysis engine.
+ADHD-friendly productivity coaching for Claude Code. Twelve coaching commands -- `/today`, `/checkin`, `/weekly`, `/plan-week`, `/reentry`, `/review`, `/sunset`, `/decide`, `/triage`, `/intake`, `/spark`, `/dump`, `/energy` -- plus adaptive tone calibration, a project health scanner, an overdue pattern analyzer, and a historical pattern analysis engine.
 
 ## Skills
 
@@ -76,6 +76,72 @@ Structured decision capture to prevent re-litigation:
 
 Primarily capture, not coaching. Accepts "gut feel" as valid rationale. "Revisit Conditions" section defines when to reconsider.
 
+### `/triage` -- Overdue Task Rescue
+
+Guilt-free batch processing of overdue Todoist tasks:
+
+1. **Gather overdue tasks** -- silently queries Todoist for overdue items, groups by project, flags chronic reschedulers (3+ times)
+2. **Present batch** -- overdue tasks grouped by project with age and rescheduling history
+3. **Triage decisions** -- four actions per task/group: reschedule (to a real date), do today, drop (no guilt), delegate
+4. **Execute** -- confirms batch summary, then updates Todoist
+
+Batch processing reduces decision fatigue. "These aren't failures, they're renegotiations."
+
+### `/plan-week` -- Week Ahead Scheduling
+
+Forward-looking week planning with a max-3-tasks-per-day constraint:
+
+1. **Gather context** -- Todoist (week tasks + overdue), latest weekly note, Linear sprint
+2. **Landscape** -- present what's on the plate, ask for 3 things that would make the week feel successful
+3. **Slot priorities** -- map priorities + tasks across days, max 3 real tasks/day
+4. **Write week plan** -- optionally appends `## Week Plan` to the weekly note
+5. **Offer Todoist updates** -- optionally reschedules task due dates to match
+
+Complements `/weekly` (which reviews) -- this one schedules ahead.
+
+### `/intake` -- New Project Intake
+
+Structured onboarding for new projects with WIP awareness:
+
+1. **Capture** -- what's the project, what does done look like, what's the first step
+2. **WIP check** -- shows active project count, asks "which one does this replace, or is this additive?"
+3. **Scope** -- quick gut check: weekend, month, or ongoing
+4. **Write project note** -- optionally creates Obsidian project note
+5. **Offer integrations** -- optionally creates Linear project and/or Todoist task
+
+The opposite of `/sunset` -- one opens projects, the other closes them. Impulse control without gatekeeping.
+
+### `/spark` -- Interest/Idea Capture
+
+Low-friction idea parking lot in under 60 seconds:
+
+1. **Capture** -- "What caught your attention?" Accept anything
+2. **Tag** -- auto-suggest category: hobby, tool, learning, project-idea, business
+3. **Write** -- append to monthly sparks log at `Journal/Sparks/YYYY-MM Sparks.md`
+
+Speed over structure. Validates the dopamine hit without committing. Sparks get reviewed during `/weekly` or `/review` for promotion to `/intake`.
+
+### `/dump` -- Brain Dump
+
+Get everything out of your head, then optionally sort it:
+
+1. **Dump** -- unstructured purge: tasks, worries, ideas, half-thoughts, whatever
+2. **Mirror back** -- extracted numbered list for confirmation
+3. **Categorize** -- sort into tasks, sparks, projects, decisions, or noise
+4. **Route** -- tasks to Todoist, sparks to log, projects/decisions flagged for `/intake` or `/decide`
+
+Pressure-release valve for mental overload. "Not everything needs a home. Some things just needed to be said."
+
+### `/energy` -- Energy-Aware Task Matching
+
+Reorders today's tasks based on current energy level:
+
+1. **Energy check** -- high (deep work), medium (structured), low (routine), crashed (bare minimum)
+2. **Match tasks** -- pulls today's tasks, categorizes by energy required, reorders to match
+3. **Offer Todoist reorder** -- optionally updates priorities to match
+
+Can be used multiple times per day. "You don't need motivation, you need the right task for your current state."
+
 ### `coach-tone` -- Adaptive Coaching Personality
 
 Tone calibration and response patterns for coaching interactions. Loaded automatically by coaching skills.
@@ -111,13 +177,29 @@ Triggered by: "what patterns do you see?", "momentum check", "am I making progre
 
 Read-only -- reports patterns, doesn't prescribe actions. Making the invisible visible for ADHD time-blindness.
 
+### `overdue-rescue` -- Todoist Overdue Pattern Analysis
+
+Data engine that analyzes Todoist overdue tasks and activity history to surface patterns:
+
+- **Overdue summary** -- total count, average age, oldest task
+- **Chronic reschedulers** -- tasks rescheduled 3+ times with count
+- **Project health** -- which projects accumulate the most overdue tasks
+- **Completion patterns** -- when tasks actually get done (day/time patterns)
+- **Recommendations** -- suggests `/triage` for chronic reschedulers, `/sunset` for unhealthy projects
+
+Triggered by: "overdue patterns", "why do my tasks slip?", "task health", "chronic overdue"
+
+Read-only -- reports patterns, doesn't modify tasks. Complements `momentum` (Obsidian patterns) by reading Todoist.
+
 ## Design Principles
 
 - **No guilt** -- gaps acknowledged neutrally, inconsistency is expected
 - **Zero config** -- works with no MCP servers, better with them
 - **Constraint over options** -- "pick your top 3" beats "here are your 47 tasks"
 - **Themes over goals** -- directional themes are more ADHD-compatible than measurable targets
-- **Capture over coaching** -- `/checkin` and `/decide` prioritize recording over advising
+- **Capture over coaching** -- `/checkin`, `/decide`, and `/spark` prioritize recording over advising
+- **Energy acceptance** -- `/energy` matches tasks to state, not the other way around
+- **Awareness not gatekeeping** -- `/intake` WIP check informs without blocking
 - **Coach doesn't interrupt** -- only responds to coaching-type questions
 - **Permission before writing** -- never writes to Obsidian without asking
 - **Closing is a skill** -- `/sunset` reframes closure as intentional, not failure
@@ -126,43 +208,50 @@ Read-only -- reports patterns, doesn't prescribe actions. Making the invisible v
 
 | Source | Used By | Provides | If Unavailable |
 |--------|---------|----------|----------------|
-| Todoist MCP | `/today`, `/checkin` | Today's tasks, completed items | Skip |
-| Linear MCP | `/today`, `/weekly`, `/reentry`, `/review`, `/sunset`, `project-pulse` | Projects, issues, initiatives | Skip |
-| Obsidian MCP | All skills + all agents | Daily notes, project notes, weekly/review/sunset/decision history | Skip |
+| Todoist MCP | `/today`, `/checkin`, `/triage`, `/plan-week`, `/energy`, `overdue-rescue` | Tasks, completed items, activity history | Skip |
+| Linear MCP | `/today`, `/weekly`, `/reentry`, `/review`, `/sunset`, `/intake`, `project-pulse` | Projects, issues, initiatives | Skip |
+| Obsidian MCP | All skills + `momentum` | Daily notes, project notes, weekly/review/sunset/decision/sparks history | Skip |
 | None | All | Pure conversation -- asks what you know | Works fine |
 
 ## Cross-References
 
 ```
+DAILY CYCLE:
 /today --writes--> Daily Note (## Today's Focus)
   +--uses--> coach-tone
+/energy --reads--> Todoist today's tasks --reorders--> by energy level
+/checkin --reads--> Daily Note + Todoist completed --writes--> Daily Note (## End of Day)
 
-/checkin --reads--> Daily Note (## Today's Focus)
-  +--writes--> Daily Note (## End of Day)
-  +--uses--> coach-tone (reduced)
-
-/weekly --uses--> project-pulse, coach-tone
-  +--writes--> Journal/Weekly/
+WEEKLY CYCLE:
+/plan-week --reads--> Todoist (week tasks + overdue) + Weekly Note
+  +--writes--> Weekly Note (## Week Plan)
+  +--optionally updates--> Todoist due dates
+/weekly --reviews--> project health --writes--> Journal/Weekly/
   +--suggests--> /review (if >30 days), /sunset (for chronically stale)
+/triage --reads--> Todoist overdue --updates--> Todoist (reschedule/drop/do)
 
-/review --uses--> project-pulse, coach-tone, life-areas
-  +--writes--> Journal/Reviews/
-  +--suggests--> /weekly
-
-/reentry --(standalone)--
-
-/sunset --uses--> project-pulse, coach-tone (warmth bias)
-  +--writes--> Journal/Sunsets/
+PROJECT LIFECYCLE:
+/spark --captures--> Journal/Sparks/ (monthly log)
+  +--reviewed by--> /weekly, /review
+/dump --routes--> Todoist (tasks) + Journal/Sparks/ (ideas)
+  +--flags for--> /intake (projects), /decide (decisions)
+/intake --creates--> project note + optional Linear/Todoist
+  +--checks WIP via--> project-pulse pattern
+  +--graduates from--> /spark
+/reentry --(context dump for paused projects)--
+/sunset --closes--> Journal/Sunsets/
   +--complements--> /reentry (opposite operation)
 
-/decide --uses--> coach-tone (reduced)
-  +--writes--> Journal/Decisions/
+ANALYSIS:
+momentum --reads--> Obsidian (Weekly + Reviews + Sunsets + Daily)
+overdue-rescue --reads--> Todoist (overdue + activity + completion patterns)
+project-pulse --reads--> Linear + Obsidian (current state)
 
-momentum --reads--> Weekly + Reviews + Sunsets + Daily Notes
-  +--identifies candidates for--> /sunset
-
-project-pulse --(data engine: current state)--
+CROSS-CUTTING:
+/decide --uses--> coach-tone (reduced) --writes--> Journal/Decisions/
+/review --uses--> project-pulse, coach-tone, life-areas --writes--> Journal/Reviews/
 coach-tone --(personality: all coaching skills)--
+life-areas --(reference: /review)--
 ```
 
 ## Installation
