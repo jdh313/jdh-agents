@@ -1,11 +1,21 @@
 ---
-name: plan-week
+name: coach:plan-week
 description: >-
   This skill should be used when the user says "/plan-week", "plan my week",
   "schedule my week", "what's my week look like", "week ahead", "weekly
   schedule", "set up my week", or "next week". Forward-looking week scheduling with a
   3-priority constraint that maps tasks across days without overloading --
   complements /weekly (which reviews) by scheduling ahead.
+allowed-tools:
+  # Todoist — week tasks, reschedule
+  - mcp__claude_ai_Todoist__find-tasks-by-date
+  - mcp__claude_ai_Todoist__update-tasks
+  # Linear — cycle issues
+  - mcp__linear-server__list_issues
+  # Obsidian — read weekly note, write week plan
+  - mcp__obsidian-mcp__read_note
+  - mcp__obsidian-mcp__search_notes
+  - mcp__obsidian-mcp__patch_note
 ---
 
 # /plan-week -- Week Ahead Scheduling

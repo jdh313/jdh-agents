@@ -1,11 +1,19 @@
 ---
-name: checkin
+name: coach:checkin
 description: >-
   This skill should be used when the user says "/checkin", "end of day",
   "how did today go", "daily reflection", "what did I get done", "wrap up
   my day", or "day's over". Provides a quick end-of-day pulse that reads
   the morning's priorities, captures what actually happened, and writes a
   brief end-of-day section to the daily note.
+allowed-tools:
+  # Todoist — completed tasks today
+  - mcp__claude_ai_Todoist__find-completed-tasks
+  # Linear — issues updated today
+  - mcp__linear-server__list_issues
+  # Obsidian — read daily note, write end-of-day
+  - mcp__obsidian-mcp__read_note
+  - mcp__obsidian-mcp__patch_note
 ---
 
 # /checkin -- End-of-Day Pulse
@@ -23,6 +31,7 @@ Before displaying anything to the user, attempt to gather today's context. Skip 
 **Obsidian** (if available):
 - Read today's daily note
 - Look for a `## Today's Focus` section (written by `/today`)
+- Content may be a morning snapshot (Energy/Triage/Focus/Shape lines) rather than a simple bullet list — extract priorities from the **Focus:** line if snapshot format is present
 - Extract the stated priorities
 
 **Todoist** (if available):

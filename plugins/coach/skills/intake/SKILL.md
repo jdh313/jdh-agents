@@ -1,11 +1,21 @@
 ---
-name: intake
+name: coach:intake
 description: >-
   This skill should be used when the user says "/intake", "new project", "start
   a project", "I want to build", "project kickoff", "add a project", or "I have
   an idea for a project". Structured new project onboarding with a WIP awareness
   check -- impulse control without gatekeeping. The opposite of /sunset: one
   opens projects, the other closes them. Sparks that graduate become intakes.
+allowed-tools:
+  # Linear — WIP check, create project + issues
+  - mcp__linear-server__list_projects
+  - mcp__linear-server__create_project
+  - mcp__linear-server__create_issue
+  # Obsidian — search project notes, write project note
+  - mcp__obsidian-mcp__search_notes
+  - mcp__obsidian-mcp__write_note
+  # Todoist — add first-step task
+  - mcp__claude_ai_Todoist__add-tasks
 ---
 
 # /intake -- New Project Intake
@@ -89,9 +99,16 @@ Optionally create external tracking:
 **Linear** (if available):
 > "Want me to create a Linear project for this?"
 - If yes: create project with name, description from the conversation
+- **After project creation succeeds**: If the conversation surfaced identifiable sub-tasks (from scope discussion, first steps, or breakdown), offer to create issues:
+  > "Want me to create Linear issues for the tasks we discussed? ([list task names])"
+  - If yes: create issues in the newly created project
+  - Report created issue count and IDs
+- **Icon setting**: Linear expects specific icon library names (e.g., "Radar", "Database", "Home"). If unsure of the exact name, skip icon setting rather than guessing -- user can set manually in Linear
 
-**Todoist** (if available):
+**Todoist** (only for life-admin projects or tasks with hard external deadlines):
 > "Want me to add the first step as a Todoist task?"
+- Only offer this if the project is genuinely life-admin (e.g., "organize tax documents") or has a hard external deadline
+- Most project first-steps should be Linear issues instead (created above)
 - If yes: create task with the first concrete step, due date based on scope (weekend = this weekend, month = this week, ongoing = no date)
 
 If neither is available, skip this step.
@@ -112,7 +129,7 @@ Use `coach-tone` at **medium intensity**:
 | User is graduating a `/spark` | "Nice -- this started as a spark. Let's turn it into a real project." Reference the spark if the user mentions it |
 | WIP count is very high (10+) | Extra awareness, not blocking: "That's [N] active projects. This one genuinely adding, or is it time to `/sunset` a couple first?" |
 | User doesn't know what "done" looks like | Accept "I'll know it when I see it" -- not every project needs a crisp definition of done |
-| User wants to intake multiple projects | Handle one at a time: "Let's set this one up first, then we can do another." |
+| User wants to intake multiple projects | Handle sequentially with progress tracking. Acknowledge batch upfront: "Got it -- [N] projects. I'll go through each one: [names]. Starting with [first]." Track progress: "Project 2 of N: [name]." At the end, provide summary: "All [N] projects set up: [list with Linear/Obsidian links]." |
 | Project already exists in Linear/Obsidian | "Looks like [project] already exists. Want to update it instead, or is this a fresh start?" |
 | User changes mind mid-conversation | "No problem. The idea's not going anywhere." Drop it |
 | No data sources for WIP check | Ask conversationally: "How many projects are you juggling right now?" |

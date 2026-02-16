@@ -1,11 +1,17 @@
 ---
-name: decide
+name: coach:decide
 description: >-
   This skill should be used when the user says "/decide", "decision journal",
   "log a decision", "I need to decide", "record this decision", "why did I
   choose", "document this decision", or "decision record". Captures structured
   decisions with context, options considered, rationale, and revisit conditions
   to prevent re-litigation.
+allowed-tools:
+  # Linear — linked issues (if referenced)
+  - mcp__linear-server__list_issues
+  # Obsidian — prior decisions, project notes, write record
+  - mcp__obsidian-mcp__search_notes
+  - mcp__obsidian-mcp__write_note
 ---
 
 # /decide -- Decision Journal

@@ -69,6 +69,7 @@ Attempt to gather from all available sources. Every source is optional -- work w
 
 - Read the last 10-14 daily notes (if accessible)
 - Look for `## Today's Focus` and `## End of Day` sections
+- `## Today's Focus` may be a morning snapshot (Energy/Triage/Focus/Shape lines) rather than a simple bullet list — extract priorities from the **Focus:** line if snapshot format is present
 - Extract: stated priorities vs. what was reported as done
 
 ## Analysis
@@ -100,7 +101,7 @@ List projects that appear repeatedly in parked lists but never graduate to focus
 
 ### Drift Analysis (If Daily Note Data Exists)
 
-Compare `## Today's Focus` to `## End of Day` across available daily notes:
+Compare `## Today's Focus` to `## End of Day` across available daily notes. When `## Today's Focus` uses the morning snapshot format, parse the **Focus:** line for stated priorities:
 
 - **Match rate:** What percentage of stated priorities appeared in the end-of-day done list?
 - **Common drift patterns:** What typically replaces stated priorities? (e.g., always drifting to reactive work, or consistently pulled into a specific project)

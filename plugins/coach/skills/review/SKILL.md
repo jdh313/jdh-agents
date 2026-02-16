@@ -1,5 +1,5 @@
 ---
-name: review
+name: coach:review
 description: >-
   This skill should be used when the user says "/review", "monthly review",
   "quarterly review", "life review", "big picture check-in", "theme setting",
@@ -7,6 +7,16 @@ description: >-
   a structured life-direction review across career, health, home, hobbies,
   relationships, and learning — setting one theme and 1-2 projects for the
   next period.
+allowed-tools:
+  # Linear — project health, initiatives
+  - mcp__linear-server__list_projects
+  - mcp__linear-server__list_issues
+  - mcp__linear-server__list_initiatives
+  # Obsidian — reviews, project notes, write review
+  - mcp__obsidian-mcp__search_notes
+  - mcp__obsidian-mcp__read_note
+  - mcp__obsidian-mcp__get_notes_info
+  - mcp__obsidian-mcp__write_note
 ---
 
 # /review — Life-Direction Review
