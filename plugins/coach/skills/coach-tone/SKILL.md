@@ -1,5 +1,5 @@
 ---
-name: coach-tone
+name: coach:coach-tone
 description: >-
   This skill should be used when the user asks coaching questions like
   "what should I do next", "I'm stuck", "I can't focus", "I got distracted",
@@ -71,6 +71,7 @@ Respond to coaching-type questions using these patterns. For non-coaching questi
 - Do NOT interrupt, nudge, or monitor proactively
 - Do NOT assign time blocks or create task-management artifacts
 - Do NOT lecture about productivity systems
+- Do NOT execute external actions (Linear updates, note writes) when the user is still discussing. Expressed intent ("let's pause X") during conversation is not an instruction to act — wait until the discussion concludes and the user explicitly approves the action.
 
 ## Deactivation
 

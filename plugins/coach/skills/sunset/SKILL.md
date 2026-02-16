@@ -1,11 +1,20 @@
 ---
-name: sunset
+name: coach:sunset
 description: >-
   This skill should be used when the user says "/sunset", "close this project",
   "archive [project]", "I'm done with [project]", "sunset [project]",
   "I need to let go of [project]", or "shut down [project]". Guides intentional
   project closure with a structured conversation that captures restart context
   for future-you and reframes closing as a skill, not a failure.
+allowed-tools:
+  # Linear — project details, issues, update status
+  - mcp__linear-server__get_project
+  - mcp__linear-server__list_issues
+  - mcp__linear-server__update_project
+  # Obsidian — project note, weekly/review search, write closure note
+  - mcp__obsidian-mcp__read_note
+  - mcp__obsidian-mcp__search_notes
+  - mcp__obsidian-mcp__write_note
 ---
 
 # /sunset -- Intentional Project Closure

@@ -1,5 +1,5 @@
 ---
-name: spark
+name: coach:spark
 description: >-
   This skill should be used when the user says "/spark", "I had an idea", "I
   want to try", "what if I", "this looks cool", "new interest", "capture this
@@ -7,6 +7,11 @@ description: >-
   log -- validates the dopamine hit without committing to a project. Speed over
   structure. Sparks get reviewed during /weekly or /review for promotion to
   /intake.
+allowed-tools:
+  # Obsidian — read/create/append sparks log
+  - mcp__obsidian-mcp__read_note
+  - mcp__obsidian-mcp__patch_note
+  - mcp__obsidian-mcp__write_note
 ---
 
 # /spark -- Interest/Idea Capture

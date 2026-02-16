@@ -1,5 +1,5 @@
 ---
-name: dump
+name: coach:dump
 description: >-
   This skill should be used when the user says "/dump", "brain dump", "I need to
   get everything out of my head", "what's on my mind", "mental clutter", "dump
@@ -7,6 +7,16 @@ description: >-
   with stuff to do". Unstructured multi-item brain purge with optional
   categorization and routing to the right places -- Todoist tasks, sparks, intake
   candidates, decisions. Pressure-release valve for ADHD mental overload.
+allowed-tools:
+  # Todoist — life-admin tasks and hard-deadline items
+  - mcp__claude_ai_Todoist__add-tasks
+  # Linear — project-related tasks as issues
+  - mcp__linear-server__list_projects
+  - mcp__linear-server__create_issue
+  # Obsidian — read/create/append sparks log
+  - mcp__obsidian-mcp__read_note
+  - mcp__obsidian-mcp__patch_note
+  - mcp__obsidian-mcp__write_note
 ---
 
 # /dump -- Brain Dump
@@ -19,7 +29,9 @@ Execute these steps in order. Use `coach-tone` with warmth bias. Speed matters -
 
 ### Step 1: Dump (1-2 Exchanges)
 
-One prompt:
+**If user provides content in command args** (e.g., `/dump I need to: fix X, deploy Y, clean Z`): Treat as completed dump. Skip directly to Step 2 (mirror back).
+
+**Otherwise**, one prompt:
 
 > "Go. Everything that's on your mind -- tasks, worries, ideas, half-thoughts, whatever. No order needed."
 
@@ -54,7 +66,8 @@ Let the user add, remove, or correct. The point is ensuring nothing got lost in 
 
 Suggest a category for each item:
 
-- **Task** -- something to do (routes to Todoist)
+- **Task (life-admin)** -- something to do with a hard deadline or life-admin nature (routes to Todoist)
+- **Task (project)** -- something to do that belongs to a project (routes to Linear as issue)
 - **Spark** -- an idea or interest to park (routes to `/spark`)
 - **Project** -- something big enough to be its own project (routes to `/intake`)
 - **Decision** -- something to decide (routes to `/decide`)
@@ -88,10 +101,19 @@ Accept corrections. Don't argue categories -- if the user says something is nois
 
 Once categories are confirmed, offer to route items to their destinations. Handle each category:
 
-**Tasks → Todoist** (if available):
-> "Want me to add the [N] tasks to Todoist?"
+**Tasks → route by type** (see `data-queries.md` routing convention):
+
+*Life-admin or hard-deadline tasks → Todoist* (if available):
+> "Want me to add the [N] life-admin tasks to Todoist?"
 - If yes: use `add-tasks` to create each task. Ask about project/due date only if there are 3+ tasks -- otherwise just add them to inbox
-- If no: display the task list for manual entry
+
+*Project-related tasks → Linear* (if available):
+> "[N] of these belong to projects. Want me to create Linear issues for them?"
+- If yes: find or confirm the target project, then create issues
+- If a task clearly belongs to an existing Linear project, route it there
+- If the project doesn't exist yet, flag for `/intake` instead
+
+- If neither service is available or user declines: display the task list for manual entry
 
 **Sparks → Sparks log** (if Obsidian available):
 > "Want me to capture the [N] sparks?"
@@ -129,7 +151,7 @@ Use `coach-tone` with **warmth bias**:
 | Very short dump (1-3 items) | Skip the numbered mirror-back, work with items directly |
 | Very long dump (20+ items) | Mirror back, then suggest tackling the top 5 for routing: "That's a lot. Want to route the most urgent 5 and park the rest?" |
 | Everything is noise | "Sounds like you just needed to vent. That's valid. Nothing needs to happen here." |
-| Everything is tasks | Skip spark/project/decision categories, go straight to Todoist routing |
+| Everything is tasks | Skip spark/project/decision categories, go straight to routing -- still split by life-admin (Todoist) vs project-related (Linear) |
 | User doesn't want to categorize | Skip Step 3 entirely: "No problem. It's out of your head -- that's the win." |
 | User is emotional/overwhelmed | Extra warmth. Slow down. "Take your time. There's no rush." |
 | No MCP servers available | Display categorized items in chat for manual routing |

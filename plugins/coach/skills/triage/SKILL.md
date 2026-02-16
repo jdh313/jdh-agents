@@ -1,11 +1,17 @@
 ---
-name: triage
+name: coach:triage
 description: >-
   This skill should be used when the user says "/triage", "overdue tasks",
   "clean up my tasks", "task backlog", "reschedule overdue", "my tasks are a
   mess", "triage my tasks", or "what's overdue". Provides guilt-free batch processing of overdue
   Todoist tasks with reschedule/do/drop/delegate actions and ADHD-friendly
   framing -- these aren't failures, they're renegotiations.
+allowed-tools:
+  # Todoist — overdue tasks, activity history, reschedule, complete
+  - mcp__claude_ai_Todoist__find-tasks-by-date
+  - mcp__claude_ai_Todoist__find-activity
+  - mcp__claude_ai_Todoist__update-tasks
+  - mcp__claude_ai_Todoist__complete-tasks
 ---
 
 # /triage -- Overdue Task Rescue

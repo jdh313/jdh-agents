@@ -1,18 +1,20 @@
 # Coach
 
-ADHD-friendly productivity coaching for Claude Code. Twelve coaching commands -- `/today`, `/checkin`, `/weekly`, `/plan-week`, `/reentry`, `/review`, `/sunset`, `/decide`, `/triage`, `/intake`, `/spark`, `/dump`, `/energy` -- plus adaptive tone calibration, a project health scanner, an overdue pattern analyzer, and a historical pattern analysis engine.
+ADHD-friendly productivity coaching for Claude Code. Thirteen coaching commands -- `/today`, `/checkin`, `/weekly`, `/plan-week`, `/reentry`, `/review`, `/align`, `/sunset`, `/decide`, `/triage`, `/intake`, `/spark`, `/dump`, `/energy` -- plus adaptive tone calibration, a project health scanner, an overdue pattern analyzer, and a historical pattern analysis engine.
 
 ## Skills
 
 ### `/today` -- Morning Coaching Conversation
 
-Guided daily planning in 5 steps:
+Guided daily planning in 7 steps:
 
 1. **Gather context** -- silently checks Todoist, Linear, and Obsidian for tasks, issues, and yesterday's priorities (all optional)
 2. **Energy check-in** -- one open-ended question to calibrate tone
-3. **Coached conversation** -- 2-4 exchanges to converge on ~3 priorities
-4. **Write priorities** -- optionally appends to today's Obsidian daily note
-5. **Activate coaching context** -- applies coach-tone patterns for the rest of the session
+3. **Overdue triage** -- inline triage of overdue tasks if present (1-2 exchanges max, or defer to `/triage`)
+4. **Coached conversation** -- 2-4 exchanges to converge on ~3 priorities
+5. **Write morning snapshot** -- optionally writes energy/triage/focus/shape to today's daily note
+6. **Day shape recap** -- scannable summary before transitioning to coaching
+7. **Activate coaching context** -- applies coach-tone patterns for the rest of the session
 
 ### `/checkin` -- End-of-Day Pulse
 
@@ -52,6 +54,18 @@ Monthly or quarterly zoom-out review:
 3. **Initiative & project audit** -- project health scan, compare attention to plan
 4. **Set next theme** -- ONE directional theme (not goals), 1-2 projects that serve it
 5. **Write review note** -- optionally saves to `Journal/Reviews/YYYY-MM Review.md`
+
+### `/align` -- Goal-to-Project Mapping
+
+Maps a stated goal to existing projects, recommending focus order instead of starting something new:
+
+1. **Capture goal** -- ask what direction to move toward; check Obsidian for current `/review` theme
+2. **Scan existing projects** -- silently gathers Linear projects, initiatives, and Obsidian project/hobby notes
+3. **Map alignment** -- classify each project as Direct, Partial, or Unrelated; present alignment table
+4. **Recommend focus order** -- prioritize by shippability, current status, and learning surface
+5. **Identify gaps & next steps** -- note uncovered aspects, suggest extending existing work before `/intake`
+
+The forward-looking complement to `/review` -- where `/review` sets a theme, `/align` operationalizes it. Steers toward finishing what exists before starting fresh.
 
 ### `/sunset` -- Intentional Project Closure
 
@@ -209,7 +223,7 @@ Read-only -- reports patterns, doesn't modify tasks. Complements `momentum` (Obs
 | Source | Used By | Provides | If Unavailable |
 |--------|---------|----------|----------------|
 | Todoist MCP | `/today`, `/checkin`, `/triage`, `/plan-week`, `/energy`, `overdue-rescue` | Tasks, completed items, activity history | Skip |
-| Linear MCP | `/today`, `/weekly`, `/reentry`, `/review`, `/sunset`, `/intake`, `project-pulse` | Projects, issues, initiatives | Skip |
+| Linear MCP | `/today`, `/weekly`, `/reentry`, `/review`, `/align`, `/sunset`, `/intake`, `project-pulse` | Projects, issues, initiatives | Skip |
 | Obsidian MCP | All skills + `momentum` | Daily notes, project notes, weekly/review/sunset/decision/sparks history | Skip |
 | None | All | Pure conversation -- asks what you know | Works fine |
 
@@ -217,7 +231,7 @@ Read-only -- reports patterns, doesn't modify tasks. Complements `momentum` (Obs
 
 ```
 DAILY CYCLE:
-/today --writes--> Daily Note (## Today's Focus)
+/today --writes--> Daily Note (## Today's Focus -- morning snapshot)
   +--uses--> coach-tone
 /energy --reads--> Todoist today's tasks --reorders--> by energy level
 /checkin --reads--> Daily Note + Todoist completed --writes--> Daily Note (## End of Day)
@@ -238,6 +252,10 @@ PROJECT LIFECYCLE:
 /intake --creates--> project note + optional Linear/Todoist
   +--checks WIP via--> project-pulse pattern
   +--graduates from--> /spark
+/align --reads--> Linear projects + Obsidian projects/hobbies
+  +--maps goal to--> existing projects (focus order)
+  +--operationalizes--> /review theme
+  +--gaps suggest--> /intake, /plan-week
 /reentry --(context dump for paused projects)--
 /sunset --closes--> Journal/Sunsets/
   +--complements--> /reentry (opposite operation)

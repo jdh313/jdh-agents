@@ -1,9 +1,9 @@
 {
   "name": "coach",
-  "version": "0.4.0",
-  "description": "ADHD-friendly productivity coaching: daily planning (/today, /energy), end-of-day capture (/checkin), weekly scheduling (/plan-week) and review (/weekly), life-direction reviews (/review), project lifecycle (/intake, /reentry, /sunset), idea capture (/spark), brain dump (/dump), task triage (/triage), decision journaling (/decide), and pattern analysis (momentum, overdue-rescue) with adaptive tone calibration",
+  "version": "0.7.0",
+  "description": "ADHD-friendly productivity coaching: daily planning (/today, /energy), end-of-day capture (/checkin), weekly scheduling (/plan-week) and review (/weekly), life-direction reviews (/review), goal-to-project alignment (/align), project lifecycle (/intake, /breakdown, /reentry, /sunset), idea capture (/spark), brain dump (/dump), task triage (/triage), decision journaling (/decide), and pattern analysis (momentum, overdue-rescue) with adaptive tone calibration",
   "author": {
     "name": "Jacob Hoehler"
   },
-  "keywords": ["adhd", "productivity", "coaching", "planning", "daily", "weekly", "review", "projects", "decisions", "patterns", "closure", "journaling", "triage", "energy", "intake", "ideas", "tasks", "brain-dump"]
+  "keywords": ["adhd", "productivity", "coaching", "planning", "daily", "weekly", "review", "align", "projects", "decisions", "patterns", "closure", "journaling", "triage", "energy", "intake", "breakdown", "decomposition", "ideas", "tasks", "brain-dump"]
 }

@@ -1,11 +1,21 @@
 ---
-name: weekly
+name: coach:weekly
 description: >-
   This skill should be used when the user says "/weekly", "weekly review",
   "review my week", "week in review", "what should I focus on this week",
   "weekly planning", or "weekly check-in". Provides a structured weekly
   review conversation that audits project attention, enforces WIP limits,
   and converges on 1-2 focus projects for the coming week.
+allowed-tools:
+  # Linear — project health scan
+  - mcp__linear-server__list_projects
+  - mcp__linear-server__list_issues
+  # Obsidian — daily notes, weekly notes, project notes, write weekly note
+  - mcp__obsidian-mcp__read_note
+  - mcp__obsidian-mcp__read_multiple_notes
+  - mcp__obsidian-mcp__search_notes
+  - mcp__obsidian-mcp__get_notes_info
+  - mcp__obsidian-mcp__write_note
 ---
 
 # /weekly — Weekly Project Review

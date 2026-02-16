@@ -1,11 +1,17 @@
 ---
-name: energy
+name: coach:energy
 description: >-
   This skill should be used when the user says "/energy", "I'm tired", "low
   energy", "what should I work on", "I can't focus", "energy check", "match
   tasks to energy", or "I'm in the zone". Reorders today's tasks based on
   current energy level -- you don't need motivation, you need the right task for
   your current state. Can be used multiple times per day as energy shifts.
+allowed-tools:
+  # Todoist — today's tasks, reorder
+  - mcp__claude_ai_Todoist__find-tasks-by-date
+  - mcp__claude_ai_Todoist__update-tasks
+  # Obsidian — read daily note for Today's Focus
+  - mcp__obsidian-mcp__read_note
 ---
 
 # /energy -- Energy-Aware Task Matching
@@ -41,6 +47,7 @@ Gather today's tasks from available sources. Skip any unavailable silently.
 
 **Obsidian** (if available):
 - Read today's daily note for `## Today's Focus` priorities
+- Content may be a morning snapshot (Energy/Triage/Focus/Shape lines) rather than a simple bullet list — extract priorities from the **Focus:** line if snapshot format is present
 
 If no sources are available: "What's on your list for today?" and work from the user's response.
 
