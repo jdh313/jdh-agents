@@ -45,3 +45,6 @@ htmlcov/
 
 # Scratch docs
 docs/
+
+# Worktrees
+.worktrees/
