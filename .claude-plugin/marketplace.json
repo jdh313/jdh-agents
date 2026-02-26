@@ -231,13 +231,32 @@
         "diff",
         "squash"
       ]
+    },
+    {
+      "name": "shake-tune",
+      "source": "./plugins/shake-tune",
+      "description": "Interpret Klippain Shake Tune results for 3D printers: diagnose issues from PNG graphs, explain findings, recommend fixes, and track results over time. Supports belt comparison, input shaper, vibration profile, axes map, and excitation tests.",
+      "version": "0.1.0",
+      "author": {
+        "name": "Jacob Hoehler"
+      },
+      "keywords": [
+        "3d-printing",
+        "klipper",
+        "shake-tune",
+        "input-shaper",
+        "diagnostics",
+        "vibration",
+        "belt-tension",
+        "corexy"
+      ]
     }
   ],
   "metadata": {
     "description": "Personal Claude Code plugin marketplace",
     "version": "1.0.0",
     "homepage": "https://github.com/jdh313/cc-marketplace",
-    "totalPlugins": 12,
-    "lastUpdated": "2026-02-16"
+    "totalPlugins": 13,
+    "lastUpdated": "2026-02-26"
   }
 }
