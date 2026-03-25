@@ -12,10 +12,9 @@ allowed-tools:
   - mcp__claude_ai_Todoist__update-tasks
   # Linear — cycle issues
   - mcp__linear-server__list_issues
-  # Obsidian — read weekly note, write week plan
-  - mcp__obsidian-mcp__read_note
-  - mcp__obsidian-mcp__search_notes
-  - mcp__obsidian-mcp__patch_note
+  # Obsidian — read weekly note, write/patch week plan
+  - Bash(obsidian *)
+  - Edit
 ---
 
 # /plan-week -- Week Ahead Scheduling

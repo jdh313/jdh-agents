@@ -14,10 +14,7 @@ allowed-tools:
   - mcp__linear-server__list_initiatives
   - mcp__linear-server__get_project
   # Obsidian — read project/hobby notes, review notes for prior themes
-  - mcp__obsidian-mcp__search_notes
-  - mcp__obsidian-mcp__read_note
-  - mcp__obsidian-mcp__get_notes_info
-  - mcp__obsidian-mcp__list_directory
+  - Bash(obsidian *)
   # Conversation
   - AskUserQuestion
 ---

@@ -10,11 +10,7 @@ description: >-
 model: inherit
 color: green
 tools:
-  - mcp__obsidian-mcp__search_notes
-  - mcp__obsidian-mcp__get_notes_info
-  - mcp__obsidian-mcp__read_note
-  - mcp__obsidian-mcp__read_multiple_notes
-  - mcp__obsidian-mcp__list_directory
+  - Bash(obsidian *)
 ---
 
 <example>

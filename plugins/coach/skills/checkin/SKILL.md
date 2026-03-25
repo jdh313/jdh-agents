@@ -12,8 +12,9 @@ allowed-tools:
   # Linear — issues updated today
   - mcp__linear-server__list_issues
   # Obsidian — read daily note, write end-of-day
-  - mcp__obsidian-mcp__read_note
-  - mcp__obsidian-mcp__patch_note
+  - Bash(obsidian read *)
+  - Bash(obsidian append *)
+  - Edit
 ---
 
 # /checkin -- End-of-Day Pulse

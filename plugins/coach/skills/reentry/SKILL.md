@@ -11,8 +11,8 @@ allowed-tools:
   - mcp__linear-server__get_project
   - mcp__linear-server__list_issues
   # Obsidian — project notes
-  - mcp__obsidian-mcp__read_note
-  - mcp__obsidian-mcp__search_notes
+  - Bash(obsidian read *)
+  - Bash(obsidian search *)
 ---
 
 # /reentry — Project Re-Entry Briefing

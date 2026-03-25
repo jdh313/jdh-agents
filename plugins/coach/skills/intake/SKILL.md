@@ -12,8 +12,8 @@ allowed-tools:
   - mcp__linear-server__create_project
   - mcp__linear-server__create_issue
   # Obsidian — search project notes, write project note
-  - mcp__obsidian-mcp__search_notes
-  - mcp__obsidian-mcp__write_note
+  - Bash(obsidian search *)
+  - Bash(obsidian create *)
   # Todoist — add first-step task
   - mcp__claude_ai_Todoist__add-tasks
 ---

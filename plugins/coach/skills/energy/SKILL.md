@@ -11,7 +11,7 @@ allowed-tools:
   - mcp__claude_ai_Todoist__find-tasks-by-date
   - mcp__claude_ai_Todoist__update-tasks
   # Obsidian — read daily note for Today's Focus
-  - mcp__obsidian-mcp__read_note
+  - Bash(obsidian read *)
 ---
 
 # /energy -- Energy-Aware Task Matching
