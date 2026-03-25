@@ -12,10 +12,7 @@ tools:
   - mcp__linear-server__list_projects
   - mcp__linear-server__list_issues
   - mcp__linear-server__get_project
-  - mcp__obsidian-mcp__search_notes
-  - mcp__obsidian-mcp__get_notes_info
-  - mcp__obsidian-mcp__read_note
-  - mcp__obsidian-mcp__list_directory
+  - Bash(obsidian *)
 ---
 
 <example>

@@ -13,8 +13,9 @@ allowed-tools:
   # Linear — gather active issues
   - mcp__linear-server__list_issues
   # Obsidian — read daily notes, write morning snapshot
-  - mcp__obsidian-mcp__read_note
-  - mcp__obsidian-mcp__patch_note
+  - Bash(obsidian read *)
+  - Bash(obsidian append *)
+  - Edit
   # Claude Code tools
   - AskUserQuestion
 ---

@@ -9,9 +9,8 @@ description: >-
   /intake.
 allowed-tools:
   # Obsidian — read/create/append sparks log
-  - mcp__obsidian-mcp__read_note
-  - mcp__obsidian-mcp__patch_note
-  - mcp__obsidian-mcp__write_note
+  - Bash(obsidian *)
+  - Edit
 ---
 
 # /spark -- Interest/Idea Capture

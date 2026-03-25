@@ -11,11 +11,7 @@ allowed-tools:
   - mcp__linear-server__list_projects
   - mcp__linear-server__list_issues
   # Obsidian — daily notes, weekly notes, project notes, write weekly note
-  - mcp__obsidian-mcp__read_note
-  - mcp__obsidian-mcp__read_multiple_notes
-  - mcp__obsidian-mcp__search_notes
-  - mcp__obsidian-mcp__get_notes_info
-  - mcp__obsidian-mcp__write_note
+  - Bash(obsidian *)
 ---
 
 # /weekly — Weekly Project Review

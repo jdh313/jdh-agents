@@ -12,9 +12,7 @@ allowed-tools:
   - mcp__linear-server__list_issues
   - mcp__linear-server__update_project
   # Obsidian — project note, weekly/review search, write closure note
-  - mcp__obsidian-mcp__read_note
-  - mcp__obsidian-mcp__search_notes
-  - mcp__obsidian-mcp__write_note
+  - Bash(obsidian *)
 ---
 
 # /sunset -- Intentional Project Closure
