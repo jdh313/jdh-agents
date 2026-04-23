@@ -162,6 +162,28 @@
       "homepage": "https://github.com/yourusername/cc-marketplace/tree/main/plugins/job-search"
     },
     {
+      "name": "linux-ops",
+      "source": "./plugins/linux-ops",
+      "description": "Linux sysadmin best practices for Debian/Ubuntu: user management, permissions, packages, SSH hardening, networking, systemd, storage, security hardening, and troubleshooting with an audit agent",
+      "version": "0.1.0",
+      "author": {
+        "name": "Jacob Hoehler"
+      },
+      "keywords": [
+        "linux",
+        "sysadmin",
+        "debian",
+        "ubuntu",
+        "security",
+        "hardening",
+        "ssh",
+        "systemd",
+        "networking",
+        "permissions",
+        "audit"
+      ]
+    },
+    {
       "name": "merge-workflow",
       "source": "./plugins/merge-workflow",
       "description": "Branch and change merge operations for git and jj with conflict detection and resolution",
@@ -275,7 +297,7 @@
     "description": "Personal Claude Code plugin marketplace",
     "version": "1.0.0",
     "homepage": "https://github.com/jdh313/cc-marketplace",
-    "totalPlugins": 14,
+    "totalPlugins": 15,
     "lastUpdated": "2026-03-25"
   }
 }
