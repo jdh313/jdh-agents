@@ -88,6 +88,27 @@
       ]
     },
     {
+      "name": "debate",
+      "source": "./plugins/debate",
+      "description": "Dialectical decision analysis: dispatch parallel advocate agents to research opposing perspectives, optionally fact-check claims, challenge the consensus with devil's advocacy, and independently synthesize a verdict. Three modes (Quick/Standard/Deep) control pipeline depth. Not for factual lookups or simple preferences.",
+      "version": "0.1.0",
+      "author": {
+        "name": "Jacob Hoehler"
+      },
+      "keywords": [
+        "debate",
+        "decision",
+        "advocate",
+        "fact-check",
+        "synthesis",
+        "dialectical",
+        "research",
+        "opinion",
+        "trade-offs",
+        "deliberation"
+      ]
+    },
+    {
       "name": "doing",
       "source": "./plugins/doing",
       "description": "Time tracking with doing CLI. Start/stop tasks, backdate entries, query work history.",
@@ -162,9 +183,36 @@
       "homepage": "https://github.com/yourusername/cc-marketplace/tree/main/plugins/job-search"
     },
     {
+      "name": "knowledge-work",
+      "source": "./plugins/knowledge-work",
+      "description": "Personal knowledge-management workflows for an Obsidian vault. 20 skills + 2 agents across wiki, software catalog, meetings, experiments, Anki, and general note lifecycle. Coupled to the vault conventions in ~/Loose Ends/.claude/rules/{wiki.md,catalog.md}.",
+      "version": "0.1.0",
+      "author": {
+        "name": "Jacob Hoehler"
+      },
+      "keywords": [
+        "obsidian",
+        "knowledge-base",
+        "wiki",
+        "catalog",
+        "notes",
+        "meetings",
+        "experiments",
+        "anki",
+        "flashcards",
+        "spaced-repetition",
+        "bases",
+        "ingest",
+        "refresh",
+        "lint",
+        "curation",
+        "personal-knowledge"
+      ]
+    },
+    {
       "name": "linux-ops",
       "source": "./plugins/linux-ops",
-      "description": "Linux sysadmin best practices for Debian/Ubuntu: user management, permissions, packages, SSH hardening, networking, systemd, storage, security hardening, and troubleshooting with an audit agent",
+      "description": "Linux sysadmin best practices for Debian/Ubuntu: user management, permissions, packages, SSH hardening, networking, systemd, storage, security hardening, and troubleshooting. Includes an audit agent for security posture checks.",
       "version": "0.1.0",
       "author": {
         "name": "Jacob Hoehler"
@@ -297,7 +345,7 @@
     "description": "Personal Claude Code plugin marketplace",
     "version": "1.0.0",
     "homepage": "https://github.com/jdh313/cc-marketplace",
-    "totalPlugins": 15,
-    "lastUpdated": "2026-03-25"
+    "totalPlugins": 17,
+    "lastUpdated": "2026-04-24"
   }
 }

@@ -1,0 +1,26 @@
+{
+  "name": "knowledge-work",
+  "version": "0.1.0",
+  "description": "Personal knowledge-management workflows for an Obsidian vault. 20 skills + 2 agents across wiki, software catalog, meetings, experiments, Anki, and general note lifecycle. Coupled to the vault conventions in ~/Loose Ends/.claude/rules/{wiki.md,catalog.md}.",
+  "author": {
+    "name": "Jacob Hoehler"
+  },
+  "keywords": [
+    "obsidian",
+    "knowledge-base",
+    "wiki",
+    "catalog",
+    "notes",
+    "meetings",
+    "experiments",
+    "anki",
+    "flashcards",
+    "spaced-repetition",
+    "bases",
+    "ingest",
+    "refresh",
+    "lint",
+    "curation",
+    "personal-knowledge"
+  ]
+}
