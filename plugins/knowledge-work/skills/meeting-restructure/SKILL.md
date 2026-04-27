@@ -65,7 +65,7 @@ The map is the single planning gate. Present a table with every destination edit
 
 Flags to surface in the map when they apply:
 
-- **Anchor hazard** — destination heading contains `:`, `/`, `?`, or `#`. Propose linking to the parent heading instead, or ask the user if renaming the subheading is acceptable.
+- **Anchor hazard** — destination heading contains `:`, `/`, `?`, `#`, or wikilink syntax (`[[…]]`). For wikilinks specifically: the link form must use the *rendered* text (alias-resolved, brackets stripped) — e.g. `## [[Pydantic]] Vs. [[Python Dataclasses|Dataclasses]]` is referenced as `[[Page#Pydantic Vs. Dataclasses]]`, not as nested brackets (which is malformed). Propose linking to the parent heading instead, or ask the user if renaming the subheading is acceptable.
 - **Memory collision** — a user-level memory or feedback rule might restrict this decision (e.g. a "don't stub Reference/ pages from employer sources" rule). State the rule, state your reading, and let the user rule on it before editing.
 - **Stub decision** — page doesn't exist. Person → stub by default; tool/concept/project → flag and defer unless asked.
 - **Frontmatter backfill** — meeting note missing `summary:` or `participants:`. Note the planned value.
@@ -186,7 +186,7 @@ tags:
 
 Run through this checklist literally:
 
-- [ ] Every outbound `[[Target#Section]]` link: the literal heading text exists on the destination file.
+- [ ] Every outbound `[[Target#Section]]` link: the *rendered* heading text exists on the destination file. If the heading contains wikilinks (`## [[X]] Vs. [[Y|Z]]`), normalize before comparing — strip `[[`/`]]`, resolve `[[Target|alias]]` to `alias`.
 - [ ] Footnote definitions count matches footnote reference count per destination page.
 - [ ] New stubs are linked from at least one existing note.
 - [ ] `date_updated` (or equivalent) bumped on every destination that received material edits.

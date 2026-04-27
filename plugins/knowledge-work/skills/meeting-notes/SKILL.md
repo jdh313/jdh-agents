@@ -159,7 +159,9 @@ merges, dropped items, inferred date) so the user can flag them.
 Before presenting the draft, run the validation checklist:
 
 - [ ] Frontmatter has all required fields: `type`, `date`,
-  `date_created`, `date_updated`, `participants`, `summary`, `tags`.
+  `date_created`, `participants`, `summary`, `tags`.
+  (`date_modified` is auto-managed by the vault's frontmatter
+  plugin — do not write it manually.)
 - [ ] Every standard H2 section has content or a literal `(none)`
   marker — no blank bodies.
 - [ ] Every **Open** action item has `[owner:]` and `[by:]` (date or
@@ -211,7 +213,6 @@ Report:
 type: meeting
 date: YYYY-MM-DD
 date_created: YYYY-MM-DD
-date_updated: YYYY-MM-DD
 participants:
   - "[[Jacob Hoehler|Me]]"
   - "[[Other Person]]"
@@ -222,6 +223,11 @@ tags:
 ---
 ```
 
+> Do not write `date_updated` or `date_modified` manually — the
+> vault's frontmatter plugin auto-maintains `date_modified` on every
+> save. Downstream staleness checks (wiki-lint, meeting-restructure)
+> read `date_modified` when present.
+
 All fields above are required. Specifically:
 
 - `type: meeting` — the Dataview query and `Meetings.base` both filter
@@ -229,10 +235,13 @@ All fields above are required. Specifically:
 - `date:` — `YYYY-MM-DD` format to match `this.file.day` in the
   Dataview query.
 - `date_created:` — set to the date the note is first written. Never
-  changes after creation.
-- `date_updated:` — set equal to `date_created` at creation, then
-  bumped on every subsequent Edit. `wiki-lint` and
-  `meeting-restructure` use this to detect staleness.
+  changes after creation. The vault plugin may rewrite it to a
+  long-form timestamp (e.g. `Friday, April 24th 2026, 5:21:47 pm`);
+  preserve that form on subsequent edits — do not normalize it back
+  to `YYYY-MM-DD`.
+- `date_modified:` — auto-managed by the vault frontmatter plugin.
+  Never write it manually; never bump it manually. Staleness checks
+  read this field.
 - `participants:` — list of wikilinks; always include
   `[[Jacob Hoehler|Me]]` first.
 - `summary:` — one-line summary with principals wikilinked. Echoed as
