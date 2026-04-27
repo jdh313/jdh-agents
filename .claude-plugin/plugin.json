@@ -1,0 +1,17 @@
+{
+  "name": "spec-flow",
+  "version": "0.1.0",
+  "description": "ADR-centric workflow tooling for AI-assisted development. Drift detection against Accepted ADRs and session-note scaffolding, with worthiness-gated ADR drafting and finding capture deferred until they earn their existence.",
+  "author": {
+    "name": "Jacob Hoehler"
+  },
+  "keywords": [
+    "adr",
+    "spec-driven-development",
+    "ai-assisted-dev",
+    "drift-detection",
+    "working-session",
+    "session-notes",
+    "decision-records"
+  ]
+}
