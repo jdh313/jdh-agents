@@ -322,6 +322,24 @@
       ]
     },
     {
+      "name": "spec-flow",
+      "source": "./plugins/spec-flow",
+      "description": "ADR-centric workflow tooling for AI-assisted development. Drift detection against Accepted ADRs and session-note scaffolding, with worthiness-gated ADR drafting and finding capture deferred until they earn their existence.",
+      "version": "0.1.0",
+      "author": {
+        "name": "Jacob Hoehler"
+      },
+      "keywords": [
+        "adr",
+        "spec-driven-development",
+        "ai-assisted-dev",
+        "drift-detection",
+        "working-session",
+        "session-notes",
+        "decision-records"
+      ]
+    },
+    {
       "name": "surrealdb",
       "source": "./plugins/surrealdb",
       "description": "Model, migrate, and query SurrealDB \u2014 helps choose the right data model (graph, document, relational, vector, time-series, key-value, geospatial, full-text search), design schemas, plan migrations, and write SurrealQL with the official Python SDK",
@@ -345,7 +363,7 @@
     "description": "Personal Claude Code plugin marketplace",
     "version": "1.0.0",
     "homepage": "https://github.com/jdh313/cc-marketplace",
-    "totalPlugins": 17,
-    "lastUpdated": "2026-04-24"
+    "totalPlugins": 18,
+    "lastUpdated": "2026-04-27"
   }
 }
