@@ -286,6 +286,23 @@
       ]
     },
     {
+      "name": "reflect",
+      "source": "./plugins/reflect",
+      "description": "Socratic clarification skill \u2014 helps surface your own true thoughts and feelings on a topic, then saves the reflection to your Obsidian vault",
+      "version": "0.1.0",
+      "author": {
+        "name": "Jacob Hoehler",
+        "email": "accts@jdh.onl"
+      },
+      "keywords": [
+        "reflection",
+        "socratic",
+        "decision",
+        "journaling",
+        "obsidian"
+      ]
+    },
+    {
       "name": "review-prep",
       "source": "./plugins/review-prep",
       "description": "Automate code review preparation with PR descriptions, commit cleanup, and diff analysis for git and jj",
@@ -363,7 +380,7 @@
     "description": "Personal Claude Code plugin marketplace",
     "version": "1.0.0",
     "homepage": "https://github.com/jdh313/cc-marketplace",
-    "totalPlugins": 18,
+    "totalPlugins": 19,
     "lastUpdated": "2026-04-27"
   }
 }
