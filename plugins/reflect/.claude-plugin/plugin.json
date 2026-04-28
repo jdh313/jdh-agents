@@ -1,0 +1,10 @@
+{
+  "name": "reflect",
+  "version": "0.1.0",
+  "description": "Socratic clarification skill — helps surface your own true thoughts and feelings on a topic, then saves the reflection to your Obsidian vault",
+  "author": {
+    "name": "Jacob Hoehler",
+    "email": "jdhoehler@gmail.com"
+  },
+  "keywords": ["reflection", "socratic", "decision", "journaling", "obsidian"]
+}
