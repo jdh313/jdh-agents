@@ -288,8 +288,8 @@
     {
       "name": "reflect",
       "source": "./plugins/reflect",
-      "description": "Socratic clarification skill \u2014 helps surface your own true thoughts and feelings on a topic, then saves the reflection to your Obsidian vault",
-      "version": "0.1.0",
+      "description": "Two thinking skills: reflect (Socratic mirror \u2014 surfaces your own thoughts without recommending) and mull (thinking partner \u2014 probes the root AND contributes opinions when appropriate). Both save sessions to your Obsidian vault.",
+      "version": "0.2.0",
       "author": {
         "name": "Jacob Hoehler",
         "email": "jdhoehler@gmail.com"
@@ -299,7 +299,9 @@
         "socratic",
         "decision",
         "journaling",
-        "obsidian"
+        "obsidian",
+        "thinking-partner",
+        "mull"
       ]
     },
     {

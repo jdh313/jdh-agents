@@ -1,18 +1,17 @@
 # reflect
 
-A Socratic clarification skill. The opposite of a recommendation engine.
+Two skills for thinking through a topic — one neutral, one opinionated. Both save the session to your Obsidian vault.
 
-When you don't know what you actually think — about a purchase, a career move, a tool choice, a vague unease — `/reflect` helps you find your own answer through neutral questioning, then saves the reflection to your Obsidian vault.
+| Skill | Stance | Use when |
+|---|---|---|
+| `/reflect` | Strict mirror — only questions, never opinions | You want to find your own answer without influence |
+| `/mull` | Thinking partner — questions plus honest takes, pushback, and feedback | You want a collaborator who'll probe AND weigh in |
 
-## What it does
+## /reflect — Socratic mirror
 
-- Asks one open question at a time
-- Drills into vague words and hidden tensions
-- Refuses to recommend, quantify, or decide for you
-- Saves the result to `~/Loose Ends/Reflections/YYYY-MM-DD_<topic>.md`
-- For unfinished reflections, writes a paste-ready continuation prompt so future-you can pick up the thread
+When you don't know what you actually think — about a purchase, a career move, a tool choice, a vague unease — `/reflect` helps you find your own answer through neutral questioning. It will refuse to recommend, quantify, or decide for you.
 
-## Usage
+Output goes to `~/Loose Ends/Reflections/YYYY-MM-DD_<topic>.md`.
 
 ```
 /reflect should I buy a new keyboard
@@ -20,22 +19,40 @@ When you don't know what you actually think — about a purchase, a career move,
 /reflect
 ```
 
-Natural language also works:
+## /mull — Thinking partner
 
-> Help me figure out how I feel about switching from Brew to Nix.
+When you want a real collaborator — someone who'll probe the root of the issue AND share their read, push back on weak reasoning, or name patterns you might be missing. Still question-led, but the agent is allowed (and expected) to bring something to the table when invited or when silence would be evasive.
 
-## Output
+Output goes to `~/Loose Ends/Mulling/YYYY-MM-DD_<topic>.md` and captures agent contributions inline as Obsidian callouts so future-you can scan what was said.
+
+```
+/mull should I leave my job
+/mull am I overengineering this
+/mull
+```
+
+Natural language also works for both:
+
+> Help me figure out how I feel about switching from Brew to Nix. *(reflect)*
+>
+> Mull this over with me — I'm not sure my current architecture is right. *(mull)*
+
+## Output format
 
 Each session produces a note with:
 
 - **Prompt** — the original question, in your words
-- **Exploration** — condensed Q&A (the moves that opened things up)
+- **Conversation / Exploration** — condensed Q&A. `mull` notes use `> [!note] Take` callouts to mark agent contributions, including ones that didn't land.
 - **Conclusion** *or* **Where I Left Off** — depending on whether the session resolved
+- **Open Threads** *(mull only)* — unresolved disagreements logged for next time
 - **Continuation Prompt** — only on open sessions; paste-ready to resume later
-- **Related** — wikilinks to people, projects, prior reflections surfaced
+- **Related** — wikilinks to people, projects, or prior sessions surfaced
 
-## What it is not
+## Choosing between them
 
-- Not a debate engine — see the `debate` plugin for adversarial argument
-- Not a recommender — it will never tell you which keyboard to buy
-- Not a journal prompt generator — it works on the topic you bring
+- **Decision is yours alone, you just need clarity** → `/reflect`
+- **You want a sanity check or pushback** → `/mull`
+- **You want adversarial argument with structured pro/con** → see the `debate` plugin
+- **You want a recommendation or external research** → not this plugin
+
+The two skills share question and bias references — they're different stances on the same conversational craft.
