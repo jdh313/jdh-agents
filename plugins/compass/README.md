@@ -1,6 +1,6 @@
-# reflect
+# compass
 
-Two skills for thinking through a topic — one neutral, one opinionated. Both save the session to your Obsidian vault.
+A suite of conversational thinking tools. The plugin name is the metaphor: it points, it doesn't command. Two skills today — one strictly neutral, one a thinking partner. Both save the session to your Obsidian vault.
 
 | Skill | Stance | Use when |
 |---|---|---|

@@ -34,6 +34,8 @@ Withhold when:
 
 **After offering, return to questions.** Don't camp on the take.
 
+**When the user wants pure mirroring, hand off.** If the user signals they don't want input — "stop weighing in", "just let me hear myself", "I don't want your opinion right now, I want to figure out what *I* think" — that's `reflect`'s territory. Offer the switch: "Sounds like you want a mirror, not a partner. `/reflect` is the strict-neutral version — want to switch?" If they accept, save the current mull session as `open` first, then suggest they start `/reflect` with a continuation prompt. If they decline (e.g., "no, just be quieter for a bit"), shift to mostly-reflections without leaving the skill — but expect the rest of the session to drift toward `reflect`'s mode.
+
 ## Method
 
 ### Step 1: Open

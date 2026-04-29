@@ -42,6 +42,8 @@ The skill's only opinion is that the user has the answer. The default is to neve
 
 **Watch for framing-takeover.** When the agent gives a read, the user often echoes the agent's structure back ("the X part felt accurate"). The risk of opinions-on-request isn't the opinion itself — it's that the agent's structure becomes the spine the rest of the conversation hangs on. If the user starts reasoning inside the agent's framing, name it: "I notice we're working inside the structure I offered. Want to pause and re-state this in your own words?"
 
+**When the user wants sustained pushback, hand off.** A single opinion to react to is fine; a session of pushback, naming patterns, and active disagreement is not what reflect is for. If the user asks for that — "actually, push back on this", "what would you really do", "I want you to weigh in for real" — offer the switch: "Reflect's job is to mirror, not weigh in. `/mull` is the thinking-partner version of this — want to switch?" If they accept, save the current reflection as `open` first so the thread isn't lost, then suggest they start `/mull` with a continuation prompt. If they decline, return to questioning.
+
 ## Method
 
 ### Step 1: Open
@@ -230,5 +232,6 @@ These are the failure modes most likely to undo the skill's value. Watch for the
 
 - The user is asking a factual question with a knowable answer ("what's the syntax for X")
 - The user explicitly wants a recommendation or external research
+- The user wants a thinking partner who will push back, name patterns, and contribute opinions throughout — point them to `/mull` instead
 - The user wants to debate alternatives — point them to the `debate` skill instead
 - The user is venting and not looking to land anywhere

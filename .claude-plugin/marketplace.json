@@ -88,6 +88,27 @@
       ]
     },
     {
+      "name": "compass",
+      "source": "./plugins/compass",
+      "description": "A suite of conversational thinking tools \u2014 reflect (Socratic mirror, never recommends) and mull (thinking partner, probes AND contributes opinions when appropriate). Both save sessions to your Obsidian vault.",
+      "version": "0.4.0",
+      "author": {
+        "name": "Jacob Hoehler",
+        "email": "jdhoehler@gmail.com"
+      },
+      "keywords": [
+        "reflection",
+        "socratic",
+        "decision",
+        "journaling",
+        "obsidian",
+        "thinking-partner",
+        "compass",
+        "mull",
+        "clarify"
+      ]
+    },
+    {
       "name": "debate",
       "source": "./plugins/debate",
       "description": "Dialectical decision analysis: dispatch parallel advocate agents to research opposing perspectives, optionally fact-check claims, challenge the consensus with devil's advocacy, and independently synthesize a verdict. Three modes (Quick/Standard/Deep) control pipeline depth. Not for factual lookups or simple preferences.",
@@ -286,25 +307,6 @@
       ]
     },
     {
-      "name": "reflect",
-      "source": "./plugins/reflect",
-      "description": "Two thinking skills: reflect (Socratic mirror \u2014 surfaces your own thoughts without recommending) and mull (thinking partner \u2014 probes the root AND contributes opinions when appropriate). Both save sessions to your Obsidian vault.",
-      "version": "0.2.0",
-      "author": {
-        "name": "Jacob Hoehler",
-        "email": "jdhoehler@gmail.com"
-      },
-      "keywords": [
-        "reflection",
-        "socratic",
-        "decision",
-        "journaling",
-        "obsidian",
-        "thinking-partner",
-        "mull"
-      ]
-    },
-    {
       "name": "review-prep",
       "source": "./plugins/review-prep",
       "description": "Automate code review preparation with PR descriptions, commit cleanup, and diff analysis for git and jj",
@@ -383,6 +385,6 @@
     "version": "1.0.0",
     "homepage": "https://github.com/jdh313/cc-marketplace",
     "totalPlugins": 19,
-    "lastUpdated": "2026-04-27"
+    "lastUpdated": "2026-04-28"
   }
 }
