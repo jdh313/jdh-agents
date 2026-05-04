@@ -5,9 +5,24 @@ description: Quickly create a wiki page for a tool or concept encountered during
 
 # Wiki Stub
 
-Create a lightweight wiki page when a tool or concept comes up during work.
-Faster than full ingest — no source document needed. The page can be deepened
-later via `wiki-ingest` or `wiki-refresh`.
+Create a lightweight wiki page when a tool or concept comes up during work. Faster than full ingest — no source document needed. The page can be deepened later via `wiki-ingest` or `wiki-refresh`.
+
+## Canonical conventions
+
+Read these rule files before producing output — they are the source of truth for schema and skeletons:
+
+- `~/Loose Ends/.claude/rules/wiki.md` — page types, skeletons, page structure conventions, Breadcrumbs hierarchy (`up:` vs `expands:`)
+- `~/Loose Ends/.claude/rules/catalog.md` — catalog schema (kind/lifecycle/relations) and gist-hub-plus-Decision-child split
+
+Sections this skill depends on:
+- Wiki frontmatter schema → wiki.md `## Wiki Schema`
+- `concept` skeleton (general) → wiki.md `### concept — explanation of a thing or idea`
+- `concept` as a gist hub → wiki.md `### concept as a gist hub`
+- `how-to` skeleton → wiki.md `### how-to — procedure with a single canonical path`
+- Page structure conventions (no hard-wrap, neutral definition, no first-person, etc.) → wiki.md `## Page Structure Conventions`
+- Hierarchy fields → wiki.md `## Hierarchy via Breadcrumbs`
+- Breadcrumbs codeblock patterns → wiki.md `### Codeblock patterns`
+- Catalog gist hub frontmatter → catalog.md `### Gist hub`
 
 ## Required skills
 - **Skill(obsidian:obsidian-cli)** — for note creation, search, and frontmatter
@@ -23,74 +38,64 @@ later via `wiki-ingest` or `wiki-refresh`.
 
 ### 1. Check if a page already exists
 
-Search the wiki (via obsidian-cli or index) for the topic. If a page exists,
-suggest `wiki-refresh` instead if it needs updating.
+Search the wiki (via obsidian-cli or `Reference/index.md`) for the topic. If a page exists, suggest `wiki-refresh` instead if it needs updating.
 
-### 2. Determine `page_type` and location
+### 2. Determine what to create
 
-Pick one of the three canonical page types (see
-`~/dotfiles/claude/rules/11-knowledge-wiki.md` → **Page Types & Skeletons**
-for full skeletons):
+Pick the right page type based on the topic. Full skeletons live in wiki.md `## Page Types & Skeletons` — don't reproduce them here.
 
-- **`concept`** — default. Definition + explanation of a thing or idea. Also
-  covers topic-area landing pages.
-- **`how-to`** — a procedure with one canonical path (calibrations,
-  installations, recipes).
-- **`evaluation`** — Software Catalog entries. **Do not create these via
-  `wiki-stub`.** Route to `Skill(catalog-evaluate)` instead — the catalog
-  has its own schema (`kind`, `lifecycle`, `replaces`, etc.) and workflow
-  defined in `~/dotfiles/claude/rules/12-software-catalog.md`.
+| Topic | Page type | Notes |
+|---|---|---|
+| Tool / service / system the user has formed an opinion on | catalog gist hub (`page_type: concept`) | Route to `Skill(catalog-evaluate)` for the full workflow — that skill handles lifecycle/kind/relations and offers to create a Decision child. Don't stub catalog entries through `wiki-stub`. |
+| Tool encountered casually (no opinion yet, no decision needed) | not a catalog candidate; create as `page_type: concept` outside the catalog folder OR defer | If the user wants a verdict, route to `catalog-evaluate`. |
+| Procedure with one canonical path (calibration, install, recipe) | `page_type: how-to` | |
+| Definition / pattern / topic landing page | `page_type: concept` | Default. Topic-area landing pages also use `concept` and add a Breadcrumbs codeblock. |
 
-**Software tools** therefore never get stubbed through `wiki-stub`. If the
-user asks to "stub" a tool, offer to route to `catalog-evaluate` instead.
+**Guard:** never create a page inside `Reference/Tools/Software Catalog/` via `wiki-stub`. That folder is catalog-only — route to `catalog-evaluate`.
 
-**Non-software concepts** go in the standard wiki location per the rules
-file topic table, usually `page_type: concept`.
+### 3. Place the page
 
-**Guard:** never create a page with `page_type: concept` or `how-to` inside
-`Reference/Tools/Software Catalog/`. That folder is catalog-only.
+Use the wiki location decision tree (wiki.md `### Where wiki pages live`). Common destinations: `Reference/Developer/`, `Reference/Infrastructure/`, `Reference/3D Printing/`, etc.
 
-### 3. Create the page
+### 4. Create frontmatter
 
-#### Concept and how-to pages
+Use the wiki schema from wiki.md `## Wiki Schema`. The two hierarchy fields:
 
-Use the standard wiki schema:
+- **`up:`** — topic specialization. The new page is a sub-topic of a broader area (e.g. `Pressure Advance` → `up: [[3D Printing]]`).
+- **`expands:`** — altitude descent. The new page is a deeper layer of an existing page (e.g. `Jujutsu Commands` → `expands: [[Jujutsu (jj)]]`). Stubs rarely use this — it usually emerges later when a topic accumulates enough material to split.
 
-```yaml
----
-owner: ai
-type: wiki
-page_type: concept   # or: how-to
-up:
-  - "[[Parent Page]]"
-sources: []
-date_created: YYYY-MM-DD
-date_updated: YYYY-MM-DD
-tags: []
----
+A page can carry both, but most stubs only need one. Top-level topic pages omit both. Verify the parent page exists before writing — if it doesn't, ask whether to also stub the parent or omit the field.
+
+### 5. Write content using the canonical skeleton
+
+Emit the H2 headings in the order defined by the relevant skeleton in wiki.md. Omit sections that don't apply. Never reorder them.
+
+**Always required, regardless of type** (per wiki.md `## Page Structure Conventions`):
+
+- The first non-frontmatter line is a 1-2 sentence *neutral* "what is X" statement. Do not open with `## Introduction`, `## Overview`, meta-text ("Parent page for..."), or personal opinion. The neutral definition is non-negotiable — if you don't know what X is well enough to write one sentence, don't stub the page.
+- No hard-wrapped prose. Each paragraph or list item is a single long line. Tables, code blocks, and YAML frontmatter keep their natural line structure.
+- Avoid first-person narrative in body and headings. Prefer `## Advantages` over `## What I liked`.
+- Keep generic facts and personal use in *separate* sections.
+- Each H2 should stand on its own without earlier context.
+
+For topic-area landing pages (children expected to attach via `up:`), include a `## Pages in this area` Breadcrumbs codeblock:
+
+````markdown
+```breadcrumbs
+type: tree
+field-groups: [downs]
+sort: basename asc
 ```
+````
 
-### 4. Write content using the canonical skeleton
+If the page is anticipated to become a gist hub later (children will declare `expands:`), see wiki.md `### concept as a gist hub` for the slimmer skeleton with both `## Going deeper` (`field-groups: [expansions]`) and `## Related topics` (`field-groups: [downs]`) blocks. Most fresh stubs aren't gist hubs yet — leave the upgrade to a later refresh once the topic accumulates expansions.
 
-The rules file defines the exact skeleton for each `page_type`. Emit the H2
-headings in order, omit sections that don't apply, and **never** reorder them.
+> [!note] No `depth:` by default
+> Omit `depth:` from Breadcrumbs codeblocks. Unbounded trees are correct for almost every page. Add `depth:` only with a specific reason (capping a runaway tree, or flattening a deep taxonomy).
 
-**Always required, regardless of type:**
+Depth follows usage — write what you know from context. Don't research extensively; that's what `wiki-refresh` is for.
 
-- The first non-frontmatter line is a 1-2 sentence *neutral* "what is X"
-  statement. Do not open with `## Introduction`, `## Overview`, meta-text
-  ("Parent page for..."), or personal opinion. The neutral definition is
-  non-negotiable — if you don't know what X is well enough to write one
-  sentence, don't stub the page.
-- Keep generic facts and personal use in *separate* sections. Do not blend
-  them in one bullet list.
-- Each H2 should stand on its own without earlier context (the retrieval
-  self-containment rule from the rules file).
-
-Depth follows usage — write what you know from context. Don't research
-extensively; that's what `wiki-refresh` is for.
-
-### 5. Update index and log
+### 6. Update index and log
 
 - Add entry to `Reference/index.md`: `- [[Page Name]] — one-line summary`
 - Append to `Reference/log.md`:
@@ -100,7 +105,7 @@ extensively; that's what `wiki-refresh` is for.
   - Context: brief note on why this was created (e.g., "encountered during K8s storage work")
   ```
 
-### 6. Report
+### 7. Report
 
 Tell the user:
 - Page created and where it lives
@@ -113,11 +118,8 @@ Tell the user:
 - Don't invent specific technical claims (benchmarks, version behavior)
 - If you're unsure about something, skip it rather than guessing
 - Pages should be useful even in stub form — a good overview is enough
-- Refuse to create a page without a neutral-definition opening sentence. If
-  the stub can't start with "X is a ..." or "X is the ...", back out and ask
-  the user for one sentence of context first.
+- Refuse to create a page without a neutral-definition opening sentence. If the stub can't start with "X is a ..." or "X is the ...", back out and ask the user for one sentence of context first.
 
 ## Implementation Notes
 
-See `${CLAUDE_PLUGIN_ROOT}/references/obsidian-cli-gotchas.md` for obsidian-cli
-patterns and command examples.
+See `${CLAUDE_PLUGIN_ROOT}/references/obsidian-cli-gotchas.md` for obsidian-cli patterns and command examples.
