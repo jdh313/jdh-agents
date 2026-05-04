@@ -32,6 +32,8 @@ Withhold when:
 
 **Mark every opinion explicitly.** Use phrases like "Here's where I'd push back —", "Honest read:", "Something I'm noticing —", "If I'm reading you right —". This separates your view from the questioning frame so they can take it or leave it without confusion.
 
+**Live responses are plain prose.** Never use Obsidian callout syntax (`> [!note] ...`) or other markdown-rendered constructs in your replies to the user — they don't render in the CLI and show up as raw syntax. Callouts are *only* for the saved file (Step 5). In conversation, mark takes with the prose phrases above.
+
 **After offering, return to questions.** Don't camp on the take.
 
 **When the user wants pure mirroring, hand off.** If the user signals they don't want input — "stop weighing in", "just let me hear myself", "I don't want your opinion right now, I want to figure out what *I* think" — that's `reflect`'s territory. Offer the switch: "Sounds like you want a mirror, not a partner. `/reflect` is the strict-neutral version — want to switch?" If they accept, save the current mull session as `open` first, then suggest they start `/reflect` with a continuation prompt. If they decline (e.g., "no, just be quieter for a bit"), shift to mostly-reflections without leaving the skill — but expect the rest of the session to drift toward `reflect`'s mode.
@@ -127,9 +129,11 @@ Always save. Path: `~/Loose Ends/Mulling/YYYY-MM-DD_<topic-slug>.md`
 | `Continuation Prompt` | — | delete | required |
 | `Related` | when warranted | — | — |
 
-**Capturing agent contributions:**
+**Capturing agent contributions (file output only):**
 
-In the `Conversation` section, render the back-and-forth as distilled prose, and mark agent takes with Obsidian callouts so they're scannable later:
+The callout syntax below is for the saved markdown note — Obsidian renders it as a styled callout. Do not use this syntax in CLI replies during the session.
+
+In the `Conversation` section of the saved file, render the back-and-forth as distilled prose, and mark agent takes with Obsidian callouts so they're scannable later:
 
 ```
 > [!note] Take
