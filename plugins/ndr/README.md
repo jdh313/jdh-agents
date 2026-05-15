@@ -41,7 +41,7 @@ ndr/
 │   ├── workflow.md
 │   └── decision-single.md
 └── assets/                    # vault content the bootstrap skill installs
-    ├── decisions/             # 8 seed atoms (the A–H meta-chain — ndr's own decision history)
+    ├── decisions/             # seed atoms — A–H meta-chain (0001-0008) plus reference-addressability resolution (0049-0051)
     ├── bases/
     │   └── current-decisions.base
     └── taxonomy/
@@ -57,9 +57,10 @@ ndr/
 - **Required frontmatter.** Capture skill refuses to write if any required field is missing (`id`, `title`, `status`, `decision_date`, `project`, `area`, `topic`, `reversibility`). `supersedes:` must be present (may be empty).
 - **Finite taxonomy.** `area:` and `topic:` are validated against `~/Loose Ends/Decisions/.taxonomy/*.yaml`. New values require explicit add — friction is the feature.
 - **Project-scoped browsing.** Every decision has a `project:` wikilink. Embed `![[Current Decisions.base#Log]]` on a project page for a live decision log scoped to that project.
+- **Reference convention.** External code and vault notes use `ndr:<grain>` to point at atoms — atom-id (`ndr:0011`, frozen historical anchor), slug (`ndr:#monorepo-shape`, follows supersession via the atom's `aliases:` field), or topic (`ndr:architecture/repo-shape`, area-grain). The `/decisions` skill parses all three. See `references/workflow.md#reference-convention`.
 
 See `references/frontmatter-schema.md`, `references/taxonomy.md`, `references/workflow.md` for full spec.
 
 ## History
 
-Originally scaffolded as a standalone repo at `~/Projects/nested-decision-records/` (preserved as the historical scaffold; not the canonical source). Migrated into this plugin to get free cross-machine sync via the plugin marketplace. The 8 seed atoms in `assets/decisions/` are ndr's own decision history (A–H meta-chain) — installing them gives you a working corpus from day one.
+Originally scaffolded as a standalone repo at `~/Projects/nested-decision-records/` (preserved as the historical scaffold; not the canonical source). Migrated into this plugin to get free cross-machine sync via the plugin marketplace. The seed atoms in `assets/decisions/` are ndr's own decision history — the A–H meta-chain (0001-0008) that produced the substrate + atomicity + read-side decisions, plus the reference-addressability resolution (0049-0051) that introduced the three-grain reference scheme and `aliases:` field. Installing them gives you a working corpus from day one.

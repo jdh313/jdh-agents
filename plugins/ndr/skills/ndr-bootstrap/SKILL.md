@@ -1,6 +1,6 @@
 ---
 name: ndr-bootstrap
-description: One-time install of ndr's vault content. Copies the seed decision atoms (A–H meta-chain), the "Current Decisions" Obsidian Base, and the initial taxonomy YAML files into `~/Loose Ends/`. Idempotent — re-runs skip targets that already exist. Invoke explicitly with `/ndr-bootstrap` once per machine after installing the ndr plugin.
+description: One-time install of ndr's vault content. Copies the seed decision atoms (A–H meta-chain at 0001-0008 plus reference-addressability resolution at 0049-0051), the "Current Decisions" Obsidian Base, and the initial taxonomy YAML files into `~/Loose Ends/`. Idempotent — re-runs skip targets that already exist. Invoke explicitly with `/ndr-bootstrap` once per machine after installing the ndr plugin.
 disable-model-invocation: true
 allowed-tools:
   - Bash
@@ -12,7 +12,7 @@ allowed-tools:
 
 Install ndr's vault-resident content on a fresh machine. Three things land:
 
-1. **Seed decision atoms** (`assets/decisions/0001`–`0008.md`) → `~/Loose Ends/Decisions/`
+1. **Seed decision atoms** (`assets/decisions/*.md` — 0001-0008 A-H meta-chain plus 0049-0051 reference-addressability resolution) → `~/Loose Ends/Decisions/`
 2. **Current Decisions Base** (`assets/bases/current-decisions.base`) → `~/Loose Ends/Bases/Current Decisions.base`
 3. **Taxonomy YAML** (`assets/taxonomy/areas.yaml`, `topics.yaml`) → `~/Loose Ends/Decisions/.taxonomy/`
 

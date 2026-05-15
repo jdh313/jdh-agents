@@ -12,17 +12,18 @@ How `/capture-decision` and `/decisions` interact, end-to-end.
 4. **Review-then-persist.** Drafts live in-memory until the user accepts. No `draft` status; drafts never touch disk. Lineage and identity stay reviewed longest.
 5. **Taxonomy enforcement.** `area:` and `topic:` validated against `taxonomy/*.yaml`. Unknown value triggers a "use existing or add new?" prompt; "add new" writes the taxonomy file.
 6. **Supersession protection.** If the skill detects this is a *revising* decision (intent words like "revises", "supersedes", "instead of", or an `informed_by:` pointing at a `current` decision the new one disagrees with), it refuses to write while `supersedes:` is empty.
-7. **Two-write supersession.** When `supersedes: [X]` is non-empty:
+7. **Two-write supersession (three-write with alias handover).** When `supersedes: [X]` is non-empty:
    - Write the successor first.
    - Patch the predecessor: set `status: superseded`, append the successor to `superseded_by: []`.
-   - On patch failure, report the half-state and exit non-zero. No silent partial write.
+   - **If the predecessor carries `aliases:`**, the patch also moves each slug: append to the successor's `aliases:`, then clear the predecessor's `aliases:` to `[]`. The slug handover is part of the same patch operation, not a separate user step.
+   - On patch failure (including alias handover), report the half-state — which slugs were moved, which weren't — and exit non-zero. No silent partial write.
    - Refuse to patch if the predecessor is already `superseded` by a *different* successor — manual resolution needed.
 8. **ID assignment.** Auto-assigned as next zero-padded 4-digit (`max(existing) + 1` across both `<id>-*.md` files and `<id>-*/` directories).
 9. **Storage.** Writes to `~/Loose Ends/Decisions/<id>-<kebab-title>.md`. Always single-file — hybrid altitude callouts handle length-management without splitting.
 
 ## Read flow
 
-`/decisions <topic>` is the supersession-aware reader. Two-stage:
+`/decisions <ref-or-topic>` is the supersession-aware reader. It parses three reference grains plus a free-text fallback (see [Reference convention](#reference-convention)) and then runs two-stage retrieval:
 
 ### Stage 1 — frontmatter probe
 
@@ -55,6 +56,26 @@ If the head's body has a `## Assumptions` section with `Revisit if:` conditions 
 - If Stage 1 returns zero hits, retry once with `searchContent: true`.
 - If still zero, return "no decisions matched \<topic\>". Don't fabricate.
 - If no topic argument is given, the skill prompts for one.
+
+## Reference convention
+
+External code, READMEs, design docs, and vault notes that need to point at NDRs use the `ndr:` prefix with three resolvable grains:
+
+| Form | Example | Resolves to | Use when |
+| --- | --- | --- | --- |
+| **atom-id** | `ndr:0011` | the exact atom, frozen | documenting why something was built (historical anchor) |
+| **slug** | `ndr:#monorepo-shape` | the atom currently aliased to this slug; follows supersession via `aliases:` field | current governance matters; you want the live atom, not the one that was current at write-time |
+| **topic** | `ndr:architecture/repo-shape` | all `status: current` atoms with that `area`/`topic` | the whole area governs the call site |
+
+The `/decisions` skill parses all three forms (plus a free-text fallback). Slugs are minted **lazily** — per atom, only when external reference is needed. Most atoms never carry one.
+
+### Inside the vault
+
+Vault wikilinks can use slugs directly: `[[ndr-monorepo-shape]]` resolves through Obsidian's native alias mechanism to whichever atom currently holds the alias. Supersession moves the alias atomically (see Capture flow step 7), so the wikilink target updates without the link itself changing.
+
+### Why three grains
+
+References are bi-temporal: a writer may mean "the atom that justified this code" (historical) or "the decision that currently governs this code" (live). Forcing one reference form to do both jobs is what makes `ADR-NNNN` style refs go stale on supersession. The three grains let the writer name intent at write-time, and `/decisions` resolves the appropriate atom(s) at read-time.
 
 ## Auto-loaded rule
 

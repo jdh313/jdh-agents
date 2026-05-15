@@ -11,6 +11,7 @@ id: "0042"                            # *zero-padded sequence; auto-assigned. Qu
 title: "Use FastAPI for the auth service"  # *short imperative phrase
 status: current                       # *enum: current | superseded | retracted
 decision_date: 2026-05-14             # *ISO date
+aliases: []                           # optional; atom-grain slugs for external reference. Use `ndr-` prefix. Minted lazily; moved to successor on supersession
 
 # Membership
 project: "[[Auth Rewrite]]"   # *single wikilink; what project / initiative this decision belongs to
@@ -50,6 +51,7 @@ tags:
 | `title` | string | yes | Short imperative phrase |
 | `status` | enum | yes | `current`, `superseded`, `retracted` |
 | `decision_date` | ISO date | yes | When the decision was made, not when the atom was written |
+| `aliases` | list[string] | no | Lazy-minted slugs for atom-grain external reference. Use `ndr-` namespace prefix (e.g., `ndr-monorepo-shape`). Each slug must be unique vault-wide. Slug is **moved to the successor** on supersession — see Hard rule 3. Most atoms never carry a slug |
 
 ### Membership
 
@@ -158,7 +160,8 @@ If a section has no content (no alternatives considered, no load-bearing assumpt
 
 1. **Required fields are non-negotiable.** Capture skill refuses to write if any starred field is missing.
 2. **`supersedes:` must be present.** May be empty. Its presence is the structural signal that the author considered supersession.
-3. **Two-write supersession.** If `supersedes:` is non-empty, the predecessor's `superseded_by:` must be patched in the same operation. Skill writes successor first, then patches predecessor. On patch failure, skill reports the half-state and exits.
+3. **Two-write supersession (three-write with alias handover).** If `supersedes:` is non-empty, the predecessor's `superseded_by:` must be patched in the same operation. Skill writes successor first, then patches predecessor. **If the predecessor carries `aliases:`, the patch also clears the predecessor's `aliases:` and appends those slugs to the successor's `aliases:` — the slug moves atomically with the supersession.** On patch failure (including alias handover), skill reports the half-state and exits.
 4. **Multi-supersession is manual.** If a predecessor is already `superseded` by a different successor, the skill refuses the patch — almost certainly a sign two competing successors were drafted in parallel.
 5. **`project:` is required.** A decision without a project hides from the project filter view. If you don't know the project yet, create a stub project page first.
 6. **Body prose is substantive.** Don't restate frontmatter fields in prose ("`derived_from: F`. `revises: A.scope`" is YAML, not English).
+7. **Slug uniqueness.** Any slug in `aliases:` must be unique vault-wide. Capture skill refuses to write a duplicate. A slug being moved during supersession is exempt from this check against its predecessor (it's vacating that home in the same operation).
