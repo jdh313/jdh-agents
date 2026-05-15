@@ -25,7 +25,7 @@ def lint_plugin_file(plugin_path: Path) -> list[str]:
         # Core plugin files
         ".json", ".md", ".py", ".js", ".ts",
         # Asset/config files
-        ".yaml", ".yml", ".txt", ".toml",
+        ".yaml", ".yml", ".txt", ".toml", ".base",
         # Web assets
         ".html", ".css", ".svg",
         # Shell scripts
