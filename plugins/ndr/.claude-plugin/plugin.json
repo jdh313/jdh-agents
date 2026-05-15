@@ -1,6 +1,6 @@
 {
   "name": "ndr",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Nested decision records — atomic markdown decision atoms in your Obsidian vault with supersession-aware reading. Capture engineering decisions from any chat (/capture-decision), query the corpus by topic with automatic supersession-chain walking (/decisions <topic>), and bootstrap vault content on first install (/ndr-bootstrap).",
   "author": {
     "name": "Jacob Hoehler"

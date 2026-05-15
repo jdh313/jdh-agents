@@ -4,22 +4,39 @@ How `/capture-decision` and `/decisions` interact, end-to-end.
 
 ## Capture flow
 
-`/capture-decision` is invokable from any chat where decisions landed. The flow:
+`/capture-decision` is invokable from any chat where decisions landed. The skill itself is a thin orchestrator; the work happens in a pipeline of focused subagents plus a deterministic persistence helper:
 
-1. **Scan.** Skill scans current conversation context for atomic decisions. Atomic = one chosen path with one set of consequences. Bundled candidates (e.g. "use FastAPI + Postgres") get split.
-2. **Confirm.** Each candidate is presented as a one-line summary. User confirms, edits, or removes. Result: a final list of N atoms.
-3. **Draft each atom.** Frontmatter + body drafted from conversation context. Missing required fields are surfaced as prompts.
-4. **Review-then-persist.** Drafts live in-memory until the user accepts. No `draft` status; drafts never touch disk. Lineage and identity stay reviewed longest.
-5. **Taxonomy enforcement.** `area:` and `topic:` validated against `taxonomy/*.yaml`. Unknown value triggers a "use existing or add new?" prompt; "add new" writes the taxonomy file.
-6. **Supersession protection.** If the skill detects this is a *revising* decision (intent words like "revises", "supersedes", "instead of", or an `informed_by:` pointing at a `current` decision the new one disagrees with), it refuses to write while `supersedes:` is empty.
-7. **Two-write supersession (three-write with alias handover).** When `supersedes: [X]` is non-empty:
-   - Write the successor first.
-   - Patch the predecessor: set `status: superseded`, append the successor to `superseded_by: []`.
-   - **If the predecessor carries `aliases:`**, the patch also moves each slug: append to the successor's `aliases:`, then clear the predecessor's `aliases:` to `[]`. The slug handover is part of the same patch operation, not a separate user step.
-   - On patch failure (including alias handover), report the half-state — which slugs were moved, which weren't — and exit non-zero. No silent partial write.
-   - Refuse to patch if the predecessor is already `superseded` by a *different* successor — manual resolution needed.
-8. **ID assignment.** Auto-assigned as next zero-padded 4-digit (`max(existing) + 1` across both `<id>-*.md` files and `<id>-*/` directories).
-9. **Storage.** Writes to `~/Loose Ends/Decisions/<id>-<kebab-title>.md`. Always single-file — hybrid altitude callouts handle length-management without splitting.
+```
+in-skill scan ──► user confirms candidates ──► ndr-drafter ──► ndr-reviewer ──► persist.py ──► summary
+```
+
+1. **Scan.** Skill scans the current conversation for atomic decisions. Atomic = one chosen path with one set of consequences. Bundled candidates (e.g. "use FastAPI + Postgres") get split. **For long sources** (pasted transcript, file, PR thread), the skill invokes the `ndr-extractor` subagent instead of scanning inline; the extractor returns structured candidates with supporting quotes.
+2. **Detect supersession intent.** The skill watches for revising signals — intent words ("revises", "supersedes", "instead of"), or a candidate that contradicts a decision named in chat / `informed_by:` context. Candidates with revising signal are tagged so Step 3 can ask the user what's being superseded.
+3. **Confirm candidates.** Each candidate is presented as a one-line summary. User confirms titles, drops candidates, names predecessors for revising signals, and (rarely) opts in to slug minting. Refusal-to-proceed is structural: if revising intent is present and the user neither names a predecessor nor confirms "this is fresh", the skill stops.
+4. **Taxonomy preflight.** Skill suggests `area:` / `topic:` per candidate from the on-disk taxonomy (`~/Loose Ends/Decisions/.taxonomy/{areas,topics}.yaml`). Unknown values trigger a "use existing or add new?" prompt; "add new" appends to the YAML file before drafting. `persist.py` re-validates — this preflight is friendly UX, not the structural gate.
+5. **Delegate composition.** Skill invokes the `ndr-drafter` subagent with confirmed candidates. The drafter returns `{frontmatter, body, missing_fields}` per atom. **The drafter never touches disk and never assigns IDs** — `id:` stays as `"PLACEHOLDER"`. If `missing_fields` is non-empty, the skill prompts the user, fills the gap, and re-invokes the drafter. Drafts live in memory.
+6. **Review.** Skill invokes `ndr-reviewer` with `{mode: "pre-persist", drafts: [...]}`. The reviewer's load-bearing checks are atomicity (one chosen path, one set of consequences) and body altitude (heading + one-line gist + collapsed callouts, not free prose). It also runs soft mechanical checks (frontmatter completeness, taxonomy, status, alias namespace). Verdict is `pass` or `fail` with structured issues. Mechanical issues may be auto-fixed and re-reviewed; load-bearing failures route back to the drafter or to user edits.
+7. **Persist.** Skill pipes drafts to `${CLAUDE_PLUGIN_ROOT}/scripts/persist.py` as JSON on stdin. The persistence helper:
+   - Validates `area:` / `topic:` against the on-disk taxonomy (hard gate).
+   - Assigns the next ID as `max(existing) + 1` across both `<id>-*.md` files and `<id>-*/` directories.
+   - Writes `~/Loose Ends/Decisions/<id>-<kebab-title>.md`. Always single-file — hybrid altitude callouts handle length-management inside the file.
+   - On non-empty `supersedes:`, performs three-write supersession (see below).
+   - Returns a JSON summary on stdout. Exit codes: `0` success, `1` validation, `2` supersession conflict, `3` mid-transaction half-state.
+8. **Three-write supersession (with alias handover).** When `supersedes: [X]` is non-empty, `persist.py`:
+   - Writes the successor first.
+   - Patches each predecessor: `status: superseded`, appends the successor wikilink to `superseded_by: []`.
+   - **If the predecessor carries `aliases:`**, the patch also moves each slug: appends to the successor's `aliases:` (re-writing the successor file with merged aliases), then clears the predecessor's `aliases:` to `[]`. The slug handover is part of the same operation, not a separate user step.
+   - Refuses if the predecessor is already `superseded` by a *different* successor — exits `2` with a conflict report; manual resolution needed.
+   - On patch failure mid-transaction, reports the half-state (which slugs moved, which writes succeeded) and exits `3`. No silent partial writes.
+9. **Summarize.** Skill prints a compact summary to the main context: IDs written, IDs patched (with status flips), and any alias handovers. One line per file.
+
+### Why this shape
+
+The pipeline split is deliberate:
+
+- **Skill = scope detection + user interaction.** The skill owns "what is this conversation about?" because the conversation context is already loaded; sending it to a subagent costs tokens and adds latency.
+- **Subagents = focused composition.** Each subagent has one job (extract, draft, review) and isolated context. The reviewer cannot accidentally rewrite the draft; the drafter cannot accidentally write to disk.
+- **`persist.py` = determinism.** ID assignment, taxonomy enforcement, and the supersession transaction must not depend on LLM judgment. The persistence helper is the only path that touches disk, and it's plain Python — easy to test (`scripts/test_persist.py`) and easy to reason about under failure.
 
 ## Read flow
 

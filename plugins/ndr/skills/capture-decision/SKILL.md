@@ -3,41 +3,41 @@ name: capture-decision
 description: Capture engineering decisions from the current conversation as atomic markdown artifacts in `~/Loose Ends/Decisions/`. Use when the user invokes `/capture-decision`, says "capture this decision", "record this", "let's write this up as a decision", or signals at end of a chat that decisions landed and should be persisted. Materializes one file per atomic decision with required frontmatter, enforces taxonomy, and structurally protects the supersession primitive (refuses to write a revising decision without `supersedes:`).
 argument-hint: "[optional hint about what to capture]"
 allowed-tools:
-  - mcp__obsidian-mcp__write_note
-  - mcp__obsidian-mcp__read_note
-  - mcp__obsidian-mcp__read_multiple_notes
-  - mcp__obsidian-mcp__update_frontmatter
-  - mcp__obsidian-mcp__list_directory
-  - mcp__obsidian-mcp__search_notes
+  - Bash
   - Read
   - Edit
   - Write
+  - Agent
+  - mcp__obsidian-mcp__read_note
+  - mcp__obsidian-mcp__read_multiple_notes
+  - mcp__obsidian-mcp__list_directory
+  - mcp__obsidian-mcp__search_notes
 ---
 
 # capture-decision
 
 ## Overview
 
-Detect atomic decisions in the current conversation, draft each as a markdown atom, confirm with the user, and write to `~/Loose Ends/Decisions/`. Refuse to write malformed or supersession-blind artifacts.
+Thin orchestrator for the NDR capture pipeline. The work itself is delegated:
 
-This skill encodes the **write side** of nested-decision-records (ndr). It is the only path to creating a decision record in this system — the discipline is the tool.
+```
+in-skill scan ──► user confirms candidates ──► ndr-drafter ──► ndr-reviewer ──► persist.py ──► summary
+```
 
-## Hard rules (don't relax)
+This skill detects atomic decisions in the current conversation, confirms them with the user, delegates composition to the `ndr-drafter` subagent, sends drafts to `ndr-reviewer` for a verdict, then hands off to `scripts/persist.py` for the deterministic write. Each stage has a single responsibility; the skill itself owns scope detection and user interaction.
 
-1. **Atomic only.** One chosen path, one set of consequences. Bundled candidates (e.g. "use FastAPI + Postgres") MUST be split into N atoms. Never write a bundle.
-2. **Required frontmatter.** Refuse to write if any of these is missing or empty: `id`, `title`, `status`, `decision_date`, `project`, `area`, `topic`, `reversibility`. `supersedes:` must be **present** (may be `[]`).
-3. **Supersession refusal is structural, not advisory.** If the conversation shows revising intent ("revises", "supersedes", "instead of", "we changed our mind on") OR `informed_by:` includes a `current` decision whose substance the new decision contradicts, AND `supersedes:` is empty — refuse. Print: "This looks like a revising decision but `supersedes:` is empty. Name the decision(s) being revised, or confirm this is a fresh decision."
-4. **Two-write supersession (three-write with alias handover).** When `supersedes:` is non-empty: write the successor first, THEN patch each predecessor (`status: superseded`, append successor wikilink to `superseded_by:`). **If a predecessor carries any `aliases:`, the patch also moves each slug** — append to the successor's `aliases:` and clear the predecessor's `aliases:` to `[]`. The slug handover is part of the same patch sequence, not a separate user step. If a patch fails after the successor lands, REPORT the half-state (which slugs were moved, which weren't) and exit non-zero. Never silently leave a partial.
-5. **Multi-supersession is manual.** If a predecessor is already `superseded` by a different successor, refuse the patch. Print which atom is the prior successor and stop. The user must reconcile by hand.
-6. **Taxonomy enforcement.** Reject unknown `area:` or `topic:` values. Prompt "use existing or add new?"; on "add new", append the value to the relevant `~/Loose Ends/Decisions/.taxonomy/*.yaml` file before writing the atom.
-7. **Review-then-persist.** No draft hits disk before the user accepts. There is no `draft` status. Lineage and identity stay reviewed longest.
-8. **Always single-file.** Decisions are written as `<id>-<kebab-title>.md`. No directory form, no descent files — hybrid altitude callouts handle length-management inside the single file.
-9. **Hybrid altitude body shape.** Every section is `heading + one-line gist + (optional) collapsible callout`. The trailing `-` on `[!info]-` / `[!warning]-` makes callouts default-collapsed. Reader sees gist on scan; callouts open on demand.
-10. **Assumptions live in the body, not frontmatter.** Each load-bearing assumption appears as a backtick-separated slug under `## Assumptions`, plus one `> [!warning]- <slug>` callout containing description + `**Current state:**` / `**Revisit if:**`. Never serialize assumption details into YAML.
-11. **No frontmatter restatements in prose.** `derived_from:`, `supersedes:`, `informed_by:` are YAML fields. Don't repeat them in the body as `derived_from: F. revises: A.scope` — body prose explains substance.
-12. **Omit empty sections.** If no alternatives were considered, drop `## Alternatives` entirely. Don't render empty headings. `## Decision` is the only always-required section.
-13. **Slug uniqueness.** Any value in `aliases:` must be unique vault-wide. Before writing an atom with non-empty `aliases:`, verify via `mcp__obsidian-mcp__search_notes` that no other atom holds the slug. Refuse to write a duplicate. (Exception: during supersession, a slug being moved from predecessor to successor is exempt from the uniqueness check against its predecessor — the predecessor is vacating the slug in the same operation.)
-14. **Lazy slug minting.** Default `aliases: []`. Only mint a slug when the user signals the atom needs atom-grain external referenceability (i.e., the decision must be referenceable as `ndr:#<slug>` from code or vault notes, not just by id or topic). Use `ndr-` namespace prefix. Most atoms never carry a slug.
+## Hard rules
+
+These constraints are upstream of any subagent — the skill enforces them at the orchestration layer.
+
+1. **Atomic only.** One chosen path, one set of consequences. Bundled candidates get split before reaching the drafter. Never let a bundle through.
+2. **Supersession refusal is structural, not advisory.** If revising intent appears in the conversation ("revises", "supersedes", "instead of", "we changed our mind on") OR `informed_by:` points at a `current` decision being contradicted, AND the user has not named what's being superseded — refuse to proceed. Print:
+   > "This looks like a revising decision but `supersedes:` is empty. Name the decision(s) being revised, or confirm this is a fresh decision."
+3. **Review-then-persist.** No draft hits disk until the reviewer passes and the user accepts. There is no `draft` status. Drafts live in memory.
+4. **Taxonomy enforcement.** `area:` and `topic:` must come from `~/Loose Ends/Decisions/.taxonomy/{areas,topics}.yaml`. Unknown values trigger "use existing or add new?" before drafting. `persist.py` re-checks; the orchestrator's check is the friendly-prompt layer.
+5. **Single-file atoms.** `<id>-<kebab-title>.md`. No directory form, no descent files. Length is managed by hybrid altitude callouts inside the file.
+6. **Lazy slug minting.** Default `aliases: []`. Only mint a slug when the user signals atom-grain external referenceability is needed. `ndr-` namespace prefix. Most atoms never carry a slug.
+7. **Slug uniqueness.** Before minting, search the vault. `persist.py` re-checks before write.
 
 ## Inputs
 
@@ -46,70 +46,62 @@ This skill encodes the **write side** of nested-decision-records (ndr). It is th
 ## Reference paths
 
 - **Vault decisions:** `~/Loose Ends/Decisions/` (one atom per file, `<id>-<kebab-title>.md`).
+- **Taxonomy (vault-resident, mutable):** `~/Loose Ends/Decisions/.taxonomy/{areas,topics}.yaml`.
 - **Schema spec:** `${CLAUDE_PLUGIN_ROOT}/references/frontmatter-schema.md`.
-- **Taxonomy files (vault-resident, mutable):** `~/Loose Ends/Decisions/.taxonomy/areas.yaml`, `~/Loose Ends/Decisions/.taxonomy/topics.yaml`. The capture skill reads and (with user approval) appends to these.
-- **Taxonomy doc:** `${CLAUDE_PLUGIN_ROOT}/references/taxonomy.md` (growth-rule spec).
 - **Template:** `${CLAUDE_PLUGIN_ROOT}/references/decision-single.md`.
+- **Persistence helper:** `${CLAUDE_PLUGIN_ROOT}/scripts/persist.py`.
+- **Subagents:** `ndr-drafter`, `ndr-reviewer` (and `ndr-extractor` for long-source captures, `ndr-curator` for periodic audits — both out of scope for the routine capture flow).
 
 ## Method
 
 ### Step 1 — Scan
 
-Read the current conversation context. Identify N candidate atomic decisions. Atomic = one chosen path, one set of consequences. Common atomic shapes:
+Scan the current conversation for atomic decisions. The context is already loaded — no subagent needed here. Atomic = one chosen path with one set of consequences. Common shapes:
 
 - "Use X for Y" (one tool, one purpose)
 - "Don't do X" (a rejected path)
 - "X over Y because Z" (a chosen path with a named alternative)
 
-Split bundles. "We'll use FastAPI and Postgres" is two atoms. "Use FastAPI because it's async and we already have Postgres" is one atom (Postgres is context, not a co-decision).
+Split bundles. "We'll use FastAPI and Postgres" is two atoms. "Use FastAPI because it's async and we already have Postgres" is one atom (Postgres is context).
 
-Discard:
+Discard non-decisions: open questions, observations, tasks, hypotheticals.
 
-- Open questions ("should we use X?") — not decisions yet.
-- Pure observations ("this is slow") — not decisions.
-- Tasks ("write the migration") — not decisions.
+**If the source is too long to scan inline** (e.g. the user pastes a full transcript or asks you to capture from a file), invoke the `ndr-extractor` subagent with the source. It returns structured candidates. For routine in-conversation captures, scan inline.
 
-### Step 2 — Confirm count
+### Step 2 — Detect supersession intent
 
-Present each candidate as a one-line summary. Ask the user to confirm, edit titles, or remove candidates. Example:
+Before confirming candidates, scan the conversation for revising intent:
+
+- Phrases: "revises", "supersedes", "instead of", "we changed our mind on", "switching from X to Y".
+- Substantive: a candidate directly contradicts a decision named in `informed_by:` context, or named in chat by id/slug.
+
+For each candidate with revising signal, you'll need to ask the user: **what is being superseded?** Note this against the candidate; ask in Step 3.
+
+### Step 3 — Confirm candidates
+
+Present each candidate as a one-line summary. For candidates with revising signal, append the question:
 
 ```
-I see 3 atomic decisions in this conversation:
+I see N atomic decisions in this conversation:
 
-1. Use FastAPI for the auth service
-2. Single Postgres instance, no read replicas at MVP
-3. Skip the worker queue for now
+  1. Use FastAPI for the auth service
+  2. Single Postgres instance, no read replicas at MVP
+  3. Switch from JWT to PASETO  ← revises a prior decision; which one? (id, slug, or wikilink)
 
-Confirm, edit titles, or drop any. (e.g. "drop 2, change 1 title to ...")
+Confirm, edit titles, drop any, or answer the revising question.
 ```
 
-Wait for confirmation before drafting.
+Wait for the user's response. Capture for each confirmed candidate:
 
-### Step 3 — Draft each atom
+- Title (user can edit)
+- `supersedes:` list (wikilinks like `[[Decisions/0042-...]]`) — required when revising signal triggered; defaults to `[]`.
+- Whether to mint a slug (default no).
 
-For each confirmed atom:
+If revising signal triggered and the user neither named a predecessor nor confirmed "this is fresh", refuse. Print the rule-2 message and stop.
 
-1. **Load schema + taxonomy.** Read the schema spec (`${CLAUDE_PLUGIN_ROOT}/references/frontmatter-schema.md`) and taxonomy YAML files (`~/Loose Ends/Decisions/.taxonomy/{areas,topics}.yaml`) on first iteration; cache for the rest of the session.
-2. **Allocate ID.** List `~/Loose Ends/Decisions/` (via `mcp__obsidian-mcp__list_directory` with path `Decisions`). Parse `NNNN-<slug>.md` filenames. New ID = `max(existing) + 1`, zero-padded to 4 digits. If the folder doesn't exist or is empty, start at `0001`.
-3. **Fill frontmatter from context.** Map conversation evidence to fields. Surface any missing required field as a prompt. Default `aliases: []` — do not mint a slug speculatively.
-4. **Body.** Use the template from `${CLAUDE_PLUGIN_ROOT}/references/decision-single.md`. Hybrid altitude shape: each section gets a heading + one-line gist + (optional) collapsible callout for depth. Sections in order: `## Decision` (gist only, no callout), `## Why` (gist + `[!info]- Full reasoning`), `## Alternatives` (gist + `[!info]- Why they lost`; omit if none), `## Assumptions` (slug list + one `[!warning]- <slug>` per assumption; omit if none), `## Consequences` (gist + `[!info]- Detail`). Fill from conversation; sections with no content are omitted entirely.
-5. **Optional slug minting.** After the body is drafted, ask once: "Does this decision need to be referenceable from outside the vault by an atom-grain name (i.e., not just by id or topic)? Most atoms don't." If yes, prompt for a slug. Namespace it with `ndr-` prefix (e.g., `ndr-monorepo-shape`). Check uniqueness via `mcp__obsidian-mcp__search_notes` for any atom whose `aliases:` field contains the proposed slug. If found, prompt for a different slug. Set `aliases: [<slug>]`.
+### Step 4 — Taxonomy preflight (optional but friendly)
 
-### Step 4 — Review
-
-Present the full draft (frontmatter + body) to the user. Accept edits inline. Make sure these fields are explicitly confirmed:
-
-- `title`
-- `project` (the project page this decision belongs to — wikilink)
-- `area`, `topic` (with taxonomy check)
-- `supersedes` (especially if empty — confirm "this is a fresh decision, not revising anything")
-- `derived_from` (the rich source — chat path / mull wikilink)
-- `aliases` (only if non-empty — confirm the slug is the right name and atom-grain external reference is actually needed)
-- Body `## Assumptions` (load-bearing inputs whose change would flip the decision)
-
-### Step 5 — Taxonomy check
-
-Before writing: re-read `~/Loose Ends/Decisions/.taxonomy/areas.yaml` and `~/Loose Ends/Decisions/.taxonomy/topics.yaml`. If the draft's `area:` or `topic:` is not in the corresponding list:
+For each candidate, suggest an `area:` and `topic:` based on the conversation. Read `~/Loose Ends/Decisions/.taxonomy/{areas,topics}.yaml` once and cache. If a suggested value is not in the taxonomy:
 
 ```
 "<value>" is not in <areas.yaml | topics.yaml>.
@@ -117,66 +109,73 @@ Use existing: <comma-separated list>
 Or add new: <value>?
 ```
 
-If "add new", `Edit` the appropriate vault taxonomy YAML file to append the value (alphabetical or end-of-list; preserve comments).
+If "add new", `Edit` the relevant YAML file to append the value before drafting. `persist.py` will re-validate — this preflight is friendly UX, not the structural gate.
 
-### Step 6 — Supersession check
+### Step 5 — Delegate composition
 
-If `supersedes:` is empty AND the conversation has revising intent OR the draft contradicts a `current` decision in `informed_by:`, REFUSE:
+Invoke the `ndr-drafter` subagent. Pass:
 
+```json
+{
+  "candidates": [
+    {
+      "title": "Use FastAPI for the auth service",
+      "gist": "...",
+      "quotes": ["..."],
+      "suggested_area": "tooling",
+      "suggested_topic": "substrate",
+      "suggested_project": "[[Auth Rewrite]]",
+      "supersedes": [],
+      "derived_from": ["[[<chat / mull source>]]"],
+      "informed_by": [],
+      "decision_date": "<ISO today>",
+      "project": "[[Auth Rewrite]]",
+      "mint_slug": false,
+      "slug": null
+    }
+  ]
+}
 ```
-This looks like a revising decision (reason: <quote evidence>),
-but `supersedes:` is empty.
 
-Either:
-  - Name the decision(s) being revised, e.g. `supersedes: ["[[Decisions/0042-...]]"]`
-  - Confirm this is a fresh decision (re-invoke after editing).
+The drafter returns `{drafts: [{frontmatter, body, missing_fields}]}`. If any `missing_fields` are non-empty: prompt the user, fill in the values, and re-invoke the drafter with the filled candidate. Repeat until all drafts come back with `missing_fields: []`.
+
+### Step 6 — Review
+
+Invoke `ndr-reviewer` with `{mode: "pre-persist", drafts: [...]}`. The reviewer returns either:
+
+- `{verdict: "pass", issues: []}` — proceed to Step 7.
+- `{verdict: "fail", issues: [...]}` — surface issues to the user. For `severity: load-bearing` (atomicity, body altitude), the user must decide whether to edit the candidate(s) and re-draft, or proceed despite the warning (rare — prefer fixing). For `severity: mechanical`, you may auto-fix (e.g. set missing field) and re-invoke the reviewer.
+
+Do not call `persist.py` until the reviewer passes (or the user explicitly overrides a load-bearing flag).
+
+### Step 7 — Persist
+
+Pass the drafts to `persist.py` as JSON on stdin:
+
+```bash
+echo "$DRAFTS_JSON" | uv run --with pyyaml "${CLAUDE_PLUGIN_ROOT}/scripts/persist.py"
 ```
 
-Do not write.
+`persist.py` returns a JSON summary on stdout. Exit codes:
 
-### Step 7 — Write (single)
-
-If `supersedes:` is empty:
-
-- Write the file via `mcp__obsidian-mcp__write_note` to `Decisions/<id>-<kebab-title>.md`.
-- Confirm: `Wrote Decisions/<id>-<kebab-title>.md`.
-
-### Step 7-super — Write (two-write supersession, three-write with alias handover)
-
-If `supersedes:` is non-empty:
-
-For each predecessor wikilink P in `supersedes:`:
-
-1. Read P via `mcp__obsidian-mcp__read_note`. Parse its `status:`, `superseded_by:`, and `aliases:`.
-2. **Refuse if P.status is already `superseded` AND P.superseded_by != [this successor]:** print the existing successor and stop. Don't write anything.
-3. **If P has non-empty `aliases:`, check slug uniqueness across the rest of the vault.** For each slug S in P.aliases: search for any atom (other than P) holding S in its `aliases:`. If found, REFUSE with:
-   ```
-   Slug "<S>" is held by both <P> and <other> — duplicate before supersession. Manual resolution needed.
-   ```
-   Stop. Don't write anything.
-
-If all checks pass:
-
-4. Write the successor file first. The successor's `aliases:` field includes any slugs being inherited from predecessors (merge: start with whatever was drafted as the successor's own `aliases:`, then append all slugs from each P.aliases).
-5. For each P, patch via `mcp__obsidian-mcp__update_frontmatter`:
-   - `status: superseded`
-   - append the successor wikilink to `superseded_by:`
-   - **If P had non-empty `aliases:`, set `aliases: []`** — the slugs have moved to the successor (written in step 4).
-6. On any patch failure: print
-   ```
-   HALF-STATE: successor <id> written, but patching <P> failed: <error>
-   Slugs moved to successor: <list of slugs that were on P, now on successor>
-   Manual fix: edit <P>, set status: superseded, append "[[Decisions/<id>-<slug>]]" to superseded_by, clear aliases: [].
-   ```
-   Exit non-zero.
+- `0` — success. Parse `written`, `superseded`, `aliases_moved` for the summary.
+- `1` — validation failure (taxonomy, required fields, malformed input). Surface the errors and loop back to drafting.
+- `2` — supersession conflict (predecessor already superseded by a different atom). Surface and stop — manual resolution.
+- `3` — mid-transaction failure (half-state). Surface the full `errors[*].half_state` so the user knows exactly what to repair by hand.
 
 ### Step 8 — Summarize
 
-Report what was written and what was patched. One line per file.
+Report what was written, what was patched, and any alias handovers. One line per file. See Output examples below.
 
-## File naming
+## When to use the extractor subagent
 
-`<id>-<kebab-title>.md` — id is zero-padded 4 digits, title is kebab-cased ASCII. Example: `0042-use-fastapi-for-auth.md`. Always single-file.
+The default flow scans the conversation inline (Step 1). Invoke `ndr-extractor` instead when:
+
+- The user pastes a long transcript, doc, or PR thread.
+- The user asks to capture decisions from a file path or wikilink.
+- The conversation has accumulated so much context that an inline scan would be unreliable.
+
+The extractor returns the same `{candidates: [...]}` structure that Step 3 expects.
 
 ## Output examples
 
@@ -188,21 +187,6 @@ Captured 1 decision:
   Decisions/0009-use-fastapi-for-auth.md
     area: tooling, topic: substrate
     supersedes: [] (fresh decision)
-```
-
-### Revising decision
-
-```
-Captured 1 decision with supersession:
-
-  Decisions/0010-switch-to-litestar.md (successor)
-    area: tooling, topic: substrate
-    supersedes: ["[[Decisions/0009-use-fastapi-for-auth]]"]
-
-  Patched:
-    Decisions/0009-use-fastapi-for-auth.md
-      status: current → superseded
-      superseded_by: [] → ["[[Decisions/0010-switch-to-litestar]]"]
 ```
 
 ### Revising decision with alias handover
@@ -222,14 +206,29 @@ Captured 1 decision with supersession + alias handover:
       aliases: [ndr-monorepo-shape] → []
 ```
 
-### Refused
+### Refused (supersession-blind)
 
 ```
 Refused: "Switch to Litestar for auth" looks like a revising decision
 (intent words: "switch to", "instead of FastAPI"),
 but `supersedes:` is empty.
 
-Set supersedes to the decision being revised, or confirm this is fresh.
+Name the decision being revised, or confirm this is fresh.
+```
+
+### Half-state (exit 3 from persist.py)
+
+```
+HALF-STATE during supersession:
+
+  Successor written: Decisions/0099-split-apps-into-services.md
+  Aliases moved: [ndr-monorepo-shape]
+  Patch failed on: [[Decisions/0011-monorepo-symmetric-apps-layout]]
+  Reason: file not found
+
+Manual fix: edit Decisions/0011-..., set status: superseded,
+append "[[Decisions/0099-split-apps-into-services]]" to superseded_by,
+clear aliases: [].
 ```
 
 ## When NOT to use this skill
@@ -241,6 +240,11 @@ Set supersedes to the decision being revised, or confirm this is fresh.
 ## Related
 
 - `/decisions <topic>` — the read-side companion. Use it BEFORE capture to check whether a current decision on the topic already exists (avoid accidental parallel decisions).
+- `ndr-extractor` — long-source candidate extraction.
+- `ndr-drafter` — frontmatter + body composition.
+- `ndr-reviewer` — pre-persist judge (atomicity, body altitude, soft mechanical checks).
+- `ndr-curator` — corpus-level health audit (run periodically, not per-capture).
 - `${CLAUDE_PLUGIN_ROOT}/references/frontmatter-schema.md` — full schema spec.
 - `${CLAUDE_PLUGIN_ROOT}/references/taxonomy.md` — taxonomy rules and growth protocol.
 - `${CLAUDE_PLUGIN_ROOT}/references/workflow.md` — capture + read end-to-end.
+- `${CLAUDE_PLUGIN_ROOT}/scripts/persist.py` — the deterministic write helper.
