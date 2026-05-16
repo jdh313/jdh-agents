@@ -1,6 +1,6 @@
 # knowledge-work
 
-Personal knowledge-management workflows for an Obsidian vault. A bundle of 20
+Personal knowledge-management workflows for an Obsidian vault. A bundle of 18
 skills + 2 agents covering the full lifecycle of a personal knowledge system:
 ingest, curate, review, retain, and maintain.
 
@@ -40,13 +40,6 @@ Coupled to the vault at `~/Loose Ends/` and governed by conventions in
 |---|---|
 | `experiment-start` | Scaffold a new time-bounded experiment with hypothesis + review date |
 | `experiment-review` | Pulse-check mid-run or record the adopt/modify/drop verdict at review_date |
-
-### Anki
-
-| Skill | Purpose |
-|---|---|
-| `anki-cards` | Create Anki flashcards from content |
-| `anki-learn` | Research a topic and generate flashcard suggestions when no source exists yet |
 
 ### Notes (vault-general)
 
