@@ -8,20 +8,8 @@ description: >
 model: haiku
 memory: project
 maxTurns: 10
-allowed-tools:
-  - Bash(obsidian-cli read *)
-  - Bash(obsidian-cli search *)
-  - Bash(obsidian-cli files *)
-  - Bash(obsidian-cli folders *)
-  - Bash(obsidian-cli orphans *)
-  - Bash(obsidian-cli deadends *)
-  - Bash(obsidian-cli unresolved *)
-  - Bash(obsidian-cli properties *)
-  - Bash(obsidian-cli outline *)
-  - Bash(obsidian-cli wordcount *)
-  - Bash(obsidian-cli history *)
-  - Bash(obsidian-cli backlinks *)
-  - Bash(obsidian-cli links *)
+tools:
+  - Bash
   - Read
   - Glob
   - Grep
