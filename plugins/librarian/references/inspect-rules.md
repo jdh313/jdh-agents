@@ -31,7 +31,7 @@ how to *detect* violations.
 ### S-1: Orphaned notes
 Notes with no incoming links and not referenced in any MOC/Dashboard.
 
-- **Detection**: `obsidian orphans` (or `obsidian orphans total` for a count)
+- **Detection**: `obsidian-cli orphans` (or `obsidian-cli orphans total` for a count)
 - **Severity**: medium
 - **Note**: Daily notes and Sources/ are expected to have low link
   inbound — exclude or down-rank for those folders.
@@ -39,7 +39,7 @@ Notes with no incoming links and not referenced in any MOC/Dashboard.
 ### S-2: Dead-end notes
 Notes with no outgoing links. Isolated knowledge not connected forward.
 
-- **Detection**: `obsidian deadends` (or `obsidian deadends total`)
+- **Detection**: `obsidian-cli deadends` (or `obsidian-cli deadends total`)
 - **Severity**: low
 - **Note**: Some daily-note styles are intentionally dead-end; exclude
   `Daily Notes/` from the default sweep.
@@ -47,17 +47,17 @@ Notes with no outgoing links. Isolated knowledge not connected forward.
 ### S-3: Broken links
 Internal links pointing to non-existent notes.
 
-- **Detection**: `obsidian unresolved verbose` (per-file) or
-  `obsidian unresolved counts` (per-file totals) or
-  `obsidian unresolved total` (vault total)
+- **Detection**: `obsidian-cli unresolved verbose` (per-file) or
+  `obsidian-cli unresolved counts` (per-file totals) or
+  `obsidian-cli unresolved total` (vault total)
 - **Severity**: high (blocks navigation)
 
 ### S-4: Missing required frontmatter
 Notes lacking standard fields per vault conventions
 (`date_created`, `date_modified`, `tags` where applicable).
 
-- **Detection**: `obsidian properties path="X"` per file, or
-  `obsidian properties all sort=count` to see field coverage across the
+- **Detection**: `obsidian-cli properties path="X"` per file, or
+  `obsidian-cli properties all sort=count` to see field coverage across the
   vault and find low-coverage required fields.
 - **Severity**: medium
 
@@ -65,15 +65,15 @@ Notes lacking standard fields per vault conventions
 Notes whose `date_modified` is older than 6 months and which aren't
 intentionally archived.
 
-- **Detection**: `obsidian history path="X"` for last-modified date.
+- **Detection**: `obsidian-cli history path="X"` for last-modified date.
 - **Severity**: low (surface for review; don't auto-fix)
 
 ### S-6: Oversized notes
 Single notes that have grown too large or cover multiple distinct
 topics (candidates for splitting).
 
-- **Detection**: `obsidian wordcount path="X"` (over 500 words triggers
-  a closer look) combined with `obsidian outline path="X" format=tree`
+- **Detection**: `obsidian-cli wordcount path="X"` (over 500 words triggers
+  a closer look) combined with `obsidian-cli outline path="X" format=tree`
   (multiple H1 headers, or several large H2 sections, suggests a split).
 - **Severity**: low
 
@@ -334,7 +334,7 @@ Event pages must declare a `page_type` from the enumerated list
 (currently `incident`, `appointment`). Pages with `type: event` and
 either no `page_type` or an unknown value are misshapen.
 
-- **Detection**: `obsidian properties path="<event-page>"` — check `type: event` plus `page_type` set to a known value
+- **Detection**: `obsidian-cli properties path="<event-page>"` — check `type: event` plus `page_type` set to a known value
 - **Severity**: high
 
 ### W-EVENT-2: Incident missing `expands:`

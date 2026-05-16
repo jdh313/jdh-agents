@@ -140,7 +140,7 @@ Always consider:
 Before suggesting a new note, search the vault:
 
 ```bash
-obsidian search query="topic keywords" format=json
+obsidian-cli search query="topic keywords" format=json
 ```
 
 If related content exists:

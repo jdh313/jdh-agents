@@ -28,7 +28,7 @@ For the forked `@note-editor`:
 
 1. **Locate today's daily note** at `Daily Notes/YYYY-MM-DD.md` (the
    vault's daily-note convention). If the file doesn't exist yet,
-   `obsidian daily:append` creates it.
+   `obsidian-cli daily:append` creates it.
 
 2. **Capture format** — one bullet under `## Captured` with a timestamp:
 

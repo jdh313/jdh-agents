@@ -8,7 +8,7 @@ model: sonnet
 memory: project
 maxTurns: 20
 allowed-tools:
-  - Bash(obsidian *)
+  - Bash(obsidian-cli *)
   - Edit
   - Read
 ---
@@ -61,9 +61,9 @@ Notes with no incoming links and not referenced in any MOC/Dashboard.
 **Detection:**
 ```bash
 # Use the dedicated orphan detection command:
-obsidian orphans
+obsidian-cli orphans
 # Or get just the count:
-obsidian orphans total
+obsidian-cli orphans total
 ```
 
 **Resolution options:**
@@ -91,9 +91,9 @@ Notes with no outgoing links — isolated knowledge not connected forward.
 **Detection:**
 ```bash
 # Find notes with no outgoing links:
-obsidian deadends
+obsidian-cli deadends
 # Or get just the count:
-obsidian deadends total
+obsidian-cli deadends total
 ```
 
 **Resolution options:**
@@ -150,12 +150,12 @@ Single notes that have grown too large or cover multiple distinct topics.
 **Detection:**
 ```bash
 # Check note size:
-obsidian wordcount path="path/to/note.md"
+obsidian-cli wordcount path="path/to/note.md"
 # Get structural overview:
-obsidian outline path="path/to/note.md" format=tree
+obsidian-cli outline path="path/to/note.md" format=tree
 ```
-- Notes over 500 words (use `obsidian wordcount`)
-- Multiple H1 headers (use `obsidian outline` to detect)
+- Notes over 500 words (use `obsidian-cli wordcount`)
+- Multiple H1 headers (use `obsidian-cli outline` to detect)
 - Distinct topic sections that could stand alone
 
 **Resolution:**
@@ -187,9 +187,9 @@ Notes not following vault patterns defined in CLAUDE.md.
 **Detection:**
 ```bash
 # Check properties across vault:
-obsidian properties all sort=count
+obsidian-cli properties all sort=count
 # Check a specific file's properties:
-obsidian properties path="path/to/note.md"
+obsidian-cli properties path="path/to/note.md"
 ```
 - Missing required frontmatter (`date created`, `date_modified`)
 - Wrong folder location for content type
@@ -232,7 +232,7 @@ Notes that may need updating or review.
 **Detection:**
 ```bash
 # Check file modification history:
-obsidian history path="path/to/note.md"
+obsidian-cli history path="path/to/note.md"
 ```
 - `date_modified` older than 6 months
 - References to deprecated tools/patterns
@@ -265,11 +265,11 @@ Internal links pointing to non-existent notes.
 **Detection:**
 ```bash
 # Find all unresolved links vault-wide:
-obsidian unresolved verbose
+obsidian-cli unresolved verbose
 # Or get counts per file:
-obsidian unresolved counts
+obsidian-cli unresolved counts
 # Or just the total:
-obsidian unresolved total
+obsidian-cli unresolved total
 ```
 
 **Resolution:**

@@ -107,9 +107,9 @@ Required properties (from views):
 ```bash
 # User is working on Gateway Config API
 # Query the Waites Repos base directly:
-obsidian base:query path="Bases/Waites Repos.base" format=json
+obsidian-cli base:query path="Bases/Waites Repos.base" format=json
 # Or search within the base's folder:
-obsidian search query="Gateway" path="Waites/Repos" format=json
+obsidian-cli search query="Gateway" path="Waites/Repos" format=json
 ```
 
 ### Check if Entry Exists
