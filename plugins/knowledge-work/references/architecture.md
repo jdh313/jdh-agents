@@ -183,8 +183,10 @@ Don't preemptively externalize content used by exactly one skill.
 
 The plugin grew domain-by-domain (wiki, catalog, meetings, experiments,
 notes) to 20 skills + 2 agents before settling on this workflow shape.
-The rewrite from 0.x to 1.0 (May 2026) collapsed near-duplicate skills
-(`wiki-ingest` + `wiki-stub` → `wiki-create`; `note-health` +
-`wiki-lint` → `vault-inspect`), removed two Anki-specific skills, moved
+The May 2026 rewrite collapsed near-duplicate skills (`wiki-ingest` +
+`wiki-stub` → `wiki-create`; `note-health` + `wiki-lint` →
+`vault-inspect`), removed two Anki-specific skills, moved
 vault-knowledge and bases-knowledge from skills to references, and
-converted every remaining skill to the fork-and-delegate pattern.
+converted every remaining skill to the fork-and-delegate pattern. The
+shape is settled; the version stays in 0.x until the patterns earn
+the major bump through use.
