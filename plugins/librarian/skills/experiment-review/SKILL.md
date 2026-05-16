@@ -53,8 +53,10 @@ pull experiment page and all daily-note check-ins for <experiment-path>
 
 ## Constraints
 - Read the experiment page: hypothesis, success criteria, protocol, dates
-- Find daily-note mentions: backlinks or wikilink-text grep
-- For each mention, return the check-in line plus sibling bullets
+- Find daily-note mentions via `obsidian-cli backlinks` against the
+  experiment path — do not scan `Daily Notes/` with find/glob/grep
+- For each backlinking daily note, return the check-in line plus
+  sibling bullets
 
 ## Output shape
 - Page snapshot: hypothesis, success criteria (list), protocol, start_date, review_date, current status

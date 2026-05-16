@@ -7,8 +7,8 @@ description: >
 model: haiku
 memory: project
 maxTurns: 15
-allowed-tools:
-  - Bash(obsidian-cli *)
+tools:
+  - Bash
   - Edit
   - Read
 ---

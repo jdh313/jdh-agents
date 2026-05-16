@@ -7,8 +7,8 @@ description: >
 model: sonnet
 memory: project
 maxTurns: 20
-allowed-tools:
-  - Bash(obsidian-cli *)
+tools:
+  - Bash
   - Edit
   - Read
 ---
