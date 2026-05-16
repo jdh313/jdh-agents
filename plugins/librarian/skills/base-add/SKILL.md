@@ -29,7 +29,7 @@ For the forked `@note-editor`:
 2. **Query the base** to see structure and required properties:
 
    ```bash
-   obsidian base:query path="Bases/<BaseName>.base" format=json
+   obsidian-cli base:query path="Bases/<BaseName>.base" format=json
    ```
 
 3. **Determine the target folder** from the base's filter
@@ -37,7 +37,7 @@ For the forked `@note-editor`:
 4. **Read the template** for the note type if one exists:
 
    ```bash
-   obsidian template:read name="<TemplateName>" resolve title="<Title>"
+   obsidian-cli template:read name="<TemplateName>" resolve title="<Title>"
    ```
 
 5. **Prompt the user** for any required properties not derivable from
@@ -47,7 +47,7 @@ For the forked `@note-editor`:
 7. **Create the note** at the resolved folder + filename:
 
    ```bash
-   obsidian create path="<folder>/<title>.md" content="..."
+   obsidian-cli create path="<folder>/<title>.md" content="..."
    ```
 
 8. **Confirm** to the user with the full path.

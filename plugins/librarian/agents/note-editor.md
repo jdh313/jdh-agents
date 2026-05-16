@@ -8,7 +8,7 @@ model: haiku
 memory: project
 maxTurns: 15
 allowed-tools:
-  - Bash(obsidian *)
+  - Bash(obsidian-cli *)
   - Edit
   - Read
 ---
@@ -65,7 +65,7 @@ Combine multiple notes on the same topic into a single, comprehensive note.
 **Process:**
 ```
 1. Read all source notes
-2. Check backlinks: obsidian backlinks path="note.md" (find notes linking to sources)
+2. Check backlinks: obsidian-cli backlinks path="note.md" (find notes linking to sources)
 3. Identify unique content from each
 4. Detect overlapping content
 5. Propose merged structure with combined content
@@ -135,7 +135,7 @@ Reorganize a note's structure without changing content.
 **Process:**
 ```
 1. Read current note
-2. Get structural overview: obsidian outline path="note.md" format=tree
+2. Get structural overview: obsidian-cli outline path="note.md" format=tree
 3. Analyze sections and content flow
 4. Propose new structure
 5. Show before/after comparison
@@ -235,17 +235,17 @@ Add `[[wikilinks]]` throughout a note to connect it to related content.
 **Process:**
 ```bash
 # 1. Read target note
-obsidian read path="path/to/note.md"
+obsidian-cli read path="path/to/note.md"
 
 # 2. Extract key terms and concepts mentioned
 # 3. Search vault for notes matching those terms
-obsidian search query="term" format=json
+obsidian-cli search query="term" format=json
 
 # 4. Check backlinks to understand existing connections
-obsidian backlinks path="path/to/note.md"
+obsidian-cli backlinks path="path/to/note.md"
 
 # 5. Check outgoing links
-obsidian links path="path/to/note.md"
+obsidian-cli links path="path/to/note.md"
 
 # 6. Identify link opportunities (first mention of each concept)
 # 7. Propose additions with context

@@ -40,7 +40,7 @@ This file contains:
 ### Before Creating a Note
 
 1. **Search for existing content**
-   - Use `obsidian search query="keywords" format=json` for keyword search
+   - Use `obsidian-cli search query="keywords" format=json` for keyword search
    - Check if the topic already has a note
 
 2. **If existing note found**
@@ -60,7 +60,7 @@ This file contains:
 - **Quick capture (1-3 sentences)** → Append to today's daily note under "## Captured"
 - **Substantial topic (explanations, examples, context)** → Create proper note with full template
 
-Find today's daily note using `obsidian daily:read` (reads today's note directly).
+Find today's daily note using `obsidian-cli daily:read` (reads today's note directly).
 
 ### Location Determination
 
@@ -84,7 +84,7 @@ Match the template structure from CLAUDE.md based on note type:
 
 When creating or editing notes:
 1. Identify concepts mentioned that have their own notes
-2. Search for those notes using `obsidian search query="term" format=json`
+2. Search for those notes using `obsidian-cli search query="term" format=json`
 3. Add `[[wikilinks]]` for first mention of each concept
 4. Use `up` frontmatter field to link to parent MOC if hierarchical
 5. Suggest adding new note to relevant MOCs/Dashboards
@@ -96,7 +96,7 @@ When creating notes in folders that have MOCs or Dashboards, ensure the new note
 **Detection:**
 ```bash
 # Check if folder has a dashboard/MOC
-obsidian files folder="Reference/Developer"
+obsidian-cli files folder="Reference/Developer"
 # Look for: "00 Dashboard.md", "[Folder Name] MOC.md", or similar
 ```
 
@@ -133,7 +133,7 @@ obsidian files folder="Reference/Developer"
 ```bash
 # After creating "Repository Pattern.md" in "Reference/Developer/Patterns/"
 # 1. Check parent folder for MOC
-obsidian read path="Reference/Developer/00 Dashboard.md"
+obsidian-cli read path="Reference/Developer/00 Dashboard.md"
 
 # 2. Check if dataview will catch it
 # If MOC has: ```dataview LIST FROM "Reference/Developer" ```
@@ -155,22 +155,22 @@ obsidian read path="Reference/Developer/00 Dashboard.md"
 
 ### Get Today's Daily Note
 ```bash
-obsidian daily:read
+obsidian-cli daily:read
 ```
 
 ### Search for Related Notes
 ```bash
-obsidian search query="topic keywords" format=json limit=10
+obsidian-cli search query="topic keywords" format=json limit=10
 ```
 
 ### List Notes in Folder
 ```bash
-obsidian files folder="Reference/Developer"
+obsidian-cli files folder="Reference/Developer"
 ```
 
 ### Append to Daily Note
 ```bash
-obsidian daily:append content="$(cat <<'EOF'
+obsidian-cli daily:append content="$(cat <<'EOF'
 - **10:30** — Captured thought
 EOF
 )"
@@ -178,7 +178,7 @@ EOF
 
 ### Create New Note
 ```bash
-obsidian create path="Reference/Developer/New Pattern.md" content="$(cat <<'EOF'
+obsidian-cli create path="Reference/Developer/New Pattern.md" content="$(cat <<'EOF'
 ---
 tags: []
 ---
@@ -194,7 +194,7 @@ EOF
 
 ### Read a Template
 ```bash
-obsidian template:read name="Software" resolve title="New Tool"
+obsidian-cli template:read name="Software" resolve title="New Tool"
 ```
 
 ## Remember

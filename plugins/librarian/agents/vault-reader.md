@@ -10,16 +10,16 @@ model: sonnet
 memory: project
 maxTurns: 10
 allowed-tools:
-  - Bash(obsidian read *)
-  - Bash(obsidian search *)
-  - Bash(obsidian files *)
-  - Bash(obsidian folders *)
-  - Bash(obsidian backlinks *)
-  - Bash(obsidian links *)
-  - Bash(obsidian outline *)
-  - Bash(obsidian properties *)
-  - Bash(obsidian daily:read *)
-  - Bash(obsidian base:query *)
+  - Bash(obsidian-cli read *)
+  - Bash(obsidian-cli search *)
+  - Bash(obsidian-cli files *)
+  - Bash(obsidian-cli folders *)
+  - Bash(obsidian-cli backlinks *)
+  - Bash(obsidian-cli links *)
+  - Bash(obsidian-cli outline *)
+  - Bash(obsidian-cli properties *)
+  - Bash(obsidian-cli daily:read *)
+  - Bash(obsidian-cli base:query *)
   - Read
   - Glob
   - Grep
@@ -148,7 +148,7 @@ Find unchecked action items relevant to current work context.
 Pull all daily-note check-ins for a named experiment.
 
 - Read the experiment page to find the time window and check-in pattern
-- Scan matching daily notes (`obsidian daily:read` or `Daily Notes/`)
+- Scan matching daily notes (`obsidian-cli daily:read` or `Daily Notes/`)
 - Return chronological check-ins with date stamps
 
 ### Entity lookup (caller: `event-capture`)

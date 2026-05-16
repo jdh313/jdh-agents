@@ -107,9 +107,9 @@ Required properties (from views):
 ```bash
 # User is working on Gateway Config API
 # Query the Prince Repos base directly:
-obsidian base:query path="Bases/Prince Repos.base" format=json
+obsidian-cli base:query path="Bases/Prince Repos.base" format=json
 # Or search within the base's folder:
-obsidian search query="Gateway" path="Prince/Repos" format=json
+obsidian-cli search query="Gateway" path="Prince/Repos" format=json
 ```
 
 ### Check if Entry Exists
