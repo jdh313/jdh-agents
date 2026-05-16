@@ -1,6 +1,6 @@
 # knowledge-work
 
-Personal knowledge-management workflows for an Obsidian vault. A bundle of 18
+Personal knowledge-management workflows for an Obsidian vault. A bundle of 16
 skills + 2 agents covering the full lifecycle of a personal knowledge system:
 ingest, curate, review, retain, and maintain.
 
@@ -54,8 +54,6 @@ Coupled to the vault at `~/Loose Ends/` and governed by conventions in
 
 | Skill | Purpose |
 |---|---|
-| `vault-knowledge` | Load vault conventions from `~/Loose Ends/.claude/CLAUDE.md` for folder structure, templates, and patterns |
-| `bases-knowledge` | Read all `.base` files and extract filters + required properties; base-aware operations |
 | `base-add` | Create a new Obsidian Base entry with correct frontmatter |
 
 ## Agents
@@ -65,11 +63,20 @@ Coupled to the vault at `~/Loose Ends/` and governed by conventions in
 | `note-editor` | Complex note editing: merge, restructure, add comprehensive links, update to new templates, enrich sparse notes |
 | `vault-curator` | Dedicated cleanup sessions: find orphans, identify duplicates, propose merges/splits, update to conventions |
 
-## Shared reference
+## Shared references
 
-`references/obsidian-cli-gotchas.md` — obsidian-cli patterns, gotchas, and
-command examples used by the wiki skills. Referenced from SKILL.md files via
-`${CLAUDE_PLUGIN_ROOT}/references/obsidian-cli-gotchas.md`.
+Reference files in `references/` are loaded on demand by skills and agents
+that need vault context:
+
+- `obsidian-cli-gotchas.md` — obsidian-cli patterns, gotchas, and command
+  examples used by the wiki skills.
+- `vault-conventions.md` — folder structure, note types, frontmatter,
+  naming, tag, and link conventions. (Was the `vault-knowledge` skill.)
+- `bases.md` — base registry, filter shapes, and required properties per
+  base. (Was the `bases-knowledge` skill.)
+
+Referenced from SKILL.md and agent files via
+`${CLAUDE_PLUGIN_ROOT}/references/<file>.md`.
 
 ## Vault coupling
 

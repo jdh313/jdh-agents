@@ -1,19 +1,12 @@
----
-name: vault-knowledge
-description: >
-  Use Skill(vault-knowledge) when working with Obsidian vault,
-  taking notes, or when user mentions notes, documentation, capturing, or organizing.
-  Reads vault conventions from ~/Loose Ends/.claude/CLAUDE.md for folder structure,
-  templates, and patterns.
-allowed-tools:
-  - Bash(obsidian *)
-  - Edit
-  - Read
----
+# Vault Conventions
 
-# Vault Knowledge
+Reference for any agent or skill that needs to know how the user's Obsidian
+vault "Loose Ends" is organized. Was the `vault-knowledge` skill; demoted
+to reference per the rewrite design.
 
-You are working with the user's Obsidian vault "Loose Ends".
+The vault's own `~/Loose Ends/.claude/CLAUDE.md` is the live source of
+truth for folder layout, templates, and tag conventions. Read it before
+making structural decisions.
 
 ## First Step: Load Vault Conventions
 

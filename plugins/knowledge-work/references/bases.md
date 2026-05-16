@@ -1,25 +1,13 @@
----
-name: bases-knowledge
-description: >
-  Use Skill(bases-knowledge) when working with Obsidian to understand
-  user's Bases. Reads all .base files, extracts filters and required properties,
-  and knows which base is relevant for current context. Essential for base-aware
-  operations.
-allowed-tools:
-  - Bash(obsidian read *)
-  - Bash(obsidian search *)
-  - Bash(obsidian files *)
-  - Bash(obsidian folders *)
-  - Bash(obsidian base:query *)
-  - Bash(obsidian properties *)
-  - Read
-  - Glob
----
+# Bases
 
-# Bases Knowledge
+Reference for agents and skills that work with the user's Obsidian Bases —
+`.base` files that present saved views over notes filtered by folder, tag,
+or property. Was the `bases-knowledge` skill; demoted to reference per the
+rewrite design.
 
-You understand the user's Obsidian Bases system and can determine which bases
-are relevant for current work.
+The vault's `~/Loose Ends/.claude/CLAUDE.md` `## Bases` section is the
+canonical registry. Read it for the up-to-date list of bases, their
+filters, and required properties; the table below is a quick map.
 
 ## First Step: Load Bases Registry
 
