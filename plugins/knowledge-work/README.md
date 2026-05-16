@@ -1,7 +1,7 @@
 # knowledge-work
 
 Personal knowledge-management workflows for an Obsidian vault. A bundle of 16
-skills + 2 agents covering the full lifecycle of a personal knowledge system:
+skills + 4 agents covering the full lifecycle of a personal knowledge system:
 ingest, curate, review, retain, and maintain.
 
 Coupled to the vault at `~/Loose Ends/` and governed by conventions in
@@ -58,10 +58,12 @@ Coupled to the vault at `~/Loose Ends/` and governed by conventions in
 
 ## Agents
 
-| Agent | Purpose |
-|---|---|
-| `note-editor` | Complex note editing: merge, restructure, add comprehensive links, update to new templates, enrich sparse notes |
-| `vault-curator` | Dedicated cleanup sessions: find orphans, identify duplicates, propose merges/splits, update to conventions |
+| Agent | Model | Purpose |
+|---|---|---|
+| `note-editor` | — | Complex note editing: merge, restructure, add comprehensive links, update to new templates, enrich sparse notes |
+| `vault-curator` | — | Dedicated cleanup sessions: find orphans, identify duplicates, propose merges/splits, update to conventions |
+| `vault-reader` | Sonnet | Read + synthesize against the vault and return structured findings (skeleton — full prompt lands in a later phase) |
+| `vault-inspector` | Haiku | Rule-check + structured diagnostic report (skeleton — full prompt lands in a later phase) |
 
 ## Shared references
 
