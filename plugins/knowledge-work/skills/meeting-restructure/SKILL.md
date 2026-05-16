@@ -1,6 +1,8 @@
 ---
 name: meeting-restructure
 description: Restructure an already-filed meeting note by redistributing its durable facts into canonical notes (project pages, people pages, wiki pages) and leaving the meeting note as a slim log with outbound links. Use when the user says "restructure this meeting note", "distribute this meeting", "split this meeting up", "pull durable facts out of this meeting", "this note is stream-of-consciousness", or otherwise asks to refactor an existing meeting note. Distinct from `meeting-notes`, which files fresh raw notes — this skill operates on notes that are already filed, possibly days or weeks later.
+allowed-tools:
+  - Read
 ---
 
 # Meeting Restructure
@@ -8,6 +10,11 @@ description: Restructure an already-filed meeting note by redistributing its dur
 ## Core principle
 
 The meeting note owns no content it didn't originate. Durable facts live on canonical reference pages; the meeting note is a dated log with outbound links and provenance footnotes on the destinations.
+
+This skill drafts the distribution map and reshaped meeting note
+interactively; `@vault-reader` reads source and destination context, an
+independent `general-purpose` subagent fact-checks the rewrites, and
+`@note-editor` executes all writes.
 
 ## Configuration
 
@@ -36,11 +43,27 @@ Do NOT invoke for:
 
 ## Workflow
 
-### 1. Read the meeting note and surrounding context
+### 1. Pull the meeting note and surrounding context
 
-- Read the target meeting note in full.
-- Read any notes it references by wikilink so you can see where facts could land.
-- Note any wikilinks to pages that don't exist — tools, concepts, people, or projects that may need stubs or flagging.
+Dispatch via `@vault-reader`:
+
+```markdown
+## Intent
+read meeting note and gather destination context for restructure
+
+## Constraints
+- Read the target meeting note in full
+- Read any notes it references by wikilink (project pages, people pages, wiki pages — wherever facts could land)
+- Flag wikilinks to pages that don't exist (tools, concepts, people, projects that may need stubs)
+
+## Input
+meeting note path: <path>
+
+## Output shape
+- meeting_note: <full content>
+- destination_candidates: [{path, snippet of relevant section}]
+- missing_targets: [<wikilink target with no backing page>]
+```
 
 ### 2. Classify each line
 
@@ -85,16 +108,20 @@ Flags to surface in the map when they apply:
 
 Wait for approval or adjustment before editing.
 
-### 4. Apply the distribution
+### 4. Draft the distribution edits
 
-For each destination edit:
+For each destination edit, prepare the exact insertion content and
+location. Drafting rules:
 
-- **Prefer Edit over Write.** Edits preserve hand-set frontmatter (Obsidian-style date strings, field orderings). Only use Write for heavy restructure, and preserve existing frontmatter when you do.
 - **Append vs new section:** append when thematic scope *and* structural style match (bullets into bullets, prose into prose). Otherwise new subsection. When in doubt, new subsection — less invasive than reformatting existing content.
 - **Cluster on the destination:** place the new content near existing content on the same actor or topic. Don't scatter a new section at the top of the page when a related section already exists mid-file.
 - **Canonical-reference tone, not meeting-minute tone.** "Greg said we should move to open-source models" becomes "Move to open-source models later in 2026."
-- **Bump `date_updated`** (or the equivalent frontmatter field) on destinations that received material edits, unless the vault plugin handles this automatically. Check what the file already uses.
 - Add the provenance footnote on the first mention per destination page; reuse the same ID for subsequent references.
+
+The writes themselves dispatch to `@note-editor` after step 5
+(fact-check). The agent prefers Edit over Write to preserve hand-set
+frontmatter, bumps `date_updated` on every destination, and applies
+footnotes per the format below.
 
 #### Provenance footnote format (applied during step 4)
 
@@ -148,9 +175,32 @@ Return only the table plus a one-line summary of issues found. Do not propose re
 
 Subagent flags; main agent fixes. Do not have the subagent write — it doesn't have the placement/section context needed to decide *how* to correct.
 
-### 6. Reshape the meeting note
+### 6. Dispatch the writes (distribution + reshape)
 
-Target shape:
+Hand the approved edits and the reshaped meeting note to `@note-editor`:
+
+```markdown
+## Intent
+restructure meeting note: distribute facts and reshape
+
+## Constraints
+- Order: destination edits first (with provenance footnotes), then meeting note reshape
+- Prefer Edit over Write to preserve hand-set frontmatter
+- Append vs new section per the drafted plan; do not improvise placement
+- Bump `date_updated` on every destination that received a material edit
+- Footnote IDs: `<YYYY-MM-DD>-<lastname-lowercased>`; reuse per page
+- Meeting note reshape target shape: see below
+
+## Input
+- destination_edits: [{path, section_target, append_vs_new, content, footnote_id, footnote_definition}]
+- meeting_note_target: <full reshaped content per the target shape below>
+- stubs_to_create: [<full drafted content per stub>] (only when explicitly approved)
+
+## Output shape
+Per file: action (edit/write), path, sections touched, one-line change summary.
+```
+
+Meeting-note reshape target shape:
 
 ```markdown
 ---
@@ -195,7 +245,9 @@ tags:
 
 ### 7. Verify before reporting done
 
-Run through this checklist literally:
+Run through this checklist literally (using the agent's per-file change
+summary plus a quick `@vault-reader` re-read of any destination whose
+anchor normalization is suspect):
 
 - [ ] Every outbound `[[Target#Section]]` link: the *rendered* heading text exists on the destination file. If the heading contains wikilinks (`## [[X]] Vs. [[Y|Z]]`), normalize before comparing — strip `[[`/`]]`, resolve `[[Target|alias]]` to `alias`.
 - [ ] Footnote definitions count matches footnote reference count per destination page.

@@ -1,6 +1,8 @@
 ---
 name: meeting-notes
 description: This skill should be used when the user wants to format rough meeting notes and file them into the Obsidian vault. Trigger phrases include "format these meeting notes", "add these meeting notes to Obsidian", "I have notes from a meeting", "file these notes", or when the user pastes raw meeting notes with any context about participants, time, or topic. Also handles timestamped transcripts (e.g. from Zoom, Meet, Otter) — detects `HH:MM Speaker` patterns, saves the transcript verbatim to `Sources/`, and extracts the meeting note from it. Handles filename conventions, frontmatter, action-item cleanup, stub creation for new people and projects, and daily-note linking.
+allowed-tools:
+  - Read
 ---
 
 # Meeting Notes
@@ -12,6 +14,10 @@ Obsidian vault at `~/Loose Ends/`. File meeting notes under
 `${active_work_context}/Meetings/`, create stubs for any new people or
 projects referenced, and ensure the daily note's Dataview query picks
 them up via matching frontmatter.
+
+This skill drafts interactively in the main session (metadata gathering,
+action-item normalization, approval gate); `@vault-reader` performs
+existence checks and `@note-editor` executes all writes.
 
 ## Configuration
 
@@ -83,18 +89,24 @@ defaults when possible:
 
 ### 2. Search the vault for existing references
 
-For each participant and project/topic mentioned, check whether a
-note exists:
+For each participant and project/topic mentioned, dispatch to
+`@vault-reader`:
 
-```bash
-# People
-ls "~/Loose Ends/People/" | grep -i "<first-name>"
+```markdown
+## Intent
+check existence of people and projects referenced in this meeting
 
-# Projects (current work context)
-ls "~/Loose Ends/${active_work_context}/Projects/"
+## Constraints
+- People: search `People/` by first name and full name
+- Projects: search `${active_work_context}/Projects/`
+- Broader vault search by alias if unsure
 
-# Broader search if unsure
-rg -l -i "<name>" "~/Loose Ends/" --type md
+## Input
+- people: [<list of names>]
+- projects: [<list of project/topic strings>]
+
+## Output shape
+For each input: {name, status: exists|missing, path?: <path>, aliases?: [...]}.
 ```
 
 Report findings back and ask the user how to handle unresolved names
@@ -134,16 +146,33 @@ or projects (create stub now, leave as unresolved wikilink, or skip).
      date** — surface both with the evidence for each, ask which
      wins; **(b) pairing ambiguity** when multiple same-day meetings
      exist — disambiguate by participant overlap and topic keywords,
-     never by date alone. After approval: write the `Sources/` file
-     first (so `source_meeting:` exists before the forward link is
-     added), then Edit the meeting note's frontmatter to add the
-     `transcript:` line. **Stop — do not modify the existing meeting
-     note body** (topics, quotable, action items, open questions).
-     That enrichment is `meeting-restructure` follow-up mode's job,
-     which has delta/drift detection built in. Surface the handoff
-     to the user: "Transcript filed and linked. Run
-     `meeting-restructure` next if you want to pull additional facts
-     into canonical pages."
+     never by date alone. After approval, dispatch to `@note-editor`:
+
+     ```markdown
+     ## Intent
+     attach late transcript to existing meeting note
+
+     ## Constraints
+     - Write `Sources/<filename>.md` first (so `source_meeting:` exists
+       before the forward link is added)
+     - Then add `transcript: "[[Sources/<filename>]]"` to the existing
+       meeting note's frontmatter, inserted directly beneath `summary:`
+       (or beneath `participants:` if no `summary:`)
+     - DO NOT modify the existing meeting note body (topics, quotable,
+       action items, open questions). Body enrichment is
+       `meeting-restructure` follow-up mode's job.
+
+     ## Input
+     - transcript source content (full): <verbatim>
+     - existing meeting note path: <path>
+
+     ## Output shape
+     Confirm both files modified with paths and the line inserted.
+     ```
+
+     After the agent reports, surface the handoff to the user:
+     "Transcript filed and linked. Run `meeting-restructure` next if
+     you want to pull additional facts into canonical pages."
 
 **When drafting a new meeting note** (rough-notes input, or
 transcript sub-branch A) — use the template at
@@ -189,15 +218,30 @@ Present the fixed draft. Wait for user approval before writing
 anything. Iterate on the draft based on feedback, re-running the
 checklist after each iteration.
 
-### 5. Write the files
+### 5. Dispatch the writes
 
-In order:
+Hand the approved drafts to `@note-editor`:
 
-1. Any new People stubs (one per new person) using the Person Note
-   template at `~/Loose Ends/Templates/Person Note.md`
-2. Any new Project stubs at `${active_work_context}/Projects/<Project Name>.md`
-3. The meeting note itself at
-   `${active_work_context}/Meetings/YYYY-MM-DD <Descriptive Title>.md`
+```markdown
+## Intent
+file meeting note and any required stubs
+
+## Constraints
+- Write order: people stubs → project stubs → meeting note
+- People stubs: use `~/Loose Ends/Templates/Person Note.md`, write to `People/<Full Name>.md`
+- Project stubs: write to `${active_work_context}/Projects/<Project Name>.md`
+- Meeting note: write to `${active_work_context}/Meetings/YYYY-MM-DD <Descriptive Title>.md`
+- Schema: per `~/Loose Ends/.claude/rules/wiki.md`; meeting frontmatter per this skill's Frontmatter Conventions section
+
+## Input
+- people_stubs: [<full drafted content per stub>]
+- project_stubs: [<full drafted content per stub>]
+- meeting_note: <full drafted frontmatter + body>
+- transcript_source: <full drafted content, if applicable>
+
+## Output shape
+Confirm each file created with its full path; list any unresolved wikilinks.
+```
 
 ### 6. Daily note integration
 

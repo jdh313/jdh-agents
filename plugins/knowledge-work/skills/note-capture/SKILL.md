@@ -2,17 +2,15 @@
 name: note-capture
 description: Quickly capture a thought or note to today's daily note
 disable-model-invocation: true
-allowed-tools:
-  - Bash(obsidian daily:read *)
-  - Bash(obsidian daily:append *)
-  - Bash(obsidian read *)
-  - Bash(obsidian append *)
-  - Edit
+context: fork
+agent: note-editor
 ---
 
 # Quick Capture
 
-Append a quick capture to today's daily note.
+Append a quick capture to today's daily note under the `## Captured`
+section. The slash command forks to `@note-editor`, which executes the
+write.
 
 ## Usage
 
@@ -22,57 +20,39 @@ Append a quick capture to today's daily note.
 /note-capture Pattern: use dataclasses for config objects
 ```
 
-## What This Does
+If invoked with no arguments, prompt the user for what to capture.
 
-1. Finds today's daily note in `Daily Notes/YYYY-MM-DD.md`
-2. Checks if "## Captured" section exists
-3. Appends your capture with a timestamp
-4. Confirms the capture was added
+## Operation
 
-## Capture Format
+For the forked `@note-editor`:
 
-Captures are added under the "## Captured" section in this format:
+1. **Locate today's daily note** at `Daily Notes/YYYY-MM-DD.md` (the
+   vault's daily-note convention). If the file doesn't exist yet,
+   `obsidian daily:append` creates it.
 
-```markdown
-## Captured
+2. **Capture format** — one bullet under `## Captured` with a timestamp:
 
-- **10:30** — This is my quick thought
-- **14:15** — Debugging approach: restart the service first
-- **16:45** — Pattern: use dataclasses for config objects
-```
+   ```markdown
+   ## Captured
 
-## No Arguments?
+   - **HH:MM** — <capture text>
+   ```
 
-If you run `/note-capture` without any text, I'll prompt you for what to capture.
+   Use 24-hour time. If `## Captured` already exists, append to it. If
+   not, add the section in the appropriate position (typically near the
+   top of the daily note's content).
 
-## Implementation
+3. **Confirm** to the user: file path + the line that was added.
 
-```bash
-# 1. Read today's daily note
-obsidian daily:read
+## When to use this vs. regular notes
 
-# 2. If "## Captured" section exists, append to it:
-obsidian daily:append content="$(cat <<'EOF'
-- **{timestamp}** — {capture_text}
-EOF
-)"
-
-# 3. If "## Captured" section doesn't exist, use Edit tool to add it:
-# Edit tool on /Users/jacob/Loose Ends/Daily Notes/{date}.md
-# to insert the section at the appropriate location
-
-# 4. If daily note doesn't exist yet, it will be created by daily:append
-```
-
-## When to Use This vs. Regular Notes
-
-**Use /note-capture for:**
+**Use `/note-capture` for:**
 - Quick thoughts (1-3 sentences)
 - Reminders
 - Ideas to flesh out later
 - Session discoveries that aren't yet substantial
 
-**Use a proper note for:**
+**Use a proper note (`wiki-create` etc.) for:**
 - Detailed explanations
 - Code examples
 - Multi-paragraph content
@@ -80,20 +60,4 @@ EOF
 
 ## Arguments
 
-- `$ARGUMENTS` — The text to capture (everything after the command)
-
-## Example Session
-
-```
-User: /note-capture Lambda cold starts fixed with provisioned concurrency
-
-Claude: Captured to today's daily note (Daily Notes/2025-01-02.md):
-
-## Captured
-- **14:23** — Lambda cold starts fixed with provisioned concurrency
-```
-
-## Related Skills
-
-- Use `vault-knowledge` skill for creating proper notes
-- Use `contextual-search` skill to find existing notes before capturing
+`$ARGUMENTS` — the text to capture (everything after the slash command).

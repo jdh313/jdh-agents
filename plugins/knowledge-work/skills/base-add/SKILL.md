@@ -2,15 +2,16 @@
 name: base-add
 description: Create a new entry for a specific Obsidian Base with correct frontmatter
 disable-model-invocation: true
-allowed-tools:
-  - Bash(obsidian *)
-  - Read
-  - Glob
+context: fork
+agent: note-editor
 ---
 
 # Add to Base
 
-Create a note with the correct properties and location to appear in a specified Base.
+Create a note with the correct properties and location to appear in a
+specified Obsidian Base. The slash command forks to `@note-editor`, which
+loads `${CLAUDE_PLUGIN_ROOT}/references/bases.md` for base schemas and
+filter conventions and executes the write.
 
 ## Usage
 
@@ -20,79 +21,72 @@ Create a note with the correct properties and location to appear in a specified 
 /base-add adr Use PostgreSQL for primary datastore
 ```
 
-## What This Does
+## Operation
 
-1. Identifies the target base from the first argument
-2. Reads the base file to understand required properties
-3. Determines the correct folder location (from base filter)
-4. Prompts for any required properties
-5. Shows proposed note with frontmatter for approval
-6. Creates the note in the correct location
+For the forked `@note-editor`:
 
-## Available Bases
+1. **Identify the target base** from the first argument (`$1`).
+2. **Query the base** to see structure and required properties:
 
-| Shortcut | Base | Location | Key Properties |
+   ```bash
+   obsidian base:query path="Bases/<BaseName>.base" format=json
+   ```
+
+3. **Determine the target folder** from the base's filter
+   (e.g., `file.inFolder("Inbox")` → `Inbox/`).
+4. **Read the template** for the note type if one exists:
+
+   ```bash
+   obsidian template:read name="<TemplateName>" resolve title="<Title>"
+   ```
+
+5. **Prompt the user** for any required properties not derivable from
+   context. Required properties are typically those in the base's `order`
+   array.
+6. **Show a preview** of the proposed frontmatter + body for approval.
+7. **Create the note** at the resolved folder + filename:
+
+   ```bash
+   obsidian create path="<folder>/<title>.md" content="..."
+   ```
+
+8. **Confirm** to the user with the full path.
+
+## Available bases
+
+| Shortcut | Base | Location | Key properties |
 |----------|------|----------|----------------|
 | `ideas` | Ideas | `Inbox/` | status |
 | `software` | Software | `Reference/Tools/Software Catalog/` | category, solves, status, url |
 | `prompts` | Prompts | `Reference/Tools/Prompts/` | description |
-| `adr` | ADRs | `Waites/Decisions/` | decision_date, status, area, context |
-| `repo` | Waites Repos | `Waites/Repos/` | github-url, status |
+| `adr` | ADRs | (legacy: `Waites/Decisions/`) | decision_date, status, area, context |
+| `repo` | Repos | (legacy: `Waites/Repos/`) | github-url, status |
 | `hobby` | Hobbies | `Hobbies/` | status, time_commitment |
 
-## Example Session
+> The `adr` and `repo` rows point at archived Waites paths. The Bases
+> registry needs the same update; flagged for vault maintenance.
 
-```
-User: /base-add software Ruff - Fast Python linter
-
-Claude: Creating entry for **Software** base...
-
-What does Ruff solve? (e.g., "Python linting and formatting")
-User: Python linting and formatting, replaces flake8 + black
-
-Claude: Proposed note for Software base:
-
----
-date created: 2025-01-03 10:30
-date_modified: 2025-01-03 10:30
-category: developer-tools
-solves: Python linting and formatting, replaces flake8 + black
-status: using
-url: https://docs.astral.sh/ruff/
-alternatives: [flake8, pylint, black]
----
-
-
-# Ruff
-
-Fast Python linter and formatter. Replaces flake8 + black in one tool.
-
-## Overview
-...
-
-Location: `Reference/Tools/Software Catalog/Ruff.md`
-
-Create this note? [Yes / Edit / Cancel]
-```
-
-## Required Properties by Base
+## Required properties by base
 
 ### Ideas
+
 ```yaml
 status: proposed | in-progress | done | archived
 ```
 
 ### Software
+
 ```yaml
 category: developer-tools | infrastructure | productivity | ...
 solves: What problem this software solves
 status: considering | trialing | using | dropped
 url: Official URL
-alternatives: [] # Optional list of alternatives
-integrations: [] # Optional list of integrations
+alternatives: [] # Optional
+integrations: [] # Optional
 ```
 
 ### ADRs
+
 ```yaml
 decision_date: YYYY-MM-DD
 status: proposed | accepted | deprecated | superseded
@@ -102,15 +96,17 @@ jira_tickets: [] # Optional
 decision_makers: [] # Optional
 ```
 
-### Waites Repos
+### Repos
+
 ```yaml
-github-url: https://github.com/waites/repo-name
+github-url: https://github.com/<org>/<repo>
 status: active | archived | deprecated
-used-in: [] # Optional - what uses this
-uses: [] # Optional - what this uses
+used-in: [] # Optional
+uses: [] # Optional
 ```
 
 ### Hobbies
+
 ```yaml
 status: active | paused | considering | dropped
 time_commitment: X hours/week
@@ -118,66 +114,37 @@ financial_commitment: $/month # Optional
 ```
 
 ### Prompts
+
 ```yaml
 description: What this prompt does
 ```
 
 ## Arguments
 
-- First word: Base shortcut (ideas, software, adr, repo, hobby, prompts)
-- Remaining: Title or initial content for the entry
+- First word: base shortcut (`ideas`, `software`, `adr`, `repo`, `hobby`, `prompts`)
+- Remaining: title or initial content for the entry
 
-## No Arguments?
+## No arguments?
 
-If run without arguments, prompts for:
+If run without arguments, the agent prompts for:
+
 1. Which base to add to
 2. Title of the entry
 3. Required properties for that base
 
-## Implementation Flow
+## When to use this vs. quick capture
 
-```bash
-# 1. Parse base shortcut and title from arguments
-
-# 2. Query the base to see existing entries and structure:
-obsidian base:query path="Bases/{base_name}.base" format=json
-
-# 3. Read the template for this note type (if available):
-obsidian template:read name="{template_name}" resolve title="{title}"
-
-# 4. Determine target folder from base filter
-# e.g., file.inFolder("Inbox") -> folder = "Inbox/"
-
-# 5. Get required properties from base views
-# Properties in "order" array are typically required
-
-# 6. Prompt user for missing required properties
-
-# 7. Generate frontmatter + content
-
-# 8. Show preview for approval
-
-# 9. Create note:
-obsidian create path="{folder}/{title}.md" content="$(cat <<'EOF'
-...content with frontmatter and body...
-EOF
-)"
-```
-
-## When to Use This vs. Quick Capture
-
-**Use /base-add for:**
+**Use `/base-add` for:**
 - Structured entries that should appear in a base
 - Content with specific properties (status, category, etc.)
 - Anything you want to track and query later
 
-**Use /note-capture for:**
+**Use `/note-capture` for:**
 - Quick thoughts without structure
 - Temporary notes
 - Content to sort later
 
-## Related Skills
+## Related
 
-- `bases-knowledge` skill — Understands base structure
-- `vault-knowledge` skill — General vault conventions
-- `/note-capture` — Quick unstructured captures
+- `${CLAUDE_PLUGIN_ROOT}/references/bases.md` — base schemas and filter conventions (the agent loads this)
+- `/note-capture` — quick unstructured captures
