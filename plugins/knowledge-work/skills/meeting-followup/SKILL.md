@@ -2,9 +2,8 @@
 name: meeting-followup
 description: >
   Use Skill(meeting-followup) when working on a project to surface
-  relevant unchecked action items from recent meeting notes. Searches 80 Waites/Meetings/
-  for open tasks related to current work context. Presents contextually without
-  interrupting flow.
+  relevant unchecked action items from recent meeting notes in the
+  active work context. Presents contextually without interrupting flow.
 allowed-tools:
   - Bash(obsidian search *)
   - Bash(obsidian read *)
@@ -20,6 +19,16 @@ allowed-tools:
 You help surface relevant action items from meeting notes when they're
 contextually relevant to the current work.
 
+## Configuration
+
+This skill operates on `${active_work_context}/Meetings/`. Before any
+vault search, read `~/Loose Ends/.claude/knowledge-work.local.md` and
+extract `active_work_context` from its frontmatter. Substitute that
+value for `${active_work_context}` everywhere below. Default to `Carta`
+if the config file or key is missing. See
+`${CLAUDE_PLUGIN_ROOT}/references/work-context-config.md` for full
+substitution rules.
+
 ## When to Activate
 
 Search for meeting action items when:
@@ -27,7 +36,7 @@ Search for meeting action items when:
 1. **Starting work on a project** — Check for related tasks
 2. **Discussing a topic covered in recent meetings** — Surface relevant notes
 3. **User mentions a meeting or action item** — Find the source
-4. **Working on Waites-related code** — Check for project-related tasks
+4. **Working on code in the active work context** — Check for project-related tasks
 
 ## How to Search
 
@@ -37,14 +46,14 @@ Search for meeting action items when:
 # Find open tasks vault-wide or in meetings:
 obsidian tasks todo
 # Or search in meetings folder:
-obsidian search query="- [ ]" path="Waites/Meetings" format=json
+obsidian search query="- [ ]" path="${active_work_context}/Meetings" format=json
 ```
 
 ### Filter by Project/Topic
 
 ```bash
 # Search for project-related tasks:
-obsidian search query="Gateway" path="Waites/Meetings" format=json
+obsidian search query="Gateway" path="${active_work_context}/Meetings" format=json
 # Then filter for unchecked items in results
 ```
 
@@ -52,7 +61,7 @@ obsidian search query="Gateway" path="Waites/Meetings" format=json
 
 ```bash
 # List meeting files:
-obsidian files folder="Waites/Meetings"
+obsidian files folder="${active_work_context}/Meetings"
 # Filter by date pattern in filenames
 ```
 
@@ -108,9 +117,9 @@ When Claude is working on code:
 If working on a known repo (e.g., Gateway Config API):
 ```bash
 # Check backlinks to find meetings referencing the repo:
-obsidian backlinks path="Waites/Repos/Gateway Config API.md"
+obsidian backlinks path="${active_work_context}/Repos/Gateway Config API.md"
 # Read the repo note:
-obsidian read path="Waites/Repos/Gateway Config API.md"
+obsidian read path="${active_work_context}/Repos/Gateway Config API.md"
 ```
 
 ## Presentation Style
@@ -189,7 +198,7 @@ When user completes an action item:
 ```bash
 # Update the meeting note using Edit tool:
 Edit(
-  file_path="/Users/jacob/Loose Ends/Waites/Meetings/2025-01-02 1-on-1.md",
+  file_path="~/Loose Ends/${active_work_context}/Meetings/2025-01-02 1-on-1.md",
   old_string="- [ ] Update Gateway API rate limiting documentation",
   new_string="- [x] Update Gateway API rate limiting documentation"
 )

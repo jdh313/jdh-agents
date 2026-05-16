@@ -9,6 +9,17 @@ description: Restructure an already-filed meeting note by redistributing its dur
 
 The meeting note owns no content it didn't originate. Durable facts live on canonical reference pages; the meeting note is a dated log with outbound links and provenance footnotes on the destinations.
 
+## Configuration
+
+Path references use `${active_work_context}` as a placeholder for the
+top-level work-context folder. Before any vault write, read
+`~/Loose Ends/.claude/knowledge-work.local.md` and extract
+`active_work_context` from its frontmatter. Substitute that value for
+`${active_work_context}` everywhere below. Default to `Carta` if the
+config file or key is missing. See
+`${CLAUDE_PLUGIN_ROOT}/references/work-context-config.md` for full
+substitution rules.
+
 ## When to Invoke
 
 - User asks to restructure, redistribute, or split an existing meeting note.
@@ -200,11 +211,11 @@ See `references/follow-up-mode.md` for the full workflow: preconditions, the two
 
 ## Vault Conventions
 
-Target vault: `/Users/carta/Loose Ends/`.
+Target vault: `~/Loose Ends/`.
 
 - **People notes:** `People/` (flat). Self-note is `People/Jacob Hoehler.md` with alias `Me`. Template: `Templates/Person Note.md`.
-- **Carta project notes:** `Carta/Projects/`.
-- **Carta meeting notes:** `Carta/Meetings/`. Template: `Templates/Meeting Note.md`.
+- **Carta project notes:** `${active_work_context}/Projects/`.
+- **Carta meeting notes:** `${active_work_context}/Meetings/`. Template: `Templates/Meeting Note.md`.
 - **Wiki pages:** distributed; identified by `owner: ai` + `type: wiki`. See `~/dotfiles/claude/rules/11-knowledge-wiki.md`.
 - **Software Catalog:** `Reference/Tools/Software Catalog/`. See `~/dotfiles/claude/rules/12-software-catalog.md`.
 

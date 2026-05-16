@@ -7,7 +7,7 @@ When the input is a transcript, save the verbatim text to `Sources/` with this f
 owner: ai
 type: source
 source_type: transcript
-source_meeting: "[[Carta/Meetings/YYYY-MM-DD <Title>]]"
+source_meeting: "[[${active_work_context}/Meetings/YYYY-MM-DD <Title>]]"
 source_participants:
   - "[[Jacob Hoehler|Me]]"
   - "[[Other Person]]"
@@ -34,8 +34,8 @@ No H1 — the filename is the title.
 Expected shape (all three are required):
 
 1. **A one-line framing paragraph** linking to the paired meeting note. Without it the transcript file has no context outside its frontmatter. Examples:
-   - 1:1: `Verbatim transcript of the 1:1 with [[Person]] on YYYY-MM-DD. Extracted meeting note: [[Carta/Meetings/...]].`
-   - Multi-participant: `Verbatim transcript of the <topic> meeting with [[Person A]] and [[Person B]] on YYYY-MM-DD. Extracted meeting note: [[Carta/Meetings/...]].`
+   - 1:1: `Verbatim transcript of the 1:1 with [[Person]] on YYYY-MM-DD. Extracted meeting note: [[${active_work_context}/Meetings/...]].`
+   - Multi-participant: `Verbatim transcript of the <topic> meeting with [[Person A]] and [[Person B]] on YYYY-MM-DD. Extracted meeting note: [[${active_work_context}/Meetings/...]].`
 2. **A `## Transcript` H2.**
 3. **The verbatim timestamped turns** below the H2.
 
@@ -50,6 +50,6 @@ Transcripts are not wiki content and should not be routed through `wiki-create` 
 ## Bidirectional link
 
 - Meeting note frontmatter: `transcript: "[[Sources/YYYY-MM-DD Transcript — ...]]"`
-- Transcript source frontmatter: `source_meeting: "[[Carta/Meetings/YYYY-MM-DD ...]]"`
+- Transcript source frontmatter: `source_meeting: "[[${active_work_context}/Meetings/YYYY-MM-DD ...]]"`
 
 Both directions allow backlink navigation and let `meeting-restructure`'s follow-up mode find the transcript by reading the meeting note's frontmatter alone.

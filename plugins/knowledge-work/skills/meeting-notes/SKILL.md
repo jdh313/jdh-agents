@@ -9,9 +9,20 @@ description: This skill should be used when the user wants to format rough meeti
 
 Transform rough meeting notes into a structured note in the user's
 Obsidian vault at `~/Loose Ends/`. File meeting notes under
-`Carta/Meetings/` (the current work context), create stubs for any
-new people or projects referenced, and ensure the daily note's
-Dataview query picks them up via matching frontmatter.
+`${active_work_context}/Meetings/`, create stubs for any new people or
+projects referenced, and ensure the daily note's Dataview query picks
+them up via matching frontmatter.
+
+## Configuration
+
+Path references use `${active_work_context}` as a placeholder for the
+top-level work-context folder. Before any vault write, read
+`~/Loose Ends/.claude/knowledge-work.local.md` and extract
+`active_work_context` from its frontmatter. Substitute that value for
+`${active_work_context}` everywhere below. Default to `Carta` if the
+config file or key is missing. See
+`${CLAUDE_PLUGIN_ROOT}/references/work-context-config.md` for full
+substitution rules.
 
 ## Design contract
 
@@ -77,13 +88,13 @@ note exists:
 
 ```bash
 # People
-ls "/Users/carta/Loose Ends/People/" | grep -i "<first-name>"
+ls "~/Loose Ends/People/" | grep -i "<first-name>"
 
 # Projects (current work context)
-ls "/Users/carta/Loose Ends/Carta/Projects/"
+ls "~/Loose Ends/${active_work_context}/Projects/"
 
 # Broader search if unsure
-rg -l -i "<name>" "/Users/carta/Loose Ends/" --type md
+rg -l -i "<name>" "~/Loose Ends/" --type md
 ```
 
 Report findings back and ask the user how to handle unresolved names
@@ -102,7 +113,7 @@ or projects (create stub now, leave as unresolved wikilink, or skip).
    inferred date at the approval gate — do not silently correct it.
 
 2. **Check for an existing meeting note** matching this
-   date/participants combo — search `Carta/Meetings/YYYY-MM-DD*.md`.
+   date/participants combo — search `${active_work_context}/Meetings/YYYY-MM-DD*.md`.
    Two sub-branches:
 
    - **A. No existing note (fresh meeting):** save transcript to
@@ -183,10 +194,10 @@ checklist after each iteration.
 In order:
 
 1. Any new People stubs (one per new person) using the Person Note
-   template at `/Users/carta/Loose Ends/Templates/Person Note.md`
-2. Any new Project stubs at `Carta/Projects/<Project Name>.md`
+   template at `~/Loose Ends/Templates/Person Note.md`
+2. Any new Project stubs at `${active_work_context}/Projects/<Project Name>.md`
 3. The meeting note itself at
-   `Carta/Meetings/YYYY-MM-DD <Descriptive Title>.md`
+   `${active_work_context}/Meetings/YYYY-MM-DD <Descriptive Title>.md`
 
 ### 6. Daily note integration
 
@@ -383,13 +394,13 @@ the user can set a date if they know one.
 
 ### New person
 
-Use `/Users/carta/Loose Ends/Templates/Person Note.md` and write to
+Use `~/Loose Ends/Templates/Person Note.md` and write to
 `People/<Full Name>.md`. Fill in `company`, `title` from context if
 known; leave other fields blank.
 
 ### New project
 
-Lean stub at `Carta/Projects/<Project Name>.md`:
+Lean stub at `${active_work_context}/Projects/<Project Name>.md`:
 
 ```markdown
 ---
@@ -406,7 +417,7 @@ created: YYYY-MM-DD
 
 ## Related
 
-- [[Carta/Meetings/...]]
+- [[${active_work_context}/Meetings/...]]
 ```
 
 Add more sections only if the user asks. The stub should not
