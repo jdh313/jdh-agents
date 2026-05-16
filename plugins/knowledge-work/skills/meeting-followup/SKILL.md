@@ -5,209 +5,114 @@ description: >
   relevant unchecked action items from recent meeting notes in the
   active work context. Presents contextually without interrupting flow.
 allowed-tools:
-  - Bash(obsidian search *)
-  - Bash(obsidian read *)
-  - Bash(obsidian files *)
-  - Bash(obsidian tasks *)
-  - Bash(obsidian daily:read *)
-  - Bash(obsidian backlinks *)
-  - Edit
+  - Read
 ---
 
 # Meeting Follow-up
 
-You help surface relevant action items from meeting notes when they're
-contextually relevant to the current work.
+Surface relevant unchecked action items from meeting notes when they
+match the current work context. Read and mark-complete operations both
+dispatch to agents; this skill gathers intent and presents results.
 
 ## Configuration
 
 This skill operates on `${active_work_context}/Meetings/`. Before any
-vault search, read `~/Loose Ends/.claude/knowledge-work.local.md` and
+agent dispatch, read `~/Loose Ends/.claude/knowledge-work.local.md` and
 extract `active_work_context` from its frontmatter. Substitute that
 value for `${active_work_context}` everywhere below. Default to `Carta`
 if the config file or key is missing. See
 `${CLAUDE_PLUGIN_ROOT}/references/work-context-config.md` for full
 substitution rules.
 
-## When to Activate
-
-Search for meeting action items when:
+## When to activate
 
 1. **Starting work on a project** — Check for related tasks
 2. **Discussing a topic covered in recent meetings** — Surface relevant notes
 3. **User mentions a meeting or action item** — Find the source
-4. **Working on code in the active work context** — Check for project-related tasks
+4. **Working on code in the active work context** — Check for project tasks
 
-## How to Search
+## Workflow
 
-### Find Meeting Notes with Open Action Items
+### 1. Identify the current work context
 
-```bash
-# Find open tasks vault-wide or in meetings:
-obsidian tasks todo
-# Or search in meetings folder:
-obsidian search query="- [ ]" path="${active_work_context}/Meetings" format=json
-```
+What project, repo, person, or topic is the user actively engaged with?
+Capture as a short context string (one or two terms).
 
-### Filter by Project/Topic
+### 2. Dispatch the search to vault-reader
 
-```bash
-# Search for project-related tasks:
-obsidian search query="Gateway" path="${active_work_context}/Meetings" format=json
-# Then filter for unchecked items in results
-```
+Invoke `@vault-reader` with:
 
-### Recent Meetings Only
-
-```bash
-# List meeting files:
-obsidian files folder="${active_work_context}/Meetings"
-# Filter by date pattern in filenames
-```
-
-## What to Surface
-
-### Relevant Action Items
-
-Surface action items that match:
-- Current project being worked on
-- Technology/service being discussed
-- Person mentioned in conversation
-- Recent meetings (last 2 weeks)
-
-### How to Present
-
-**Contextual insertion** (preferred):
 ```markdown
----
-> **Related action item** from Meeting 2025-01-02:
-> - [ ] Update Gateway API rate limiting documentation
->
-> This seems relevant to what we're working on. Address now or skip?
----
+## Intent
+find unchecked action items relevant to <context-string>
+
+## Constraints
+- Search path: `${active_work_context}/Meetings/`
+- Match: project, topic, person, or repo in `<context-string>`
+- Window: last 14 days
+- Filter: unchecked checkboxes only (`- [ ]`)
+
+## Input
+context: <context-string>
+
+## Output shape
+Table of items with columns: Meeting path, Date, Item text, Owner.
+Include `## Notes` if anything is ambiguous.
 ```
 
-**Batch summary** (at natural breakpoints):
+### 3. Present to user (non-interrupting style)
+
+If results are non-empty, surface inline or as a batch summary depending
+on count:
+
+**Inline (1-2 items):**
+```markdown
+> **Related action item** from `<meeting>` on `<date>`:
+> - [ ] <item text>
+>
+> Address now or skip?
+```
+
+**Batch (3+ items):**
 ```markdown
 ## Relevant Meeting Actions
+| Meeting | Date | Item | Owner |
+|---|---|---|---|
+| ... |
 
-Found 3 open items related to current work:
-
-| Meeting | Action Item | Assigned |
-|---------|-------------|----------|
-| 2025-01-02 | Update rate limiting docs | You |
-| 2024-12-28 | Review API error codes | You |
-| 2024-12-20 | Add monitoring for timeouts | Team |
-
-Address any of these? (1-3, all, or skip)
+Address any of these? (1-N, all, skip)
 ```
 
-## Integration Points
+If results are empty: do not surface anything. Do not nag.
 
-### With Current Work Context
+### 4. If the user wants to mark an item complete
 
-When Claude is working on code:
-1. Identify the project/repo being modified
-2. Search for related meeting notes
-3. Check for unchecked action items
-4. Present relevant ones contextually
+Dispatch the write to `@note-editor`:
 
-### With Repo Notes
+```markdown
+## Intent
+mark action item complete in `<meeting-path>`
 
-If working on a known repo (e.g., Gateway Config API):
-```bash
-# Check backlinks to find meetings referencing the repo:
-obsidian backlinks path="${active_work_context}/Repos/Gateway Config API.md"
-# Read the repo note:
-obsidian read path="${active_work_context}/Repos/Gateway Config API.md"
+## Constraints
+Item text (verbatim): `- [ ] <text>`
+
+## Input
+Replace `- [ ]` with `- [x]` on the line matching the verbatim text.
+Preserve all other content in the file.
+
+## Output shape
+Confirm file modified, return modified line for sanity-check.
 ```
 
-## Presentation Style
+## Presentation style
 
-### Non-Interrupting
-
-- Don't stop the flow for minor items
-- Add as a note at the end of a response
-- Batch multiple items together
-
-### Actionable
-
-- Show the exact checkbox text
-- Include meeting date for context
-- Offer to mark as complete if done
-
-### ADHD-Friendly
-
-- One surfaced item at a time (inline)
-- Batch at natural breakpoints
-- Clear skip option
-- No nagging for ignored items
-
-## Example Scenarios
-
-### Scenario 1: Working on Gateway API
-
-```
-User: "Let's work on the Gateway API rate limiting"
-
-Claude: [Does the work...]
-
----
-> Found a related action item from your 1-on-1 on 2025-01-02:
-> - [ ] Update Gateway API rate limiting documentation
->
-> Since we're touching this code, want to update the docs too?
-```
-
-### Scenario 2: Starting a Work Session
-
-```
-User: "What should I work on today?"
-
-Claude: Let me check your recent meetings for open items...
-
-## Open Action Items (from recent meetings)
-
-| Priority | Item | From Meeting |
-|----------|------|--------------|
-| High | Deploy Gateway fix to staging | 2025-01-02 Standup |
-| Medium | Review PR #123 | 2025-01-02 1-on-1 |
-| Low | Update onboarding docs | 2024-12-28 Team sync |
-
-Which would you like to tackle first?
-```
-
-### Scenario 3: Completing Related Work
-
-```
-User: "I just finished updating the rate limiting"
-
-Claude: Great! I noticed you had an action item related to this:
-- [ ] Update Gateway API rate limiting documentation
-
-Since you just completed the code changes, should I:
-1. Mark this action item as complete in the meeting note?
-2. Help draft the documentation update?
-3. Skip for now
-```
-
-## Marking Items Complete
-
-When user completes an action item:
-
-```bash
-# Update the meeting note using Edit tool:
-Edit(
-  file_path="~/Loose Ends/${active_work_context}/Meetings/2025-01-02 1-on-1.md",
-  old_string="- [ ] Update Gateway API rate limiting documentation",
-  new_string="- [x] Update Gateway API rate limiting documentation"
-)
-```
+- **Non-interrupting** — surface at natural breakpoints, not mid-flow
+- **Actionable** — show the checkbox text exactly; include meeting date
+- **ADHD-friendly** — one item inline OR batch at breakpoint; clear
+  skip; no repeat nagging for skipped items
 
 ## Remember
 
-- **Be helpful, not annoying** — Only surface truly relevant items
-- **Context matters** — Don't show action items unrelated to current work
-- **Respect flow** — Batch at breakpoints, don't interrupt
-- **Easy to dismiss** — "Skip" is always an option
-- **Track completion** — Offer to mark items done when work is complete
+- Be helpful, not annoying — only surface truly relevant items
+- Empty results mean stay quiet
+- Skip is always a valid response
