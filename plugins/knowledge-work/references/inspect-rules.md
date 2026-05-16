@@ -322,6 +322,63 @@ visible from a hub.
 - **Fix**: report; user keeps or drops case-by-case.
 - **Severity**: low
 
+## Event rules (W-EVENT-*)
+
+Apply to `type: event` pages (event-templates.md schemas). Events sit
+parallel to wiki pages — these rules validate shape but do not run as
+part of the structural sweep. Default `--wiki` scope includes them; an
+`--events` scope flag is reserved if differentiation becomes useful.
+
+### W-EVENT-1: Missing or invalid `page_type` on `type: event`
+Event pages must declare a `page_type` from the enumerated list
+(currently `incident`, `appointment`). Pages with `type: event` and
+either no `page_type` or an unknown value are misshapen.
+
+- **Detection**: `obsidian properties path="<event-page>"` — check `type: event` plus `page_type` set to a known value
+- **Severity**: high
+
+### W-EVENT-2: Incident missing `expands:`
+Every `page_type: incident` must declare `expands:` pointing at the
+affected entity (device, system, condition). Incidents without an
+entity link don't compose into entity dashboards.
+
+- **Detection**: parse frontmatter; check `expands:` is non-empty when `page_type: incident`
+- **Severity**: high
+
+### W-EVENT-3: Appointment missing required fields
+Every `page_type: appointment` must declare `expands:` (subject),
+`specialty`, `date`, and `status`. Subjects are people or pets;
+appointments without a subject don't compose.
+
+- **Detection**: parse frontmatter; verify each required field is present and non-empty
+- **Severity**: high
+
+### W-EVENT-4: Missing `date` or `status`
+Any `type: event` page without both `date` and `status` is incomplete.
+These drive sort, filter, and follow-up reachability.
+
+- **Detection**: parse frontmatter; check both fields present
+- **Severity**: medium
+
+### W-EVENT-5: `follow_up_by:` overdue with open status
+`type: event` page with `follow_up_by:` in the past *and* `status:
+open` (incident) or `status: scheduled` (appointment) indicates a
+missed follow-up.
+
+- **Detection**: parse frontmatter; compare `follow_up_by` to today; check `status`
+- **Severity**: medium
+- **Fix**: report; user resolves by updating status, rescheduling, or noting the slip
+
+### W-EVENT-6: Incident with empty `## Diagnosis`
+Incidents with a `## Diagnosis` heading whose body is empty, a single
+short phrase (under ~10 words), or restates the `## Symptoms`. The
+diagnosis is the load-bearing section — a page without one is worth
+keeping only as a chronological record.
+
+- **Detection**: read the section under `## Diagnosis`; flag if empty or trivial
+- **Severity**: low
+- **Note**: don't flag if `status: open` — the diagnosis may legitimately be unknown
+
 ## Report shape
 
 Group findings by rule ID; within each rule, list affected pages.
