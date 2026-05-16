@@ -1,6 +1,6 @@
 # knowledge-work
 
-Personal knowledge-management workflows for an Obsidian vault. A bundle of 16
+Personal knowledge-management workflows for an Obsidian vault. A bundle of 15
 skills + 4 agents covering the full lifecycle of a personal knowledge system:
 ingest, curate, review, retain, and maintain.
 
@@ -18,7 +18,6 @@ Coupled to the vault at `~/Loose Ends/` and governed by conventions in
 | `wiki-query` | Answer a question using the wiki as context |
 | `wiki-stub` | Quickly create a new wiki page from a "what is X" baseline |
 | `wiki-refresh` | Update a stale wiki page with newer information |
-| `wiki-lint` | Health-check the wiki for orphans, contradictions, stale content |
 
 ### Software Catalog
 
@@ -47,7 +46,7 @@ Coupled to the vault at `~/Loose Ends/` and governed by conventions in
 |---|---|
 | `note-capture` | Quickly capture a thought to the daily note |
 | `note-cleanup` | Start an interactive vault cleanup session |
-| `note-health` | Run a vault health check for structural issues |
+| `vault-inspect` | Diagnostic sweep — structural + wiki-semantic rule check (merger of `note-health` + `wiki-lint`) |
 | `note-suggester` | Suggest reusable knowledge captures inline during coding sessions |
 
 ### Vault meta
@@ -76,6 +75,8 @@ that need vault context:
   naming, tag, and link conventions. (Was the `vault-knowledge` skill.)
 - `bases.md` — base registry, filter shapes, and required properties per
   base. (Was the `bases-knowledge` skill.)
+- `inspect-rules.md` — diagnostic rule set (S-* structural, W-* wiki-semantic)
+  for `vault-inspect`. Carries detection methods and severities.
 
 Referenced from SKILL.md and agent files via
 `${CLAUDE_PLUGIN_ROOT}/references/<file>.md`.
