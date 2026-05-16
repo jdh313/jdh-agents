@@ -4,7 +4,7 @@ Some skills in this plugin (`meeting-notes`, `meeting-followup`, `meeting-restru
 
 ## Location
 
-`~/Loose Ends/.claude/knowledge-work.local.md`
+`~/Loose Ends/.claude/librarian.local.md`
 
 Lives with the vault, not the plugin install. A vault clone or sync carries the config across machines; a plugin reinstall does not touch it.
 
@@ -26,7 +26,7 @@ A human-readable body explaining the keys is encouraged but not required.
 
 Skills that depend on work-context paths must, before producing output:
 
-1. Read `~/Loose Ends/.claude/knowledge-work.local.md`.
+1. Read `~/Loose Ends/.claude/librarian.local.md`.
 2. Extract `active_work_context` from the frontmatter.
 3. Substitute that value for every occurrence of `${active_work_context}` in the skill body, any examples, and any output the skill generates.
 

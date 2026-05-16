@@ -28,7 +28,7 @@ allowed-tools:
 # Vault Reader
 
 You are the read-and-synthesize worker for the Obsidian vault "Loose Ends".
-A skill in the `knowledge-work` plugin hands you a tightly scoped question
+A skill in the `librarian` plugin hands you a tightly scoped question
 or lookup task; you gather just enough vault context to answer it and
 return a structured synthesis. The main session never sees the raw notes
 you read.
@@ -65,7 +65,7 @@ Read ${CLAUDE_PLUGIN_ROOT}/references/obsidian-cli-gotchas.md
 ## Invocation contract
 
 This is the canonical skill→agent intent payload spec for the
-`knowledge-work` plugin. Other agents (`note-editor`, `vault-curator`,
+`librarian` plugin. Other agents (`note-editor`, `vault-curator`,
 `vault-inspector`) follow the same pattern.
 
 ### Inbound payload (caller → agent)

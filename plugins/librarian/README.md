@@ -1,6 +1,7 @@
-# knowledge-work
+# librarian
 
-Personal knowledge-management workflows for an Obsidian vault.
+Curates, catalogs, retrieves, and maintains your library of notes and
+knowledge in an Obsidian vault.
 Workflow-shaped (Capture → Process → Retrieve → Maintain), agent-mediated
 (skills draft, agents execute), reference-backed (conventions and
 templates load on demand).
@@ -55,7 +56,7 @@ Loaded on demand by skills and agents that need vault context:
 | `event-templates.md` | `type: event` skeletons (incident, appointment) + compositional pattern | `@note-editor` and `event-capture` |
 | `inspect-rules.md` | Diagnostic rule sets (S-* structural, W-* wiki-semantic, W-EVENT-*) | `@vault-inspector` |
 | `obsidian-cli-gotchas.md` | obsidian-cli patterns and shell-quoting gotchas | Any agent shelling to obsidian-cli |
-| `work-context-config.md` | `${active_work_context}` substitution rules; reads `~/Loose Ends/.claude/knowledge-work.local.md` | `meeting-notes`, `meeting-followup`, `meeting-restructure` |
+| `work-context-config.md` | `${active_work_context}` substitution rules; reads `~/Loose Ends/.claude/librarian.local.md` | `meeting-notes`, `meeting-followup`, `meeting-restructure` |
 
 Referenced from skills and agents via
 `${CLAUDE_PLUGIN_ROOT}/references/<file>.md`.
@@ -63,7 +64,7 @@ Referenced from skills and agents via
 ## Configuration
 
 Meeting skills read the current work-context folder from
-`~/Loose Ends/.claude/knowledge-work.local.md`:
+`~/Loose Ends/.claude/librarian.local.md`:
 
 ```yaml
 ---

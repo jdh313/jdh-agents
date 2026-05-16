@@ -1,4 +1,4 @@
-# knowledge-work architecture
+# librarian architecture
 
 Per-stage detail behind the README's lifecycle matrix, plus the design
 principles and contracts that hold it together. The README is the
@@ -129,7 +129,7 @@ already structures responses.
 | Plugin reference (write-side distillation) | `references/wiki-templates.md`, `references/event-templates.md`, `references/bases.md`, `references/vault-conventions.md` | Agents (loaded by `@note-editor`, `@vault-reader`) |
 | Diagnostic rules | `references/inspect-rules.md` | `@vault-inspector` |
 | Tool gotchas | `references/obsidian-cli-gotchas.md` | Any agent shelling to obsidian-cli |
-| Work-context substitution | `~/Loose Ends/.claude/knowledge-work.local.md` + `references/work-context-config.md` | Meeting skills |
+| Work-context substitution | `~/Loose Ends/.claude/librarian.local.md` + `references/work-context-config.md` | Meeting skills |
 
 Vault rules are the canonical source of truth. Plugin references
 distill them for agent-loading convenience; when they diverge, the

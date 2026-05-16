@@ -20,7 +20,7 @@ independent `general-purpose` subagent fact-checks the rewrites, and
 
 Path references use `${active_work_context}` as a placeholder for the
 top-level work-context folder. Before any vault write, read
-`~/Loose Ends/.claude/knowledge-work.local.md` and extract
+`~/Loose Ends/.claude/librarian.local.md` and extract
 `active_work_context` from its frontmatter. Substitute that value for
 `${active_work_context}` everywhere below. Default to `Carta` if the
 config file or key is missing. See

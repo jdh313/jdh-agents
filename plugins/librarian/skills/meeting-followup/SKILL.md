@@ -17,7 +17,7 @@ dispatch to agents; this skill gathers intent and presents results.
 ## Configuration
 
 This skill operates on `${active_work_context}/Meetings/`. Before any
-agent dispatch, read `~/Loose Ends/.claude/knowledge-work.local.md` and
+agent dispatch, read `~/Loose Ends/.claude/librarian.local.md` and
 extract `active_work_context` from its frontmatter. Substitute that
 value for `${active_work_context}` everywhere below. Default to `Carta`
 if the config file or key is missing. See
