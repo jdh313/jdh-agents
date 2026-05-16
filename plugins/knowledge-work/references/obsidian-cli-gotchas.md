@@ -1,6 +1,6 @@
 # Obsidian CLI Gotchas (Wiki Operations)
 
-Shared reference for `wiki-ingest`, `wiki-query`, and `wiki-lint` skills when operating on the Knowledge Wiki.
+Shared reference for `wiki-create`, `wiki-query`, `wiki-refresh`, and `vault-inspect` skills when operating on the Knowledge Wiki.
 
 ## Frontmatter-only changes → use property:set OR Edit, not file rewrite
 

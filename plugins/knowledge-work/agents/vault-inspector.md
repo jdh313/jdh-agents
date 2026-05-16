@@ -67,5 +67,5 @@ and the existing maintenance categories in `vault-curator.md`.
 > hard-wrap detection) and the scope-flag contract with `vault-inspect`.
 
 Until then, follow the role boundaries above and run only the diagnostic
-operations listed in the existing `note-health` and `wiki-lint` skills
-(both being merged into `vault-inspect`).
+operations listed in `${CLAUDE_PLUGIN_ROOT}/references/inspect-rules.md`
+(rule IDs `S-*` structural, `W-*` wiki-semantic).

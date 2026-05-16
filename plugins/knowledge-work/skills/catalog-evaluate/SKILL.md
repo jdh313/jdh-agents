@@ -26,7 +26,7 @@ Sections this skill depends on:
 - **Skill(obsidian:obsidian-cli)** — note creation, frontmatter, search
 - **Skill(obsidian:obsidian-markdown)** — wikilinks, callouts, frontmatter
 - **Skill(obsidian:defuddle)** — if fetching the tool's homepage for a neutral one-liner
-- **Skill(wiki-stub)** — for stubbing referenced tools that don't have entries yet (`replaces`, `alternatives`, `depends_on`)
+- **Skill(wiki-create)** — stub mode, for stubbing referenced tools that don't have entries yet (`replaces`, `alternatives`, `depends_on`)
 
 ## When to use vs. peer skills
 
@@ -74,7 +74,7 @@ If `kind` is ambiguous (e.g. Tailscale = a hosted service AND a local daemon), p
 
 ### 3. Light external fetch (optional)
 
-If the user hasn't described the tool and there's a homepage URL, invoke `Skill(obsidian:defuddle)` to grab a neutral one-liner for the definition. Don't do deep research here — `catalog-evaluate` is for recording opinions, not producing a source summary. For deep research first, use `wiki-ingest` then `catalog-evaluate`.
+If the user hasn't described the tool and there's a homepage URL, invoke `Skill(obsidian:defuddle)` to grab a neutral one-liner for the definition. Don't do deep research here — `catalog-evaluate` is for recording opinions, not producing a source summary. For deep research first, use `wiki-create` (ingest mode) then `catalog-evaluate`.
 
 ### 4. Decide which pages to write
 
@@ -149,7 +149,7 @@ Use `Skill(obsidian:obsidian-cli)` for note creation. For migrations from old si
 
 Check every wikilink in `replaces`, `replaced_by`, `alternatives`, and `depends_on` against the vault. **Don't offer inline stubs one by one — that explodes the session.** Collect the full list of missing targets and present them once in the final report as a single batched offer ("N linked entries don't exist yet: [list]. Want me to stub any, all, or none?").
 
-Default to leaving them unstubbed. Dead relation links will be flagged by `wiki-lint` so the user can address them in a dedicated pass instead of mid-evaluation.
+Default to leaving them unstubbed. Dead relation links will be flagged by `vault-inspect` (rule W-17 — catalog-schema check) so the user can address them in a dedicated pass instead of mid-evaluation.
 
 ### 10. Pre-finish checklist
 

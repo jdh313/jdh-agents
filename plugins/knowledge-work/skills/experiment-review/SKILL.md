@@ -100,7 +100,7 @@ you're in verdict mode.
 - Update frontmatter: `status: concluded`, `outcome: <verdict>`,
   `date_updated: today`.
 - If the learnings deserve a wiki page (or extension of an existing one),
-  offer to route to `wiki-stub` or `wiki-refresh`. Add bidirectional
+  offer to route to `wiki-create` (stub mode) or `wiki-refresh`. Add bidirectional
   links via `related:` and `## See also`.
 - If the verdict affects a Software Catalog entry (e.g., adopting a tool
   moves it from `trial` to `adopt`), offer to route to `catalog-evaluate`.
@@ -111,7 +111,7 @@ you're in verdict mode.
 - Timeline summary and key gaps
 - Follow-up answers the user provided
 - For verdicts: outcome recorded, status change, any downstream routing
-  (`wiki-stub`, `wiki-refresh`, `catalog-evaluate`, follow-up experiment)
+  (`wiki-create`, `wiki-refresh`, `catalog-evaluate`, follow-up experiment)
 
 ## Quality rules
 

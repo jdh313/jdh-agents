@@ -167,7 +167,7 @@ Before: 72/100 -> After: 89/100 (+17 points)
 Great work! Your vault is much healthier now.
 
 ---
-Run `/note-health` to see the full report.
+Run `/vault-inspect` to see the full report.
 ```
 
 ## Continuing Later
@@ -185,5 +185,5 @@ If you stop mid-session:
 
 ## Related Skills
 
-- `/note-health` — Quick audit without interactive session
+- `/vault-inspect` — Quick audit without interactive session
 - `/note-capture` — Quick capture to daily note

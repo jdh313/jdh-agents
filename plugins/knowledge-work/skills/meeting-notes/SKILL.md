@@ -225,7 +225,7 @@ tags:
 
 > Do not write `date_updated` or `date_modified` manually — the
 > vault's frontmatter plugin auto-maintains `date_modified` on every
-> save. Downstream staleness checks (wiki-lint, meeting-restructure)
+> save. Downstream staleness checks (vault-inspect, meeting-restructure)
 > read `date_modified` when present.
 
 All fields above are required. Specifically:

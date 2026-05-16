@@ -1,6 +1,6 @@
 # knowledge-work
 
-Personal knowledge-management workflows for an Obsidian vault. A bundle of 15
+Personal knowledge-management workflows for an Obsidian vault. A bundle of 14
 skills + 4 agents covering the full lifecycle of a personal knowledge system:
 ingest, curate, review, retain, and maintain.
 
@@ -14,9 +14,8 @@ Coupled to the vault at `~/Loose Ends/` and governed by conventions in
 
 | Skill | Purpose |
 |---|---|
-| `wiki-ingest` | Process a source (URL/file) → save to `Sources/`, create/update wiki pages, update index and log |
+| `wiki-create` | Create a wiki page — ingest mode (source provided) or stub mode (common-knowledge baseline). Merger of `wiki-ingest` + `wiki-stub`. |
 | `wiki-query` | Answer a question using the wiki as context |
-| `wiki-stub` | Quickly create a new wiki page from a "what is X" baseline |
 | `wiki-refresh` | Update a stale wiki page with newer information |
 
 ### Software Catalog

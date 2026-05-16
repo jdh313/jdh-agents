@@ -206,8 +206,8 @@
     {
       "name": "knowledge-work",
       "source": "./plugins/knowledge-work",
-      "description": "Personal knowledge-management workflows for an Obsidian vault. 15 skills + 4 agents across wiki, software catalog, meetings, experiments, and general note lifecycle. Coupled to the vault conventions in ~/Loose Ends/.claude/rules/{wiki.md,catalog.md}.",
-      "version": "0.6.0",
+      "description": "Personal knowledge-management workflows for an Obsidian vault. 14 skills + 4 agents across wiki, software catalog, meetings, experiments, and general note lifecycle. Coupled to the vault conventions in ~/Loose Ends/.claude/rules/{wiki.md,catalog.md}.",
+      "version": "0.7.0",
       "author": {
         "name": "Jacob Hoehler"
       },
@@ -401,6 +401,6 @@
     "version": "1.0.0",
     "homepage": "https://github.com/jdh313/cc-marketplace",
     "totalPlugins": 20,
-    "lastUpdated": "2026-05-15"
+    "lastUpdated": "2026-05-16"
   }
 }

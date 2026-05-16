@@ -40,7 +40,7 @@ If the answer represents a useful synthesis (comparison, analysis, connection be
 
 "This answer connects several topics. Want me to save it as a wiki page?"
 
-If yes, use `wiki-stub` to create the page so it emits the canonical skeleton
+If yes, use `wiki-create` (stub mode) to create the page so it emits the canonical skeleton
 for the appropriate `page_type` — almost always `concept` for synthesized
 answers. Fill the skeleton with:
 - A neutral 1-2 sentence definition at the top
@@ -51,7 +51,7 @@ answers. Fill the skeleton with:
 
 ### 4. Suggest next steps
 
-- Sources that would fill gaps in coverage — offer to ingest them via `wiki-ingest`
+- Sources that would fill gaps in coverage — offer to ingest them via `wiki-create` (ingest mode)
 - Related questions worth exploring
 - Wiki pages that might need updating based on the question
 - If external sources were consulted to answer the question, suggest ingesting

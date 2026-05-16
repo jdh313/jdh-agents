@@ -45,7 +45,7 @@ The source note is the citable record of what was literally said; the meeting no
 
 ## Scope — not wiki content
 
-Transcripts are not wiki content and should not be routed through `wiki-ingest`. They live in `Sources/` but are not connected to the wiki hierarchy — no `up:`, no derived wiki page. The rationale: a transcript is a primary record of a conversation, not encyclopedic knowledge; its durable claims get extracted into the meeting note and then (optionally) restructured into canonical pages, which is where wiki-style content lives.
+Transcripts are not wiki content and should not be routed through `wiki-create` (ingest mode). They live in `Sources/` but are not connected to the wiki hierarchy — no `up:`, no derived wiki page. The rationale: a transcript is a primary record of a conversation, not encyclopedic knowledge; its durable claims get extracted into the meeting note and then (optionally) restructured into canonical pages, which is where wiki-style content lives.
 
 ## Bidirectional link
 
