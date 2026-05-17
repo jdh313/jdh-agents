@@ -22,22 +22,6 @@
       ]
     },
     {
-      "name": "branch-workflow",
-      "source": "./plugins/branch-workflow",
-      "description": "Automate branch/change management for git and jj",
-      "version": "0.1.0",
-      "author": {
-        "name": "Jacob Hoehler"
-      },
-      "keywords": [
-        "git",
-        "jj",
-        "branch",
-        "workflow",
-        "vcs"
-      ]
-    },
-    {
       "name": "coach",
       "source": "./plugins/coach",
       "description": "ADHD-friendly productivity coaching: daily planning (/today, /energy), end-of-day capture (/checkin), weekly scheduling (/plan-week) and review (/weekly), life-direction reviews (/review), goal-to-project alignment (/align), project lifecycle (/intake, /breakdown, /reentry, /sunset), idea capture (/spark), brain dump (/dump), task triage (/triage), decision journaling (/decide), and pattern analysis (momentum, overdue-rescue) with adaptive tone calibration",
@@ -90,8 +74,8 @@
     {
       "name": "compass",
       "source": "./plugins/compass",
-      "description": "A suite of conversational thinking tools \u2014 reflect (Socratic mirror, never recommends) and mull (thinking partner, probes AND contributes opinions when appropriate). Both save sessions to your Obsidian vault.",
-      "version": "0.4.1",
+      "description": "A suite of conversational thinking tools \u2014 reflect (Socratic mirror, never recommends, always saves) and mull (thinking partner, probes AND contributes opinions, saves substantive sessions only).",
+      "version": "0.5.0",
       "author": {
         "name": "Jacob Hoehler",
         "email": "accts@jdh.onl"
@@ -142,24 +126,6 @@
         "doing",
         "timesheet",
         "productivity"
-      ]
-    },
-    {
-      "name": "history-detective",
-      "source": "./plugins/history-detective",
-      "description": "History investigation tools: bisect, blame, file evolution, and branch comparison for git and jj",
-      "version": "0.2.0",
-      "author": {
-        "name": "Jacob Hoehler"
-      },
-      "keywords": [
-        "git",
-        "jj",
-        "bisect",
-        "blame",
-        "history",
-        "evolution",
-        "debugging"
       ]
     },
     {
@@ -250,27 +216,10 @@
       ]
     },
     {
-      "name": "merge-workflow",
-      "source": "./plugins/merge-workflow",
-      "description": "Branch and change merge operations for git and jj with conflict detection and resolution",
-      "version": "0.1.0",
-      "author": {
-        "name": "Jacob Hoehler"
-      },
-      "keywords": [
-        "git",
-        "jj",
-        "merge",
-        "rebase",
-        "conflict",
-        "workflow"
-      ]
-    },
-    {
       "name": "ndr",
       "source": "./plugins/ndr",
-      "description": "Nested decision records \u2014 atomic markdown decision atoms in your Obsidian vault with supersession-aware reading. Capture engineering decisions from any chat (/capture-decision), query the corpus by topic with automatic supersession-chain walking (/decisions <topic>), and bootstrap vault content on first install (/ndr-bootstrap).",
-      "version": "0.2.0",
+      "description": "Nested decision records \u2014 atomic markdown decision atoms in your Obsidian vault with supersession-aware reading. Capture engineering decisions from any chat (/capture-decision), query the corpus by topic with automatic supersession-chain walking (/decisions <topic>), audit code against current decision heads with /drift-check, and bootstrap vault content on first install (/ndr-bootstrap).",
+      "version": "0.3.1",
       "author": {
         "name": "Jacob Hoehler"
       },
@@ -323,23 +272,6 @@
       ]
     },
     {
-      "name": "review-prep",
-      "source": "./plugins/review-prep",
-      "description": "Automate code review preparation with PR descriptions, commit cleanup, and diff analysis for git and jj",
-      "version": "0.2.0",
-      "author": {
-        "name": "Jacob Hoehler"
-      },
-      "keywords": [
-        "git",
-        "jj",
-        "code-review",
-        "pr",
-        "diff",
-        "squash"
-      ]
-    },
-    {
       "name": "shake-tune",
       "source": "./plugins/shake-tune",
       "description": "Interpret Klippain Shake Tune results for 3D printers: diagnose issues from PNG graphs, explain findings, recommend fixes, and track results over time. Supports belt comparison, input shaper, vibration profile, axes map, and excitation tests.",
@@ -362,7 +294,7 @@
       "name": "spec-flow",
       "source": "./plugins/spec-flow",
       "description": "Personal SDLC scaffolding for AI-assisted development. A lightweight, ephemeral 'contract' between user and AI drives each code change from idea to done; the durable layer (CLAUDE.md, ndr atoms, README) lives elsewhere.",
-      "version": "0.2.0",
+      "version": "0.2.1",
       "author": {
         "name": "Jacob Hoehler"
       },
@@ -401,7 +333,7 @@
     "description": "Personal Claude Code plugin marketplace",
     "version": "1.0.0",
     "homepage": "https://github.com/jdh313/cc-marketplace",
-    "totalPlugins": 20,
+    "totalPlugins": 16,
     "lastUpdated": "2026-05-17"
   }
 }
