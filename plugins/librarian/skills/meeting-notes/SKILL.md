@@ -254,12 +254,52 @@ If the daily note doesn't yet exist for the meeting's date, that's
 fine; the query will pick up the meeting when the daily note is
 created.
 
-### 7. Summarize
+### 7. Summarize & surface capturable decisions
 
-Report:
+After the writes complete, dispatch the drafted meeting body to
+`@ndr:ndr-extractor` to spot any decisions worth capturing as ndr
+atoms. Reusing the same extractor `/capture-decision` uses means one
+canonical judgment — surfacing here and capture later see the same
+candidates.
+
+```markdown
+## Intent
+spot capturable decisions in a freshly filed meeting note
+
+## Constraints
+- Source is the drafted meeting body only (frontmatter + sections)
+- Read-only — do not invoke the rest of the ndr pipeline
+- Empty result is acceptable; many meetings produce no atom-worthy
+  decisions
+
+## Input
+- source: <meeting note frontmatter + body, verbatim>
+
+## Output shape
+Standard ndr-extractor `{candidates: [{title, gist, quotes,
+suggested_area, suggested_topic}]}`.
+```
+
+Then report:
+
 - Files created (full paths)
 - Files updated
 - Unresolved wikilinks the user should know about
+- **Capturable decisions** — only if the extractor returned a
+  non-empty list. Surface titles only:
+
+  ```
+  Decision-shaped statements in this meeting:
+    1. <candidate title>
+    2. <candidate title>
+
+  Run /capture-decision to formalize as ndr atoms — they're already
+  recorded in the meeting note.
+  ```
+
+  Quotes and area/topic suggestions are held in the extractor's output
+  but not shown; `/capture-decision` re-extracts if the user opts in.
+  Empty list → omit the section entirely. Silence beats noise.
 
 ## Frontmatter Conventions
 

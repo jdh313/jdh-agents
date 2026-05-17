@@ -1,9 +1,0 @@
-{
-  "name": "surrealdb",
-  "version": "0.2.0",
-  "description": "Model, migrate, and query SurrealDB — helps choose the right data model (graph, document, relational, vector, time-series, key-value, geospatial, full-text search), design schemas, plan migrations, and write SurrealQL with the official Python SDK",
-  "author": {
-    "name": "Jacob Hoehler"
-  },
-  "keywords": ["surrealdb", "surrealql", "multi-model", "graph", "vector", "schema", "migration", "database"]
-}
