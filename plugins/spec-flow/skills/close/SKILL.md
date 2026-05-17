@@ -35,6 +35,14 @@ Same logic as `spec-flow:implement` step 1: explicit name, single active, prompt
 - Run `git log` / `git diff` since the contract was created to see what actually shipped.
 - Compare: what was in *Approach* vs. what's in the code now.
 
+### 2a. Offer a drift check (optional)
+
+If the repo has ndr atoms (i.e. `~/Loose Ends/Decisions/` is populated and at least one atom's `project:` or `area:` matches this repo), prompt once:
+
+> "Want to run a drift check against ndr atoms before archiving? (`Skill(ndr:drift-check)` with scope `<base>...HEAD`.)"
+
+If yes, dispatch the skill and weave its findings into the migration proposal in step 3 — e.g. an atom flagged with `recommendation: amend` becomes a candidate successor in the *ndr atoms to capture* list. Do not auto-invoke; this is opt-in per close.
+
 ### 3. Propose migrations
 
 Surface a structured proposal:
