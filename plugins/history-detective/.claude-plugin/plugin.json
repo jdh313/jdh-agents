@@ -1,9 +1,0 @@
-{
-  "name": "history-detective",
-  "version": "0.2.0",
-  "description": "History investigation tools: bisect, blame, file evolution, and branch comparison for git and jj",
-  "author": {
-    "name": "Jacob Hoehler"
-  },
-  "keywords": ["git", "jj", "bisect", "blame", "history", "evolution", "debugging"]
-}

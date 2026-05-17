@@ -1,9 +1,0 @@
-{
-  "name": "branch-workflow",
-  "version": "0.1.0",
-  "description": "Automate branch/change management for git and jj",
-  "author": {
-    "name": "Jacob Hoehler"
-  },
-  "keywords": ["git", "jj", "branch", "workflow", "vcs"]
-}
