@@ -8,6 +8,7 @@ A personal-discipline plugin for capturing engineering decisions as **atomic mar
 | --- | --- | --- |
 | `/capture-decision` | Manual, at end of a chat | Scans the conversation for atomic decisions, drafts each, asks the user to confirm, writes the file with valid frontmatter + hybrid altitude body |
 | `/decisions <topic>` | Manual, or invoked when an agent needs to ground itself in prior decisions | Frontmatter-first search → load 1–3 hits → walk supersession chain to head → return a brief |
+| `/drift-check [scope]` | Manual, or offered by `spec-flow:close` before archiving | Walks current heads, compares each against a chosen diff scope (working tree / branch range / commit range / full repo), surfaces divergences with three resolutions per item — amend, supersede, revert |
 | `/ndr-bootstrap` | Once per machine after plugin install | Copies seed decision atoms, the Obsidian Base, and the initial taxonomy YAML into `~/Loose Ends/`. Idempotent |
 
 ## Install
@@ -34,7 +35,14 @@ ndr/
 ├── skills/
 │   ├── capture-decision/      # write-side
 │   ├── decisions/             # read-side (supersession-aware)
+│   ├── drift-check/           # code-vs-decision coherence (on-demand)
 │   └── ndr-bootstrap/         # one-time vault content install
+├── agents/
+│   ├── ndr-curator.md         # corpus health
+│   ├── ndr-drafter.md         # atom drafting
+│   ├── ndr-drift-auditor.md   # code-vs-decision walk + compare
+│   ├── ndr-extractor.md       # candidate extraction from long sources
+│   └── ndr-reviewer.md        # pre-write atom validation
 ├── references/                # static schema + workflow docs + template
 │   ├── frontmatter-schema.md
 │   ├── taxonomy.md

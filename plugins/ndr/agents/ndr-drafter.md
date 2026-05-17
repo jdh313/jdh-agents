@@ -38,7 +38,8 @@ Reference files (read on first iteration, cache for the session):
 
 - `${CLAUDE_PLUGIN_ROOT}/references/frontmatter-schema.md` — canonical field list and types.
 - `${CLAUDE_PLUGIN_ROOT}/references/decision-single.md` — body template.
-- `${CLAUDE_PLUGIN_ROOT}/references/taxonomy.md` — area/topic growth rules.
+
+Do NOT read `references/taxonomy.md` or the vault's `.taxonomy/*.yaml`. Taxonomy validation is the orchestrator's job (see rule 9 below).
 
 ## Hard rules
 
@@ -91,7 +92,7 @@ Notes:
 - The `id` in frontmatter and the `# PLACEHOLDER —` heading line are literal strings. `persist.py` does a string replace.
 - Use real newlines in the body string. The persistence helper writes them as-is.
 - `reversibility` defaults to `medium` if the source gives no signal. The reviewer will flag if `easy` or `hard` is plainly indicated and you used the default.
-- If `area:` or `topic:` is `NEW:<value>` from the extractor's suggestion, drop the `NEW:` prefix in your draft — the orchestrator handles taxonomy prompts before calling you. If the caller passed an unprefixed value, trust it.
+- If `area:` or `topic:` is `NEW:<value>` from the extractor's suggestion, drop the `NEW:` prefix in your draft — the orchestrator handles taxonomy prompts before calling you. If the caller passed an unprefixed value, **trust it without verification.** Do not consult any taxonomy snapshot (the bootstrap asset, the reference doc, or any in-context list) to second-guess the value — those sources lag the live vault YAML and the orchestrator has already validated against the live YAML before invoking you. Writing back a different `topic:` than the caller passed is a contract violation.
 
 ## Body composition guide
 

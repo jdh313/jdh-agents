@@ -15,30 +15,13 @@ The Bases view renders the current taxonomy as a visible reference, so "I forgot
 
 Both are flat YAML lists of strings. One value per decision (not lists).
 
-## Current bootstrap
+## Where the live values live
 
-Seeded with the values that actually appear in the A–H meta-chain, so the bootstrap exercises itself rather than starting from abstract guesses.
+**Current truth:** `~/Loose Ends/Decisions/.taxonomy/{areas,topics}.yaml` in the vault. Mutable; grows over time.
 
-### Areas
+**Install-time bootstrap:** `plugins/ndr/assets/taxonomy/{areas,topics}.yaml`. Frozen by design — the seed copied into the vault on `/ndr-bootstrap`. Drift between the asset and the vault is expected and correct.
 
-| Value | Use for |
-| --- | --- |
-| `process` | How decisions get made / written / read |
-| `tooling` | What we use to make / store / read them |
-| `scope` | What's in vs out (MVP, pilot, team-product) |
-| `substrate` | Storage and retrieval medium |
-
-### Topics
-
-| Value | Use for |
-| --- | --- |
-| `substrate` | Storage choice (markdown, graph DB, CMS) |
-| `read-side` | Context-loading, retrieval, supersession resolution |
-| `write-side` | Capture, materialization, schema enforcement |
-| `granularity` | Atomic vs bundled, file vs directory |
-| `mvp-scope` | What's in / out of MVP |
-| `test-method` | How we validate the discipline (Q1 / Q2a / Q2b) |
-| `discipline` | What humans must do without tool support |
+This reference doc deliberately does NOT list current values. A static table here would drift the moment a real `/capture-decision` invocation grows the vault taxonomy, and any agent reading the snapshot would silently second-guess valid values. Always read the vault YAML for current truth.
 
 ## Growth rule
 
