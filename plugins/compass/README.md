@@ -1,6 +1,6 @@
 # compass
 
-A suite of conversational thinking tools. The plugin name is the metaphor: it points, it doesn't command. Two skills today — one strictly neutral, one a thinking partner. Both save the session to your Obsidian vault.
+A suite of conversational thinking tools. The plugin name is the metaphor: it points, it doesn't command. Two skills today — one strictly neutral, one a thinking partner. `reflect` always saves; `mull` saves only substantive sessions.
 
 | Skill | Stance | Use when |
 |---|---|---|
@@ -23,7 +23,7 @@ Output goes to `~/Loose Ends/Reflections/YYYY-MM-DD_<topic>.md`.
 
 When you want a real collaborator — someone who'll probe the root of the issue AND share their read, push back on weak reasoning, or name patterns you might be missing. Still question-led, but the agent is allowed (and expected) to bring something to the table when invited or when silence would be evasive.
 
-Output goes to `~/Loose Ends/Mulling/YYYY-MM-DD_<topic>.md` and captures agent contributions inline as Obsidian callouts so future-you can scan what was said.
+When the session is substantive — unresolved, has open threads, contributed a landing take, or the user asks — output goes to `~/Loose Ends/Mulling/YYYY-MM-DD_<topic>.md` and captures agent contributions inline as Obsidian callouts so future-you can scan what was said. Short or trivial mulls end without filing.
 
 ```
 /mull should I leave my job

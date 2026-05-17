@@ -1,7 +1,7 @@
 {
   "name": "compass",
-  "version": "0.4.1",
-  "description": "A suite of conversational thinking tools — reflect (Socratic mirror, never recommends) and mull (thinking partner, probes AND contributes opinions when appropriate). Both save sessions to your Obsidian vault.",
+  "version": "0.5.0",
+  "description": "A suite of conversational thinking tools — reflect (Socratic mirror, never recommends, always saves) and mull (thinking partner, probes AND contributes opinions, saves substantive sessions only).",
   "author": {
     "name": "Jacob Hoehler",
     "email": "jdhoehler@gmail.com"

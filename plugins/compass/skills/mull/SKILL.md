@@ -1,6 +1,6 @@
 ---
 name: mull
-description: Thinking-partner skill — drills into the root of an issue while offering feedback and opinions where appropriate. This skill should be used when the user invokes `/mull`, says "mull this over with me", "help me think through X", "what do you actually think about X", "give me your honest read on X", "push back on this", or otherwise signals they want a collaborator who will both probe AND share views, not a neutral mirror. For pure clarification with no agent input, use `reflect` instead. Saves the session to `~/Loose Ends/Mulling/`.
+description: Thinking-partner skill — drills into the root of an issue while offering feedback and opinions where appropriate. This skill should be used when the user invokes `/mull`, says "mull this over with me", "help me think through X", "what do you actually think about X", "give me your honest read on X", "push back on this", or otherwise signals they want a collaborator who will both probe AND share views, not a neutral mirror. For pure clarification with no agent input, use `reflect` instead. Saves substantive sessions to `~/Loose Ends/Mulling/`; short or trivial sessions end without filing unless explicitly requested.
 argument-hint: "[topic or continuation]"
 ---
 
@@ -8,9 +8,11 @@ argument-hint: "[topic or continuation]"
 
 ## Overview
 
-Help the user think through a topic by drilling into the root with questions AND offering your own observations, pushback, and opinions when invited or when silence would be evasive. Capture the resulting conversation as a note in `~/Loose Ends/Mulling/`.
+Help the user think through a topic by drilling into the root with questions AND offering your own observations, pushback, and opinions when invited or when silence would be evasive. Save substantive sessions to `~/Loose Ends/Mulling/`; let short or trivial sessions end without filing.
 
 This is the thinking-partner counterpart to `reflect`. Where `reflect` is a strict mirror, `mull` is engaged collaboration — still question-led, but you're allowed (and expected) to bring something to the table.
+
+Unlike `reflect` (which always saves — its job is to pin down the user's answer, so the conclusion matters), `mull` is more conversational. Most mulls explore; only some produce something worth re-reading. The save step is conditional — see Step 5.
 
 ## Stance: Invited-Opinion
 
@@ -102,9 +104,24 @@ If you offered a take that the user disagreed with and the disagreement is unres
 
 Do not pretend a conclusion was reached when it wasn't.
 
-### Step 5: Save
+### Step 5: Save (conditional)
 
-Always save. Path: `~/Loose Ends/Mulling/YYYY-MM-DD_<topic-slug>.md`
+Mull is not always worth a vault note. Decide first whether to save; if not, end the session cleanly without filing.
+
+**Save by default when ANY of these is true:**
+
+- `status: open` — session is unresolved; the Continuation Prompt is meaningful for future-you.
+- Open Threads exist — unresolved disagreements or threads you want to pick up next time.
+- User explicitly asked to save — "save this", "keep this", "log it", "file it".
+- Session was substantive — the conclusion has real texture (more than a one-line yes/no), the conversation surfaced a frame the user will want to re-read, or the agent contributed a take that landed and is worth preserving. Use judgment, not a word count: a deep 3-exchange mull deserves a note; a meandering 10-exchange "what should I have for lunch" does not.
+
+**Skip saving when none of those apply.** Tell the user once, briefly:
+
+> "Light session — not filing this one. Say 'save it' if you'd like a note anyway."
+
+Then end. Do not nag, do not re-ask. The user's silence is acceptance.
+
+**If saving, path:** `~/Loose Ends/Mulling/YYYY-MM-DD_<topic-slug>.md`
 
 - Create the `Mulling/` folder if it doesn't exist (this may be its first use).
 - `topic-slug` — kebab-case, short (2–4 words), e.g., `leaving-job`, `keyboard-pain`, `nix-migration`.
@@ -173,7 +190,9 @@ If the conversation surfaced relevant vault content, add `[[wikilinks]]` under `
 
 ### Step 6: Hand off
 
-After saving:
+If Step 5 skipped saving, you are done — no hand-off needed beyond the brief "not filing this one" line.
+
+If saved:
 - Show the user the path written
 - Ask if they want to add it to today's daily note (`Daily Notes/YYYY-MM-DD.md`) under `## Captured`
 - For open sessions, surface the continuation prompt to copy now
