@@ -361,19 +361,20 @@
     {
       "name": "spec-flow",
       "source": "./plugins/spec-flow",
-      "description": "ADR-centric workflow tooling for AI-assisted development. Drift detection against Accepted ADRs and session-note scaffolding, with worthiness-gated ADR drafting and finding capture deferred until they earn their existence.",
-      "version": "0.1.0",
+      "description": "Personal SDLC scaffolding for AI-assisted development. A lightweight, ephemeral 'contract' between user and AI drives each code change from idea to done; the durable layer (CLAUDE.md, ndr atoms, README) lives elsewhere.",
+      "version": "0.2.0",
       "author": {
         "name": "Jacob Hoehler"
       },
       "keywords": [
-        "adr",
+        "sdlc",
         "spec-driven-development",
         "ai-assisted-dev",
-        "drift-detection",
-        "working-session",
-        "session-notes",
-        "decision-records"
+        "contract",
+        "change-scoped",
+        "ephemeral",
+        "ndr",
+        "librarian"
       ]
     },
     {
@@ -401,6 +402,6 @@
     "version": "1.0.0",
     "homepage": "https://github.com/jdh313/cc-marketplace",
     "totalPlugins": 20,
-    "lastUpdated": "2026-05-16"
+    "lastUpdated": "2026-05-17"
   }
 }
