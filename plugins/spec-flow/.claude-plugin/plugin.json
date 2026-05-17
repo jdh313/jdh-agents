@@ -1,17 +1,18 @@
 {
   "name": "spec-flow",
-  "version": "0.1.0",
-  "description": "ADR-centric workflow tooling for AI-assisted development. Drift detection against Accepted ADRs and session-note scaffolding, with worthiness-gated ADR drafting and finding capture deferred until they earn their existence.",
+  "version": "0.2.0",
+  "description": "Personal SDLC scaffolding for AI-assisted development. A lightweight, ephemeral 'contract' between user and AI drives each code change from idea to done; the durable layer (CLAUDE.md, ndr atoms, README) lives elsewhere.",
   "author": {
     "name": "Jacob Hoehler"
   },
   "keywords": [
-    "adr",
+    "sdlc",
     "spec-driven-development",
     "ai-assisted-dev",
-    "drift-detection",
-    "working-session",
-    "session-notes",
-    "decision-records"
+    "contract",
+    "change-scoped",
+    "ephemeral",
+    "ndr",
+    "librarian"
   ]
 }
