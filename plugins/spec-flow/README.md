@@ -41,7 +41,7 @@ See `references/contract-template.md` for the literal scaffold and conventions.
 
 ## Composes with
 
-- **[ndr](../ndr/README.md)** — Decision atoms. Context-gathering reads ndrs in the area; *done* migration emits new ones via `/capture-decision`.
+- **[ndr](../ndr/README.md)** — Decision atoms. Context-gathering reads ndrs in the area; *done* migration emits new ones via `/capture-decision`. `spec-flow:close` offers an opt-in `ndr:drift-check` against the contract's diff to catch code-vs-decision drift before archiving.
 - **[librarian](../librarian/README.md)** — Vault hygiene. *Done* migration uses librarian for README updates.
 - **debate skill** — Advocate / devils-advocate / fact-checker / synthesizer. Forked when approach is uncertain.
 
