@@ -1,54 +1,53 @@
 # spec-flow
 
-ADR-centric workflow tooling for AI-assisted development. Composes with — does not replace — Claude Code's `CLAUDE.md`, plan mode, and skills.
+Personal SDLC scaffolding for AI-assisted development. Each code change is wrapped in a lightweight **contract** between user and AI — bullets, not prose; ephemeral, not durable. Durable knowledge migrates elsewhere on done.
 
 ## Premise
 
-Spec-Driven Development's honest failure mode is stale parallel docs. Humans don't maintain prose alongside code; agents do, but only the prose they touch. The pure spec-first ideal collapses the moment someone types `Edit` instead of writing markdown.
+Existing SDLC tooling fails one of three ways:
 
-This plugin sidesteps that failure by refusing to maintain a "current system spec" at all. Instead it operates on a three-layer model with bounded drift:
+- **Verbose prose docs** (openspec, spec-kit) help the AI but overwhelm the human.
+- **Rigid phase gates** (spec-kit, Kiro, ce-engineering) shoehorn the user into a fixed workflow.
+- **Visibility-ephemeral plans** (Claude Code plan mode) exist for one moment, then can't be re-read.
 
-| Layer | Lifecycle | Drift profile |
-|---|---|---|
-| **ADRs** (durable why) | Punctual: written once, amended or superseded only on real decisions | Drifts only when code diverges from a recorded decision — detectable |
-| **Session notes** (disposable plans) | Session-scoped: dated, archived at end of day | Frozen-by-design once the day ends; can't go stale |
-| **Generated docs** (derived) | Tied to code | Can't drift; regenerated from source |
+spec-flow's load-bearing principle is **epistemic fit**: it must work the way *you* think, not impose its own thinking. The contract is the agreement; the bullets are the residue.
 
-The plugin's contribution is **maintenance discipline for the ADR layer** plus **scaffolding for the session-note layer**. Generated docs aren't its concern.
+## How it works
 
-## Skills shipped (v0.1)
+1. **Kickoff** — `/spec-flow start <goal>` opens a contract in `.docs/YYYY-MM-DD-<name>.md`. If other contracts are already open, the kickoff flags them.
+2. **Context-gathering** — AI does proactive research (codebase, library docs via Context7, relevant ndr atoms), then asks targeted questions only where its path isn't clear. Conversation builds the shared model.
+3. **Drafting** — Contract gets five sections: *What we're doing*, *Why*, *Approach* (larger strokes only), *Out of scope*, *Open questions*. Bullets/lists/tables, never prose.
+4. **(Optional) Debate** — When the *how* is non-obvious, fork into the debate skill (advocate / devils-advocate / fact-checker / synthesizer); recommended approach + draft ndr atoms flow back into the contract.
+5. **Implementation** — At handoff, AI asks *"all at once, or check in after a piece?"* and may propose a sensible breakpoint. Cadence decided per session, not persisted.
+6. **Amendment** — When reality diverges, AI proposes a contract edit; user signs off before it lands.
+7. **Resumption** — `/spec-flow resume <name>` or natural reference (*"pick up okta-auth"*). Multiple contracts in flight are allowed; the resume command matches the prompt to the best fit or asks.
+8. **Done** — Explicit signal (*"this is done"*). AI proposes migrations: ndr atoms via `/capture-decision`, README updates via librarian. Contract moves to `.docs/archive/`.
 
-- **`adr-drift-check`** — On-demand check: scan an ADR directory, read only `Accepted` ADRs, compare against a diff (working tree, branch range, or commit range), and propose resolutions for each detected divergence: **amend / supersede / revert**. Also surfaces `Proposed` ADRs older than a threshold as a quieter "stalled ratification" signal.
-- **`session-spec`** — Scaffold a dated working-session note in an Obsidian vault. Template includes Goal / Tiers / Components / Non-goals / Dependencies / Risks / End-of-day artifacts / **Reflection (with `Decisions to promote to ADRs:` line as the drift-prevention nudge)**.
+## File layout
 
-## Skills deferred
+```
+.docs/
+├── 2026-05-17-okta-auth.md         # active contract
+├── 2026-05-12-image-pipeline.md    # active contract
+└── archive/
+    └── 2026-05-03-config-cleanup.md
+```
 
-These will earn their existence after v0.1 use exposes the next gap:
+`.docs/` is gitignored by user convention (scratch artifacts).
 
-- **`adr-evaluate`** — Interactive worthiness gate. Walks through criteria from `references/worthiness-criteria.md`; if the candidate passes, scaffolds a `Status: Proposed` ADR. If it fails, suggests where else it should live (CLAUDE.md gotcha, session-note Reflection, code comment, no record needed).
-- **`adr-accept`** — Formal ratification ritual: read Context/Constraints/Decision/Consequences, walk Review Notes, trim resolved items, flip status to `Accepted`. Today this is a manual edit; the skill exists once the ritual gains enough surface area to justify automation.
-- **`finding-capture`** — Append AI-dev observations to a Track 2 / experiment scratch note with consistent format and dating.
+## Contract shape
 
-## ADR conventions
+See `references/contract-template.md` for the literal scaffold and conventions.
 
-The plugin follows a schema modeled on the voyager project's ADR practice (`docs/arch/`):
+## Composes with
 
-- **Filename:** `NNNN-slug.md` under an ADR directory (project default: `notes/adr/`)
-- **Schema:** Title / Status / Context / **Constraints** / Decision / Consequences / Alternatives Considered / Review Notes *(to be trimmed before acceptance)*
-- **Status lifecycle:** `Proposed` → `Accepted` → (`Rejected` | `Superseded by ADR-NNNN`)
-- **Acceptance is a deliberate human step.** New ADRs are always created `Proposed`. The agent never unilaterally accepts.
-- **Review Notes section is the agent's question-parking surface during drafting.** The human resolves items there during ratification, then trims before flipping to `Accepted`.
-
-Full schema and template in `references/adr-schema.md`. Worthiness criteria in `references/worthiness-criteria.md`.
-
-## Working session conventions
-
-- **Filename:** `<YYYY-MM-DD> Working Session.md` under the project's vault folder
-- **Template** in `references/working-session-template.md`
-- **Drift mitigation:** the Reflection section's `Decisions to promote to ADRs:` line is the bridge between session-scoped planning and the durable ADR layer. Anything that locks in a constraint binding future code goes there before end-of-day.
+- **[ndr](../ndr/README.md)** — Decision atoms. Context-gathering reads ndrs in the area; *done* migration emits new ones via `/capture-decision`.
+- **[librarian](../librarian/README.md)** — Vault hygiene. *Done* migration uses librarian for README updates.
+- **debate skill** — Advocate / devils-advocate / fact-checker / synthesizer. Forked when approach is uncertain.
 
 ## What this plugin is not
 
-- Not a system-spec maintainer. There is no "current state of the system" doc this plugin keeps current.
-- Not a CLAUDE.md replacement. Standards / gotchas / always-loaded context still belong there.
-- Not a plan-mode replacement. Plan mode handles per-task planning during agent work; session-spec handles the day-level container around that work.
+- Not a roadmap tool. Single-change-scoped only; no multi-feature planning.
+- Not a system-spec maintainer. Durable knowledge lives in README + ndr atoms + code.
+- Not a team tool. Solo workflow; no PR gates, no reviewer briefing.
+- Not a replacement for `CLAUDE.md` or plan mode. spec-flow's contract layer composes with both.
