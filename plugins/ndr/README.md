@@ -7,7 +7,8 @@ A personal-discipline plugin for capturing engineering decisions as **atomic mar
 | Skill | Trigger | Behavior |
 | --- | --- | --- |
 | `/capture-decision` | Manual, at end of a chat | Scans the conversation for atomic decisions, drafts each, asks the user to confirm, writes the file with valid frontmatter + hybrid altitude body |
-| `/decisions <topic>` | Manual, or invoked when an agent needs to ground itself in prior decisions | Frontmatter-first search → load 1–3 hits → walk supersession chain to head → return a brief |
+| `/decisions <topic>` | Manual, when the user has a topic or `ndr:` ref in hand | Frontmatter-first search → load 1–3 hits → walk supersession chain to head → return a brief |
+| `/ground [scope]` | Before substantive code work, or before delegating to a coding subagent (junior-dev / senior-dev / tech-lead) | Infers scope from CWD / file path / user phrase, dispatches `@ndr-reader` to walk supersession, returns a brief plus `ndr:` reference strings the delegating prompt can paste in |
 | `/drift-check [scope]` | Manual, or offered by `spec-flow:close` before archiving | Walks current heads, compares each against a chosen diff scope (working tree / branch range / commit range / full repo), surfaces divergences with three resolutions per item — amend, supersede, revert |
 | `/ndr-bootstrap` | Once per machine after plugin install | Copies seed decision atoms, the Obsidian Base, and the initial taxonomy YAML into `~/Loose Ends/`. Idempotent |
 
@@ -34,7 +35,8 @@ ndr/
 ├── README.md                  # this file
 ├── skills/
 │   ├── capture-decision/      # write-side
-│   ├── decisions/             # read-side (supersession-aware)
+│   ├── decisions/             # read-side, user-driven (supersession-aware)
+│   ├── ground/                # read-side, active-work grounding for coding agents
 │   ├── drift-check/           # code-vs-decision coherence (on-demand)
 │   └── ndr-bootstrap/         # one-time vault content install
 ├── agents/
@@ -42,6 +44,7 @@ ndr/
 │   ├── ndr-drafter.md         # atom drafting
 │   ├── ndr-drift-auditor.md   # code-vs-decision walk + compare
 │   ├── ndr-extractor.md       # candidate extraction from long sources
+│   ├── ndr-reader.md          # supersession-aware read + synthesize (dispatched by /ground)
 │   └── ndr-reviewer.md        # pre-write atom validation
 ├── references/                # static schema + workflow docs + template
 │   ├── frontmatter-schema.md

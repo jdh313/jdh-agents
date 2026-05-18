@@ -40,7 +40,17 @@ The pipeline split is deliberate:
 
 ## Read flow
 
-`/decisions <ref-or-topic>` is the supersession-aware reader. It parses three reference grains plus a free-text fallback (see [Reference convention](#reference-convention)) and then runs two-stage retrieval:
+The read side has two entry points and one worker:
+
+| Entry point | Driven by | Use when |
+| --- | --- | --- |
+| `/decisions <ref-or-topic>` | user-supplied topic or `ndr:` ref | The user (or another agent) already knows the topic — "what did we decide about X?", "resolve `ndr:0011`" |
+| `/ground [scope]` | active code work — cwd, file path, area phrase | Before substantive edits or before delegating to a coding subagent (junior-dev / senior-dev / tech-lead) — "ground me in the NDRs for this area" |
+| `@ndr-reader` | both skills, and any agent with Agent-tool access | The single worker: parses the inbound payload, does the obsidian-cli work, walks supersession to head, returns a structured brief. Read-only |
+
+Both skills are thin: they handle argument parsing or scope detection plus presentation, and dispatch to `@ndr-reader` for the work. That keeps the supersession walk (Stage 3 below) in one place — see [Why this shape](#why-this-shape).
+
+`@ndr-reader` runs two-stage retrieval (skipped when the caller already passes a specific `ref:`):
 
 ### Stage 1 — frontmatter probe
 
@@ -70,6 +80,36 @@ If the head's body has a `## Assumptions` section with `Revisit if:` conditions 
 - If still zero, return "no decisions matched \<topic\>". Don't fabricate.
 - If no topic argument is given, the skill prompts for one.
 
+## Grounding flow
+
+`/ground [scope]` is the active-work entry point. Where `/decisions` waits for a user-supplied topic or `ndr:` reference, `/ground` detects scope from whatever the orchestrator already knows about the current task and pulls relevant heads proactively — typically just before substantive code edits or before delegating to a coding subagent.
+
+```
+scope detection (skill) ──► @ndr-reader ──► brief surfaced to orchestrator ──► (optional) folded into delegation prompt
+```
+
+### Why this is separate from `/decisions`
+
+The two skills share `@ndr-reader` but differ in who supplies the scope and what shape the answer takes:
+
+| Aspect | `/decisions` | `/ground` |
+| --- | --- | --- |
+| Scope source | user argument (`$ARGUMENTS`) | cwd, recently edited files, area phrase, conversation context |
+| Activation | user types it, or user asks a topic-shaped question | orchestrator about to do or delegate substantive code work in a tracked project |
+| Output emphasis | one brief — answer the question | one or more briefs + `ndr:` reference strings ready to paste into a delegation prompt |
+| Quiet on empty | optional "no matches" line | mandatory — one line, no nag |
+
+### Skill responsibilities
+
+1. **Detect scope.** Build a lightweight payload from `pwd` / `git rev-parse --show-toplevel`, `$ARGUMENTS`, and recently-edited files in conversation context. Do NOT load atoms — that is the agent's job.
+2. **Dispatch.** Hand `@ndr-reader` the canonical Intent / Constraints / Input / Output shape payload. `Output shape: brief` is the default.
+3. **Present.** Inline (1–2 heads) or batched table (3+). Surface assumption-warning callouts verbatim — those are the load-bearing signal that prior reasoning may be tripping.
+4. **(Optional) Hand off.** If the orchestrator is about to dispatch `junior-dev` / `senior-dev` / `tech-lead`, append the `ndr:` reference strings from the brief to the delegation prompt so the subagent has stable identifiers without needing to query the vault itself.
+
+### Why skill + agent split (not just an agent)
+
+Subagents don't see the skills list. The orchestrator does — its always-visible reminder block carries each skill's frontmatter description. That's the primary "Claude knows when to invoke this" mechanism. An agent alone, with no skill, would have a much weaker activation path: agent descriptions are only visible to agents that have Agent-tool access *and* are actively scanning. The skill provides the trigger surface; the agent provides the isolated context for the work. This is the same shape `librarian:meeting-followup` + `librarian:vault-reader` use.
+
 ## Reference convention
 
 External code, READMEs, design docs, and vault notes that need to point at NDRs use the `ndr:` prefix with three resolvable grains:
@@ -90,14 +130,25 @@ Vault wikilinks can use slugs directly: `[[ndr-monorepo-shape]]` resolves throug
 
 References are bi-temporal: a writer may mean "the atom that justified this code" (historical) or "the decision that currently governs this code" (live). Forcing one reference form to do both jobs is what makes `ADR-NNNN` style refs go stale on supersession. The three grains let the writer name intent at write-time, and `/decisions` resolves the appropriate atom(s) at read-time.
 
-## Auto-loaded rule
+## Opting a repo into the grounding rule
 
-`rules/ndr-decisions.md` is symlinked into `~/.claude/rules/` and tells the agent to:
+NDR coverage is per-repo and opt-in. The opt-in artifact is a snippet in the repo's `.claude/CLAUDE.md` that names this repo as NDR-tracked and tells the orchestrator to run `/ground` before substantive code work.
 
-- Run `/decisions <inferred topic>` early in sessions on tracked projects.
-- Treat unread decisions as ground truth — don't re-derive current state from older artifacts.
+The bootstrap installs a canonical copy of the snippet to `~/Loose Ends/Decisions/.templates/project-claude-md.md`. To opt a repo in:
 
-Tracked projects are opted in via a project-level `.claude/CLAUDE.md` marker (deferred to post-scaffold; first tracked project will likely be a Carta repo).
+```
+cat ~/Loose\ Ends/Decisions/.templates/project-claude-md.md >> <repo>/.claude/CLAUDE.md
+```
+
+The snippet covers:
+
+- That decisions for this repo live as atoms with `project: [[<this-repo>]]`.
+- When to invoke `/ground` (substantive edits, before delegating to a coding subagent) and when to skip (typo fixes, comment-only).
+- Treating returned decision heads as ground truth — no re-deriving from READMEs / ADRs / code comments.
+- The `ndr:` reference convention for pointing at decisions from code.
+- When to invoke `/capture-decision` at end of chat.
+
+Why opt-in: not every repo has NDR coverage, and pulling vault context for repos that don't would be noise. Editing CLAUDE.md is also intentional — opting in records a per-repo commitment to consult the decision corpus.
 
 ## Why this shape
 
