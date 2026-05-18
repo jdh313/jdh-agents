@@ -3,6 +3,11 @@ name: catalog-evaluate
 description: Add or re-evaluate a software catalog entry — a tool, service, or system with a decision attached. Use when user says "add to my tool catalog", "evaluate this tool", "catalog X", "I'm considering X", or "record my decision on X".
 allowed-tools:
   - Read
+  - Write
+  - Edit
+  - Glob
+  - Grep
+  - Bash(obsidian-cli *)
   - WebFetch
 ---
 

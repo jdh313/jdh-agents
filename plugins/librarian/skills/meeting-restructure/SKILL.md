@@ -3,6 +3,11 @@ name: meeting-restructure
 description: Restructure an already-filed meeting note by redistributing its durable facts into canonical notes (project pages, people pages, wiki pages) and leaving the meeting note as a slim log with outbound links. Use when the user says "restructure this meeting note", "distribute this meeting", "split this meeting up", "pull durable facts out of this meeting", "this note is stream-of-consciousness", or otherwise asks to refactor an existing meeting note. Distinct from `meeting-notes`, which files fresh raw notes — this skill operates on notes that are already filed, possibly days or weeks later.
 allowed-tools:
   - Read
+  - Write
+  - Edit
+  - Glob
+  - Grep
+  - Bash(obsidian-cli *)
 ---
 
 # Meeting Restructure

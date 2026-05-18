@@ -3,6 +3,11 @@ name: wiki-graduate
 description: Split a fat wiki gist into an `expands:` child page cleanly. Use when a wiki page has accumulated enough material that a section deserves its own deeper layer — user says "this page is getting too long", "split off the X section", "graduate this", "move this to a child page", "promote this section", or when `vault-inspect` flags a page as oversized.
 allowed-tools:
   - Read
+  - Write
+  - Edit
+  - Glob
+  - Grep
+  - Bash(obsidian-cli *)
 ---
 
 # Wiki Graduate

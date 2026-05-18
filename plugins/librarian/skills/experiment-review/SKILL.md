@@ -3,6 +3,11 @@ name: experiment-review
 description: Review an experiment — pulse-check mid-run, or record the verdict at/after review_date. Reads the experiment page plus all daily-note check-ins (via @vault-reader), summarizes observations, probes for missing context, and (if review_date has arrived) guides the adopt/modify/drop/inconclusive verdict. Use when the user says "how is X going", "review the X experiment", "time to review", "verdict on", "what did I learn from", or when an experiment's review_date has arrived.
 allowed-tools:
   - Read
+  - Write
+  - Edit
+  - Glob
+  - Grep
+  - Bash(obsidian-cli *)
 ---
 
 # Experiment Review

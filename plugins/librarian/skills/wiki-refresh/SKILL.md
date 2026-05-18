@@ -3,6 +3,11 @@ name: wiki-refresh
 description: Update an existing wiki page with current information from external sources. Use when user says "refresh this page", "update the wiki on", "this page is stale", "wiki-refresh", or when a wiki page needs updating with newer information.
 allowed-tools:
   - Read
+  - Write
+  - Edit
+  - Glob
+  - Grep
+  - Bash(obsidian-cli *)
   - WebFetch
   - WebSearch
 ---

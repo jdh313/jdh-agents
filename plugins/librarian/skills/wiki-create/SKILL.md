@@ -3,6 +3,11 @@ name: wiki-create
 description: Create or update a wiki page. Detects mode from input — ingest mode if the user provides a URL/file/pasted text (save to Sources/, draft wiki pages, update index and log); stub mode otherwise (lightweight "what is X" page from common knowledge, no source required). Use when user says "ingest this", "add to wiki", "process this article", "stub this", "add a wiki page for", "create a page for", "add a note about [topic]", "make a note about", "save a note about", or provides a source to add to the knowledge base. Merger of the former `wiki-ingest` and `wiki-stub` skills.
 allowed-tools:
   - Read
+  - Write
+  - Edit
+  - Glob
+  - Grep
+  - Bash(obsidian-cli *)
   - WebFetch
 ---
 

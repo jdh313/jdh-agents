@@ -6,6 +6,11 @@ description: >
   active work context. Presents contextually without interrupting flow.
 allowed-tools:
   - Read
+  - Write
+  - Edit
+  - Glob
+  - Grep
+  - Bash(obsidian-cli *)
 ---
 
 # Meeting Follow-up
