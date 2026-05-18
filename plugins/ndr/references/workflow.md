@@ -45,18 +45,14 @@ The pipeline split is deliberate:
 ### Stage 1 — frontmatter probe
 
 ```
-mcp__obsidian-mcp__search_notes
-  query: "<user-supplied topic terms>"
-  searchFrontmatter: true
-  searchContent: false
-  limit: 10
+obsidian-cli search query="<user-supplied topic terms>" path="Decisions" limit=10 format=json
 ```
 
-Returns hit titles + match counts. Cheap and precise.
+`obsidian-cli search` matches against file content (which includes YAML frontmatter); focused query terms — area, topic, title fragments — push frontmatter matches to the top. The skill post-filters hits by reading frontmatter fields (`obsidian-cli property:read name="area" path="..."`, etc.) and reranks frontmatter matches ahead of pure body-text matches. Cheap and precise.
 
 ### Stage 2 — load matches
 
-Agent picks the top 1–3 hits, calls `mcp__obsidian-mcp__read_multiple_notes`. Total cost lands at 500–1500 tokens.
+Skill picks the top 1–3 hits and calls `obsidian-cli read path="<path>"` once per pick (the CLI has no batch read; loop the calls). Total cost lands at 500–1500 tokens.
 
 ### Stage 3 — walk supersession
 
@@ -70,7 +66,7 @@ If the head's body has a `## Assumptions` section with `Revisit if:` conditions 
 
 ### Fallbacks
 
-- If Stage 1 returns zero hits, retry once with `searchContent: true`.
+- If Stage 1 returns zero hits, retry once with `obsidian-cli search:context query="..." path="Decisions" limit=10 format=json` (broader content match with surrounding lines).
 - If still zero, return "no decisions matched \<topic\>". Don't fabricate.
 - If no topic argument is given, the skill prompts for one.
 

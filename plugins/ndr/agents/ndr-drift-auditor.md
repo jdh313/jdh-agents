@@ -8,9 +8,6 @@ tools:
   - Grep
   - Glob
   - Bash
-  - mcp__obsidian-mcp__read_note
-  - mcp__obsidian-mcp__read_multiple_notes
-  - mcp__obsidian-mcp__list_directory
 ---
 
 # ndr-drift-auditor
@@ -52,9 +49,9 @@ Audit code-vs-decision drift. You walk current heads of the supersession chain i
 
    If the resulting diff is empty (any scope), return early with `divergences: []` and `summary: "diff is empty in scope <kind>; nothing to audit."`.
 
-3. **Enumerate atoms.** `mcp__obsidian-mcp__list_directory` on `Decisions/`. Filter to files matching `^\d{4}-.*\.md$`. Hidden `.taxonomy/` excluded by dot prefix.
+3. **Enumerate atoms.** `obsidian-cli files folder="Decisions" ext="md"`. Filter the returned list to entries matching `^Decisions/\d{4}-.*\.md$`. The hidden `.taxonomy/` directory is excluded by the dot prefix. Do NOT use `mcp__obsidian-mcp__*` tools or shell out to `find`/`ls` against the vault — `obsidian-cli` is the single vault interface.
 
-4. **Load atoms.** `mcp__obsidian-mcp__read_multiple_notes` in batches of 20.
+4. **Load atoms.** `obsidian-cli read path="Decisions/<id>-<slug>.md"` once per atom. The CLI has no batch read; loop the calls. Cache reads in agent memory for the rest of the audit.
 
 5. **Filter to current heads.** Discard any atom with non-empty `superseded_by:` — it's not the current state. Discard any with `status: retracted`. Record the count of skipped atoms.
 

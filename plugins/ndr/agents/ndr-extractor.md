@@ -7,9 +7,7 @@ tools:
   - Read
   - Grep
   - Glob
-  - mcp__obsidian-mcp__read_note
-  - mcp__obsidian-mcp__read_multiple_notes
-  - mcp__obsidian-mcp__list_directory
+  - Bash
 ---
 
 # ndr-extractor
@@ -28,7 +26,7 @@ The orchestrator will provide:
 - **Project context** (optional). What project the captures belong to — helps you suggest `project:` for each atom.
 - **Taxonomy snapshot** (optional). Current `area:` / `topic:` values from `~/Loose Ends/Decisions/.taxonomy/{areas,topics}.yaml`. Use these to suggest matching values per candidate. If you'd suggest a new value, flag it.
 
-If the source is a file path, read it. If it's a wikilink to a vault note, use `mcp__obsidian-mcp__read_note`. Do not chase secondary references — extract from the source as given.
+If the source is a file path outside the vault, use `Read`. If it's a vault path or wikilink, use `obsidian-cli read path="<path>"` (or `obsidian-cli read file="<name>"` for wikilink resolution). Do not chase secondary references — extract from the source as given. Do NOT use `mcp__obsidian-mcp__*` tools.
 
 ## Hard rules
 

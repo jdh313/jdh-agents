@@ -3,9 +3,8 @@ name: decisions
 description: Supersession-aware reader for engineering decisions stored in `~/Loose Ends/Decisions/`. Use when the user invokes `/decisions <topic>`, asks "what did we decide about X", "is there a decision about Y", "current state on Z", or when an agent on a tracked project needs to ground itself in prior decisions before suggesting changes. Two-stage retrieval (frontmatter probe → load matches), then walks the supersession chain to the head — so readers see CURRENT state, not stale starting points. When working on a project that has decisions in `~/Loose Ends/Decisions/`, query this skill early — before proposing architectural changes or re-deriving current state from older artifacts (READMEs, ADRs, code comments). Treat returned decisions as ground truth and walk the supersession chain rather than trusting recall.
 argument-hint: "<ref-or-topic>"
 allowed-tools:
-  - mcp__obsidian-mcp__search_notes
-  - mcp__obsidian-mcp__read_note
-  - mcp__obsidian-mcp__read_multiple_notes
+  - Bash
+  - Read
 ---
 
 # decisions
@@ -20,10 +19,11 @@ This skill encodes the **read side** of nested-decision-records (ndr). Its load-
 
 1. **Always walk supersession.** Never return a decision with non-empty `superseded_by:` as the answer. Walk to the head.
 2. **Don't fabricate.** If no decision matches, say so. Do not guess what the user probably decided.
-3. **Frontmatter-first.** Stage 1 uses `searchFrontmatter: true, searchContent: false`. Only fall back to content search if frontmatter returns zero hits.
+3. **Frontmatter-first.** Stage 1 probes property values (area, topic, title, aliases) via `obsidian-cli properties` / `obsidian-cli search` against `path="Decisions"`. Only fall back to a broader content search if the frontmatter probe returns zero hits.
 4. **Cheap by default.** Stage 1 returns ≤10 hits; Stage 2 loads top 1–3. Don't load 10 files.
-5. **Treat returned decisions as ground truth.** Don't re-derive current state from older artifacts (READMEs, ADRs, code comments) once a decision exists. The supersession walk is canonical.
-6. **Parse the argument first.** `$ARGUMENTS` may be an atom-id (`0011`), a slug (`#monorepo-shape`), an `area/topic` pair, or free-text topic terms. Dispatch to the matching resolution path in Stage 0 before running Stage 1.
+5. **`obsidian-cli` only.** All vault interaction goes through `obsidian-cli` (Bash). Do NOT use `mcp__obsidian-mcp__*` tools, and do NOT shell out to `find`, `grep`, `cat`, or `ls` against `~/Loose Ends/`.
+6. **Treat returned decisions as ground truth.** Don't re-derive current state from older artifacts (READMEs, ADRs, code comments) once a decision exists. The supersession walk is canonical.
+7. **Parse the argument first.** `$ARGUMENTS` may be an atom-id (`0011`), a slug (`#monorepo-shape`), an `area/topic` pair, or free-text topic terms. Dispatch to the matching resolution path in Stage 0 before running Stage 1.
 
 ## Inputs
 
@@ -44,24 +44,20 @@ Strip a leading `ndr:` prefix if present, then dispatch:
 
 **1. Atom-id** — `$ARGUMENTS` matches `^\d{4}$`.
 
-- Resolve directly: list `Decisions/` via `mcp__obsidian-mcp__list_directory`, find the file matching `<id>-*.md`.
-- Load it with `mcp__obsidian-mcp__read_note`.
+- Resolve directly: enumerate `Decisions/` via `obsidian-cli files folder="Decisions" ext="md"`, find the entry matching `Decisions/<id>-*.md`.
+- Load it with `obsidian-cli read path="Decisions/<id>-<slug>.md"`.
 - Skip Stage 1 and Stage 2 entirely. Jump to Stage 3 (walk supersession to head).
 - If no file matches, return: `No atom with id "<id>".`
 
 **2. Slug** — `$ARGUMENTS` starts with `#`.
 
 - Strip the `#`. The remainder is the slug (typically `ndr-<kebab>`).
-- Call:
+- Search for atoms holding the slug:
   ```
-  mcp__obsidian-mcp__search_notes
-    query: "<slug>"
-    searchFrontmatter: true
-    searchContent: false
-    limit: 10
+  obsidian-cli search query="<slug>" path="Decisions" limit=10 format=json
   ```
-- Filter hits to those whose `aliases:` frontmatter field contains the slug exactly.
-- If exactly one hit: load it via `mcp__obsidian-mcp__read_note` and jump to Stage 3.
+- For each hit, confirm by reading the `aliases:` frontmatter field — `obsidian-cli property:read name="aliases" path="<hit-path>"` — and keep only those whose list contains the slug exactly.
+- If exactly one hit: load it via `obsidian-cli read path="<hit-path>"` and jump to Stage 3.
 - If zero hits: return `No atom holds slug "<slug>".`
 - If multiple hits: this is a uniqueness violation. Print:
   ```
@@ -84,19 +80,15 @@ Strip a leading `ndr:` prefix if present, then dispatch:
 
 ### Stage 1 — Frontmatter probe
 
-Call:
+`obsidian-cli search` matches against file content, which includes the YAML frontmatter at the top of each atom. Constrain the search to `Decisions/` and use focused query terms (area, topic, title fragments) so frontmatter fields dominate the match ranking:
 
 ```
-mcp__obsidian-mcp__search_notes
-  query: "$ARGUMENTS"
-  searchFrontmatter: true
-  searchContent: false
-  limit: 10
+obsidian-cli search query="$ARGUMENTS" path="Decisions" limit=10 format=json
 ```
 
-(Constrain to the Decisions folder via the query terms if the tool supports a folder filter; otherwise filter by path prefix `Decisions/` when ranking hits.)
+After the call, post-filter hits by reading frontmatter on the most promising paths via `obsidian-cli property:read` (e.g. `name="area"`, `name="topic"`, `name="title"`) and rank those whose frontmatter values actually match `$ARGUMENTS` ahead of pure body-text matches.
 
-**If 0 hits**: retry once with `searchContent: true, limit: 10`.
+**If 0 hits**: retry once with `obsidian-cli search:context query="$ARGUMENTS" path="Decisions" limit=10 format=json` (broader content match with surrounding lines).
 
 **If still 0**: return:
 
@@ -115,7 +107,7 @@ Rank hits by:
 2. Frontmatter field match (title, area, topic, tags).
 3. Recency (`decision_date`).
 
-Pick the top 1–3. Call `mcp__obsidian-mcp__read_multiple_notes` with those paths.
+Pick the top 1–3. Call `obsidian-cli read path="<path>"` once per pick (the CLI has no batch read; loop the calls).
 
 ### Stage 3 — Walk supersession to head (load-bearing)
 
@@ -123,7 +115,7 @@ For each loaded decision D:
 
 1. Parse `D.superseded_by`.
 2. If empty, D is a head. Record it.
-3. If non-empty, follow each link to its target. Re-read via `mcp__obsidian-mcp__read_note`. Recurse to a head.
+3. If non-empty, follow each link to its target. Re-read via `obsidian-cli read path="Decisions/<target-id>-<target-slug>.md"`. Recurse to a head.
 4. Detect cycles: if a chain revisits a previously-seen ID, print:
    ```
    Cycle detected: <id-a> → <id-b> → <id-a>. Manual resolution needed.
@@ -172,7 +164,7 @@ Substrate = markdown in ~/Loose Ends/Decisions/ for MVP (Decisions/0007-mvp-subs
   reversibility: medium
 
 Atomic decisions live in `~/Loose Ends/Decisions/` as YAML-front-matter markdown.
-Capture via a Claude Code skill; retrieval via `obsidian-mcp search_notes` (frontmatter-first)
+Capture via a Claude Code skill; retrieval via `obsidian-cli search` (frontmatter-first)
 and Obsidian Bases for faceted browse. Graphiti preserved as fallback for team scale.
 
 Lineage: 0005 → 0007

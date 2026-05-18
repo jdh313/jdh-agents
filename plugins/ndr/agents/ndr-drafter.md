@@ -5,9 +5,7 @@ model: sonnet
 color: blue
 tools:
   - Read
-  - mcp__obsidian-mcp__read_note
-  - mcp__obsidian-mcp__list_directory
-  - mcp__obsidian-mcp__search_notes
+  - Bash
 ---
 
 # ndr-drafter

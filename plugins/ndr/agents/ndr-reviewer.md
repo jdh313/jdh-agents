@@ -7,10 +7,7 @@ tools:
   - Read
   - Grep
   - Glob
-  - mcp__obsidian-mcp__read_note
-  - mcp__obsidian-mcp__read_multiple_notes
-  - mcp__obsidian-mcp__list_directory
-  - mcp__obsidian-mcp__search_notes
+  - Bash
 ---
 
 # ndr-reviewer
@@ -48,7 +45,7 @@ Two modes:
 }
 ```
 
-In audit mode, read each file via `mcp__obsidian-mcp__read_note`, parse the frontmatter and body, then run the same checks. Audit mode is read-only.
+In audit mode, read each file via `obsidian-cli read path="Decisions/<id>-<slug>.md"` (Bash). Parse the frontmatter and body, then run the same checks. Audit mode is read-only. Do NOT use `mcp__obsidian-mcp__*` tools — `obsidian-cli` is the single vault interface.
 
 Reference files:
 
@@ -102,8 +99,8 @@ For each, emit a `severity: mechanical` issue. The orchestrator can choose to su
 
 When `mode: audit`:
 - **Supersession state coherence:** if `status: superseded`, `superseded_by:` must be non-empty.
-- **Back-pointer integrity:** for each link in `superseded_by:`, the target atom's `supersedes:` must include this atom.
-- **Alias uniqueness:** for each slug in `aliases:`, search the vault — only one atom should hold it.
+- **Back-pointer integrity:** for each link in `superseded_by:`, the target atom's `supersedes:` must include this atom. Load the target via `obsidian-cli read path="Decisions/<id>-<slug>.md"`.
+- **Alias uniqueness:** for each slug in `aliases:`, search the vault with `obsidian-cli search query="<slug>" path="Decisions" format=json` — only one atom should hold it.
 
 ## Output format
 
