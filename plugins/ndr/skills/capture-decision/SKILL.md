@@ -150,11 +150,15 @@ Do not call `persist.py` until the reviewer passes (or the user explicitly overr
 
 ### Step 7 — Persist
 
-Pass the drafts to `persist.py` as JSON on stdin:
+Pass the drafts to `persist.py` as JSON on stdin. Use a quoted heredoc — it avoids shell-quoting hazards (JSON quotes, newlines, `$`, backticks pass through verbatim) and keeps the persist call to a single Bash invocation. **Do not** write a temp file; **do not** add `--with pyyaml` (the script declares its deps via PEP 723 inline metadata, so `uv run` resolves PyYAML on its own):
 
 ```bash
-echo "$DRAFTS_JSON" | uv run --with pyyaml "${CLAUDE_PLUGIN_ROOT}/scripts/persist.py"
+uv run "${CLAUDE_PLUGIN_ROOT}/scripts/persist.py" <<'NDR_DRAFTS_EOF'
+{"drafts": [ ...full drafts payload... ]}
+NDR_DRAFTS_EOF
 ```
+
+If the payload is large enough that inlining it via heredoc feels unwieldy, use the file-input form instead: `Write` the JSON to a scratch path and call `uv run "${CLAUDE_PLUGIN_ROOT}/scripts/persist.py" --input <path>`. Heredoc is the default; `--input` is the escape hatch.
 
 `persist.py` returns a JSON summary on stdout. Exit codes:
 
