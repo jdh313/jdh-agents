@@ -257,7 +257,7 @@
       "name": "spec-flow",
       "source": "./plugins/spec-flow",
       "description": "Personal SDLC scaffolding for AI-assisted development. A lightweight, ephemeral 'contract' between user and AI drives each code change from idea to done; the durable layer (CLAUDE.md, ndr atoms, README) lives elsewhere.",
-      "version": "0.2.1",
+      "version": "0.3.0",
       "author": {
         "name": "Jacob Hoehler"
       },
