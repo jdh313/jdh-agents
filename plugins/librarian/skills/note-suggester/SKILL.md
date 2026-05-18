@@ -5,6 +5,13 @@ description: >
   reusable knowledge worth capturing. Suggests note captures inline when: debugging
   approaches work, patterns emerge, decisions are made with rationale, or techniques
   could apply elsewhere. Batches suggestions for end-of-session summary.
+allowed-tools:
+  - Read
+  - Write
+  - Edit
+  - Glob
+  - Grep
+  - Bash(obsidian-cli *)
 ---
 
 # Note Suggester

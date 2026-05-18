@@ -3,6 +3,11 @@ name: event-capture
 description: Capture a `type: event` page — an incident (issue + fix) or an appointment (medical, vet, dental, therapy). Use when user says "the 3D printer crashed", "Jackson had his vet visit", "the homelab service died", "had a dental cleaning", "log this incident", "log this appointment", or describes a discrete one-time event tied to a device, pet, person, or condition. Not for knowledge notes, tips, or how-to content — use wiki-create for those.
 allowed-tools:
   - Read
+  - Write
+  - Edit
+  - Glob
+  - Grep
+  - Bash(obsidian-cli *)
 ---
 
 # Event Capture

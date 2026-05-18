@@ -3,6 +3,11 @@ name: experiment-start
 description: Scaffold a new experiment — a time-bounded test of a productivity technique, tool, method, routine, or habit with a hypothesis and a review date. Use when the user says "I want to try", "let's experiment with", "test out", "start an experiment", "someday I want to try", or otherwise frames something as an experiment. Also handles parking future ideas as `status: considering` and promoting a considering experiment to `running`.
 allowed-tools:
   - Read
+  - Write
+  - Edit
+  - Glob
+  - Grep
+  - Bash(obsidian-cli *)
 ---
 
 # Experiment Start

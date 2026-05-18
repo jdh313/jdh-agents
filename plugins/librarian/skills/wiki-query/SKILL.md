@@ -1,6 +1,13 @@
 ---
 name: wiki-query
 description: Answer questions using the Knowledge Wiki as context. Use when user asks questions about topics that may be covered in the wiki, says "check the wiki", "what do I know about", or "search the knowledge base".
+allowed-tools:
+  - Read
+  - Write
+  - Edit
+  - Glob
+  - Grep
+  - Bash(obsidian-cli *)
 ---
 
 # Wiki Query

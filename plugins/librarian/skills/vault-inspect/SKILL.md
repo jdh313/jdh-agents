@@ -4,6 +4,13 @@ description: Run a diagnostic sweep on the Obsidian vault. Reports structural is
 disable-model-invocation: true
 context: fork
 agent: vault-inspector
+allowed-tools:
+  - Read
+  - Write
+  - Edit
+  - Glob
+  - Grep
+  - Bash(obsidian-cli *)
 ---
 
 # Vault Inspect

@@ -3,6 +3,11 @@ name: meeting-notes
 description: This skill should be used when the user wants to format rough meeting notes and file them into the Obsidian vault. Trigger phrases include "format these meeting notes", "add these meeting notes to Obsidian", "I have notes from a meeting", "file these notes", or when the user pastes raw meeting notes with any context about participants, time, or topic. Also handles timestamped transcripts (e.g. from Zoom, Meet, Otter) — detects `HH:MM Speaker` patterns, saves the transcript verbatim to `Sources/`, and extracts the meeting note from it. Handles filename conventions, frontmatter, action-item cleanup, stub creation for new people and projects, and daily-note linking.
 allowed-tools:
   - Read
+  - Write
+  - Edit
+  - Glob
+  - Grep
+  - Bash(obsidian-cli *)
 ---
 
 # Meeting Notes
