@@ -54,16 +54,19 @@ Surface findings to the user in chat:
 
 Ask targeted questions where the path isn't clear. Do NOT ask open-ended *"what do you want?"* — propose a default and let the user redirect.
 
+If the *done* state isn't obvious from the goal — i.e. you can't list 2–3 observable outcomes confidently — surface a proposed *Done when* draft and ask the user to confirm/correct before writing the contract. The Done-when section is what the close skill reviews against; thin drafting here means a fuzzy close later.
+
 If the *how* is non-obvious enough to warrant real deliberation, suggest forking into the debate skill (advocate / devils-advocate / fact-checker / synthesizer). The debate's output — recommended approach plus draft ndr atoms — flows back into the contract's *Approach* section.
 
 ### 4. Draft the contract
 
-Use `references/contract-template.md` as the literal scaffold. Five sections:
+Use `references/contract-template.md` as the literal scaffold. Six sections:
 
 - **What we're doing** — one or two bullets, plain language.
 - **Why** — one or two bullets, trigger or motivation.
 - **Approach** — bullets, larger strokes only. No task list, no enumeration.
 - **Out of scope** — explicit non-goals.
+- **Done when** — 2–4 bullets describing observable outcomes (what's visibly different when the change ships). Bullets, not checkboxes. Load-bearing for the close skill's review.
 - **Open questions** — things deferred to during implementation; load-bearing because they shape the handoff cadence later.
 
 Filename: `.docs/YYYY-MM-DD-<slug>.md`. `<slug>` is short kebab-case derived from the goal (e.g. `okta-auth`, `dishka-di-refactor`). Create the `.docs/` directory if it does not exist.
