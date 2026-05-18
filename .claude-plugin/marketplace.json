@@ -7,21 +7,6 @@
   },
   "plugins": [
     {
-      "name": "atuin-runbooks",
-      "source": "./plugins/atuin-runbooks",
-      "description": "Create and modify Atuin Desktop runbooks (.atrb files) from natural language",
-      "version": "1.0.1",
-      "author": {
-        "name": "Jacob Hoehler"
-      },
-      "keywords": [
-        "atuin",
-        "runbooks",
-        "automation",
-        "executable-docs"
-      ]
-    },
-    {
       "name": "coach",
       "source": "./plugins/coach",
       "description": "ADHD-friendly productivity coaching: daily planning (/today, /energy), end-of-day capture (/checkin), weekly scheduling (/plan-week) and review (/weekly), life-direction reviews (/review), goal-to-project alignment (/align), project lifecycle (/intake, /breakdown, /reentry, /sunset), idea capture (/spark), brain dump (/dump), task triage (/triage), decision journaling (/decide), and pattern analysis (momentum, overdue-rescue) with adaptive tone calibration",
@@ -173,7 +158,7 @@
       "name": "librarian",
       "source": "./plugins/librarian",
       "description": "Curates, catalogs, retrieves, and maintains your library of notes and knowledge in an Obsidian vault. Workflow-shaped (Capture / Process / Retrieve / Maintain) and agent-mediated (skills draft, agents execute). 16 skills + 4 agents + 7 references, coupled to the vault conventions in ~/Loose Ends/.claude/rules/{wiki.md,catalog.md}.",
-      "version": "0.10.0",
+      "version": "0.10.1",
       "author": {
         "name": "Jacob Hoehler"
       },
@@ -191,28 +176,6 @@
         "lint",
         "curation",
         "personal-knowledge"
-      ]
-    },
-    {
-      "name": "linux-ops",
-      "source": "./plugins/linux-ops",
-      "description": "Linux sysadmin best practices for Debian/Ubuntu: user management, permissions, packages, SSH hardening, networking, systemd, storage, security hardening, and troubleshooting. Includes an audit agent for security posture checks.",
-      "version": "0.1.0",
-      "author": {
-        "name": "Jacob Hoehler"
-      },
-      "keywords": [
-        "linux",
-        "sysadmin",
-        "debian",
-        "ubuntu",
-        "security",
-        "hardening",
-        "ssh",
-        "systemd",
-        "networking",
-        "permissions",
-        "audit"
       ]
     },
     {
@@ -308,32 +271,13 @@
         "ndr",
         "librarian"
       ]
-    },
-    {
-      "name": "surrealdb",
-      "source": "./plugins/surrealdb",
-      "description": "Model, migrate, and query SurrealDB \u2014 helps choose the right data model (graph, document, relational, vector, time-series, key-value, geospatial, full-text search), design schemas, plan migrations, and write SurrealQL with the official Python SDK",
-      "version": "0.2.0",
-      "author": {
-        "name": "Jacob Hoehler"
-      },
-      "keywords": [
-        "surrealdb",
-        "surrealql",
-        "multi-model",
-        "graph",
-        "vector",
-        "schema",
-        "migration",
-        "database"
-      ]
     }
   ],
   "metadata": {
     "description": "Personal Claude Code plugin marketplace",
     "version": "1.0.0",
     "homepage": "https://github.com/jdh313/cc-marketplace",
-    "totalPlugins": 16,
-    "lastUpdated": "2026-05-17"
+    "totalPlugins": 13,
+    "lastUpdated": "2026-05-18"
   }
 }
