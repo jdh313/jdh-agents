@@ -35,6 +35,18 @@ Same logic as `spec-flow:implement` step 1: explicit name, single active, prompt
 - Run `git log` / `git diff` since the contract was created to see what actually shipped.
 - Compare: what was in *Approach* vs. what's in the code now.
 
+### 2.5. Done-when check (first gate)
+
+Walk each *Done when* bullet against the actual change:
+
+- **Met** — outcome is observable in the diff / repo state.
+- **Not met** — outcome is missing or partial. Surface explicitly.
+- **Drifted** — outcome shipped, but the bullet no longer describes it well (rephrase candidate during close).
+
+If any bullet is **not met**, halt and ask: continue closing anyway (treat as a known gap, note it in the summary), amend the contract via `spec-flow:amend` to reflect a narrower done, or pause closing until the gap ships? Do not silently archive an unmet contract.
+
+If the contract has no *Done when* section (older format), surface that and either ask the user to draft one inline before review, or fall back to comparing against *Approach*. Note the absence in the close summary so future contracts don't repeat the gap.
+
 ### 2a. Offer a drift check (optional)
 
 If the `ndr` plugin is installed and has atoms scoped to this project/repo, prompt once:

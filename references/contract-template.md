@@ -30,6 +30,12 @@ started: YYYY-MM-DD
 
 - <explicit non-goals — fence against the AI "helpfully" expanding>
 
+## Done when
+
+- <observable outcome — what the user/system can now do that it couldn't before>
+- <visible state change — file exists, command works, endpoint returns, etc.>
+- <verification gate — "tests pass", or "manual smoke: X" if non-obvious>
+
 ## Open questions
 
 - <things deferred to during implementation — these inform cadence at handoff>
@@ -39,6 +45,7 @@ started: YYYY-MM-DD
 
 - **Bullets / lists / tables over prose.** Short, scannable, retrievable. Matches the user's general reading style.
 - **Approach is larger strokes only.** If a task list is emerging, it belongs in implementation, not in the contract.
+- **Done when is observable, not procedural.** 2–4 bullets describing visible outcomes — "command returns the head atom", not "implement walk function in reader.py". Bullets, not checkboxes (checkboxes invite task-list creep). Load-bearing for the close skill's review pass.
 - **Open questions are load-bearing.** Their presence/absence shapes the cadence conversation at implementation handoff (all-at-once vs check in after a piece).
 - **State signaling:** `status: active` while the contract is in flight. On done, the file moves to `.docs/archive/`. Placement signals state; the frontmatter field is informational redundancy.
 - **No amendments without sign-off.** AI proposes contract edits during implementation; user accepts before any edit lands.
@@ -50,4 +57,4 @@ Things the contract deliberately does *not* include:
 - **Task list / enumerated steps** — belongs in implementation, not the contract.
 - **System spec / "current state of the app"** — durable layer's job (README, ndr atoms, code).
 - **Cross-change roadmap** — spec-flow is single-change-scoped.
-- **Test plan / acceptance criteria** — handled in implementation; can surface in Open questions if non-obvious.
+- **Enumerated acceptance criteria / test plan** — `Done when` captures verification gates as observable outcomes; specific test cases stay in implementation.
