@@ -1,11 +1,11 @@
 ---
 name: amend
-description: This skill should be used when the AI realizes during implementation that the contract is becoming inaccurate — wrong approach, new constraint, scope shift, or a deferred open question now needing a decision. Typically invoked from within `spec-flow:implement` rather than directly by the user. Surfaces a proposed contract edit to the user, waits for sign-off, then applies the edit. Never edits the contract silently. The contract is an agreement; both parties must agree to changes.
+description: This skill should be used when the AI realizes during implementation that the contract is becoming inaccurate — wrong approach, new constraint, scope shift, or a deferred open question now needing a decision. Typically invoked from within `spec-flow:implement` rather than directly by the user. Works for both file-hosted (`.docs/`) and Linear-hosted contracts. Surfaces a proposed contract edit to the user, waits for sign-off, then applies the edit to the right host (Edit for files, save_issue for Linear). Never edits the contract silently. The contract is an agreement; both parties must agree to changes.
 ---
 
 # spec-flow:amend
 
-Propose a contract amendment mid-implementation. Sign-off required before any edit.
+Propose a contract amendment mid-implementation. Sign-off required before any edit. Host (file vs. Linear) is re-detected from the contract identifier; see `references/hosts.md`.
 
 ## When to invoke
 
@@ -53,7 +53,16 @@ Do NOT apply without user confirmation. Acceptable responses:
 
 ### 4. Apply
 
-If approved, edit the contract file in place. Preserve every section the amendment does not target.
+If approved, write the amendment to the contract's host. Preserve every section the amendment does not target.
+
+- **File host** — `Edit` the contract file in place.
+- **Linear host** — Fetch current description via `mcp__linear-server__get_issue`, apply the targeted change locally, write the full updated description back via `mcp__linear-server__save_issue`. (Linear's API replaces the description; do not lose untouched sections.)
+
+If the host is Linear and `mcp__linear-server__*` tools aren't loaded:
+
+> "Linear MCP server isn't connected — I can't write the amendment to TEAM-123. Pause while you wire up the MCP, or hold the amendment in conversation until you can?"
+
+Do not run `claude mcp add` or suggest a paste-and-go connect command.
 
 If the user provided a modified version, apply that, not the AI's original.
 
