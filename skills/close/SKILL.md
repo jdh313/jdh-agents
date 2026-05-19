@@ -1,11 +1,11 @@
 ---
 name: close
-description: This skill should be used when the user runs `/spec-flow close [name]` or otherwise signals that an active contract's work is done and ready to migrate. Trigger phrases include "spec-flow close", "this change is done", "archive the X contract", "wrap up the X change", "close out the okta-auth work". Reviews the change against the contract, proposes migrations to the durable layer — ndr atoms via `/capture-decision`, README updates via librarian — applies them after user sign-off, then moves the contract file to `.docs/archive/`.
+description: This skill should be used when the user runs `/spec-flow close [name]` or otherwise signals that an active contract's work is done and ready to migrate. Trigger phrases include "spec-flow close", "this change is done", "archive the X contract", "wrap up the X change", "close out the okta-auth work". Accepts either a file slug or a Linear ticket ID. Reviews the change against the contract, proposes migrations to the durable layer — ndr atoms via `/capture-decision`, README updates via librarian — applies them after user sign-off. For file-host contracts, moves the file to `.docs/archive/`. For Linear-host contracts, surfaces a suggestion to flip the ticket state at PR push but does not mutate state.
 ---
 
 # spec-flow:close
 
-Close an active contract. Migrate durable findings to ndr atoms and README; archive the contract file.
+Close an active contract. Migrate durable findings to ndr atoms and README; archive the file or hand the ticket back to the human, depending on host. See `references/hosts.md` for the dual-host model.
 
 ## When to invoke
 
@@ -25,13 +25,23 @@ Close an active contract. Migrate durable findings to ndr atoms and README; arch
 
 ## Workflow
 
-### 1. Identify the target contract
+### 1. Identify the target contract and detect host
 
-Same logic as `spec-flow:implement` step 1: explicit name, single active, prompt match, or ask.
+Same logic as `spec-flow:implement` step 1: explicit name, single active file contract, prompt match, or ask. Host detection:
+
+- Identifier matches `^[A-Z]{2,5}-\d+$` → **linear** host.
+- Anything else → **file** host.
+
+If host = linear, check that `mcp__linear-server__*` tools are loaded. If not:
+
+> "Linear MCP server isn't connected — I can't read TEAM-123's description. Pause while you wire up the MCP, or close the migration steps using context held in conversation only?"
+
+Do not run `claude mcp add` or suggest a paste-and-go connect command.
 
 ### 2. Read the contract and the actual change
 
-- Read the contract file.
+- **File host** — `Read` the contract file.
+- **Linear host** — Fetch description via `mcp__linear-server__get_issue`.
 - Run `git log` / `git diff` since the contract was created to see what actually shipped.
 - Compare: what was in *Approach* vs. what's in the code now.
 
@@ -98,7 +108,9 @@ If approved, execute each:
 
 If the user wants to skip or modify any item, accommodate that.
 
-### 5. Archive the contract
+### 5. Archive the contract (host-aware)
+
+**File host:**
 
 Move the contract file:
 
@@ -111,14 +123,22 @@ mv .docs/<filename>.md .docs/archive/<filename>.md
 
 Update the file's frontmatter: flip `status: active` to `status: archived`. Placement in `.docs/archive/` is the canonical signal; the field is informational.
 
+**Linear host:**
+
+Do **not** mutate the ticket. No `save_issue`, no state flip, no body edit. The ticket body holds the contract; the durable findings have already migrated to ndr atoms / README in step 4. The ticket itself is workflow metadata, separate from the contract — leave it for the human.
+
+Emit a one-line suggestion in the close summary (step 6) that the user flip the ticket state when they push the PR. Do not propose a specific target state; the team's convention (`In Review`, `Code Review`, `Ready for Review`, etc.) varies.
+
 ### 6. Confirm
 
-Brief summary to the user:
+Brief summary to the user, wording differs by host:
 
-> "Closed `<slug>`. 2 ndr atoms created, 1 README update applied. Contract archived at `.docs/archive/<filename>.md`."
+- **File host:** *"Closed `<slug>`. 2 ndr atoms created, 1 README update applied. Contract archived at `.docs/archive/<filename>.md`."*
+- **Linear host:** *"Closed TEAM-123. 2 ndr atoms created, 1 README update applied. Archive: N/A — Linear-tracked. Suggestion: flip the ticket state when you push the PR. I haven't touched it."*
 
 ## Notes
 
 - Migrations are *AI-assisted/auto* — AI proposes the diff, applies after user sign-off. No silent migration; no fully manual migration.
-- Closing is non-destructive — the contract file is archived, not deleted, so it remains available for reference and for retrospective.
+- Closing is non-destructive in both hosts. File host: the contract file is archived, not deleted. Linear host: the ticket is untouched; the contract body remains in its description for retrospective.
+- The skill never automates Linear state transitions. State flow is the user's call, made when they push the PR — separate concern from the contract lifecycle.
 - If the contract had frequent amendments, surface that observation — it can signal the original drafting was thin and worth thinking about for next time.
