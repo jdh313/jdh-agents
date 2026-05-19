@@ -1,11 +1,13 @@
 ---
 name: start
-description: This skill should be used when the user runs `/spec-flow start <goal>` or otherwise signals the start of a new contract-tracked code change. Trigger phrases include "spec-flow start", "open a contract for", "let's scaffold a contract for", "new spec-flow change", "draft a contract for this change". Performs the kickoff lifecycle — flags any other active contracts, runs proactive context-gathering (codebase, library docs via Context7, relevant ndr atoms), conducts a conversational pass asking targeted questions only where the AI's path isn't clear, drafts a five-section contract using the contract template, and writes it to `.docs/YYYY-MM-DD-<slug>.md`. Does NOT start implementation — that requires explicit `/spec-flow implement`.
+description: This skill should be used when the user runs `/spec-flow start <goal>` or otherwise signals the start of a new contract-tracked code change. Trigger phrases include "spec-flow start", "open a contract for", "let's scaffold a contract for", "new spec-flow change", "draft a contract for this change". Performs the kickoff lifecycle — detects the contract host (`.docs/` file or existing Linear ticket), flags any other active contracts, runs proactive context-gathering (codebase, library docs via Context7, relevant ndr atoms), conducts a conversational pass asking targeted questions only where the AI's path isn't clear, drafts a five-section contract using the contract template, and writes it to the chosen host. Does NOT start implementation — that requires explicit `/spec-flow implement`.
 ---
 
 # spec-flow:start
 
 Open a contract for a new code change. Drafts only; does not implement.
+
+A contract has a **host** — either a `.docs/` file or an existing Linear ticket. The contract *shape* is host-agnostic; the host changes only where the body is written. See `references/hosts.md` for the dual-host model.
 
 ## When to invoke
 
@@ -21,9 +23,26 @@ Open a contract for a new code change. Drafts only; does not implement.
 
 ## Workflow
 
-### 1. Detect other active contracts
+### 1. Detect host
 
-List contracts in `.docs/` excluding `archive/`:
+Parse the goal text for a Linear ticket token (`^[A-Z]{2,5}-\d+$`):
+
+- **No ticket token** → **file** host. Proceed.
+- **Ticket token framed as the contract** (`the contract is TEAM-49`, `use TEAM-49`, `implement TEAM-49`, or bare `TEAM-49`) → **linear** host.
+- **Ticket token framed as a reference** (`see TEAM-49`, `regarding TEAM-49`, `the work in TEAM-49`, `draft a contract for TEAM-49`) → **ask once**: *"Use TEAM-49 itself as the contract, or draft a `.docs/` file that references it?"* Use the user's answer.
+- **Explicit file framing** (`draft as .docs/`, `as a file`) → **file** host even if a ticket token is present.
+
+If host = linear, check that `mcp__linear-server__*` tools are loaded. If not:
+
+> "Linear MCP server isn't connected — I can't read or write the ticket. Fall back to a `.docs/` file contract, or pause while you wire up the MCP yourself?"
+
+Do not run `claude mcp add` or suggest a paste-and-go connect command. Wait for the user.
+
+Full detection table and rationale: `references/hosts.md`.
+
+### 2. Detect other active contracts
+
+List file-host contracts in `.docs/` excluding `archive/`:
 
 ```bash
 ls .docs/*.md 2>/dev/null || true
@@ -33,9 +52,9 @@ If any exist, surface them to the user:
 
 > "You have N other active contracts: X, Y. Continue opening a new one?"
 
-Wait for confirmation. Do not block — this is a visibility flag, not a gate.
+Wait for confirmation. Do not block — this is a visibility flag, not a gate. Linear-host contracts are not enumerable cheaply and are skipped at this step; the user is responsible for knowing whether other tickets are in flight.
 
-### 2. Gather context proactively
+### 3. Gather context proactively
 
 Before asking the user anything, do legwork:
 
@@ -43,10 +62,11 @@ Before asking the user anything, do legwork:
 - **Library docs** — If the goal mentions a library or framework, resolve and fetch docs via `mcp__plugin_context7_context7__resolve-library-id` then `query-docs`.
 - **Relevant ndr atoms** — Scan `~/Loose Ends/Decisions/` for atoms tagged with the area, project, or related concepts.
 - **Project rules** — Check `.claude/rules/` if present.
+- **Linear host only** — Read the existing ticket description via `mcp__linear-server__get_issue`. Treat it as input to drafting (stakeholder context, what the PM or you-yesterday wrote). Note whether it's substantive (>~300 chars, not a stub template) — that affects step 6.
 
 Synthesize: what you have a clear path on vs. what you don't.
 
-### 3. Converse, but only where uncertain
+### 4. Converse, but only where uncertain
 
 Surface findings to the user in chat:
 
@@ -58,7 +78,7 @@ If the *done* state isn't obvious from the goal — i.e. you can't list 2–3 ob
 
 If the *how* is non-obvious enough to warrant real deliberation, suggest forking into the debate skill (advocate / devils-advocate / fact-checker / synthesizer). The debate's output — recommended approach plus draft ndr atoms — flows back into the contract's *Approach* section.
 
-### 4. Draft the contract
+### 5. Draft the contract
 
 Use `references/contract-template.md` as the literal scaffold. Six sections:
 
@@ -69,9 +89,19 @@ Use `references/contract-template.md` as the literal scaffold. Six sections:
 - **Done when** — 2–4 bullets describing observable outcomes (what's visibly different when the change ships). Bullets, not checkboxes. Load-bearing for the close skill's review.
 - **Open questions** — things deferred to during implementation; load-bearing because they shape the handoff cadence later.
 
+The shape is identical for both hosts.
+
+### 6. Confirm and write to the host
+
+Present the drafted contract. Ask the user to read and approve. If amendments are needed, iterate inline before finalizing.
+
+Then write to the chosen host:
+
+**File host:**
+
 Filename: `.docs/YYYY-MM-DD-<slug>.md`. `<slug>` is short kebab-case derived from the goal (e.g. `okta-auth`, `dishka-di-refactor`). Create the `.docs/` directory if it does not exist.
 
-Frontmatter:
+Frontmatter (file-only — Linear has no frontmatter):
 
 ```yaml
 ---
@@ -81,18 +111,29 @@ started: YYYY-MM-DD
 ---
 ```
 
-### 5. Confirm
+**Linear host:**
 
-Present the drafted contract. Ask the user to read and approve. If amendments are needed, iterate inline before finalizing.
+If the ticket's existing description was *not substantive* (empty, very short, or matches a stub template), overwrite the body via `mcp__linear-server__save_issue` with the formatted contract. No prompt — just write.
 
-### 6. End
+If the existing description *was substantive* (>~300 chars and not a stub), ask:
+
+> "The ticket already has a description (N chars). Overwrite with the formatted contract, or prepend the contract above the original?"
+
+Apply the user's choice. Do not silently overwrite substantive content.
+
+No frontmatter in Linear-hosted contracts. The ticket's own metadata (state, assignee, labels) is the workflow signal; the contract body holds only the 5 sections.
+
+### 7. End
 
 Do NOT proceed to implementation. Tell the user:
 
-> "Contract drafted at `.docs/YYYY-MM-DD-<slug>.md`. Run `/spec-flow implement` when ready to start coding."
+- **File host:** *"Contract drafted at `.docs/YYYY-MM-DD-<slug>.md`. Run `/spec-flow implement` when ready to start coding."*
+- **Linear host:** *"Contract written to TEAM-49's description. Run `/spec-flow implement TEAM-49` when ready to start coding."*
 
 ## Notes
 
 - Bullets / lists / tables only. No prose paragraphs.
 - The contract is an agreement, not a delivery — its purpose is shared model, not enumerated work.
 - `.docs/` is gitignored by the user's scratch-artifact convention.
+- Host is not persisted. `implement`, `amend`, and `close` re-detect host from the identifier each time.
+- spec-flow does not own Linear-side conventions (title patterns, labels, status flow). It only writes the contract body. Broader Linear workflow lives outside spec-flow.
