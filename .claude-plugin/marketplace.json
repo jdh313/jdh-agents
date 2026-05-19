@@ -179,6 +179,24 @@
       ]
     },
     {
+      "name": "linear",
+      "source": "./plugins/linear",
+      "description": "Personal Linear workflow conventions for AI-assisted development. Owns ticket creation defaults, status flow semantics, label set, title shape, and MCP call patterns. Composes with spec-flow (which uses Linear as a contract host but defers to this plugin for the conventions).",
+      "version": "0.1.0",
+      "author": {
+        "name": "Jacob Hoehler"
+      },
+      "keywords": [
+        "linear",
+        "issue-tracking",
+        "workflow",
+        "conventions",
+        "tickets",
+        "mcp",
+        "spec-flow"
+      ]
+    },
+    {
       "name": "ndr",
       "source": "./plugins/ndr",
       "description": "Nested decision records \u2014 atomic markdown decision atoms in your Obsidian vault with supersession-aware reading. Capture engineering decisions from any chat (/capture-decision), query the corpus by topic with automatic supersession-chain walking (/decisions <topic>), ground a coding session in relevant prior decisions before edits (/ground), audit code against current decision heads with /drift-check, and bootstrap vault content on first install (/ndr-bootstrap).",
@@ -277,7 +295,7 @@
     "description": "Personal Claude Code plugin marketplace",
     "version": "1.0.0",
     "homepage": "https://github.com/jdh313/cc-marketplace",
-    "totalPlugins": 13,
+    "totalPlugins": 14,
     "lastUpdated": "2026-05-19"
   }
 }
