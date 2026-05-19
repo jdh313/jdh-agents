@@ -77,7 +77,7 @@ spec-flow owns the contract lifecycle. It does **not** own:
 - PR-to-ticket linking expectations
 - The decision of *when* to open a Linear ticket vs. a `.docs/` file
 
-Those concerns belong to the user's broader Linear workflow, documented separately (e.g. as a vault wiki page). spec-flow assumes the user has a Linear ticket already (or knows how to create one); spec-flow only writes the contract body and reads it back.
+Those concerns belong to the user's broader Linear workflow, owned by the sibling `linear` plugin (`~/cc-marketplace/plugins/linear/skills/linear-workflow/SKILL.md`). spec-flow assumes the user has a Linear ticket already (or knows how to create one — by deferring to the `linear` plugin's conventions); spec-flow only writes the contract body and reads it back.
 
 ## Future shape: Linear-new (Shape B)
 
