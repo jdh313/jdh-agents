@@ -1,11 +1,11 @@
 ---
 name: implement
-description: This skill should be used when the user runs `/spec-flow implement [name]` or otherwise signals a transition from a drafted contract to actual coding work. Trigger phrases include "spec-flow implement", "let's start coding on the X contract", "pick up the X contract", "resume the X change", "continue the okta-auth work". Covers both first-run implementation (negotiate handoff cadence, begin work) and resumption (restore context from contract, summarize where work last left off, continue). Same flow either way — read state, summarize, confirm cadence, execute. May invoke `spec-flow:amend` mid-implementation when reality diverges from the contract.
+description: This skill should be used when the user runs `/spec-flow implement [name]` or otherwise signals a transition from a drafted contract to actual coding work. Trigger phrases include "spec-flow implement", "let's start coding on the X contract", "pick up the X contract", "resume the X change", "continue the okta-auth work". Accepts either a file slug or a Linear ticket ID (e.g. `CAR-49`). Covers both first-run implementation (negotiate handoff cadence, begin work) and resumption (restore context from contract, summarize where work last left off, continue). Same flow either way — read state, summarize, confirm cadence, execute. May invoke `spec-flow:amend` mid-implementation when reality diverges from the contract.
 ---
 
 # spec-flow:implement
 
-Start or resume implementation against an active contract.
+Start or resume implementation against an active contract. Works for both file-hosted (`.docs/`) and Linear-hosted contracts; the only difference is where the body is read from. See `references/hosts.md`.
 
 ## When to invoke
 
@@ -21,17 +21,31 @@ Start or resume implementation against an active contract.
 
 ## Workflow
 
-### 1. Identify the target contract
+### 1. Identify the target contract and detect host
 
-If a name was given as argument, use it. Otherwise, scan `.docs/` for active contracts (excluding `archive/`):
+If a name was given as argument:
 
-- **Single active contract** — Use it.
+- Argument matches `^[A-Z]{2,5}-\d+$` (e.g. `CAR-49`) → **linear** host. Use the ticket ID.
+- Otherwise → **file** host. Treat the argument as a slug or filename.
+
+If no name was given, scan `.docs/` for active file-host contracts (excluding `archive/`):
+
+- **Single active file contract** — Use it.
 - **Multiple active** — Match the user's recent prompt against contract topics. If unambiguous, use the match. If ambiguous, list active contracts and ask which.
-- **None active** — Tell the user there is nothing to implement and suggest `/spec-flow start`.
+- **None active** — Tell the user there is nothing to implement and suggest `/spec-flow start`. (Linear-host contracts are not enumerable cheaply; the user is expected to name the ticket explicitly when resuming Linear work.)
+
+If host = linear, check that `mcp__linear-server__*` tools are loaded. If not:
+
+> "Linear MCP server isn't connected — I can't read CAR-49. Fall back to a `.docs/` file contract, or pause while you wire up the MCP yourself?"
+
+Do not run `claude mcp add` or suggest a paste-and-go connect command.
 
 ### 2. Read the contract
 
-Read the full contract file. Follow any linked ndr atoms (`[[ndr-...]]` references) and read them.
+- **File host** — `Read` the contract file.
+- **Linear host** — Fetch via `mcp__linear-server__get_issue` and parse the description for the 5 sections.
+
+Follow any linked ndr atoms (`[[ndr-...]]` references) and read them.
 
 ### 3. Assess state
 
@@ -80,5 +94,6 @@ Do NOT auto-close. Closing is an explicit user action.
 ## Notes
 
 - "First run" and "resumption" share the same flow; behavior differs based on observed state, not on a persisted flag.
+- Host is not persisted. Each invocation re-detects from the identifier shape.
 - Confidence is not persisted. Each invocation re-negotiates cadence.
 - Implementation must respect the contract's *Out of scope* — if a tempting addition surfaces, propose an amendment via `spec-flow:amend`. Do not just add it.
