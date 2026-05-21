@@ -60,6 +60,7 @@ Before asking the user anything, do legwork:
 
 - **Codebase scan** — Read `CLAUDE.md`, search for patterns the change might touch (`rg` / `grep`), read the entry points relevant to the goal.
 - **Library docs** — If the goal mentions a library or framework, resolve and fetch docs via `mcp__plugin_context7_context7__resolve-library-id` then `query-docs`.
+- **Installed version** — If the goal names a specific dep, check the installed major version in the target repo (`bun info <pkg>`, `npm ls <pkg>`, `pip show <pkg>`, `cargo tree | grep <pkg>`, etc.) before drafting against the docs. Docs-vs-installed drift is a common amendment trigger.
 - **Relevant ndr atoms** — If the `ndr` plugin is installed, hand off to it to surface atoms scoped to this project/repo for the area or related concepts.
 - **Project rules** — Check `.claude/rules/` if present.
 - **Linear host only** — Read the existing ticket description via `mcp__linear-server__get_issue`. Treat it as input to drafting (stakeholder context, what the PM or you-yesterday wrote). Note whether it's substantive (>~300 chars, not a stub template) — that affects step 6.
