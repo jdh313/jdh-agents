@@ -41,8 +41,8 @@
     {
       "name": "commits",
       "source": "./plugins/commits",
-      "description": "Format-aware atomic commits for git and jj (Jujutsu). Auto-detects VCS and commit message style from repo context.",
-      "version": "2.0.0",
+      "description": "Format-aware atomic commits for git and jj (Jujutsu). Auto-detects VCS and commit message style from repo context. Includes PreToolUse hook that blocks destructive working-copy operations.",
+      "version": "2.1.0",
       "author": {
         "name": "Jacob Hoehler"
       },
@@ -296,6 +296,6 @@
     "version": "1.0.0",
     "homepage": "https://github.com/jdh313/cc-marketplace",
     "totalPlugins": 14,
-    "lastUpdated": "2026-05-19"
+    "lastUpdated": "2026-05-21"
   }
 }
