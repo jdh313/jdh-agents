@@ -105,6 +105,12 @@ Remove unused imports from auth module
 | Configuration | `Configure ESLint rules for new modules` |
 | Cleanup | `Remove deprecated helper functions` |
 
+## House Style
+
+- **No `Co-Authored-By:` footers.** The commit describes the change; the VCS already records authorship. Strip these if present in a draft or template.
+- No trailing period on the summary line.
+- No issue numbers in the summary — those belong in the PR description.
+
 ## Anti-Patterns to Avoid
 
 **Don't:**
@@ -115,6 +121,7 @@ Remove unused imports from auth module
 - Include issue numbers in summary: `#123 resolve bug`
 - Exceed 5 lines in body
 - Repeat WHAT in the body (the diff shows what)
+- Append `Co-Authored-By:` footers
 
 **Do:**
 - Keep summary concise and descriptive

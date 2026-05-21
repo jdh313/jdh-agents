@@ -163,6 +163,12 @@ When choosing a type:
 - Updating dependencies -> `chore`
 - Adding endpoint tests -> `test`
 
+## House Style
+
+- **No `Co-Authored-By:` footers.** The commit describes the change; the VCS already records authorship. Strip these if present in a draft or template.
+- No trailing period on the summary line.
+- No issue numbers in the summary — those belong in the PR description.
+
 ## Anti-Patterns to Avoid
 
 **Don't:**
@@ -172,6 +178,7 @@ When choosing a type:
 - Include issue numbers in summary: `fix: #123 resolve bug`
 - Write vague summaries: `fix: bug fix` or `chore: updates`
 - Exceed 5 lines in body
+- Append `Co-Authored-By:` footers
 
 **Do:**
 - Keep summary concise and descriptive: `feat: add login`

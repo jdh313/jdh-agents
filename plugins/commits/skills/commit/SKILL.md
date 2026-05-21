@@ -16,19 +16,12 @@ allowed-tools:
 
 ### VCS and Style Detection
 
-First, determine the VCS and commit style:
+Run the canonical algorithm in `skills/commits/references/detection.md` to determine VCS (git/jj) and commit style (conventional/freeform). It reads CLAUDE.md for explicit declarations and auto-detects whatever isn't declared.
 
-1. **Check CLAUDE.md context** — does the repo specify VCS (jj/git) or commit style (conventional/freeform)?
-2. **VCS fallback:** Check if `.jj/` exists (jj) or not (git)
-3. **Style fallback:** Analyze the last ~20 commits — if >60% have type prefixes like `feat:`, `fix:`, etc., use conventional style; otherwise use freeform
+Then check repo state:
 
-**For Jujutsu repositories:**
-- Run: `jj status`
-- Run: `jj diff`
-
-**For git repositories:**
-- Run: `git status`
-- Run: `git diff` and `git diff --staged`
+- **jj**: `jj status` then `jj diff`
+- **git**: `git status` then `git diff` and `git diff --staged`
 
 ## Instructions
 

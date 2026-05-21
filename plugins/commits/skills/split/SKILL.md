@@ -16,19 +16,12 @@ allowed-tools:
 
 ### VCS and Style Detection
 
-First, determine the VCS and commit style:
+Run the canonical algorithm in `skills/commits/references/detection.md` to determine VCS (git/jj) and commit style (conventional/freeform). It reads CLAUDE.md for explicit declarations and auto-detects whatever isn't declared.
 
-1. **Check CLAUDE.md context** — does the repo specify VCS (jj/git) or commit style (conventional/freeform)?
-2. **VCS fallback:** Check if `.jj/` exists (jj) or not (git)
-3. **Style fallback:** Analyze the last ~20 commits — if >60% have type prefixes like `feat:`, `fix:`, etc., use conventional style; otherwise use freeform
+Then check repo state:
 
-**For Jujutsu repositories:**
-- Run: `jj status`
-- Run: `jj diff`
-
-**For git repositories:**
-- Run: `git status`
-- Run: `git diff` and `git diff --staged`
+- **jj**: `jj status` then `jj diff`
+- **git**: `git status` then `git diff` and `git diff --staged`
 
 ## Instructions
 
@@ -36,24 +29,21 @@ Based on the detection and changes shown above:
 
 ### Step 1: Identify Atomic Units
 
-Analyze all changes and group them into atomic commits. Consider:
+Apply the **bundle-vs-split rules** documented in `skills/commits/SKILL.md` under "Workflow A → Step 2: Identify Atomic Units". Atomicity is about logical coupling, not file count. Quick checklist:
 
-**File-based grouping:**
-- Files serving the same purpose (all tests, all configs)
-- Related files (source + corresponding test)
-
-**Change-based grouping:**
-- Bug fixes vs features vs refactoring
-- Independent features
-- Related changes forming a complete unit
+- **Bundle** when reverting one half would leave the repo broken (source + its test, refactor + the rename it forces, fix + its regression test, migration + the model change it migrates).
+- **Split** when one change is noise relative to the other (formatter sweep vs feature, unrelated bug fixes, "while I was in here" cleanups, doc updates not *about* this change).
+- **Litmus**: Could a reviewer revert this commit alone without breaking anything? If yes, atomic. If no, bundle.
 
 **Present your analysis:**
 ```
 Recommended atomic commits:
-1. [summary] - [files]
-2. [summary] - [files]
+1. [summary] - [files] — bundled because [reason]
+2. [summary] - [files] — split from #1 because [reason]
 ...
 ```
+
+Ground each row's grouping decision in the litmus test, not in file co-location.
 
 ### Step 2: Get User Confirmation
 

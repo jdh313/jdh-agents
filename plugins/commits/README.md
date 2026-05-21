@@ -4,10 +4,11 @@ Format-aware atomic commits for git and jj (Jujutsu).
 
 ## What It Does
 
-- **Auto-detects VCS**: Checks for `.jj` directory to determine git vs jj
-- **Auto-detects commit style**: Analyzes recent commits to match the repo's convention (conventional or freeform), with CLAUDE.md config taking priority
-- **Atomic splitting**: Groups changes into logical, independently-reversible units
-- **Safety-first**: Never discards uncommitted changes without explicit permission
+- **Auto-detects VCS**: Checks for `.jj/` to determine git vs jj
+- **Auto-detects commit style**: Analyzes recent commits to match the repo's convention (conventional or freeform); explicit CLAUDE.md config wins
+- **Atomic splitting**: Groups changes by logical coupling, not by file co-location
+- **Safety-first**: A `PreToolUse` hook hard-blocks destructive operations (`git reset --hard`, `git restore` without `--staged`, `git checkout --`, `jj restore`, `jj abandon`) so changes aren't accidentally discarded
+- **jj-fluent**: Decision-card-style reference covers `jj commit`, `jj split` (with `-m` semantics explained), `jj squash --from/--into`, bookmarks, push, and recovery — agents shouldn't need to re-read `jj --help` mid-task
 
 ## Skills
 
@@ -16,23 +17,33 @@ Format-aware atomic commits for git and jj (Jujutsu).
 | `commits` | Auto-invoked | Main skill for all commit operations |
 | `commit` | `/commits:commit` | Create a single commit |
 | `split` | `/commits:split` | Split changes into atomic commits |
-| `review` | `/commits:review [message]` | Review/improve a commit message |
+| `review` | `/commits:review [message]` | Review/improve a commit message (peeks at the diff opportunistically) |
 
 ## Commit Style Detection
 
-The plugin determines commit message format in this order:
+Detection order (canonical algorithm lives in `skills/commits/references/detection.md`):
 
-1. **CLAUDE.md** — If the repo's CLAUDE.md mentions a commit style, use it
-2. **Git log analysis** — Analyze the last ~20 commits; if >60% use type prefixes (`feat:`, `fix:`, etc.), use conventional style; otherwise use freeform
+1. **CLAUDE.md** — explicit declarations win
+2. **Auto-detect** — sample the last ~20 subjects; if ≥60% match a conventional type prefix (allows `feat:`, `feat(scope):`, and `feat[scope]:`), use conventional; otherwise freeform
 
 ### Supported Styles
 
 - **Conventional**: `feat: add user auth` — type prefix, lowercase, imperative mood
 - **Freeform**: `Add user auth` — capitalized, imperative mood, no type prefix
 
+## House Style
+
+Applied to every generated message:
+
+- No `Co-Authored-By:` footers — the commit describes the change, not the author
+- No trailing period on the summary
+- Imperative mood
+- Body ≤5 lines, explains WHY (the diff shows WHAT)
+- No issue numbers in the summary (those belong in the PR description)
+
 ## Configuration
 
-Add to your repo's `CLAUDE.md` to skip auto-detection:
+Add to your repo's CLAUDE.md to skip auto-detection:
 
 ```markdown
 ## VCS
@@ -40,11 +51,16 @@ Add to your repo's `CLAUDE.md` to skip auto-detection:
 - Commit style: conventional
 ```
 
-Or for freeform:
+Or for freeform / git:
 
 ```markdown
 ## VCS
+- VCS: git
 - Commit style: freeform
 ```
 
-If unspecified, the plugin auto-detects both from the repository state.
+If unspecified, the plugin auto-detects both from the repo state.
+
+## Safety Hook
+
+`plugins/commits/hooks/destructive-vcs-guard.sh` is a `PreToolUse`/`Bash` hook that blocks the commands listed under "Safety-first" above. The hook fires only when the plugin is enabled. Override by running the destructive command from your own terminal — Claude can't bypass it.

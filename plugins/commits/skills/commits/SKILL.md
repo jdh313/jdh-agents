@@ -4,20 +4,10 @@ description: INVOKE BY DEFAULT for all commit-related requests. Automatically us
 allowed-tools:
   - Bash(git:*)
   - Bash(jj:*)
+  - Bash(test:*)
   - Read
   - Grep
   - Glob
-hooks:
-  PostToolUse:
-    - matcher: Bash
-      pattern: "(git restore|git checkout --|git reset --hard|jj restore|jj abandon)"
-      prompt: |
-        SAFETY CHECK: The command about to be executed may discard uncommitted changes.
-
-        Verify:
-        1. Was this intentional and user-approved?
-        2. Run `git status` or `jj status` to confirm working tree state
-        3. If changes were lost unexpectedly, inform the user immediately
 ---
 
 # Commits
@@ -39,46 +29,9 @@ Create atomic commits with properly formatted commit messages that match the rep
 
 **Before doing anything else, determine two things: which VCS and which commit message style.**
 
-### Step 1: Check CLAUDE.md Context
+Run the algorithm in `references/detection.md` — it reads the repo's CLAUDE.md for explicit declarations and auto-detects whatever isn't declared. The detection reference also documents the project-wide house style (no `Co-Authored-By` footers, no trailing periods, imperative mood, body ≤5 lines).
 
-The repo's CLAUDE.md is already loaded in your context. Check if it specifies:
-- **VCS type**: Does it mention `jj`, `jujutsu`, or explicitly say `git`?
-- **Commit style**: Does it mention `conventional commits`, `angular commits`, or describe a specific commit format?
-
-If both are specified, use them and skip to the workflows below.
-
-### Step 2: Detect VCS (if not in CLAUDE.md)
-
-```bash
-# Check for .jj directory (fast, no command execution)
-[[ -d .jj ]] && echo "jj" || echo "git"
-```
-
-Then load the appropriate reference:
-- **jj detected**: Use `references/jj-workflow.md` for commands
-- **git detected**: Use `references/git-workflow.md` for commands
-
-### Step 3: Detect Commit Style (if not in CLAUDE.md)
-
-Analyze recent commits to determine the repo's convention:
-
-**For git:**
-```bash
-git log --oneline -20
-```
-
-**For jj:**
-```bash
-jj log --limit 20
-```
-
-**Classification:**
-- If >60% of recent commits use type prefixes (e.g., `feat:`, `fix:`, `chore:`, `refactor:`), the repo uses **conventional** style
-- Otherwise, the repo uses **freeform** style
-
-Then load the appropriate reference:
-- **Conventional**: Use `references/conventional-commits.md`
-- **Freeform**: Use `references/freeform-commits.md`
+After detection, load the matching workflow + style references named in that file.
 
 ## When to Use This Skill
 
@@ -142,18 +95,36 @@ Run the detection flow above, then check the current state to see all changes.
 
 ### Step 2: Identify Atomic Units
 
-Analyze the changes to identify atomic commit candidates. Consider:
+Apply the **bundle-vs-split rules** below. They override file-based intuition — atomicity is about logical coupling, not file count.
 
-**File-based grouping:**
-- Files that serve the same purpose (e.g., all test files, all config files)
-- Related files changed together (e.g., source + corresponding test)
+**BUNDLE (one commit) when changes are coupled:**
 
-**Change-based grouping:**
-- Bug fixes vs features vs refactoring
-- Independent features that don't depend on each other
-- Related changes that form a complete unit
+- Source change + the test that proves it
+- Refactor + the rename it forces across call sites
+- Bug fix + its regression test
+- Migration script + the model/schema change it migrates
+- Lockfile bump + the dependency line that triggered it
+- Type signature change + the call sites updated to satisfy it
+- API change + the client code that had to adapt
 
-Present the recommended split to the user with clear reasoning.
+If applying *one half* of these would leave the repo broken or red, they're a single commit.
+
+**SPLIT (separate commits) when changes are independent:**
+
+- Formatter/whitespace sweep alongside a feature → split (the sweep is noise; reviewing the feature requires reading past the formatting)
+- Unrelated bug fixes that landed in the same session → split
+- Refactor + new feature on top of it → split (the refactor should stand alone, reviewable + revertable)
+- Doc updates that aren't *about* this change → split
+- "While I was in here" cleanup that's tangential to the main change → split
+- Multiple independent features → split
+
+**Litmus test:** Could a reviewer revert this commit alone without breaking the build or surprising future readers? If yes, it's atomic. If reverting it would orphan other changes, bundle.
+
+**Don't over-split.** A typo fix and the test that catches the same typo are one commit. Three lines that move together belong together.
+
+**Don't under-split.** A 200-line diff doing two unrelated things is two commits, even if "they both touched billing.py."
+
+Present the recommended split to the user with reasoning grounded in these rules ("bundling X with Y because reverting X alone would break Z" / "splitting A from B because A is a pure formatter sweep").
 
 ### Step 3: Create First Atomic Commit
 
@@ -200,8 +171,7 @@ Read the detected format reference and compose the commit message in the appropr
 
 **For jj:**
 ```bash
-jj describe -m "<message>"
-jj new
+jj commit -m "<message>"   # describes @ and creates new empty change on top
 ```
 
 **For git:**
@@ -210,7 +180,7 @@ git add <files>
 git commit -m "<message>"
 ```
 
-See the VCS-specific reference for details.
+See the VCS-specific reference for details (in particular, the `jj-workflow.md` decision card covers when to reach for `jj squash`, `jj split`, bookmarks, and `jj git push`).
 
 ### Step 5: Verify
 
@@ -298,16 +268,16 @@ The following commands discard uncommitted changes and **must NEVER be used** du
 
 **For jj (Jujutsu):**
 ```bash
-# CORRECT: Describe current change, then create new for remaining work
-jj describe -m "first change"
-jj new  # Remaining changes stay in working copy
+# CORRECT: Single atomic change — describe and start fresh
+jj commit -m "first change"
 
-# CORRECT: Split specific files into a described change
+# CORRECT: Peel off a subset of files as their own commit
 jj split <file1> <file2> -m "second change"
-# Remaining changes stay in current working copy
+# -m describes the SELECTED (split-off) commit; remaining changes become a new
+# child working copy. See references/jj-workflow.md for full -m semantics.
 
 # WRONG: Never use restore to "clean up"
-jj restore  # FORBIDDEN - discards changes!
+jj restore  # FORBIDDEN - discards changes (blocked by plugin hook)
 ```
 
 **For git:**
@@ -351,6 +321,7 @@ Only proceed after receiving explicit "yes" confirmation.
 
 Load these references as needed:
 
+- `references/detection.md` - VCS + commit-style detection algorithm and house style rules
 - `references/conventional-commits.md` - Conventional commit message format and type selection guide
 - `references/freeform-commits.md` - Freeform commit message guidelines
 - `references/git-workflow.md` - Git-specific commands for staging, committing, splitting

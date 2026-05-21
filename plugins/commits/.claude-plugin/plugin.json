@@ -1,7 +1,7 @@
 {
   "name": "commits",
-  "version": "2.0.0",
-  "description": "Format-aware atomic commits for git and jj (Jujutsu). Auto-detects VCS and commit message style from repo context.",
+  "version": "2.1.0",
+  "description": "Format-aware atomic commits for git and jj (Jujutsu). Auto-detects VCS and commit message style from repo context. Includes PreToolUse hook that blocks destructive working-copy operations.",
   "author": {
     "name": "Jacob Hoehler"
   },
