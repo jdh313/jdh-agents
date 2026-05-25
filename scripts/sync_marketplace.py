@@ -60,12 +60,15 @@ def update_marketplace(marketplace_path: Path, plugins: list[dict[str, Any]]) ->
     with marketplace_path.open() as f:
         marketplace = json.load(f)
 
-    # Update plugins list
-    marketplace["plugins"] = plugins
+    old_plugins = marketplace.get("plugins", [])
 
-    # Update metadata
+    marketplace["plugins"] = plugins
     marketplace["metadata"]["totalPlugins"] = len(plugins)
-    marketplace["metadata"]["lastUpdated"] = datetime.now().strftime("%Y-%m-%d")
+
+    # Only bump lastUpdated when the plugin set actually changed, so CI re-runs
+    # on later dates don't produce a no-op diff that fails the auto-sync check.
+    if plugins != old_plugins:
+        marketplace["metadata"]["lastUpdated"] = datetime.now().strftime("%Y-%m-%d")
 
     # Write back with pretty formatting
     with marketplace_path.open("w") as f:
