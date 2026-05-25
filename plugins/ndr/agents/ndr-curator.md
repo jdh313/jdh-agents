@@ -8,9 +8,15 @@ tools:
   - Grep
   - Glob
   - Bash
+  - mcp__obsidian-mcp__read_multiple_notes
+  - mcp__obsidian-mcp__search_notes
 ---
 
 # ndr-curator
+
+## Tool usage
+
+Per NDR atom 0100, vault tool calls follow a layered stack: `obsidian-cli` primary, tier-2 MCP for blessed operations. For this agent: use `obsidian-cli files Decisions/` to enumerate atoms; `obsidian-cli property:set name=<field> value=<value> file=<path>` to apply `--fix` repairs; `mcp__obsidian-mcp__read_multiple_notes` for batch atom loads; `mcp__obsidian-mcp__search_notes` (with `searchFrontmatter: true`) for frontmatter probes.
 
 ## Role
 
@@ -30,11 +36,9 @@ Defaults work for a normal sweep. Set `fix: true` to auto-repair the one class o
 
 ## Method
 
-All vault interaction goes through `obsidian-cli` (Bash). Do NOT use any `mcp__obsidian-mcp__*` tools — they are out of scope for this plugin. Do NOT shell out to `find`, `grep`, `cat`, or `ls` against `~/Loose Ends/`.
-
-1. **Enumerate atoms.** `obsidian-cli files folder="Decisions" ext="md"`. Filter the returned list to files matching `^Decisions/\d{4}-.*\.md$`. The `.taxonomy/` directory is excluded by the dot prefix.
-2. **Load atoms.** `obsidian-cli read path="Decisions/<id>-<slug>.md"` once per atom. There is no batch read in the CLI; loop the calls. Cache results in agent memory for the rest of the sweep.
-3. **Load taxonomy.** Read `~/Loose Ends/Decisions/.taxonomy/areas.yaml` and `topics.yaml` via the `Read` tool (these are plain files, not Obsidian-managed notes — the CLI's vault scope doesn't cover the dotfolder).
+1. **Enumerate atoms.** `obsidian-cli files Decisions/` to list files. Filter to files matching `^\d{4}-.*\.md$`. Hidden `.taxonomy/` dir is excluded by the dot prefix.
+2. **Load all atoms.** Use `mcp__obsidian-mcp__read_multiple_notes` in batches of 20 (network-friendly).
+3. **Load taxonomy.** Read `~/Loose Ends/Decisions/.taxonomy/areas.yaml` and `topics.yaml`.
 4. **Run checks** (below), accumulate findings.
 5. **If `fix: true`**, apply the one allowed repair (see "What you may fix").
 6. **Emit report.**
@@ -88,9 +92,7 @@ Heuristic only; flag for human review:
 
 When `fix: true`, you may apply **one** class of repair: **missing back-pointer in `superseded_by:`**.
 
-Specifically: if atom A has `supersedes: [B]` and B's `superseded_by:` does NOT contain A, append `[[Decisions/<A-id>-<A-slug>]]` to B's `superseded_by:` via `obsidian-cli property:set name="superseded_by" value="[[Decisions/<A-id>-<A-slug>]]" type="list" path="Decisions/<B-id>-<B-slug>.md"`.
-
-Note: `obsidian-cli property:set` replaces the value rather than appending. If B's existing `superseded_by:` already has entries, read the current list first (`obsidian-cli read path=...` or `obsidian-cli property:read name="superseded_by" path=...`), build the merged list locally, then write it back. For single-item appends to an empty list, a direct `property:set` is sufficient.
+Specifically: if atom A has `supersedes: [B]` and B's `superseded_by:` does NOT contain A, append `[[Decisions/<A-id>-<A-slug>]]` to B's `superseded_by:` via `obsidian-cli property:set name=superseded_by value=<updated-value> file=<path-to-B>`.
 
 Do NOT auto-fix:
 - Forward-pointer gaps (A missing in superseded_by but B claims it's superseded) — that's an authoring error in B's `supersedes:`; flag for human.

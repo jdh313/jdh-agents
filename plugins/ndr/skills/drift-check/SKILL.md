@@ -16,6 +16,10 @@ Run a drift check between the current repo's code and the current heads of `~/Lo
 
 This skill encodes the **code-vs-decision coherence check** for ndr — complementary to `ndr-curator` (which checks corpus health between atoms) and `ndr-reviewer` (which checks individual atom shape).
 
+## Vault tool usage
+
+Per NDR atom 0100, vault tool calls follow a layered stack: `obsidian-cli` primary, tier-2 MCP for the explicitly-blessed operations. For this skill: the drift-check orchestrator does not read vault files directly — atom reads happen inside `ndr-drift-auditor`. That agent should use `obsidian-cli files Decisions/` to enumerate heads and `obsidian-cli read file=<path>` to load individual atoms; `mcp__obsidian-mcp__search_notes` (with `searchFrontmatter: true`) is available as a tier-2 fallback for frontmatter-based filtering if needed. This skill uses `Bash` for diff resolution and `Task` for agent dispatch. Atom file creation goes through `persist.py` — do not bypass it with `obsidian-cli create`.
+
 ## Hard rules
 
 1. **Heads only.** Audit only atoms at the head of their supersession chain (empty `superseded_by:`, `status: current`). Non-heads are not the current state.

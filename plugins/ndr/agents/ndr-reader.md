@@ -14,6 +14,8 @@ color: cyan
 tools:
   - Bash
   - Read
+  - mcp__obsidian-mcp__read_multiple_notes
+  - mcp__obsidian-mcp__search_notes
 ---
 
 # ndr-reader
@@ -55,11 +57,18 @@ Read ${CLAUDE_PLUGIN_ROOT}/references/frontmatter-schema.md
 
 ## Tool boundaries
 
-- **Atoms → `obsidian-cli` only.** Use `obsidian-cli search`,
+Per NDR atom 0100, vault tool calls follow a layered stack: `obsidian-cli` primary, tier-2 MCP for the explicitly-blessed operations.
+
+- **Atoms → `obsidian-cli` primary.** Use `obsidian-cli search`,
   `search:context`, `read`, `property:read`, `properties`, `files`,
-  `folders` against `path="Decisions"`. Do NOT shell out to `find`,
-  `grep`, `cat`, or `ls` against `~/Loose Ends/`, and do NOT use any
-  `mcp__obsidian-mcp__*` tool.
+  `folders` against `path="Decisions"` as the default path for atom I/O.
+  Do NOT shell out to `find`, `grep`, `cat`, or `ls` against
+  `~/Loose Ends/`.
+- **Tier-2 MCP allowed for blessed operations.**
+  `mcp__obsidian-mcp__search_notes` (with `searchFrontmatter: true`) is
+  available for frontmatter-keyed probes; `mcp__obsidian-mcp__read_multiple_notes`
+  is available for batch atom loads when Stage 2 picks more than one or
+  two atoms. No other `mcp__obsidian-mcp__*` tool may be called.
 - **Plugin references → `Read` only.** The `Read` tool is for
   `${CLAUDE_PLUGIN_ROOT}/references/*.md`, never for `~/Loose Ends/`.
 

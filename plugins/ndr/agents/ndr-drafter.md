@@ -6,9 +6,14 @@ color: blue
 tools:
   - Read
   - Bash
+  - mcp__obsidian-mcp__search_notes
 ---
 
 # ndr-drafter
+
+## Tool usage
+
+Per NDR atom 0100, vault tool calls follow a layered stack: `obsidian-cli` primary, tier-2 MCP for blessed operations. For this agent: use `obsidian-cli read file=<path>` to load parent atom files when resolving `supersedes:` context; `mcp__obsidian-mcp__search_notes` (with `searchFrontmatter: true`) to probe for atoms by slug or alias. No batch load needed — drafter operates on individual atoms passed by the orchestrator.
 
 ## Role
 

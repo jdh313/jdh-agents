@@ -8,9 +8,15 @@ tools:
   - Grep
   - Glob
   - Bash
+  - mcp__obsidian-mcp__read_multiple_notes
+  - mcp__obsidian-mcp__search_notes
 ---
 
 # ndr-reviewer
+
+## Tool usage
+
+Per NDR atom 0100, vault tool calls follow a layered stack: `obsidian-cli` primary, tier-2 MCP for blessed operations. For this agent: use `obsidian-cli read file=<path>` to load on-disk atoms in audit mode; `mcp__obsidian-mcp__read_multiple_notes` for batch audit loads of multiple atoms; `mcp__obsidian-mcp__search_notes` (with `searchFrontmatter: true`) for alias-uniqueness checks in audit mode.
 
 ## Role
 
@@ -45,7 +51,7 @@ Two modes:
 }
 ```
 
-In audit mode, read each file via `obsidian-cli read path="Decisions/<id>-<slug>.md"` (Bash). Parse the frontmatter and body, then run the same checks. Audit mode is read-only. Do NOT use `mcp__obsidian-mcp__*` tools — `obsidian-cli` is the single vault interface.
+In audit mode, read each file via `obsidian-cli read file=<path>`, parse the frontmatter and body, then run the same checks. Audit mode is read-only.
 
 Reference files:
 
@@ -99,8 +105,8 @@ For each, emit a `severity: mechanical` issue. The orchestrator can choose to su
 
 When `mode: audit`:
 - **Supersession state coherence:** if `status: superseded`, `superseded_by:` must be non-empty.
-- **Back-pointer integrity:** for each link in `superseded_by:`, the target atom's `supersedes:` must include this atom. Load the target via `obsidian-cli read path="Decisions/<id>-<slug>.md"`.
-- **Alias uniqueness:** for each slug in `aliases:`, search the vault with `obsidian-cli search query="<slug>" path="Decisions" format=json` — only one atom should hold it.
+- **Back-pointer integrity:** for each link in `superseded_by:`, the target atom's `supersedes:` must include this atom.
+- **Alias uniqueness:** for each slug in `aliases:`, search the vault — only one atom should hold it.
 
 ## Output format
 
