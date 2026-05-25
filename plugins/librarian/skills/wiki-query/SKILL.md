@@ -18,6 +18,10 @@ things, decisions made, gotchas hit — which generic docs won't have.
 Only go external when the wiki has gaps, and suggest ingesting the new
 information back.
 
+## Vault tool usage
+
+Start with `obsidian-cli search:context query='...'` and `obsidian-cli backlinks file='...'` for read-side retrieval. For multi-note synthesis use `mcp__obsidian-mcp__read_multiple_notes` (up to 10 paths) or delegate to vault-reader agent. Use `mcp__obsidian-mcp__search_notes` with `searchFrontmatter: true` for ad-hoc frontmatter-value lookups when no pre-built Base exists.
+
 ## Workflow
 
 ### 1. Clarify the question

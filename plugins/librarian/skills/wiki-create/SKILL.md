@@ -22,6 +22,10 @@ This skill drafts interactively in the main session; `@note-editor`
 executes all vault writes. Schema and skeleton conventions live in
 `~/Loose Ends/.claude/rules/wiki.md` — the agent loads them.
 
+## Vault tool usage
+
+Use `obsidian-cli create name='...' content='...'` for new pages. Use `obsidian-cli property:set name=... value=... file=...` for frontmatter updates. Use `obsidian-cli read file=...` before any update. Use `mcp__obsidian-mcp__patch_note` for surgical in-body string replacement; Edit only when patch_note can't anchor.
+
 ## Mode detection
 
 | Input | Mode | Notes |

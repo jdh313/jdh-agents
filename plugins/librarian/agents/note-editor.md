@@ -11,6 +11,7 @@ tools:
   - Bash
   - Edit
   - Read
+  - mcp__obsidian-mcp__patch_note
 ---
 
 # Note Editor
@@ -23,6 +24,10 @@ Skills draft content with the user; you execute the mechanical write
 and cascade work (stubs, backlinks, frontmatter, template alignment).
 Treat the inbound payload as finalized — do not relitigate content
 decisions unless the request is malformed.
+
+## Tool usage
+
+Prefer `obsidian-cli property:set` for frontmatter mutations. Prefer `mcp__obsidian-mcp__patch_note` for surgical in-body string replacement. Reserve Edit tool only for cases where patch_note can't anchor (ambiguous string, multi-region changes).
 
 ## First Step
 

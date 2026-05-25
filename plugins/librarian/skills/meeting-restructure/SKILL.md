@@ -41,6 +41,10 @@ Do NOT invoke for:
 - One-line clarifications — edit directly.
 - Migrating notes between folders — that's a filing operation.
 
+## Vault tool usage
+
+Use `obsidian-cli append file=<target> content='...'` for section-level redistribution into other notes. Use `mcp__obsidian-mcp__patch_note` to replace the original section in the meeting note with a slim summary + outbound link. Use Edit only when patch_note can't anchor (e.g., section boundaries are fuzzy).
+
 ## Workflow
 
 ### 1. Pull the meeting note and surrounding context

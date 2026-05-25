@@ -26,6 +26,10 @@ existing page and `@note-editor` executes the write.
   `last_evaluated` date (for verdict changes, route to `catalog-evaluate`
   instead)
 
+## Vault tool usage
+
+Use `obsidian-cli read file=...` to get current state before drafting changes. Use `obsidian-cli property:set name=date_updated value=<ISO date> file=...` after the refresh. Use `mcp__obsidian-mcp__patch_note` for surgical content updates within the page body; Edit only when patch_note can't anchor.
+
 ## Workflow
 
 ### 1. Pull the existing page

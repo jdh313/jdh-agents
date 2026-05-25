@@ -41,6 +41,10 @@ A meeting note must answer, without falling back to the transcript:
 
 Drafts that fail these rules do not pass the approval gate in step 4. The transcript is a fallback for verbatim phrasing and context, not a retrieval crutch for binding facts.
 
+## Vault tool usage
+
+Use `obsidian-cli create name='...' content='...'` for the meeting note and any new people/project stub pages. Use `obsidian-cli backlinks file=<person>` to check existing pages before creating stubs. Use `obsidian-cli append file=<daily-note> content='...'` to add the meeting link to the daily note.
+
 ## When to Invoke
 
 - User pastes raw meeting notes, bullet dumps, or voice-to-text output
