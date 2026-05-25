@@ -39,6 +39,10 @@ writes. Schema lives in `~/Loose Ends/.claude/rules/catalog.md` and
 If a user says "refresh this entry" but means "I've changed my mind",
 route to `catalog-evaluate`.
 
+## Vault tool usage
+
+Use `obsidian-cli property:set` for catalog frontmatter (`lifecycle`, `last_evaluated`, `kind`, `solves`, `homepage_url`, etc.) — one field per call with explicit typing. Use `obsidian-cli base:query path='Bases/Software.base' view='...'` to check current catalog entries before drafting. Use `mcp__obsidian-mcp__patch_note` for in-body content edits on Decision children.
+
 ## Workflow
 
 ### 1. Check for an existing entry
