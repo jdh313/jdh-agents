@@ -60,7 +60,7 @@ Agent picks the top 1–3 hits, calls `mcp__obsidian-mcp__read_multiple_notes`. 
 
 ### Stage 3 — walk supersession
 
-For each loaded decision: if `superseded_by:` is non-empty, follow the chain to the head. Read the *current* version, not the seed. **This is what makes reading drift-safe.**
+For each loaded decision: if `superseded_by:` is non-empty, follow the chain to the head. Read the *current* version via `obsidian-cli read file=<path>`, not the seed. **This is what makes reading drift-safe.**
 
 ### Stage 4 — synthesize
 

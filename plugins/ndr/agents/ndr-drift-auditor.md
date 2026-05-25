@@ -8,12 +8,14 @@ tools:
   - Grep
   - Glob
   - Bash
-  - mcp__obsidian-mcp__read_note
   - mcp__obsidian-mcp__read_multiple_notes
-  - mcp__obsidian-mcp__list_directory
 ---
 
 # ndr-drift-auditor
+
+## Tool usage
+
+Per NDR atom 0100, vault tool calls follow a layered stack: `obsidian-cli` primary, tier-2 MCP for blessed operations. For this agent: use `obsidian-cli files Decisions/` to enumerate atoms; `mcp__obsidian-mcp__read_multiple_notes` for batch atom loads when walking chain heads. No frontmatter search or individual reads needed — enumeration feeds directly into batch load.
 
 ## Role
 
@@ -52,7 +54,7 @@ Audit code-vs-decision drift. You walk current heads of the supersession chain i
 
    If the resulting diff is empty (any scope), return early with `divergences: []` and `summary: "diff is empty in scope <kind>; nothing to audit."`.
 
-3. **Enumerate atoms.** `mcp__obsidian-mcp__list_directory` on `Decisions/`. Filter to files matching `^\d{4}-.*\.md$`. Hidden `.taxonomy/` excluded by dot prefix.
+3. **Enumerate atoms.** `obsidian-cli files Decisions/` to list files. Filter to files matching `^\d{4}-.*\.md$`. Hidden `.taxonomy/` excluded by dot prefix.
 
 4. **Load atoms.** `mcp__obsidian-mcp__read_multiple_notes` in batches of 20.
 

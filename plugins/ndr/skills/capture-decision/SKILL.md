@@ -8,9 +8,7 @@ allowed-tools:
   - Edit
   - Write
   - Agent
-  - mcp__obsidian-mcp__read_note
   - mcp__obsidian-mcp__read_multiple_notes
-  - mcp__obsidian-mcp__list_directory
   - mcp__obsidian-mcp__search_notes
 ---
 
@@ -25,6 +23,10 @@ in-skill scan ──► user confirms candidates ──► ndr-drafter ──►
 ```
 
 This skill detects atomic decisions in the current conversation, confirms them with the user, delegates composition to the `ndr-drafter` subagent, sends drafts to `ndr-reviewer` for a verdict, then hands off to `scripts/persist.py` for the deterministic write. Each stage has a single responsibility; the skill itself owns scope detection and user interaction.
+
+## Vault tool usage
+
+Per NDR atom 0100, vault tool calls follow a layered stack: `obsidian-cli` primary, tier-2 MCP for the explicitly-blessed operations. For this skill: use `obsidian-cli read` / `obsidian-cli files` / `obsidian-cli property:set` for direct atom I/O; `mcp__obsidian-mcp__search_notes` (with `searchFrontmatter: true`) for the frontmatter probe; `mcp__obsidian-mcp__read_multiple_notes` for batch loads (Stage 2). Atom file creation goes through `persist.py` — do not bypass it with `obsidian-cli create`.
 
 ## Hard rules
 

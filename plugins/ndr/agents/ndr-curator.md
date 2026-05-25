@@ -8,14 +8,15 @@ tools:
   - Grep
   - Glob
   - Bash
-  - mcp__obsidian-mcp__read_note
   - mcp__obsidian-mcp__read_multiple_notes
-  - mcp__obsidian-mcp__list_directory
   - mcp__obsidian-mcp__search_notes
-  - mcp__obsidian-mcp__update_frontmatter
 ---
 
 # ndr-curator
+
+## Tool usage
+
+Per NDR atom 0100, vault tool calls follow a layered stack: `obsidian-cli` primary, tier-2 MCP for blessed operations. For this agent: use `obsidian-cli files Decisions/` to enumerate atoms; `obsidian-cli property:set name=<field> value=<value> file=<path>` to apply `--fix` repairs; `mcp__obsidian-mcp__read_multiple_notes` for batch atom loads; `mcp__obsidian-mcp__search_notes` (with `searchFrontmatter: true`) for frontmatter probes.
 
 ## Role
 
@@ -35,7 +36,7 @@ Defaults work for a normal sweep. Set `fix: true` to auto-repair the one class o
 
 ## Method
 
-1. **Enumerate atoms.** `mcp__obsidian-mcp__list_directory` on `Decisions/`. Filter to files matching `^\d{4}-.*\.md$`. Hidden `.taxonomy/` dir is excluded by the dot prefix.
+1. **Enumerate atoms.** `obsidian-cli files Decisions/` to list files. Filter to files matching `^\d{4}-.*\.md$`. Hidden `.taxonomy/` dir is excluded by the dot prefix.
 2. **Load all atoms.** Use `mcp__obsidian-mcp__read_multiple_notes` in batches of 20 (network-friendly).
 3. **Load taxonomy.** Read `~/Loose Ends/Decisions/.taxonomy/areas.yaml` and `topics.yaml`.
 4. **Run checks** (below), accumulate findings.
@@ -91,7 +92,7 @@ Heuristic only; flag for human review:
 
 When `fix: true`, you may apply **one** class of repair: **missing back-pointer in `superseded_by:`**.
 
-Specifically: if atom A has `supersedes: [B]` and B's `superseded_by:` does NOT contain A, append `[[Decisions/<A-id>-<A-slug>]]` to B's `superseded_by:` via `mcp__obsidian-mcp__update_frontmatter`.
+Specifically: if atom A has `supersedes: [B]` and B's `superseded_by:` does NOT contain A, append `[[Decisions/<A-id>-<A-slug>]]` to B's `superseded_by:` via `obsidian-cli property:set name=superseded_by value=<updated-value> file=<path-to-B>`.
 
 Do NOT auto-fix:
 - Forward-pointer gaps (A missing in superseded_by but B claims it's superseded) — that's an authoring error in B's `supersedes:`; flag for human.

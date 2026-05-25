@@ -7,12 +7,15 @@ tools:
   - Read
   - Grep
   - Glob
-  - mcp__obsidian-mcp__read_note
+  - Bash
   - mcp__obsidian-mcp__read_multiple_notes
-  - mcp__obsidian-mcp__list_directory
 ---
 
 # ndr-extractor
+
+## Tool usage
+
+Per NDR atom 0100, vault tool calls follow a layered stack: `obsidian-cli` primary, tier-2 MCP for blessed operations. For this agent: use `obsidian-cli read file=<path>` to load vault note sources when the caller passes a wikilink or vault path; `mcp__obsidian-mcp__read_multiple_notes` for batch loads of multiple source files. No directory listing or frontmatter mutation needed — extractor is read-only from the source as given.
 
 ## Role
 
@@ -28,7 +31,7 @@ The orchestrator will provide:
 - **Project context** (optional). What project the captures belong to — helps you suggest `project:` for each atom.
 - **Taxonomy snapshot** (optional). Current `area:` / `topic:` values from `~/Loose Ends/Decisions/.taxonomy/{areas,topics}.yaml`. Use these to suggest matching values per candidate. If you'd suggest a new value, flag it.
 
-If the source is a file path, read it. If it's a wikilink to a vault note, use `mcp__obsidian-mcp__read_note`. Do not chase secondary references — extract from the source as given.
+If the source is a file path, read it. If it's a wikilink to a vault note, use `obsidian-cli read file=<path>`. Do not chase secondary references — extract from the source as given.
 
 ## Hard rules
 

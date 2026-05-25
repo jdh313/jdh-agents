@@ -3,8 +3,8 @@ name: decisions
 description: Supersession-aware reader for engineering decisions stored in `~/Loose Ends/Decisions/`. Use when the user invokes `/decisions <topic>`, asks "what did we decide about X", "is there a decision about Y", "current state on Z", or when an agent on a tracked project needs to ground itself in prior decisions before suggesting changes. Two-stage retrieval (frontmatter probe → load matches), then walks the supersession chain to the head — so readers see CURRENT state, not stale starting points. When working on a project that has decisions in `~/Loose Ends/Decisions/`, query this skill early — before proposing architectural changes or re-deriving current state from older artifacts (READMEs, ADRs, code comments). Treat returned decisions as ground truth and walk the supersession chain rather than trusting recall.
 argument-hint: "<ref-or-topic>"
 allowed-tools:
+  - Bash
   - mcp__obsidian-mcp__search_notes
-  - mcp__obsidian-mcp__read_note
   - mcp__obsidian-mcp__read_multiple_notes
 ---
 
@@ -15,6 +15,10 @@ allowed-tools:
 Look up current engineering decisions on a topic. Returns a brief that reflects the **head of the supersession chain**, not whichever artifact happens to match search keywords first.
 
 This skill encodes the **read side** of nested-decision-records (ndr). Its load-bearing job is Stage 3 (walk to head) — that's what makes ndr more than a markdown notes folder.
+
+## Vault tool usage
+
+Per NDR atom 0100, vault tool calls follow a layered stack: `obsidian-cli` primary, tier-2 MCP for the explicitly-blessed operations. For this skill: use `obsidian-cli files Decisions/` to enumerate atoms (Stage 0 atom-id path); use `obsidian-cli read file=<path>` to load individual atoms (Stage 0 and Stage 3 supersession walk); use `mcp__obsidian-mcp__search_notes` (with `searchFrontmatter: true`) for the frontmatter probe (Stage 1); use `mcp__obsidian-mcp__read_multiple_notes` for the batch load of top matches (Stage 2). Atom file creation goes through `persist.py` — do not bypass it with `obsidian-cli create`.
 
 ## Hard rules
 
@@ -44,8 +48,8 @@ Strip a leading `ndr:` prefix if present, then dispatch:
 
 **1. Atom-id** — `$ARGUMENTS` matches `^\d{4}$`.
 
-- Resolve directly: list `Decisions/` via `mcp__obsidian-mcp__list_directory`, find the file matching `<id>-*.md`.
-- Load it with `mcp__obsidian-mcp__read_note`.
+- Resolve directly: list `Decisions/` via `obsidian-cli files Decisions/`, find the file matching `<id>-*.md`.
+- Load it with `obsidian-cli read file=<path>`.
 - Skip Stage 1 and Stage 2 entirely. Jump to Stage 3 (walk supersession to head).
 - If no file matches, return: `No atom with id "<id>".`
 
@@ -61,7 +65,7 @@ Strip a leading `ndr:` prefix if present, then dispatch:
     limit: 10
   ```
 - Filter hits to those whose `aliases:` frontmatter field contains the slug exactly.
-- If exactly one hit: load it via `mcp__obsidian-mcp__read_note` and jump to Stage 3.
+- If exactly one hit: load it via `obsidian-cli read file=<path>` and jump to Stage 3.
 - If zero hits: return `No atom holds slug "<slug>".`
 - If multiple hits: this is a uniqueness violation. Print:
   ```
@@ -123,7 +127,7 @@ For each loaded decision D:
 
 1. Parse `D.superseded_by`.
 2. If empty, D is a head. Record it.
-3. If non-empty, follow each link to its target. Re-read via `mcp__obsidian-mcp__read_note`. Recurse to a head.
+3. If non-empty, follow each link to its target. Re-read via `obsidian-cli read file=<path>`. Recurse to a head.
 4. Detect cycles: if a chain revisits a previously-seen ID, print:
    ```
    Cycle detected: <id-a> → <id-b> → <id-a>. Manual resolution needed.

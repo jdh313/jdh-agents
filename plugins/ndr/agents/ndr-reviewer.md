@@ -7,13 +7,16 @@ tools:
   - Read
   - Grep
   - Glob
-  - mcp__obsidian-mcp__read_note
+  - Bash
   - mcp__obsidian-mcp__read_multiple_notes
-  - mcp__obsidian-mcp__list_directory
   - mcp__obsidian-mcp__search_notes
 ---
 
 # ndr-reviewer
+
+## Tool usage
+
+Per NDR atom 0100, vault tool calls follow a layered stack: `obsidian-cli` primary, tier-2 MCP for blessed operations. For this agent: use `obsidian-cli read file=<path>` to load on-disk atoms in audit mode; `mcp__obsidian-mcp__read_multiple_notes` for batch audit loads of multiple atoms; `mcp__obsidian-mcp__search_notes` (with `searchFrontmatter: true`) for alias-uniqueness checks in audit mode.
 
 ## Role
 
@@ -48,7 +51,7 @@ Two modes:
 }
 ```
 
-In audit mode, read each file via `mcp__obsidian-mcp__read_note`, parse the frontmatter and body, then run the same checks. Audit mode is read-only.
+In audit mode, read each file via `obsidian-cli read file=<path>`, parse the frontmatter and body, then run the same checks. Audit mode is read-only.
 
 Reference files:
 
