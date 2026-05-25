@@ -185,6 +185,30 @@ Then re-run `python scripts/sync_marketplace.py` to update marketplace.json.
 
 ## Plugin Development Patterns
 
+### Agent `tools:` vs. Skill `allowed-tools:` — different semantics
+
+These two fields look similar but behave differently. Getting them wrong causes silent breakage: an agent that documents using a tool it cannot actually call, or a skill that prompts for approval on every invocation.
+
+**Agent `tools:` is a filter (allowlist)** — restricts an inherited set.
+- Default behavior (no `tools:` field): the agent inherits **all** tools available in the parent session, including MCP tools.
+- If `tools:` is set, it becomes an allowlist. Tools not listed are blocked even if the user has them authorized at session level.
+- To grant MCP tool access in an agent, either:
+  1. List the specific MCP tool names explicitly (e.g. `mcp__obsidian-mcp__patch_note`), or
+  2. Omit `tools:` entirely and use `disallowedTools:` for a deny-list approach.
+- Plugin agents **cannot** declare `mcpServers:`, `hooks:`, or `permissionMode:` in frontmatter — those fields are ignored for security reasons. The MCP server must be connected at the user level.
+
+**Skill `allowed-tools:` is pre-approval, not a filter** — does NOT restrict tool use.
+- Tools listed in `allowed-tools:` are pre-approved (no permission prompt) while the skill is active.
+- Tools NOT listed remain callable — the user is just prompted at call time per their normal permission settings.
+- So `allowed-tools:` is a UX optimization, not a correctness requirement.
+- Skills should list tools the skill itself invokes inline. Dispatched-agent tool use does NOT count — agents have their own permission scope (their `tools:` filter).
+
+**Practical rules for this repo:**
+- When adding an MCP tool reference to an agent's operational guidance, also add it to that agent's `tools:` array — or the agent will document a capability it can't use.
+- When auditing skills, only add to `allowed-tools:` what the skill calls in the main session. Tool calls inside `@vault-reader` / `@note-editor` dispatches belong to those agents, not the skill.
+
+Source: https://code.claude.com/docs/en/sub-agents.md, https://code.claude.com/docs/en/skills.md (verified 2026-05-25).
+
 ### Plugin.json Metadata
 
 Minimal example:

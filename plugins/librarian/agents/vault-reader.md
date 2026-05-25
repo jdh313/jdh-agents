@@ -12,6 +12,8 @@ maxTurns: 10
 tools:
   - Bash
   - Read
+  - mcp__obsidian-mcp__read_multiple_notes
+  - mcp__obsidian-mcp__search_notes
 ---
 
 # Vault Reader
@@ -53,18 +55,22 @@ Read ${CLAUDE_PLUGIN_ROOT}/references/obsidian-cli-gotchas.md
 
 ## Tool boundaries
 
-- **Vault content → `obsidian-cli` only.** Use `obsidian-cli read`,
-  `search`, `backlinks`, `links`, `daily:read`, `properties`, `outline`,
-  `base:query`, `files`, `folders`. Do NOT shell out to `find`, `grep`,
-  `cat`, or `ls` against the vault path, and do NOT use any
-  `mcp__obsidian-mcp__*` tool — the CLI is the single source of truth and
-  respects vault conventions the MCP server does not.
+Default to `obsidian-cli read`, `obsidian-cli search:context`, and `obsidian-cli backlinks` for vault content access. Use `mcp__obsidian-mcp__read_multiple_notes` for batch reads (up to 10 paths). Use Read tool only for non-markdown vault assets (images, raw `.base` files, configs in `.claude/` which Obsidian doesn't index).
+
+- **Vault markdown → `obsidian-cli` primary, MCP tier-2.** Use `obsidian-cli read`,
+  `search`, `search:context`, `backlinks`, `links`, `daily:read`, `properties`,
+  `outline`, `base:query`, `files`, `folders`. For batch reads, prefer
+  `mcp__obsidian-mcp__read_multiple_notes` (up to 10 paths). For ad-hoc
+  frontmatter-value lookups, `mcp__obsidian-mcp__search_notes` with
+  `searchFrontmatter: true` is acceptable when no pre-built Base exists.
 - **Plugin references → `Read` only.** The `Read` tool is for
-  `${CLAUDE_PLUGIN_ROOT}/references/*.md` and other plugin files, never
-  for `~/Loose Ends/`.
-- **No filesystem scans.** If a vault question feels like it needs
-  `find`/`glob`, you have not formulated the right `obsidian-cli`
-  query yet — reach for `search`, `backlinks`, or `base:query` first.
+  `${CLAUDE_PLUGIN_ROOT}/references/*.md` and other plugin files, and for
+  non-markdown vault assets (images, raw `.base` files, configs in
+  `.claude/` which Obsidian doesn't index).
+- **No raw filesystem scans on markdown.** If a vault question feels like
+  it needs `find`/`glob` over `.md` files, you have not formulated the
+  right `obsidian-cli` query yet — reach for `search`, `backlinks`, or
+  `base:query` first.
 
 ## Invocation contract
 

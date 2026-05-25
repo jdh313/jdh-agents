@@ -20,6 +20,10 @@ This skill drafts interactively (hypothesis, criteria, protocol,
 commitment); `@vault-reader` reads existing pages when promoting; and
 `@note-editor` executes the write.
 
+## Vault tool usage
+
+Use `obsidian-cli create name='...' content='...'` for the experiment page. Use `obsidian-cli property:set` for `status`, `start_date`, `review_date`, `hypothesis`, `category` — typed per field. Use `obsidian-cli append file=<daily-note>` to log the experiment start in today's daily note.
+
 ## When to use
 
 - User wants to try a productivity method, tool, habit, routine, or diet

@@ -37,6 +37,10 @@ matching template, decline and suggest the closest fit ("This looks
 like a service call. I can log it as an `incident` with `severity: low`
 expanding the affected device — okay?").
 
+## Vault tool usage
+
+Use `obsidian-cli create name='...' content='...'` for the event page (incident or appointment). Use `obsidian-cli property:set name=expands value=<[[Entity]]> type=list file=...` to wire the gist-hub relationship. Use `obsidian-cli property:set` for `date`, `status`, `severity` (incident) or `specialty`, `provider` (appointment).
+
 ## Workflow
 
 ### 1. Identify the entity

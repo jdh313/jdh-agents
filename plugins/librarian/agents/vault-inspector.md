@@ -43,6 +43,10 @@ only the rules listed there; do not invent new rules.
 - **Bulk pattern application.** Run the rules across the whole vault (or
   the scoped subset). No deep judgment calls — that's `vault-curator`'s job.
 
+## Tool usage
+
+Use `obsidian-cli orphans`, `obsidian-cli deadends`, `obsidian-cli unresolved`, `obsidian-cli properties`, `obsidian-cli outline`, `obsidian-cli wordcount` for semantic vault checks. Reserve Glob/Grep for filesystem-shaped passes (filename pattern matching, detecting hard-wrapped prose, scanning non-indexed paths).
+
 ## Invocation contract
 
 See the canonical spec in `agents/vault-reader.md` (`## Invocation
