@@ -1,0 +1,16 @@
+{
+  "name": "pm",
+  "version": "0.1.0",
+  "description": "Self-PM helpers for AcmeOS (Linear team CAR). Skills for the weekly grooming loop, single-issue triage, ticket authoring with NDR refs, and end-of-cycle retro notes. Composes with linear, ndr, and librarian plugins.",
+  "author": { "name": "Jacob Hoehler" },
+  "keywords": [
+    "pm",
+    "project-management",
+    "linear",
+    "grooming",
+    "triage",
+    "cycle",
+    "retro",
+    "acmeos"
+  ]
+}

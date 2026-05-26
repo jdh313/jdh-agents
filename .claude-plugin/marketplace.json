@@ -233,6 +233,25 @@
       ]
     },
     {
+      "name": "pm",
+      "source": "./plugins/pm",
+      "description": "Self-PM helpers for AcmeOS (Linear team CAR). Skills for the weekly grooming loop, single-issue triage, ticket authoring with NDR refs, and end-of-cycle retro notes. Composes with linear, ndr, and librarian plugins.",
+      "version": "0.1.0",
+      "author": {
+        "name": "Jacob Hoehler"
+      },
+      "keywords": [
+        "pm",
+        "project-management",
+        "linear",
+        "grooming",
+        "triage",
+        "cycle",
+        "retro",
+        "acmeos"
+      ]
+    },
+    {
       "name": "python-dev",
       "source": "./plugins/python-dev",
       "description": "Comprehensive Python development skills: write Pythonic code, debug systematically, and fix failing tests",
@@ -295,7 +314,7 @@
     "description": "Personal Claude Code plugin marketplace",
     "version": "1.0.0",
     "homepage": "https://github.com/jdh313/cc-marketplace",
-    "totalPlugins": 14,
-    "lastUpdated": "2026-05-25"
+    "totalPlugins": 15,
+    "lastUpdated": "2026-05-26"
   }
 }
