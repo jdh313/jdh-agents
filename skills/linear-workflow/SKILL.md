@@ -48,7 +48,7 @@ Exactly **one surface + one type** per ticket.
 | Type | `Feature`, `Improvement`, `Docs`, `Chore`, `Decision` | Capitalized |
 
 Rules:
-- Surface labels live under a **`surface` label group** in Linear (group name `surface`, children `pipeline` / `backend` / `frontend` / `infra` / `database`). The MCP `save_issue` tool does NOT resolve colon-prefixed strings like `"surface:backend"` — pass the **bare child name** (`"backend"`). If you pass the colon form, `save_issue` returns silently with `labels: []`. Stable label IDs from `list_issue_labels` also work; bare child names are more readable.
+- Surface labels live under a **`surface` label group** in Linear (group name `surface`, children `pipeline` / `backend` / `frontend` / `infra` / `database`). The MCP `save_issue` tool does NOT resolve colon-prefixed strings like `"surface:backend"` — pass the **bare child name** (`"backend"`). If you pass the colon form, `save_issue` returns silently with `labels: []`. Stable label IDs from `list_issue_labels` also work; bare child names are more readable. See `../../references/mcp-gotchas.md` § 2 for full details.
 - `Bug` is unused — do not add tickets with it. If a defect comes up, it's a `Feature` regression or a `Chore` cleanup depending on framing.
 - `Decision` is for tickets that mark a decision point (formerly written as `D# — ...` titles). The decision content itself becomes an ndr atom; the ticket tracks the work of making the call.
 
@@ -111,6 +111,10 @@ Two templates depending on what the ticket is for.
 **Full spec-flow contract template (when the ticket *is* the contract):**
 
 The five-section template from `spec-flow:start` (`What we're doing` / `Why` / `Approach` / `Out of scope` / `Done when` / `Open questions`). Used when the ticket is being created or written by `spec-flow:start` against a Linear host. spec-flow handles writing this — this skill governs the surrounding fields (labels, priority, state, milestone).
+
+## MCP gotchas
+
+The Linear MCP tool surface has several silent-failure modes — empty responses, dropped fields, no errors. **Read `../../references/mcp-gotchas.md` before calling any `mcp__linear-server__*` tool, especially when filtering by cycle, setting grouped labels, or working with estimates.** Universal to all Linear MCP callers, not just this skill.
 
 ## Operations
 
