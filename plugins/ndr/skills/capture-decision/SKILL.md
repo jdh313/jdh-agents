@@ -51,6 +51,7 @@ These constraints are upstream of any subagent — the skill enforces them at th
 - **Taxonomy (vault-resident, mutable):** `~/Loose Ends/Decisions/.taxonomy/{areas,topics}.yaml`.
 - **Schema spec:** `${CLAUDE_PLUGIN_ROOT}/references/frontmatter-schema.md`.
 - **Template:** `${CLAUDE_PLUGIN_ROOT}/references/decision-single.md`.
+- **Worthiness rubric:** `${CLAUDE_PLUGIN_ROOT}/references/worthiness.md` — three-question test for "is this NDR-grain or should it route elsewhere?"
 - **Persistence helper:** `${CLAUDE_PLUGIN_ROOT}/scripts/persist.py`.
 - **Subagents:** `ndr-drafter`, `ndr-reviewer` (and `ndr-extractor` for long-source captures, `ndr-curator` for periodic audits — both out of scope for the routine capture flow).
 
@@ -79,9 +80,27 @@ Before confirming candidates, scan the conversation for revising intent:
 
 For each candidate with revising signal, you'll need to ask the user: **what is being superseded?** Note this against the candidate; ask in Step 3.
 
+### Step 2.5 — Worthiness pass
+
+Atomicity (Step 1) checks *shape*. This pass checks *grain* — is the candidate actually NDR-worthy, or would it live better as a code comment, CLAUDE.md gotcha, or rule file? Full criteria in `${CLAUDE_PLUGIN_ROOT}/references/worthiness.md`; load and skim if any candidate is borderline.
+
+For each candidate, ask:
+
+1. **Named alternative?** Is there a chosen path with an alternative anyone could plausibly have picked?
+2. **Future-revisitable?** Could future-you or a future agent want to revisit or override this?
+3. **Rationale outlives the code site?** Or does the WHY rot when the function is rewritten?
+
+Tag each candidate:
+
+- **`ndr-worthy`** — all three yes. Pass through silently in Step 3.
+- **`borderline`** — one is a maybe, or the candidate is project-wide enough that a CLAUDE.md/rule entry should complement the NDR. Tag with a one-line routing note for Step 3.
+- **`not-ndr`** — fails the test, or is a clear fit for one of the routing buckets in `worthiness.md` (single-call-site WHY → code comment; data wart → CLAUDE.md gotcha; still considering → daily note; framework default → don't capture). Tag with the suggested home.
+
+This pass does **not** auto-drop candidates. It surfaces a routing nudge to the user in Step 3; the user always has the final say. This is friction-as-friendly-prompt, not a hard gate — the hard gates are `## Hard rules` and the taxonomy preflight (Step 4).
+
 ### Step 3 — Confirm candidates
 
-Present each candidate as a one-line summary. For candidates with revising signal, append the question:
+Present each candidate as a one-line summary. Append routing nudges for `borderline` / `not-ndr` tags and the revising question for candidates with supersession signal:
 
 ```
 I see N atomic decisions in this conversation:
@@ -89,8 +108,12 @@ I see N atomic decisions in this conversation:
   1. Use FastAPI for the auth service
   2. Single Postgres instance, no read replicas at MVP
   3. Switch from JWT to PASETO  ← revises a prior decision; which one? (id, slug, or wikilink)
+  4. Use stacked-files layout for multi-disc Jellyfin rips
+       └─ borderline: convention-with-rationale; consider also adding a homelab CLAUDE.md entry referencing this NDR
+  5. Use 4-space indentation in tools/audit.py
+       └─ not-ndr: single-file style choice → suggest .editorconfig instead. Keep as NDR anyway?
 
-Confirm, edit titles, drop any, or answer the revising question.
+Confirm, edit titles, drop any, route, or answer the revising question.
 ```
 
 Wait for the user's response. Capture for each confirmed candidate:
@@ -252,5 +275,6 @@ clear aliases: [].
 - `ndr-curator` — corpus-level health audit (run periodically, not per-capture).
 - `${CLAUDE_PLUGIN_ROOT}/references/frontmatter-schema.md` — full schema spec.
 - `${CLAUDE_PLUGIN_ROOT}/references/taxonomy.md` — taxonomy rules and growth protocol.
+- `${CLAUDE_PLUGIN_ROOT}/references/worthiness.md` — three-question rubric for grain/routing (Step 2.5).
 - `${CLAUDE_PLUGIN_ROOT}/references/workflow.md` — capture + read end-to-end.
 - `${CLAUDE_PLUGIN_ROOT}/scripts/persist.py` — the deterministic write helper.
