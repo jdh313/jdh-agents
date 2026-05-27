@@ -1,0 +1,16 @@
+{
+  "name": "craft",
+  "version": "0.1.0",
+  "description": "Software craftsmanship discipline skills. Currently houses grill-with-docs (vocabulary grilling against per-repo CONTEXT.md glossaries). Planned additions: diagnose, prototype, tdd, improve-codebase-architecture, zoom-out — adapted in part from mattpocock/skills (MIT). Composes with spec-flow and ndr plugins.",
+  "author": {
+    "name": "Jacob Hoehler"
+  },
+  "keywords": [
+    "engineering",
+    "craft",
+    "discipline",
+    "vocabulary",
+    "context",
+    "glossary"
+  ]
+}
