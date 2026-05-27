@@ -1,6 +1,6 @@
 ---
 name: wiki-create
-description: Create or update a wiki page. Detects mode from input — ingest mode if the user provides a URL/file/pasted text (save to Sources/, draft wiki pages, update index and log); stub mode otherwise (lightweight "what is X" page from common knowledge, no source required). Use when user says "ingest this", "add to wiki", "process this article", "stub this", "add a wiki page for", "create a page for", "add a note about [topic]", "make a note about", "save a note about", or provides a source to add to the knowledge base. Merger of the former `wiki-ingest` and `wiki-stub` skills.
+description: Create or update a wiki page. Detects mode from input — ingest mode if the user provides a URL/file/pasted text (save to Sources/, draft wiki pages); stub mode otherwise (lightweight "what is X" page from common knowledge, no source required). Use when user says "ingest this", "add to wiki", "process this article", "stub this", "add a wiki page for", "create a page for", "add a note about [topic]", "make a note about", "save a note about", or provides a source to add to the knowledge base. Merger of the former `wiki-ingest` and `wiki-stub` skills.
 allowed-tools:
   - Read
   - Write
@@ -17,8 +17,7 @@ Create or update a Knowledge Wiki page. Two modes, picked by the shape of
 the input:
 
 - **Ingest mode** — user provides a source (URL, file, pasted text, or
-  existing `Sources/` file). Fetch/save the source, draft wiki pages,
-  update index and log.
+  existing `Sources/` file). Fetch/save the source, draft wiki pages.
 - **Stub mode** — no source provided. Create a lightweight "what is X"
   page from common knowledge. Can be deepened later via `wiki-refresh`
   or by re-running ingest mode.
@@ -91,12 +90,10 @@ write wiki pages from source
 ## Constraints
 - Source: save to `Sources/YYYY-MM-DD <Title>.md` (skip if input was already a Sources/ path)
 - Pages: write each drafted page to its placement path
-- Index: update `Reference/index.md` with entries for every page touched
-- Log: append to `Reference/log.md` with the ingest entry
 - Schema: per `~/Loose Ends/.claude/rules/wiki.md`
 
 ## Input
-<all drafted content: source frontmatter+body, each page frontmatter+body, index entries, log entry>
+<all drafted content: source frontmatter+body, each page frontmatter+body>
 
 ## Output shape
 Confirm files created/modified with full paths.
@@ -164,14 +161,12 @@ write a stub wiki page at <path>
 - page_type: <concept | how-to>
 - Schema: per `~/Loose Ends/.claude/rules/wiki.md`
 - Hierarchy: include `up:` to <parent>
-- Update `Reference/index.md` with the new entry
-- Append to `Reference/log.md` with the stub entry
 
 ## Input
-<full drafted frontmatter + body, index entry, log entry>
+<full drafted frontmatter + body>
 
 ## Output shape
-Confirm file created with placement path; confirm index and log updated.
+Confirm file created with placement path.
 ```
 
 ### 5. Report

@@ -174,8 +174,8 @@
     {
       "name": "librarian",
       "source": "./plugins/librarian",
-      "description": "Curates, catalogs, retrieves, and maintains your library of notes and knowledge in an Obsidian vault. Workflow-shaped (Capture / Process / Retrieve / Maintain) and agent-mediated (skills draft, agents execute). 16 skills + 4 agents + 7 references, coupled to the vault conventions in ~/Loose Ends/.claude/rules/{wiki.md,catalog.md}.",
-      "version": "0.11.0",
+      "description": "Curates, catalogs, retrieves, and maintains your library of notes and knowledge in an Obsidian vault. Workflow-shaped (Capture / Process / Retrieve / Maintain) and agent-mediated (skills draft, agents execute). 16 skills + 4 agents + 5 references, coupled to the vault conventions in ~/Loose Ends/.claude/rules/{wiki.md,catalog.md} and the Templater templates in ~/Loose Ends/Templates/.",
+      "version": "0.13.0",
       "author": {
         "name": "Jacob Hoehler"
       },
@@ -332,6 +332,6 @@
     "version": "1.0.0",
     "homepage": "https://github.com/jdh313/cc-marketplace",
     "totalPlugins": 16,
-    "lastUpdated": "2026-05-26"
+    "lastUpdated": "2026-05-29"
   }
 }

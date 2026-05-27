@@ -42,9 +42,9 @@ For wiki pages and source notes (anything more than ~10 lines), do NOT try to in
 
 ## Short content → inline is fine
 
-For log entries and small appends, inline `\n` escapes work well:
+For daily-note bullets and small appends, inline `\n` escapes work well:
 ```bash
-obsidian-cli append path="Reference/log.md" content="\n## [date] entry\n- bullet"
+obsidian-cli daily:append content="\n- captured: bullet"
 ```
 
 ## Help syntax
@@ -54,7 +54,7 @@ Use `obsidian-cli help <command>`, NOT `obsidian-cli <command> --help`. The latt
 ## Required flags
 
 - **`silent`** — prevents files from opening in Obsidian on creation
-- **`overwrite`** — required when replacing an existing file (e.g., updating index.md)
+- **`overwrite`** — required when replacing an existing file
 - **`path=`** — exact path from vault root, REQUIRED to land files in the correct folder. Without `path=`, files land in vault root.
 
 ## Vault targeting
@@ -75,10 +75,10 @@ obsidian-cli create path="Sources/2026-04-09 Title.md" content="..." silent
 obsidian-cli create path="Reference/Developer/Page.md" content="..." silent
 
 # Replace existing file
-obsidian-cli create path="Reference/index.md" content="..." overwrite silent
+obsidian-cli create path="Reference/Developer/Page.md" content="..." overwrite silent
 
-# Append to log
-obsidian-cli append path="Reference/log.md" content="\n## [date] ..."
+# Append to today's daily note
+obsidian-cli daily:append content="\n- captured: ..."
 
 # Read file
 obsidian-cli read path="Reference/Developer/Page.md"

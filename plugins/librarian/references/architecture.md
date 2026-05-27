@@ -126,14 +126,18 @@ already structures responses.
 | Layer | Source | Used by |
 |---|---|---|
 | Vault conventions | `~/Loose Ends/.claude/rules/wiki.md`, `~/Loose Ends/.claude/rules/catalog.md` | Humans + agents (loaded on demand) |
-| Plugin reference (write-side distillation) | `references/wiki-templates.md`, `references/event-templates.md`, `references/bases.md`, `references/vault-conventions.md` | Agents (loaded by `@note-editor`, `@vault-reader`) |
+| Page-type templates (canonical schemas) | `~/Loose Ends/Templates/*.md` (Templater) | Skills + agents that write wiki, event, treatment, condition pages |
+| Plugin reference (non-template context) | `references/bases.md`, `references/vault-conventions.md` | Agents (loaded by `@note-editor`, `@vault-reader`) |
 | Diagnostic rules | `references/inspect-rules.md` | `@vault-inspector` |
 | Tool gotchas | `references/obsidian-cli-gotchas.md` | Any agent shelling to obsidian-cli |
 | Work-context substitution | `~/Loose Ends/.claude/librarian.local.md` + `references/work-context-config.md` | Meeting skills |
 
-Vault rules are the canonical source of truth. Plugin references
-distill them for agent-loading convenience; when they diverge, the
-vault rule wins and the reference is regenerated.
+Vault rules and vault templates are the canonical source of truth.
+Plugin references hold only the context that doesn't live in the vault
+(base registry, obsidian-cli gotchas, work-context substitution) plus
+the diagnostic rule sets used by `@vault-inspector`. Page-type
+skeletons are never duplicated into the plugin — skills read the
+relevant Templater template at write time.
 
 ## Adding things
 
@@ -156,10 +160,10 @@ Acceptable triggers:
 ### A new `page_type`
 
 1. Justify by usage: three or more pages of the new shape should be plausible. Until then, the closest existing template covers the case.
-2. Add the skeleton to `~/Loose Ends/.claude/rules/wiki.md` (or the appropriate vault rule).
-3. Mirror in the plugin reference (`references/wiki-templates.md` for wiki types, `references/event-templates.md` for event types).
+2. Add a new Templater template at `~/Loose Ends/Templates/<Type Name>.md` with the canonical frontmatter + body skeleton.
+3. Update the relevant vault rule (`~/Loose Ends/.claude/rules/wiki.md` or `catalog.md`) with the decision logic that selects the new template — point at the template by path.
 4. Add corresponding `W-*` or `W-EVENT-*` rules to `references/inspect-rules.md`.
-5. Update the skill(s) that produce the new shape (or add `event-capture`-style routing if it's a new event_kind).
+5. Update the skill(s) that produce the new shape to read the new template path (or add `event-capture`-style routing if it's a new event_kind).
 
 ### A new reference
 
