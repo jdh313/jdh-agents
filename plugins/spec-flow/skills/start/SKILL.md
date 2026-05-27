@@ -79,6 +79,8 @@ If the *done* state isn't obvious from the goal — i.e. you can't list 2–3 ob
 
 If the *how* is non-obvious enough to warrant real deliberation, suggest forking into the debate skill (advocate / devils-advocate / fact-checker / synthesizer). The debate's output — recommended approach plus draft ndr atoms — flows back into the contract's *Approach* section.
 
+If contested or fuzzy vocabulary surfaces during the conversation — terms used inconsistently, ambiguous nouns, drift between code naming and how the user is talking about the change — and the `craft` plugin is installed, suggest invoking `/grill-with-docs` to lock the terms down in the repo's `CONTEXT.md` glossary before drafting. Soft composition: spec-flow:start works fine without craft installed; the suggestion simply doesn't fire if the skill isn't available.
+
 ### 5. Draft the contract
 
 Use `references/contract-template.md` as the literal scaffold. Six sections:
