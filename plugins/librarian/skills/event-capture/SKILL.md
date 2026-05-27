@@ -16,9 +16,13 @@ Capture a one-time event (incident or appointment) as a `type: event`
 page. Drafts fields interactively with the user; dispatches an entity
 existence check to `@vault-reader` and the write to `@note-editor`.
 
-Schema and skeletons live in
-`${CLAUDE_PLUGIN_ROOT}/references/event-templates.md` — the agent loads
-them.
+Schema and skeletons live in the vault Templates folder — the agent
+loads the relevant template:
+
+- `~/Loose Ends/Templates/Event Incident.md`
+- `~/Loose Ends/Templates/Event Appointment.md`
+- `~/Loose Ends/Templates/Pet Treatment.md`
+- `~/Loose Ends/Templates/Pet Condition.md`
 
 ## Mode detection
 
@@ -32,7 +36,7 @@ Pick `event_kind` from the user's framing:
 If ambiguous: ask. "Is this a one-off issue, or a provider visit?"
 
 For event kinds beyond incident and appointment (service call, travel,
-purchase), check `references/event-templates.md` first — if there's no
+purchase), check `~/Loose Ends/Templates/` first — if there's no
 matching template, decline and suggest the closest fit ("This looks
 like a service call. I can log it as an `incident` with `severity: low`
 expanding the affected device — okay?").
@@ -111,7 +115,8 @@ Show the full draft (frontmatter + body) for approval before dispatch.
 
 ### 4. Determine placement
 
-Per `references/event-templates.md`:
+Per the placement notes in `~/Loose Ends/Templates/Event Incident.md`
+and `~/Loose Ends/Templates/Event Appointment.md`:
 
 | Kind | Subject | Placement |
 |---|---|---|
@@ -136,7 +141,7 @@ write event page at <path>
 
 ## Constraints
 - page_type: <incident | appointment>
-- Schema: per `${CLAUDE_PLUGIN_ROOT}/references/event-templates.md`
+- Schema: per the matching template in `~/Loose Ends/Templates/` (`Event Incident.md` or `Event Appointment.md`)
 - expands: must point to an existing entity page (or a placeholder agreed in step 1)
 - Verify `follow_up_by:` (if set) is a real future date
 

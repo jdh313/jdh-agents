@@ -156,12 +156,10 @@ write or update catalog entry for <Tool>
 - Gist path: `Reference/Tools/Software Catalog/<Tool>.md`
 - Decision path: <path or omitted>
 - Migration: <fresh | legacy-to-split | update> — if legacy-to-split, preserve accurate body content and redistribute across gist + Decision child
-- Update `Reference/index.md` with the gist (Decision child does not need its own line)
-- Append to `Reference/log.md` with the catalog entry
 - Update gist `date_updated` and `last_evaluated`
 
 ## Input
-<full drafted gist content, full drafted Decision child content (if any), index entry, log entry>
+<full drafted gist content, full drafted Decision child content (if any)>
 
 ## Output shape
 Confirm files created/modified with paths and a per-file change summary.

@@ -52,14 +52,18 @@ Loaded on demand by skills and agents that need vault context:
 |---|---|---|
 | `vault-conventions.md` | Folder structure, note types, frontmatter, naming, tags, links | Any agent that needs conventions |
 | `bases.md` | Base registry, filter shapes, required properties per base | Agents working with `.base` files |
-| `wiki-templates.md` | `page_type` skeletons (concept, gist hub catalog + non-catalog, how-to, evaluation) | `@note-editor` when writing wiki pages |
-| `event-templates.md` | `type: event` skeletons (incident, appointment) + compositional pattern | `@note-editor` and `event-capture` |
 | `inspect-rules.md` | Diagnostic rule sets (S-* structural, W-* wiki-semantic, W-EVENT-*) | `@vault-inspector` |
 | `obsidian-cli-gotchas.md` | obsidian-cli patterns and shell-quoting gotchas | Any agent shelling to obsidian-cli |
 | `work-context-config.md` | `${active_work_context}` substitution rules; reads `~/Loose Ends/.claude/librarian.local.md` | `meeting-notes`, `meeting-followup`, `meeting-restructure` |
 
 Referenced from skills and agents via
 `${CLAUDE_PLUGIN_ROOT}/references/<file>.md`.
+
+Page-type skeletons (wiki concept, gist hubs, how-to, evaluation,
+event incident/appointment, treatment, condition) live in the vault
+itself at `~/Loose Ends/Templates/` as Templater templates — single
+source of truth, loaded directly by skills and agents that write
+those page types.
 
 ## Configuration
 
@@ -82,7 +86,6 @@ These skills are intentionally coupled to a specific vault layout at
 
 - Wiki pages: distributed across the vault, identified by `owner: ai` + `type: wiki`
 - Sources: `Sources/`
-- Index: `Reference/index.md`; log: `Reference/log.md`
 - Software Catalog: `Reference/Tools/Software Catalog/`
 - Events: live near their entity (devices in `Reference/Hardware/`, pets in `Personal/Pets/`, etc.)
 - Meetings: `${active_work_context}/Meetings/` (resolved from local config)

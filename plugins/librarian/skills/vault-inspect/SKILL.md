@@ -110,6 +110,3 @@ If the user approves fixes:
 - `Skill(catalog-evaluate)` for Software Catalog schema drift
 - `@note-editor` for targeted page rewrites
 - Re-run `/vault-inspect` to confirm fixes
-
-If fixes happened in the same session, append a lint entry to
-`Reference/log.md` (the cleanup skill handles this).

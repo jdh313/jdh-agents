@@ -106,11 +106,9 @@ refresh wiki page at <path>
 - Add new sources to the `sources:` list
 - If restructuring was agreed in step 2: reorder sections, add neutral-definition opener, split blended generic/personal content
 - If a new source was drafted: also write `Sources/YYYY-MM-DD <Title>.md`
-- Append to `Reference/log.md` with a refresh entry
-- Update `Reference/index.md` if the page summary changed
 
 ## Input
-<drafted page content, drafted source content if any, drafted index/log entries>
+<drafted page content, drafted source content if any>
 
 ## Output shape
 Confirm files modified with paths and a one-line change summary per file.

@@ -93,14 +93,13 @@ location decision tree and template inventory in vault CLAUDE.md.
 
 ## Wiki-semantic rules (W-*)
 
-Wiki pages are identified by `owner: ai` + `type: wiki` frontmatter, or
-by appearing in `Reference/index.md`. All W-* rules restrict to that set.
+Wiki pages are identified by `owner: ai` + `type: wiki` frontmatter.
+All W-* rules restrict to that set.
 
 ### W-1: Orphan wiki pages
 Wiki pages with no inbound links from other wiki pages.
 
-- **Detection**: build a link graph from wiki pages only. Pages only
-  linked from `Reference/index.md` are effectively orphans.
+- **Detection**: build a link graph from wiki pages only.
 - **Severity**: medium
 
 ### W-2: Stale sources
@@ -195,8 +194,8 @@ Tags that don't follow the vault's `#topic/something` namespace.
 - **Severity**: low
 
 ### W-12: Missing `owner: ai`
-Wiki pages (identified via index.md or `type: wiki` frontmatter) that
-lack the `owner: ai` field.
+Wiki pages (identified via `type: wiki` frontmatter) that lack the
+`owner: ai` field.
 
 - **Severity**: medium
 
@@ -324,10 +323,12 @@ visible from a hub.
 
 ## Event rules (W-EVENT-*)
 
-Apply to `type: event` pages (event-templates.md schemas). Events sit
-parallel to wiki pages — these rules validate shape but do not run as
-part of the structural sweep. Default `--wiki` scope includes them; an
-`--events` scope flag is reserved if differentiation becomes useful.
+Apply to `type: event` pages (schemas: `~/Loose Ends/Templates/Event
+Incident.md` and `~/Loose Ends/Templates/Event Appointment.md`).
+Events sit parallel to wiki pages — these rules validate shape but do
+not run as part of the structural sweep. Default `--wiki` scope
+includes them; an `--events` scope flag is reserved if differentiation
+becomes useful.
 
 ### W-EVENT-1: Missing or invalid `page_type` on `type: event`
 Event pages must declare a `page_type` from the enumerated list

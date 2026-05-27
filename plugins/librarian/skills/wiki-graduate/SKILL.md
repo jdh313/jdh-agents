@@ -20,9 +20,15 @@ Drafts the split interactively with the user; `@vault-reader` pulls the
 source page and incoming-link map; `@note-editor` executes the
 multi-file edit.
 
-Schema and skeletons live in
-`${CLAUDE_PLUGIN_ROOT}/references/wiki-templates.md`. Hierarchy
-mechanics (`expands:` vs `up:`) live in
+Schema and skeletons live in the vault Templates folder:
+
+- `~/Loose Ends/Templates/Wiki Concept.md`
+- `~/Loose Ends/Templates/Wiki Concept - Gist Hub (Non-Catalog).md`
+- `~/Loose Ends/Templates/Wiki How-to.md`
+- `~/Loose Ends/Templates/Wiki Evaluation.md`
+- `~/Loose Ends/Templates/Software.md` (catalog gist hub)
+
+Hierarchy mechanics (`expands:` vs `up:`) live in
 `~/Loose Ends/.claude/rules/wiki.md`.
 
 ## When to use
@@ -105,7 +111,7 @@ Compose:
 ### 5. Draft the gist update
 
 - Remove the moved sections from the gist body.
-- If the gist now lacks a `## Going deeper` Breadcrumbs codeblock, add one (per `references/wiki-templates.md`):
+- If the gist now lacks a `## Going deeper` Breadcrumbs codeblock, add one (per `~/Loose Ends/Templates/Wiki Concept.md`):
 
   ````markdown
   ```breadcrumbs
@@ -128,15 +134,13 @@ graduate sections from <gist-path> into a new <expands:> child
 - Order: write child first, then update gist, then rewrite incoming links
 - Child path: <path>
 - Child frontmatter: `expands: [[<Gist>]]`, no `up:`
-- Schema: per `${CLAUDE_PLUGIN_ROOT}/references/wiki-templates.md`
+- Schema: per the matching template in `~/Loose Ends/Templates/` (`Wiki Concept.md`, the gist-hub variant, `Wiki How-to.md`, or `Wiki Evaluation.md`)
 - Link rewrites: list provided in Input
-- Append to `Reference/log.md` with the graduate entry
 
 ## Input
 - child_page: <full drafted frontmatter + body>
 - gist_update: <full updated gist content>
 - link_rewrites: [{source_path, old_link, new_link}]
-- log_entry: <one-block log entry>
 
 ## Output shape
 Per file: action (write/edit), path, sections touched. Confirm Breadcrumbs codeblock present on gist if it was missing.
