@@ -47,6 +47,7 @@ This is the multi-ticket-from-a-plan skill. For one-shot single-ticket drafting,
 - **Source (optional argument):** A `TEAM-N` ticket (parent), vault note path, `ndr:<atom-id>`, or file path. Falls back to conversation context.
 - **Linear team:** `CAR` (Work Healthcare).
 - **Issue shape spec:** `../../references/issue-shape.md` — body template each child ticket conforms to.
+- **Layer policy:** `../../references/layer-policy.md` — decides milestone assignment for each child ticket. Defaults to an existing milestone; only proposes a new milestone if the slice is a genuinely new capability with a "done as a unit" moment. Subissue nesting and epic parents are off by default per this policy.
 - **NDR atoms root:** `~/Loose Ends/Decisions/` — grounded via `ndr:ground` before slicing.
 - **Codebase root:** the current AcmeOS repo (`/path/to/acmeos`) — for optional exploration when slices touch tracked areas.
 
@@ -152,6 +153,7 @@ Granularity right? Dependencies correct? Anything to merge or split?
 ## See also
 
 - **`references/issue-shape.md`** — body template each published ticket conforms to.
+- **`references/layer-policy.md`** — milestone-assignment criteria; epic-parent earn-it rule; subissue retirement.
 - **`groom`** skill in this plugin — pulls breakdown's Backlog output into the cycle later.
 - **AcmeOS `CLAUDE.md`** — repo conventions; the codebase shape that informs which layers a vertical slice touches.
 - **Tracer-bullet methodology** — wiki page in the vault (Knowledge Wiki); created via `librarian:wiki-create`.

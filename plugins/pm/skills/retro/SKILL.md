@@ -4,13 +4,13 @@ description: >-
   End-of-cycle retro note for AcmeOS Linear (team CAR). This skill should be
   used when the user invokes `/pm:retro`, says "cycle retro", "wrap up the
   cycle", "retro this cycle", "what happened this cycle", or signals the end
-  of a Wed→Tue cycle. Pulls the just-closed cycle from Linear (or a
+  of a Thu→Wed cycle. Pulls the just-closed cycle from Linear (or a
   user-specified cycle), classifies tickets into shipped / carried / canceled /
   added-mid-cycle, pulls vault session notes and NDR atoms from the cycle
   window, reads the last 2–3 prior retros to spot recurring patterns, drafts
   a retro note, and writes it to the vault via `librarian:note-editor`.
   Observational and read-only on Linear — never mutates tickets. Pairs with
-  `pm:groom` (forward-looking) on the same Tuesday cadence.
+  `pm:groom` (forward-looking) on the same Thursday cadence.
 argument-hint: "[cycle name or any date in the cycle window]"
 allowed-tools:
   # Linear — cycle + ticket history (read-only)
@@ -36,7 +36,7 @@ allowed-tools:
 
 End-of-cycle retro for AcmeOS Linear (team `CAR`). The backward-looking counterpart to `pm:groom`: where groom plans forward, retro records backward. Pulls the just-closed cycle, classifies tickets by outcome, surfaces patterns across recent cycles, and writes a durable retro note to the vault.
 
-Synthesis half of the Tuesday rhythm — the chat output captures the story of the cycle; the vault note is the durable record that future retros read for pattern detection.
+Synthesis half of the Thursday rhythm — the chat output captures the story of the cycle; the vault note is the durable record that future retros read for pattern detection.
 
 ## Inputs (load-bearing constants)
 
@@ -47,10 +47,11 @@ Synthesis half of the Tuesday rhythm — the chat output captures the story of t
 - **NDR atoms root:** `~/Loose Ends/Decisions/` — filter to atoms with `project: [[AcmeOS]]` AND a `date:` (or equivalent) frontmatter field inside the cycle window.
 - **Pattern-detection window:** the most recent 2–3 retros in the Retros folder. On the first retro, this section is omitted.
 - **Issue shape spec:** `../../references/issue-shape.md` (plugin reference). Used when characterizing carried tickets ("missing Done when:" vs. "blocked").
+- **Layer policy:** `../../references/layer-policy.md` (plugin reference). Used when surfacing "did we honor the layer policy this cycle?" — any orphans landed, any subissue temptations resisted, any epic that earned its keep.
 
 ## Procedure
 
-1. **Resolve the target cycle.** If an argument was passed, find the matching cycle via `mcp__linear-server__list_cycles` (match by name, or find the cycle whose window contains the date). Otherwise, take the most recently closed cycle. Confirm the window with the user before scanning: e.g. "Retro for Cycle 12, Wed 2026-05-26 → Tue 2026-06-02?".
+1. **Resolve the target cycle.** If an argument was passed, find the matching cycle via `mcp__linear-server__list_cycles` (match by name, or find the cycle whose window contains the date). Otherwise, take the most recently closed cycle. Confirm the window with the user before scanning: e.g. "Retro for Cycle 12, Thu 2026-05-28 → Wed 2026-06-03?".
 
 2. **Pull cycle tickets.** Use `mcp__linear-server__list_issues` filtered to the resolved cycle. Capture state at cycle close, priority, `createdAt`, `updatedAt`. For tickets whose history matters (carried, mid-cycle adds), use `list_comments` to reconstruct timing.
 
@@ -76,7 +77,7 @@ Synthesis half of the Tuesday rhythm — the chat output captures the story of t
 
 ## Body structure
 
-**Filename:** `YYYY-MM-DD Cycle Retro.md` where `YYYY-MM-DD` is the cycle close date (Tuesday). Defer to `librarian:note-editor` if the vault has a different convention for cycle/retro filenames.
+**Filename:** `YYYY-MM-DD Cycle Retro.md` where `YYYY-MM-DD` is the cycle close date (Wednesday). Defer to `librarian:note-editor` if the vault has a different convention for cycle/retro filenames.
 
 **Frontmatter:**
 
@@ -85,8 +86,8 @@ Synthesis half of the Tuesday rhythm — the chat output captures the story of t
 type: retro
 project: "[[AcmeOS]]"
 cycle: <cycle-name-from-linear>
-cycle_start: YYYY-MM-DD  # Wednesday
-cycle_end: YYYY-MM-DD    # Tuesday (close)
+cycle_start: YYYY-MM-DD  # Thursday
+cycle_end: YYYY-MM-DD    # Wednesday (close)
 date_created: YYYY-MM-DD
 ---
 ```
@@ -95,7 +96,7 @@ date_created: YYYY-MM-DD
 
 ### `# Cycle Retro — <cycle-name>`
 
-One-line window: `Cycle window: Wed YYYY-MM-DD → Tue YYYY-MM-DD`
+One-line window: `Cycle window: Thu YYYY-MM-DD → Wed YYYY-MM-DD`
 
 ### `## Summary`
 
@@ -179,5 +180,6 @@ Things flagged in chat or session notes that need an owner:
 
 ## See also
 
-- **`groom`** skill in this plugin — forward-looking counterpart on the same Tuesday cadence.
+- **`groom`** skill in this plugin — forward-looking counterpart on the same Thursday cadence.
 - **`references/issue-shape.md`** — required-field spec; useful for characterizing why a ticket was carried (missing `Done when:` vs. blocked).
+- **`references/layer-policy.md`** — active-layers spec; useful for surfacing layer-policy adherence in retro narrative.

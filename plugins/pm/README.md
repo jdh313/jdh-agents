@@ -14,8 +14,8 @@ Solo development on AcmeOS means acting as my own project manager. The PM work s
 
 ## Skills
 
-- **`groom`** — Weekly Tuesday-AM backlog grooming sweep. Scans active cycle + backlog, cross-refs NDR atoms and vault session notes, outputs a bucketed punch list and archives it to the week's recurring grooming child issue. Forward-looking.
-- **`retro`** — End-of-cycle retro note. Pulls the just-closed cycle, classifies tickets (shipped / carried / canceled / added-mid-cycle), surfaces patterns across recent cycles, and writes a durable retro to `~/Loose Ends/Work/Projects/AcmeOS/Retros/` via `librarian:note-editor`. Backward-looking. Pairs with `groom` on the same Tuesday cadence.
+- **`groom`** — Weekly Thursday-AM backlog grooming sweep. Scans active cycle + backlog, cross-refs NDR atoms and vault session notes, outputs a bucketed punch list and archives it to the week's recurring grooming child issue. Forward-looking.
+- **`retro`** — End-of-cycle retro note. Pulls the just-closed cycle, classifies tickets (shipped / carried / canceled / added-mid-cycle), surfaces patterns across recent cycles, and writes a durable retro to `~/Loose Ends/Work/Projects/AcmeOS/Retros/` via `librarian:note-editor`. Backward-looking. Pairs with `groom` on the same Thursday cadence.
 - **`breakdown`** — Decompose a goal / plan / spec into independently-grabbable Linear tickets using tracer-bullet vertical slices. Grounds against current NDR heads, publishes in dependency order with native Linear blocks/blocked-by relations, recommends a spec-flow contract for large slices. Parent-aware. Slices land in Backlog — cycle assignment is `groom`'s job.
 
 Planned for later versions:
@@ -26,6 +26,7 @@ Planned for later versions:
 ## References
 
 - **`references/issue-shape.md`** — what counts as a well-formed AcmeOS Linear ticket (required fields + description body structure + anti-conventions). Shared across all PM skills: `groom` uses it for the Missing-fields and NDR-moot buckets; `triage` and `author` will use it for proposals and templates. Defers to `linear-workflow` for title/label/priority/status mechanics.
+- **`references/layer-policy.md`** — what organizational layers AcmeOS Linear uses (project / milestone / issue / cycle), what layers are deliberately retired (epic / parent ticket, subissue, initiative), and the decision criteria for promoting work between layers. Used by `groom` to flag orphan tickets, by `breakdown` to decide milestone assignment, and by `retro` to surface layer-policy adherence.
 
 ## Composes with
 
