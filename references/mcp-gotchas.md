@@ -77,6 +77,37 @@ Once an estimate is set via MCP, clearing it requires UI access — either disab
 
 ---
 
+## 4. `state: "Duplicate"` + `duplicateOf` in one call fails
+
+**Broken:**
+
+```
+mcp__linear-server__save_issue({
+  id: "TEAM-123",
+  state: "Duplicate",
+  duplicateOf: "TEAM-124"
+})
+→ Error: Missing duplicate relation - Issues can only be moved to a
+  duplicate state when a duplicate issue relation exists.
+```
+
+The state transition validates against the duplicate relation, but the relation hasn't been committed yet within the same call.
+
+**Working — pass only `duplicateOf`:**
+
+```
+mcp__linear-server__save_issue({id: "TEAM-123", duplicateOf: "TEAM-124"})
+→ issue auto-transitions to state "Duplicate" with statusType "duplicate"
+```
+
+Setting `duplicateOf` alone is sufficient — Linear creates the relation AND transitions the state in one operation. The explicit `state` parameter is redundant and triggers the validation race.
+
+**Practical rule:** Never pass both `state: "Duplicate"` and `duplicateOf` together. Pass only `duplicateOf` and let Linear handle the state transition.
+
+**Caught 2026-05-29** while merging TEAM-123 into TEAM-124 during a Linear backlog grooming pass.
+
+---
+
 ## Reporting new gotchas
 
 When a new silent-failure mode surfaces:
