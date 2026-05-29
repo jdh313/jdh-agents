@@ -1,10 +1,10 @@
 ---
 name: groom
 description: >-
-  Weekly Tuesday-AM backlog grooming sweep for CartaOS Linear (team CAR). This
+  Weekly Thursday-AM backlog grooming sweep for CartaOS Linear (team CAR). This
   skill should be used when the user invokes `/pm:groom`, says "groom the
-  backlog", "weekly groom", "tuesday grooming", "let's groom", or signals the
-  start of the weekly Wed→Tue cycle grooming ritual. Scans active cycle +
+  backlog", "weekly groom", "thursday grooming", "let's groom", or signals the
+  start of the weekly Thu→Wed cycle grooming ritual. Scans active cycle +
   backlog, cross-refs NDR atoms and recent vault session notes, and outputs a
   punch list grouped by action bucket (pull-in, push-out, stale, missing-fields,
   NDR-moot, vault-unfiled). Writes the same punch list to this cycle's
@@ -37,7 +37,7 @@ allowed-tools:
 
 ## Overview
 
-Run the weekly Tuesday-AM grooming sweep for CartaOS Linear (team `CAR`). Read-mostly: scan the active cycle and backlog, cross-reference NDR atoms and recent vault session notes, produce a punch list grouped by action bucket. Write the punch list to this cycle's recurring grooming child issue as the cycle log. The user reviews and applies any approved transitions manually via the `linear-workflow` skill.
+Run the weekly Thursday-AM grooming sweep for CartaOS Linear (team `CAR`). Read-mostly: scan the active cycle and backlog, cross-reference NDR atoms and recent vault session notes, produce a punch list grouped by action bucket. Write the punch list to this cycle's recurring grooming child issue as the cycle log. The user reviews and applies any approved transitions manually via the `linear-workflow` skill.
 
 The bet: classification is mechanical (rule-based) and tedious, so the skill does it. Prioritization is judgment, so the user does it.
 
@@ -47,8 +47,9 @@ The bet: classification is mechanical (rule-based) and tedious, so the skill doe
 - **Grooming log anchor:** `CAR-63` is the recurring-issue template. Each cycle spawns a child issue (e.g. `CAR-128`); the punch list is written to that child as the cycle log. This skill does NOT read `CAR-63`'s body — the grooming procedure is encoded in this skill, not in Linear.
 - **Vault project root:** `~/Loose Ends/Carta/Projects/CartaOS/`
 - **NDR atoms root:** `~/Loose Ends/Decisions/` — filter to atoms with `project: [[CartaOS]]` frontmatter.
-- **Cycle cadence:** Wed→Tue, weekly.
+- **Cycle cadence:** Thu→Wed, weekly. Cycle boundary aligns with the Thursday 11 AM ops review meeting — cycle closes Wed EOD; Thursday morning meeting reviews the just-closed cycle; new cycle starts Thursday.
 - **Issue shape spec:** `../../references/issue-shape.md` (plugin reference). Defines what counts as a well-formed CartaOS ticket. Load when classifying for the Missing-fields or NDR-moot buckets.
+- **Layer policy:** `../../references/layer-policy.md` (plugin reference). Defines the active layers (project / milestone / issue / cycle), the retired ones (epic, subissue, initiative), and the legal states for a ticket. Load when flagging orphans (no milestone, in cycle) or evaluating whether a proposed parent ticket earns its keep.
 
 ## Procedure
 
