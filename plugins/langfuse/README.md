@@ -4,6 +4,10 @@ Forked from [langfuse/Claude-Observability-Plugin](https://github.com/langfuse/C
 
 Sends Claude Code session traces to [Langfuse](https://langfuse.com) via a Stop hook. Each turn in a conversation becomes a Langfuse trace containing the user prompt, assistant generations, and tool observations with accurate backdated timestamps.
 
+## Requirements
+
+[`uv`](https://docs.astral.sh/uv/) on `PATH`. The hook runs via `uv run` and pins its own `langfuse` dependency via a PEP 723 script header — no separate `pip install` step. First invocation per machine builds a cached venv (~1–2 s); subsequent runs are fast (~50 ms overhead) and well under the existing 5 s flush cap.
+
 ## Changes from upstream
 
 Six trace-metadata QoL improvements applied to `hooks/langfuse_hook.py`:
