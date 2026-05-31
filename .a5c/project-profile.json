@@ -1,0 +1,428 @@
+{
+  "projectName": "cc-marketplace",
+  "description": "Personal Claude Code plugin marketplace with automated validation and synchronization. Hosts 16 plugins (skills/agents/commands/hooks) discovered via .claude-plugin/plugin.json files; validate_schema.py + lint_plugins.py + sync_marketplace.py form the merge gate.",
+  "methodology": "Everything Claude Code",
+  "goals": [
+    {
+      "id": "goal-tooling-1",
+      "category": "tooling",
+      "title": "Streamline plugin authoring lifecycle",
+      "description": "Scaffold, validate, version-bump, sync, and commit a plugin with minimum friction — plugin.json + auto-discovery + the three Python scripts as the spine."
+    },
+    {
+      "id": "goal-maintenance-1",
+      "category": "maintenance",
+      "title": "Keep existing plugins current with evolving Claude Code conventions",
+      "description": "Track upstream schema/frontmatter changes (e.g. allowed-tools -> tools, manifest field churn) and apply fixes across all 16 plugins as the platform evolves."
+    },
+    {
+      "id": "goal-quality-1",
+      "category": "quality",
+      "title": "Maintain marketplace integrity via the validate + lint + sync merge gate",
+      "description": "Every change must pass validate_schema.py, lint_plugins.py, and produce no diff from sync_marketplace.py. CI enforces this on push/PR."
+    },
+    {
+      "id": "goal-onboarding-1",
+      "category": "onboarding",
+      "title": "Build babysitter structure in the codebase as a first step",
+      "description": "Stand up the babysitter profile, skills, agents, and processes locally before tackling any specific pain points. Structure first; remediation later."
+    }
+  ],
+  "techStack": {
+    "languages": [
+      {
+        "name": "Python",
+        "version": "3.11",
+        "role": "primary"
+      },
+      {
+        "name": "Markdown",
+        "version": "n/a",
+        "role": "content (skills, agents, commands, docs)"
+      },
+      {
+        "name": "JSON",
+        "version": "n/a",
+        "role": "manifests"
+      },
+      {
+        "name": "YAML",
+        "version": "n/a",
+        "role": "GitHub Actions workflows + skill/agent frontmatter"
+      }
+    ],
+    "frameworks": [],
+    "databases": [],
+    "buildTools": [],
+    "packageManagers": [],
+    "infrastructure": [
+      {
+        "name": "GitHub Actions",
+        "category": "ci"
+      },
+      {
+        "name": "jj (Jujutsu, colocated with git)",
+        "category": "vcs"
+      }
+    ]
+  },
+  "architecture": {
+    "pattern": "plugin-marketplace",
+    "modules": [
+      {
+        "name": "scripts",
+        "path": "scripts/",
+        "description": "Python automation for plugin discovery, schema validation, and linting"
+      },
+      {
+        "name": "marketplace-registry",
+        "path": ".claude-plugin/marketplace.json",
+        "description": "Auto-generated central registry of all plugins (16 plugins)"
+      },
+      {
+        "name": "plugins",
+        "path": "plugins/",
+        "description": "Independent Claude Code plugins (coach, commits, compass, craft, debate, doing, homelab-ops, job-search, librarian, linear, ndr, permissions-manager, pm, python-dev, shake-tune, spec-flow); each has .claude-plugin/plugin.json plus optional skills/, agents/, commands/, hooks/, references/"
+      },
+      {
+        "name": "ci",
+        "path": ".github/workflows/",
+        "description": "GitHub Actions: validate.yml (schema+lint+sync check) and plugin-review.yml"
+      },
+      {
+        "name": "agent-instructions",
+        "path": "CLAUDE.md + AGENTS.md",
+        "description": "Architecture docs for Claude Code agents and beads (bd) workflow guidance"
+      }
+    ],
+    "dataFlow": "Each plugin author maintains plugins/<name>/.claude-plugin/plugin.json with metadata. sync_marketplace.py rglobs all plugin.json files, builds a sorted plugin list with auto-generated source paths (./plugins/<name>), and rewrites .claude-plugin/marketplace.json (bumping metadata.lastUpdated only when the plugin set changed). validate_schema.py checks marketplace.json required fields and verifies each plugin source path resolves to a real .claude-plugin/plugin.json. lint_plugins.py walks every file under plugins/, validates JSON, flags unusual extensions, checks empty/short markdown. CI runs all three on push/PR and fails if sync produces a diff.",
+    "entryPoints": [
+      "scripts/sync_marketplace.py",
+      "scripts/validate_schema.py",
+      "scripts/lint_plugins.py"
+    ]
+  },
+  "team": [
+    {
+      "name": "Jacob Hoehler",
+      "role": "owner-maintainer",
+      "responsibilities": [
+        "plugin authoring",
+        "marketplace maintenance",
+        "CI"
+      ]
+    }
+  ],
+  "workflows": [
+    {
+      "name": "development",
+      "description": "Solo trunk-based development on main (jj-colocated). Edit plugin or scripts, run validate + lint + sync locally, commit with type[scope]: subject (vX.Y.Z) format. CI gate re-runs the three checks on push.",
+      "steps": [
+        "edit plugin files or scripts",
+        "bump plugin.json version if a plugin changed",
+        "python scripts/sync_marketplace.py",
+        "python scripts/validate_schema.py",
+        "python scripts/lint_plugins.py",
+        "commit with type[scope]: subject (vX.Y.Z)"
+      ],
+      "triggers": [
+        "manual"
+      ]
+    },
+    {
+      "name": "plugin-add",
+      "description": "Add a new plugin to the marketplace",
+      "steps": [
+        "mkdir -p plugins/<name>/",
+        "create .claude-plugin/plugin.json",
+        "add skills/agents/commands/README.md",
+        "python scripts/sync_marketplace.py",
+        "python scripts/validate_schema.py",
+        "python scripts/lint_plugins.py",
+        "commit plugin files + updated marketplace.json"
+      ],
+      "triggers": [
+        "manual"
+      ]
+    },
+    {
+      "name": "plugin-update",
+      "description": "Update an existing plugin",
+      "steps": [
+        "edit plugin files",
+        "bump version in plugin.json (semver)",
+        "python scripts/sync_marketplace.py",
+        "python scripts/validate_schema.py && python scripts/lint_plugins.py",
+        "commit"
+      ],
+      "triggers": [
+        "manual"
+      ]
+    },
+    {
+      "name": "weekly-review",
+      "description": "Automated weekly review of plugins via Claude Code against current best practices; creates GitHub issue with findings",
+      "steps": [
+        "scheduled cron (Mon 9am UTC)",
+        "run claude -p review prompt",
+        "write review-results.md",
+        "create issue via peter-evans/create-issue-from-file@v5"
+      ],
+      "triggers": [
+        "schedule",
+        "workflow_dispatch"
+      ]
+    }
+  ],
+  "conventions": {
+    "codeStyle": {
+      "python": "Python 3.11+ with PEP 604 unions and PEP 585 generics; standard-library only; sys.exit(main()) entry pattern"
+    },
+    "naming": {
+      "plugins": "kebab-case directory names matching plugin.json name",
+      "skills": "kebab-case subdir under plugins/<name>/skills/ each containing SKILL.md with YAML frontmatter",
+      "agents": "kebab-case <agent-name>.md files under plugins/<name>/agents/ with YAML frontmatter",
+      "commands": "files under plugins/<name>/commands/",
+      "manifests": "plugin.json always lives in .claude-plugin/ relative to each plugin root"
+    },
+    "importOrder": [
+      "stdlib only (json, sys, datetime, pathlib, typing); no third-party imports in scripts/"
+    ],
+    "errorHandling": "Scripts return int exit codes from main(); catch JSONDecodeError and KeyError explicitly with warning to stderr in sync; collect errors into a list and print all before non-zero exit",
+    "testingConventions": "No tests/ directory or pytest config present; CI relies on the three validation scripts as the test suite",
+    "git": {
+      "commitStyle": "type[scope]: subject (vX.Y.Z) — e.g. feat[ndr]:, refactor[librarian]:, feat[spec-flow]:; version suffix on plugin-changing commits",
+      "messageFormat": "type[scope]: subject (bracketed-scope conventional commits; type(scope): paren form also used in older commits)",
+      "branchStrategy": "trunk-based (jj-colocated, work lands on main; no feature branches)",
+      "mergeStrategy": "linear / fast-forward (jj rebase semantics; zero merge commits in last 100)",
+      "vcsHost": "github",
+      "noteJjColocated": true,
+      "codeReviewProcess": "self-review (solo); CI gate (validate + lint + sync) is the merge gate",
+      "releaseCadence": "continuous, per-plugin semver in plugin.json; no repo-level tags"
+    },
+    "additionalRules": [
+      "plugin.json should be minimal; let auto-discovery find skills/agents/commands/hooks",
+      "Do NOT add a 'category' field to plugin.json",
+      "Do NOT set 'source' in plugin.json — sync_marketplace.py generates it",
+      "Always bump plugin.json version on any plugin change, then re-run sync_marketplace.py",
+      "Commit plugin.json change and updated marketplace.json together in the same commit",
+      "Encode version in commit subject suffix: '(vX.Y.Z)'",
+      "Agent 'tools:' is an allowlist filter; Skill 'allowed-tools:' is pre-approval (different semantics)",
+      "Plugin agents cannot declare mcpServers/hooks/permissionMode in frontmatter (ignored)",
+      "Scratch artifacts go in .docs/ (gitignored)",
+      "New plugins introduced via 'feat[name]: new plugin —' commits",
+      "Work lands on main; no feature branches (jj-colocated trunk-based)",
+      "No repo-level git tags — versioning lives inside each plugin.json",
+      "CI (.github/workflows/validate.yml) is the gate: validate_schema + lint_plugins + sync_marketplace must all pass"
+    ]
+  },
+  "processes": [],
+  "tools": {
+    "linting": [
+      {
+        "name": "custom-python-linter",
+        "configPath": "scripts/lint_plugins.py"
+      }
+    ],
+    "formatting": [],
+    "testing": []
+  },
+  "services": [
+    {
+      "name": "Anthropic API",
+      "type": "ai",
+      "url": "api.anthropic.com"
+    }
+  ],
+  "externalIntegrations": [
+    {
+      "service": "GitHub",
+      "category": "vcs+ci",
+      "enabled": true
+    },
+    {
+      "service": "GitHub Actions",
+      "category": "ci",
+      "enabled": true
+    },
+    {
+      "service": "Anthropic API",
+      "category": "ai",
+      "enabled": true
+    },
+    {
+      "service": "Bun",
+      "category": "package-manager",
+      "enabled": true
+    },
+    {
+      "service": "peter-evans/create-issue-from-file",
+      "category": "github-action",
+      "enabled": true
+    }
+  ],
+  "cicd": {
+    "provider": "github-actions",
+    "configPaths": [
+      ".github/workflows/validate.yml",
+      ".github/workflows/plugin-review.yml"
+    ],
+    "pipelines": [
+      {
+        "name": "validate",
+        "trigger": "push|pull_request",
+        "stages": [
+          "checkout",
+          "setup-python@3.11",
+          "validate_schema.py",
+          "lint_plugins.py",
+          "sync_marketplace.py + git diff check"
+        ]
+      },
+      {
+        "name": "plugin-review",
+        "trigger": "schedule(cron:0 9 * * 1)|workflow_dispatch",
+        "stages": [
+          "checkout",
+          "setup-bun",
+          "install @anthropic-ai/claude-code",
+          "claude -p review of plugins/",
+          "create-issue-from-file@v5"
+        ]
+      }
+    ],
+    "babysitterIntegration": {
+      "enabled": false,
+      "note": "User skipped CI integration during onboarding (2026-05-30)."
+    }
+  },
+  "painPoints": [
+    {
+      "id": "pp-marketplace-drift-1",
+      "category": "ci",
+      "severity": "low",
+      "description": "Easy to forget running sync_marketplace.py after plugin edits — drift causes CI failure on push; explicit idempotency-fix commit suggests recurring lastUpdated noise",
+      "discoveredVia": "git history (idempotency fix + chore sync commits)",
+      "suggestedRemediation": "Pre-commit/pre-push hook that runs sync_marketplace.py + validate + lint, or a babysitter process that wraps the plugin-update workflow. Documented but not active priority (user chose build-structure-first).",
+      "priority": "deferred"
+    },
+    {
+      "id": "pp-version-bump-forget-1",
+      "category": "workflow",
+      "severity": "low",
+      "description": "Per-plugin version bump in plugin.json is manual and easy to miss; CLAUDE.md devotes a section to it",
+      "discoveredVia": "absence-of-automation + CLAUDE.md emphasis",
+      "suggestedRemediation": "Babysitter process or skill that detects plugin file changes and prompts/automates the version bump before sync. Documented but not active priority.",
+      "priority": "deferred"
+    },
+    {
+      "id": "pp-no-tests-1",
+      "category": "testing",
+      "severity": "low",
+      "description": "No unit tests for the Python scripts; regressions only caught by CI on real plugin data",
+      "discoveredVia": "absence-of-tests",
+      "suggestedRemediation": "Add a tests/ directory with pytest covering sync_marketplace.py / validate_schema.py / lint_plugins.py against fixture plugin trees. Documented but not active priority.",
+      "priority": "deferred"
+    },
+    {
+      "id": "pp-plugin-manifest-trial-error-1",
+      "category": "workflow",
+      "severity": "medium",
+      "description": "Several fix commits learning the plugin.json schema the hard way: explicit-paths-vs-auto-discovery, category field unsupported, source path prefix — schema is not stable upstream",
+      "discoveredVia": "git history (cluster of fix commits)",
+      "suggestedRemediation": "Skill or agent that fetches the latest Claude Code plugin schema docs (via Context7 or docs skill) before authoring/editing plugin.json. CLAUDE.md already calls this out. Documented but not active priority.",
+      "priority": "deferred"
+    },
+    {
+      "id": "pp-cache-staleness-1",
+      "category": "workflow",
+      "severity": "low",
+      "description": "Installed-plugin cache can get stuck with broken manifest, requiring manual reset (documented in CLAUDE.md troubleshooting)",
+      "discoveredVia": "CLAUDE.md troubleshooting section",
+      "suggestedRemediation": "Reset helper script or babysitter process that performs the documented full-reset procedure (delete cache, remove registry entry, restart, reinstall). Documented but not active priority.",
+      "priority": "deferred"
+    }
+  ],
+  "bottlenecks": [
+    {
+      "id": "bn-marketplace-1",
+      "location": ".claude-plugin/marketplace.json",
+      "description": ".claude-plugin/marketplace.json touched on every plugin change (auto-regenerated); top churn file with 40 hits in last 3 months",
+      "frequency": "every plugin change (~40/3mo)",
+      "impact": "low"
+    },
+    {
+      "id": "bn-plugin-json-1",
+      "location": "plugins/*/.claude-plugin/plugin.json",
+      "description": "Per-plugin plugin.json files churn alongside content edits because version bump is required on every change",
+      "frequency": "every functional plugin change",
+      "impact": "low"
+    },
+    {
+      "id": "bn-rename-churn-1",
+      "location": "plugins/<renamed>/**",
+      "description": "Plugin/skill renames produce 30+ file path-rewrite commits; jj handles cleanly but commit signal-to-noise dips",
+      "frequency": "rare but heavy when it happens",
+      "impact": "low"
+    }
+  ],
+  "repositories": [
+    {
+      "type": "git",
+      "url": "git@github.com:jdh313/cc-marketplace.git",
+      "vcs": "jj-colocated",
+      "path": "/Users/jacob/Projects/cc-marketplace"
+    }
+  ],
+  "claudeMdInstructions": [
+    "Methodology is 'Everything Claude Code' — compose Claude Code primitives directly; no external methodology (TDD/spec-driven/agile) imposed.",
+    "Verify loop / merge gate: python scripts/sync_marketplace.py && python scripts/validate_schema.py && python scripts/lint_plugins.py",
+    "Commit format: type[scope]: subject (vX.Y.Z) — version suffix mandatory on plugin-changing commits; use the `commits` skill.",
+    "Before editing plugin.json, dispatch the claude-code-guide agent to fetch the current upstream schema — it churns frequently.",
+    "Project profile lives at .a5c/project-profile.json; run history under .a5c/runs/ — both should be gitignored.",
+    "Trunk-based jj-colocated workflow on main; no feature branches. Detect .jj/ before any commit workflow.",
+    "Per-plugin semver in each plugin.json; no repo-level git tags.",
+    "Planned workflows custom/plugin-author and custom/plugin-update are not yet built — author/update by hand for now, following the documented verify loop."
+  ],
+  "installedSkills": [
+    "methodologies/gsd/skills/gsd-tools",
+    "methodologies/gsd/skills/template-scaffolding",
+    "methodologies/gsd/skills/frontmatter-parsing",
+    "methodologies/gsd/skills/verification-suite",
+    "methodologies/gsd/skills/git-integration",
+    "commits",
+    "claude-code-guide",
+    "plugin-dev:plugin-structure",
+    "plugin-dev:skill-development",
+    "plugin-dev:agent-development",
+    "plugin-dev:command-development"
+  ],
+  "installedAgents": [
+    "methodologies/gsd/agents/gsd-planner",
+    "methodologies/gsd/agents/gsd-executor",
+    "methodologies/gsd/agents/gsd-verifier",
+    "methodologies/gsd/agents/gsd-codebase-mapper",
+    "code-reviewer",
+    "sdk-api-documenter",
+    "claude-code-guide",
+    "tech-lead",
+    "general-purpose"
+  ],
+  "installedProcesses": [
+    "methodologies/gsd/plan-phase",
+    "methodologies/gsd/execute-phase",
+    "methodologies/gsd/verify-work",
+    "methodologies/gsd/new-project",
+    "methodologies/gsd/iterative-convergence",
+    "cradle/project-install",
+    "specializations/cli-mcp-development/plugin-architecture-implementation",
+    "specializations/cli-mcp-development/cli-documentation-generation",
+    "specializations/devops-sre-platform/cicd-pipeline-setup",
+    "specializations/technical-documentation/style-guide-enforcement",
+    "custom/plugin-author",
+    "custom/plugin-update"
+  ],
+  "createdAt": "2026-05-31T00:52:51Z",
+  "updatedAt": "2026-05-31T01:15:14Z",
+  "version": 1
+}

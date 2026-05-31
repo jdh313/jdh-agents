@@ -1,0 +1,4 @@
+{
+  "projectRoot": "/Users/jacob/Projects/cc-marketplace",
+  "additionalContext": "cc-marketplace is a Claude Code plugin marketplace with automated validation (validate_schema.py, lint_plugins.py, sync_marketplace.py) and a GitHub Actions CI workflow. jj-colocated repo on macOS."
+}

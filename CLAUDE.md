@@ -318,3 +318,53 @@ rm -rf ~/.claude/plugins/cache/cc-marketplace/[plugin-name]
 - **Marketplace.json stability:** This file is auto-generated. Never manually edit plugin entries; instead, update the source plugin.json and re-sync.
 - **Metadata freshness:** Each sync updates `metadata.lastUpdated` to the current date. Use this to track when plugins were last discovered.
 - **Semantic versioning:** Enforce semantic versioning (major.minor.patch) for all plugin versions to maintain marketplace stability.
+
+<!-- babysitter:start -->
+## Babysitter
+
+This project is onboarded for babysitter-assisted workflows. The block below is managed by the `cradle/project-install` flow — edit by re-running install, not by hand.
+
+### Methodology: Everything Claude Code
+
+Compose Claude Code primitives directly. No external methodology (no TDD, no spec-driven, no agile) is imposed — iterate via `/plugin install` locally, run the three Python scripts as the verify loop, commit in the documented format, and let CI confirm. The merge gate already lives in `.github/workflows/validate.yml`; babysitter wraps the authoring/update flow around it, it does not replace it.
+
+### Recommended workflows
+
+- `cradle/project-install` — already run for this project; do not re-run unless re-onboarding.
+- `custom/plugin-author` — author a new plugin (planned, not yet built). Composes plan -> scaffold -> verify -> commit around `plugins/<name>/`.
+- `custom/plugin-update` — update an existing plugin (planned, not yet built). Edit -> bump `plugin.json` version -> sync -> verify -> commit.
+
+### Recommended skills
+
+- `commits` — encodes the `type[scope]: subject (vX.Y.Z)` commit format used throughout this repo.
+- `plugin-dev:plugin-structure` — authoritative on plugin layout, `plugin.json` schema, and auto-discovery rules.
+- `plugin-dev:skill-development` — skill frontmatter and `allowed-tools` pre-approval semantics.
+- `plugin-dev:agent-development` — agent frontmatter and `tools:` allowlist filter semantics (see the sharp-edge note above).
+- `plugin-dev:command-development` — slash-command frontmatter, dynamic args, bash exec.
+- `methodologies/gsd/skills/verification-suite` — wraps `validate_schema.py` + `lint_plugins.py` + `sync_marketplace.py` into a single verify step.
+- `methodologies/gsd/skills/template-scaffolding` — boilerplate for `plugin.json`, `SKILL.md`, agent frontmatter.
+- `methodologies/gsd/skills/git-integration` — must honor the `.jj/` detection guard (jj-colocated repo).
+
+### Recommended agents
+
+- `claude-code-guide` — fetches current upstream plugin schema/frontmatter; CLAUDE.md mandates this lookup before editing `plugin.json`.
+- `tech-lead` — coordinator when a plugin spans multiple components (skills + agents + commands + hooks).
+- `general-purpose` — exploratory tasks (surveying existing plugins, comparing implementations) that don't fit a specialized agent.
+
+### Verify loop / merge gate
+
+```bash
+python scripts/sync_marketplace.py && python scripts/validate_schema.py && python scripts/lint_plugins.py
+```
+
+CI re-runs the same three checks on push/PR. A clean local run is the merge gate.
+
+### Commit format
+
+`type[scope]: subject (vX.Y.Z)` — e.g. `feat[ndr]: worthiness rubric for capture-decision skill (v0.6.0)`. Version suffix is mandatory on plugin-changing commits and tracks the plugin's own `plugin.json` version (no repo-level tags). The `commits` skill encodes this style.
+
+### Project profile and run history
+
+- Profile: `.a5c/project-profile.json` — durable project facts (goals, tech stack, conventions, pain points). Read this before substantive work; update via re-running `cradle/project-install` rather than hand-editing.
+- Run history: `.a5c/runs/` — per-run artifacts (profiles, tool selections, journals). Both `.a5c/project-profile.json` and `.a5c/runs/` should be gitignored.
+<!-- babysitter:end -->

@@ -1,0 +1,34 @@
+{
+  "qualityThreshold": 80,
+  "testCoverage": {
+    "target": null,
+    "note": "No unit tests on the Python scripts; existing CI scripts are the de facto test suite. Adding pytest coverage on scripts/ is a deferred pain-point (pp-no-tests-1)."
+  },
+  "linting": {
+    "python": {
+      "tool": "scripts/lint_plugins.py",
+      "scope": "plugins/**",
+      "note": "Custom stdlib-only linter for plugin metadata; not a generic Python linter. No ruff/black/flake8 configured at project level."
+    }
+  },
+  "formatting": {
+    "note": "No formatter configured at project level."
+  },
+  "commitChecks": [
+    {"name": "marketplace-sync", "command": "python scripts/sync_marketplace.py", "blocking": true},
+    {"name": "schema-validation", "command": "python scripts/validate_schema.py", "blocking": true},
+    {"name": "plugin-lint", "command": "python scripts/lint_plugins.py", "blocking": true}
+  ],
+  "deployGates": [
+    {"name": "ci-validate", "description": ".github/workflows/validate.yml — schema + lint + sync-drift on push/PR"}
+  ],
+  "cicd": {
+    "integrationPoints": [
+      ".github/workflows/validate.yml (existing — schema/lint/sync gate)",
+      ".github/workflows/plugin-review.yml (existing — weekly Claude review)"
+    ],
+    "babysitterCiEnabled": false,
+    "note": "User chose skip-for-now during onboarding interview. Babysitter remains a local dev tool."
+  },
+  "methodology": "Everything Claude Code"
+}

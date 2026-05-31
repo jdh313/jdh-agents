@@ -1,0 +1,10 @@
+{
+  "name": "cc-marketplace-a5c",
+  "version": "1.0.0",
+  "type": "module",
+  "private": true,
+  "description": "Babysitter SDK infrastructure for cc-marketplace (not project runtime).",
+  "dependencies": {
+    "@a5c-ai/babysitter-sdk": "latest"
+  }
+}
