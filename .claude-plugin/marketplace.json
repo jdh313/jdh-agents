@@ -10,7 +10,7 @@
       "name": "coach",
       "source": "./plugins/coach",
       "description": "ADHD-friendly productivity coaching: daily planning (/today, /energy), end-of-day capture (/checkin), weekly scheduling (/plan-week) and review (/weekly), life-direction reviews (/review), goal-to-project alignment (/align), project lifecycle (/intake, /breakdown, /reentry, /sunset), idea capture (/spark), brain dump (/dump), task triage (/triage), decision journaling (/decide), and pattern analysis (momentum, overdue-rescue) with adaptive tone calibration",
-      "version": "0.8.0",
+      "version": "0.9.0",
       "author": {
         "name": "Jacob Hoehler"
       },
@@ -60,7 +60,7 @@
       "name": "compass",
       "source": "./plugins/compass",
       "description": "A suite of conversational thinking tools \u2014 reflect (Socratic mirror, never recommends, always saves) and mull (thinking partner, probes AND contributes opinions, saves substantive sessions only).",
-      "version": "0.5.0",
+      "version": "0.6.0",
       "author": {
         "name": "Jacob Hoehler",
         "email": "accts@jdh.onl"
@@ -153,7 +153,7 @@
       "name": "job-search",
       "source": "./plugins/job-search",
       "description": "Job search toolkit for application tracking, work documentation, and interview preparation. Integrates with Obsidian vault and Todoist.",
-      "version": "0.7.0",
+      "version": "0.8.0",
       "author": {
         "name": "Jacob Hoehler"
       },
@@ -191,7 +191,7 @@
       "name": "librarian",
       "source": "./plugins/librarian",
       "description": "Curates, catalogs, retrieves, and maintains your library of notes and knowledge in an Obsidian vault. Workflow-shaped (Capture / Process / Retrieve / Maintain) and agent-mediated (skills draft, agents execute). 16 skills + 4 agents + 5 references, coupled to the vault conventions in ~/Loose Ends/.claude/rules/{wiki.md,catalog.md} and the Templater templates in ~/Loose Ends/Templates/.",
-      "version": "0.13.0",
+      "version": "0.14.0",
       "author": {
         "name": "Jacob Hoehler"
       },
@@ -348,6 +348,6 @@
     "version": "1.0.0",
     "homepage": "https://github.com/jdh313/cc-marketplace",
     "totalPlugins": 17,
-    "lastUpdated": "2026-05-30"
+    "lastUpdated": "2026-05-31"
   }
 }

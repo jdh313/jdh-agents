@@ -13,7 +13,7 @@ allowed-tools:
   - mcp__linear-server__list_issues
   - mcp__linear-server__list_initiatives
   # Obsidian — reviews, project notes, write review
-  - Bash(obsidian *)
+  - Bash(obsidian-cli *)
 ---
 
 # /review — Life-Direction Review

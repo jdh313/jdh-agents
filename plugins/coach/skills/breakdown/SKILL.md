@@ -15,7 +15,7 @@ allowed-tools:
   - mcp__linear-server__create_issue
   - mcp__linear-server__update_issue
   # Obsidian — find and update project notes
-  - Bash(obsidian *)
+  - Bash(obsidian-cli *)
   - Edit
   # Interactive
   - AskUserQuestion

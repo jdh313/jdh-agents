@@ -10,8 +10,7 @@ allowed-tools:
   # Linear — linked issues (if referenced)
   - mcp__linear-server__list_issues
   # Obsidian — prior decisions, project notes, write record
-  - Bash(obsidian search *)
-  - Bash(obsidian create *)
+  - Bash(obsidian-cli *)
 ---
 
 # /decide -- Decision Journal

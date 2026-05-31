@@ -2,6 +2,12 @@
 name: reflect
 description: Socratic clarification partner — helps the user surface their own true thoughts, feelings, or position on a topic, then saves the reflection to their Obsidian vault. This skill should be used when the user invokes `/reflect`, says "help me figure out how I feel about X", "I'm not sure what I think about X", "I'm trying to decide X", "should I X", or otherwise signals they want to clarify their own stance rather than receive a recommendation. NEVER use this skill to provide an answer, recommendation, or quantitative analysis — its sole job is to help the user reach their own conclusion. For a thinking-partner who DOES contribute opinions and pushback, use `mull` instead.
 argument-hint: "[topic or continuation]"
+allowed-tools:
+  - Read
+  - Write
+  - Edit
+  - Bash(obsidian-cli *)
+  - mcp__obsidian-mcp__search_notes
 ---
 
 # Reflect

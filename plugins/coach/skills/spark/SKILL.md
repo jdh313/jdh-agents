@@ -9,7 +9,7 @@ description: >-
   /intake.
 allowed-tools:
   # Obsidian — read/create/append sparks log
-  - Bash(obsidian *)
+  - Bash(obsidian-cli *)
   - Edit
 ---
 

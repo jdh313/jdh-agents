@@ -10,7 +10,7 @@ model: sonnet
 memory: project
 maxTurns: 10
 tools:
-  - Bash
+  - Bash(obsidian-cli *)
   - Read
   - mcp__obsidian-mcp__read_multiple_notes
   - mcp__obsidian-mcp__search_notes

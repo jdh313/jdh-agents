@@ -13,7 +13,7 @@ allowed-tools:
   # Linear — cycle issues
   - mcp__linear-server__list_issues
   # Obsidian — read weekly note, write/patch week plan
-  - Bash(obsidian *)
+  - Bash(obsidian-cli *)
   - Edit
 ---
 

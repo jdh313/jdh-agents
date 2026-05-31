@@ -14,7 +14,7 @@ allowed-tools:
   - mcp__linear-server__list_projects
   - mcp__linear-server__create_issue
   # Obsidian — read/create/append sparks log
-  - Bash(obsidian *)
+  - Bash(obsidian-cli *)
   - Edit
 ---
 
