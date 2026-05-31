@@ -7,7 +7,9 @@ tools:
   - Read
   - Grep
   - Glob
-  - Bash
+  - Bash(obsidian-cli *)
+  - Bash(git *)
+  - Bash(jj *)
   - mcp__obsidian-mcp__read_multiple_notes
 ---
 

@@ -5,7 +5,7 @@ model: sonnet
 color: blue
 tools:
   - Read
-  - Bash
+  - Bash(obsidian-cli *)
   - mcp__obsidian-mcp__search_notes
 ---
 

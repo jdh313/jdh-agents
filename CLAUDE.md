@@ -209,6 +209,23 @@ These two fields look similar but behave differently. Getting them wrong causes 
 
 Source: https://code.claude.com/docs/en/sub-agents.md, https://code.claude.com/docs/en/skills.md (verified 2026-05-25).
 
+### Canonical Obsidian tooling
+
+Plugins that touch the Obsidian vault should converge on these names:
+
+- **MCP server:** `mcp__obsidian-mcp__*` is the canonical Obsidian MCP server across the marketplace. `mcp__CodeMCP__Obsidian__*` is deprecated — do not use in new plugins; migrate existing usage as plugins are touched.
+- **CLI binary:** `obsidian-cli` is the canonical CLI binary name in allowed-tools and agent `tools:` entries. The bare `obsidian` binary is the desktop app launcher, not a CLI — `Bash(obsidian read *)` etc. will not work as expected.
+
+Canonical tool names on `mcp__obsidian-mcp__*`:
+
+| Read | Write | Search | Frontmatter | Tags / files |
+|------|-------|--------|-------------|--------------|
+| `read_note`, `read_multiple_notes` | `write_note`, `patch_note`, `delete_note` | `search_notes` | `get_frontmatter`, `update_frontmatter` | `manage_tags`, `move_note`, `move_file`, `list_directory` |
+
+`patch_note` covers both surgical body replacement and append operations (use the `operation` arg).
+
+For shell access, default to `Bash(obsidian-cli *)` rather than bare `Bash` — see action audit `.docs/2026-05-31-obsidian-permission-audit.md` for rationale.
+
 ### Plugin.json Metadata
 
 Minimal example:

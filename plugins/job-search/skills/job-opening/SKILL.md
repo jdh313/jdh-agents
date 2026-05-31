@@ -4,10 +4,9 @@ description: Use Skill(job-search:job-opening) when the user provides a job post
 context: fork
 allowed-tools:
   - WebFetch
-  - mcp__CodeMCP__Obsidian__obsidian_simple_search
-  - mcp__CodeMCP__Obsidian__obsidian_complex_search
-  - mcp__CodeMCP__Obsidian__obsidian_get_file_contents
-  - mcp__CodeMCP__Obsidian__obsidian_put_content
+  - mcp__obsidian-mcp__search_notes
+  - mcp__obsidian-mcp__read_note
+  - mcp__obsidian-mcp__write_note
   - mcp__CodeMCP__Todosit__find-projects
   - mcp__CodeMCP__Todosit__add-tasks
   - Read

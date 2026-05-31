@@ -10,7 +10,7 @@ description: >-
 model: inherit
 color: green
 tools:
-  - Bash(obsidian *)
+  - Bash(obsidian-cli *)
 ---
 
 <example>

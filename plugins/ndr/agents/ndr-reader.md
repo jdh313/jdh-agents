@@ -12,7 +12,7 @@ description: >
 model: sonnet
 color: cyan
 tools:
-  - Bash
+  - Bash(obsidian-cli *)
   - Read
   - mcp__obsidian-mcp__read_multiple_notes
   - mcp__obsidian-mcp__search_notes

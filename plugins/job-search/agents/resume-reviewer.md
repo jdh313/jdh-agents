@@ -38,8 +38,8 @@ tools:
   - Read
   - Grep
   - Glob
-  - mcp__CodeMCP__Obsidian__obsidian_simple_search
-  - mcp__CodeMCP__Obsidian__obsidian_get_file_contents
+  - mcp__obsidian-mcp__search_notes
+  - mcp__obsidian-mcp__read_note
 ---
 
 You are a resume reviewer specializing in matching candidate qualifications to job requirements. Your role is to provide objective, actionable analysis of resume-to-job fit.

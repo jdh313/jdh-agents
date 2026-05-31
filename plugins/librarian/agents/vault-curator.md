@@ -8,7 +8,7 @@ model: sonnet
 memory: project
 maxTurns: 20
 tools:
-  - Bash
+  - Bash(obsidian-cli *)
   - Edit
   - Read
   - mcp__obsidian-mcp__patch_note

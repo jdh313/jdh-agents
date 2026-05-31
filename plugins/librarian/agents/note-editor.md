@@ -8,7 +8,7 @@ model: haiku
 memory: project
 maxTurns: 15
 tools:
-  - Bash
+  - Bash(obsidian-cli *)
   - Edit
   - Read
   - mcp__obsidian-mcp__patch_note

@@ -9,7 +9,7 @@ model: haiku
 memory: project
 maxTurns: 10
 tools:
-  - Bash
+  - Bash(obsidian-cli *)
   - Read
   - Glob
   - Grep

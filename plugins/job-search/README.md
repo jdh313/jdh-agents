@@ -89,9 +89,9 @@ Personal/Career/
 
 ## Prerequisites
 
-1. **Obsidian** with Local REST API plugin running
+1. **Obsidian** vault available at `~/Loose Ends/` (or wherever your vault lives)
 2. **Claude Code** with MCP tools configured:
-   - Obsidian MCP tools (`mcp__CodeMCP__Obsidian__*`)
+   - Obsidian MCP tools (`mcp__obsidian-mcp__*`) — the canonical marketplace Obsidian server
    - Todoist MCP tools (`mcp__CodeMCP__Todosit__*`) - optional
 
 ## Installation

@@ -16,14 +16,12 @@ allowed-tools:
   - Read
   - Glob
   - Grep
-  - mcp__CodeMCP__Obsidian__obsidian_simple_search
-  - mcp__CodeMCP__Obsidian__obsidian_complex_search
-  - mcp__CodeMCP__Obsidian__obsidian_get_file_contents
-  - mcp__CodeMCP__Obsidian__obsidian_batch_get_file_contents
-  - mcp__CodeMCP__Obsidian__obsidian_list_files_in_dir
-  - mcp__CodeMCP__Obsidian__obsidian_put_content
-  - mcp__CodeMCP__Obsidian__obsidian_patch_content
-  - mcp__CodeMCP__Obsidian__obsidian_append_content
+  - mcp__obsidian-mcp__search_notes
+  - mcp__obsidian-mcp__read_note
+  - mcp__obsidian-mcp__read_multiple_notes
+  - mcp__obsidian-mcp__list_directory
+  - mcp__obsidian-mcp__write_note
+  - mcp__obsidian-mcp__patch_note
 ---
 
 # Work Summary Skill

@@ -2,6 +2,12 @@
 name: mull
 description: Thinking-partner skill — drills into the root of an issue while offering feedback and opinions where appropriate. This skill should be used when the user invokes `/mull`, says "mull this over with me", "help me think through X", "what do you actually think about X", "give me your honest read on X", "push back on this", or otherwise signals they want a collaborator who will both probe AND share views, not a neutral mirror. For pure clarification with no agent input, use `reflect` instead. Saves substantive sessions to `~/Loose Ends/Mulling/`; short or trivial sessions end without filing unless explicitly requested.
 argument-hint: "[topic or continuation]"
+allowed-tools:
+  - Read
+  - Write
+  - Edit
+  - Bash(obsidian-cli *)
+  - mcp__obsidian-mcp__search_notes
 ---
 
 # Mull
