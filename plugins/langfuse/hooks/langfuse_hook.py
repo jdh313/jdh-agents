@@ -1,4 +1,8 @@
 #!/usr/bin/env python3
+# /// script
+# requires-python = ">=3.11"
+# dependencies = ["langfuse>=4.7.1,<5"]
+# ///
 """
 Claude Code -> Langfuse hook
 
