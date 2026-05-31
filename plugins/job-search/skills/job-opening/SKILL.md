@@ -7,8 +7,8 @@ allowed-tools:
   - mcp__obsidian-mcp__search_notes
   - mcp__obsidian-mcp__read_note
   - mcp__obsidian-mcp__write_note
-  - mcp__CodeMCP__Todosit__find-projects
-  - mcp__CodeMCP__Todosit__add-tasks
+  - mcp__claude_ai_Todoist__find-projects
+  - mcp__claude_ai_Todoist__add-tasks
   - Read
 ---
 

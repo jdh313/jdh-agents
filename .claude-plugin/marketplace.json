@@ -153,7 +153,7 @@
       "name": "job-search",
       "source": "./plugins/job-search",
       "description": "Job search toolkit for application tracking, work documentation, and interview preparation. Integrates with Obsidian vault and Todoist.",
-      "version": "0.8.0",
+      "version": "0.8.1",
       "author": {
         "name": "Jacob Hoehler"
       },

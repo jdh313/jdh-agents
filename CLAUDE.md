@@ -213,7 +213,7 @@ Source: https://code.claude.com/docs/en/sub-agents.md, https://code.claude.com/d
 
 Plugins that touch the Obsidian vault should converge on these names:
 
-- **MCP server:** `mcp__obsidian-mcp__*` is the canonical Obsidian MCP server across the marketplace. `mcp__CodeMCP__Obsidian__*` is deprecated — do not use in new plugins; migrate existing usage as plugins are touched.
+- **MCP server:** `mcp__obsidian-mcp__*` is the canonical Obsidian MCP server across the marketplace.
 - **CLI binary:** `obsidian-cli` is the canonical CLI binary name in allowed-tools and agent `tools:` entries. The bare `obsidian` binary is the desktop app launcher, not a CLI — `Bash(obsidian read *)` etc. will not work as expected.
 
 Canonical tool names on `mcp__obsidian-mcp__*`:

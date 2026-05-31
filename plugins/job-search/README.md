@@ -92,7 +92,7 @@ Personal/Career/
 1. **Obsidian** vault available at `~/Loose Ends/` (or wherever your vault lives)
 2. **Claude Code** with MCP tools configured:
    - Obsidian MCP tools (`mcp__obsidian-mcp__*`) — the canonical marketplace Obsidian server
-   - Todoist MCP tools (`mcp__CodeMCP__Todosit__*`) - optional
+   - Todoist MCP tools (`mcp__claude_ai_Todoist__*`) — optional
 
 ## Installation
 
