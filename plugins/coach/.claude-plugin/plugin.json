@@ -5,5 +5,28 @@
   "author": {
     "name": "Jacob Hoehler"
   },
-  "keywords": ["adhd", "productivity", "coaching", "planning", "daily", "weekly", "review", "align", "projects", "decisions", "patterns", "closure", "journaling", "triage", "energy", "intake", "breakdown", "decomposition", "ideas", "tasks", "brain-dump"]
+  "keywords": [
+    "adhd",
+    "productivity",
+    "coaching",
+    "planning",
+    "daily",
+    "weekly",
+    "review",
+    "align",
+    "projects",
+    "decisions",
+    "patterns",
+    "closure",
+    "journaling",
+    "triage",
+    "energy",
+    "intake",
+    "breakdown",
+    "decomposition",
+    "ideas",
+    "tasks",
+    "brain-dump"
+  ],
+  "license": "Apache-2.0"
 }
