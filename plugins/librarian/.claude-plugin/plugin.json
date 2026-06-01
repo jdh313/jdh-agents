@@ -19,5 +19,6 @@
     "lint",
     "curation",
     "personal-knowledge"
-  ]
+  ],
+  "license": "Apache-2.0"
 }

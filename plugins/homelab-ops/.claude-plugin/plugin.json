@@ -14,5 +14,6 @@
     "traefik",
     "ansible",
     "1password"
-  ]
+  ],
+  "license": "Apache-2.0"
 }

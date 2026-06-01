@@ -6,5 +6,16 @@
     "name": "Jacob Hoehler",
     "email": "jdhoehler@gmail.com"
   },
-  "keywords": ["reflection", "socratic", "decision", "journaling", "obsidian", "thinking-partner", "compass", "mull", "clarify"]
+  "keywords": [
+    "reflection",
+    "socratic",
+    "decision",
+    "journaling",
+    "obsidian",
+    "thinking-partner",
+    "compass",
+    "mull",
+    "clarify"
+  ],
+  "license": "Apache-2.0"
 }

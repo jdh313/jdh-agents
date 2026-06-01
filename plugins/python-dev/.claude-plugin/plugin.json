@@ -15,5 +15,6 @@
     "pytest",
     "type-hints",
     "modern-python"
-  ]
+  ],
+  "license": "Apache-2.0"
 }

@@ -14,5 +14,6 @@
     "ephemeral",
     "ndr",
     "librarian"
-  ]
+  ],
+  "license": "Apache-2.0"
 }

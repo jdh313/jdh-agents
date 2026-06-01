@@ -5,5 +5,17 @@
   "author": {
     "name": "Jacob Hoehler"
   },
-  "keywords": ["debate", "decision", "advocate", "fact-check", "synthesis", "dialectical", "research", "opinion", "trade-offs", "deliberation"]
+  "keywords": [
+    "debate",
+    "decision",
+    "advocate",
+    "fact-check",
+    "synthesis",
+    "dialectical",
+    "research",
+    "opinion",
+    "trade-offs",
+    "deliberation"
+  ],
+  "license": "Apache-2.0"
 }

@@ -5,5 +5,11 @@
   "author": {
     "name": "Jacob Hoehler"
   },
-  "keywords": ["time-tracking", "doing", "timesheet", "productivity"]
+  "keywords": [
+    "time-tracking",
+    "doing",
+    "timesheet",
+    "productivity"
+  ],
+  "license": "Apache-2.0"
 }
