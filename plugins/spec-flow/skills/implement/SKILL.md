@@ -40,12 +40,16 @@ If host = linear, check that `mcp__linear-server__*` tools are loaded. If not:
 
 Do not run `claude mcp add` or suggest a paste-and-go connect command.
 
-### 2. Read the contract
+### 2. Read the contract and ground
 
 - **File host** — `Read` the contract file.
-- **Linear host** — Fetch via `mcp__linear-server__get_issue` and parse the description for the 6 sections.
+- **Linear host** — Fetch via `mcp__linear-server__get_issue` and parse the description for the seven sections.
 
-Follow any linked ndr atoms (`[[ndr-...]]` references) and read them.
+**Ground via the supersession walk, not by direct atom reads.** If the contract cites `ndr:*` references (typically in the References section, sometimes inline in Approach), dispatch `Skill(ndr:ground)` over the contract's scope before reaching step 3. The walk returns current heads. Do NOT `Read` atom files directly from `~/Loose Ends/Decisions/` — atoms named in the contract were heads at draft-time but may have been superseded since, and the supersession walk is the whole point. Same rule as the global Obsidian convention.
+
+Grounding is **non-skippable in clean context**. A fresh session running `/spec-flow implement <ID>` has no prior grounding to inherit from conversation history. The contract is the complete handoff artifact — but its references are time-stamped pointers, not frozen state. Skipping the walk is the failure mode `/ground` exists to prevent.
+
+If grounding surfaces a head that conflicts with what the contract says, treat the contract as stale. Invoke `Skill(spec-flow:amend)` to propose updating the contract before proceeding with code.
 
 ### 3. Assess state
 
@@ -84,7 +88,6 @@ Wait for the user's choice. Do not persist this — cadence is per-session.
 - If no started-type state exists, note it once and continue. Never block coding on a status change.
 
 (File host has no status — skip this.)
-
 Work according to the chosen cadence:
 
 - **All at once** — Implement the full change; surface the diff at the end.
@@ -122,3 +125,5 @@ Do NOT auto-close. Closing is an explicit user action.
 - Host is not persisted. Each invocation re-detects from the identifier shape.
 - Confidence is not persisted. Each invocation re-negotiates cadence.
 - Implementation must respect the contract's *Out of scope* — if a tempting addition surfaces, propose an amendment via `spec-flow:amend`. Do not just add it.
+- **Grounding is non-skippable.** The supersession walk via `/ground` runs every invocation, including resumption. Atoms cited in the contract are pointers, not frozen state — a head can supersede between sessions. Direct atom reads from `~/Loose Ends/Decisions/` are the biggest failure mode of the NDR plugin; the implement skill must not bypass `/ground` even when atoms are explicitly named.
+- **State transition is type-based, not name-based.** The skill targets `statusType: "started"` rather than a hardcoded name like "In Progress" so it composes with any team's workflow convention. Teams that own broader Linear workflow rules (e.g. via the `linear` plugin's `linear-workflow` skill) keep authority over what "started" means in their setup; implement only owns the trigger.

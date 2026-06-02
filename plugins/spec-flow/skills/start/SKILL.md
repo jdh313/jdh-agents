@@ -1,6 +1,6 @@
 ---
 name: start
-description: This skill should be used when the user runs `/spec-flow start <goal>` or otherwise signals the start of a new contract-tracked code change. Trigger phrases include "spec-flow start", "open a contract for", "let's scaffold a contract for", "new spec-flow change", "draft a contract for this change". Performs the kickoff lifecycle — detects the contract host (`.docs/` file or existing Linear ticket), flags any other active contracts, runs proactive context-gathering (codebase, library docs via Context7, relevant ndr atoms), conducts a conversational pass asking targeted questions only where the AI's path isn't clear, drafts a six-section contract using the contract template, and writes it to the chosen host. Does NOT start implementation — that requires explicit `/spec-flow implement`.
+description: This skill should be used when the user runs `/spec-flow start <goal>` or otherwise signals the start of a new contract-tracked code change. Trigger phrases include "spec-flow start", "open a contract for", "let's scaffold a contract for", "new spec-flow change", "draft a contract for this change". Performs the kickoff lifecycle — detects the contract host (`.docs/` file or existing Linear ticket), flags any other active contracts, runs proactive context-gathering (codebase, library docs via Context7, relevant ndr atoms), conducts a conversational pass asking targeted questions only where the AI's path isn't clear, drafts a seven-section contract using the contract template, and writes it to the chosen host. Does NOT start implementation — that requires explicit `/spec-flow implement`.
 ---
 
 # spec-flow:start
@@ -83,20 +83,23 @@ If contested or fuzzy vocabulary surfaces during the conversation — terms used
 
 ### 5. Draft the contract
 
-Use `references/contract-template.md` as the literal scaffold. Six sections:
+Use `references/contract-template.md` as the literal scaffold. Seven sections:
 
 - **What we're doing** — one or two bullets, plain language.
 - **Why** — one or two bullets, trigger or motivation.
-- **Approach** — bullets, larger strokes only. No task list, no enumeration.
+- **Approach** — bullets, larger strokes only. No task list, no enumeration. Cite governing references inline (`per ndr:0125`) — annotations belong in References.
 - **Out of scope** — explicit non-goals.
 - **Done when** — 2–4 bullets describing observable outcomes (what's visibly different when the change ships). Bullets, not checkboxes. Load-bearing for the close skill's review.
 - **Open questions** — things deferred to during implementation; load-bearing because they shape the handoff cadence later.
+- **References** — annotated pointers (NDR atoms, surface CLAUDE.md files, key file/directory paths). One line per item: what it contributes. Lets `/spec-flow implement <ID>` resume from a clean context without reconstructing grounding. Omit the section if the change has no governing references (greenfield in untracked area).
 
 The shape is identical for both hosts.
 
 ### 6. Confirm and write to the host
 
 Present the drafted contract. Ask the user to read and approve. If amendments are needed, iterate inline before finalizing.
+
+**Session-side artifact check.** Before writing, scan the current session for Write/Edit activity outside the contract draft itself — atom edits in `~/Loose Ends/Decisions/`, vault note updates, repo file changes, helper scripts. If any exist *and* materially affect what the implementer needs to know (e.g. an atom referenced in Approach was just updated, a config the change depends on was just edited), fold a one-line summary into the contract — typically as a References item ("ndr:0064 — updated in this session to match new naming") or as a brief `## Pre-implementation notes` bullet. Skip if the edits are pure session noise unrelated to the contract scope. The goal is implement-from-clean: a fresh session with no prior context can run `/spec-flow implement <ID>` and have everything it needs.
 
 Then write to the chosen host:
 
@@ -120,7 +123,7 @@ Overwrite the ticket's description with the formatted contract via `mcp__linear-
 
 Exception — only when the user explicitly asked to preserve the existing text (e.g. "prepend", "keep the description", "don't overwrite") in the goal or during the conversation. In that case, prepend the contract above the original instead of replacing it.
 
-No frontmatter in Linear-hosted contracts. The ticket's own metadata (state, assignee, labels) is the workflow signal; the contract body holds only the 6 sections.
+No frontmatter in Linear-hosted contracts. The ticket's own metadata (state, assignee, labels) is the workflow signal; the contract body holds only the seven sections.
 
 **Linear host — move to Contract Review.** Once the contract body is written, the contract is ready to be reviewed. Transition the ticket's state:
 
@@ -140,6 +143,7 @@ Do NOT proceed to implementation. Tell the user:
 
 - Bullets / lists / tables only. No prose paragraphs.
 - The contract is an agreement, not a delivery — its purpose is shared model, not enumerated work.
+- **Implement-from-clean is the design goal.** The contract body is the complete handoff artifact — a fresh session running `/spec-flow implement <ID>` should have everything it needs without reading prior conversation history. The References section and the session-side-artifact check exist to close this gap.
 - `.docs/` is gitignored by the user's scratch-artifact convention.
 - Host is not persisted. `implement`, `amend`, and `close` re-detect host from the identifier each time.
 - spec-flow does not own Linear-side conventions (title patterns, labels, the team's status taxonomy). It writes the contract body and drives the lifecycle state transitions — → Contract Review at `start`, → In Progress at `implement`, → a review state at `close` (never Done — that's the user's at merge). Broader Linear workflow lives outside spec-flow.
