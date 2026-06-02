@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>NDR — Nested Decision Records · Explainers</title>
+<style>
+  :root {
+    --bg: #fbfaf7;
+    --panel: #ffffff;
+    --ink: #1d1c1a;
+    --muted: #6b675f;
+    --faint: #8c887f;
+    --line: #e6e2d9;
+    --accent: #4f46e5;
+    --accent-soft: #eceafd;
+    --head: #15803d;
+    --head-soft: #e3f3e8;
+    --super: #9a6b00;
+    --super-soft: #f6ecd4;
+    --warn: #b54708;
+    --warn-soft: #fdeee0;
+    --code-bg: #f4f1ea;
+    --radius: 10px;
+    --mono: ui-monospace, "SF Mono", "JetBrains Mono", Menlo, Consolas, monospace;
+    --sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0; background: var(--bg); color: var(--ink);
+    font-family: var(--sans); line-height: 1.6;
+    font-size: 17px; -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 920px; margin: 0 auto; padding: 0 24px 96px; }
+  header.site {
+    border-bottom: 1px solid var(--line); background: var(--panel);
+    position: sticky; top: 0; z-index: 10;
+  }
+  header.site .bar { max-width: 920px; margin: 0 auto; padding: 12px 24px;
+    display: flex; gap: 18px; align-items: baseline; flex-wrap: wrap; }
+  header.site a.brand { font-weight: 700; color: var(--ink); text-decoration: none; letter-spacing: -.01em; }
+  header.site nav { display: flex; gap: 14px; flex-wrap: wrap; font-size: 14px; }
+  header.site nav a { color: var(--muted); text-decoration: none; }
+  header.site nav a:hover, header.site nav a[aria-current] { color: var(--accent); }
+  h1, h2, h3 { line-height: 1.25; letter-spacing: -.015em; }
+  h1 { font-size: 2.1rem; margin: 40px 0 8px; }
+  .lede { font-size: 1.16rem; color: var(--muted); margin: 0 0 8px; }
+  h2 { font-size: 1.5rem; margin: 56px 0 14px; padding-top: 8px; }
+  h3 { font-size: 1.16rem; margin: 32px 0 8px; }
+  p { margin: 0 0 16px; }
+  a { color: var(--accent); text-decoration: underline; text-underline-offset: 2px; }
+  code { font-family: var(--mono); font-size: .86em; background: var(--code-bg);
+    padding: 1px 5px; border-radius: 5px; }
+  pre { background: var(--code-bg); border: 1px solid var(--line); border-radius: var(--radius);
+    padding: 16px 18px; overflow-x: auto; font-family: var(--mono); font-size: 13.5px; line-height: 1.5; }
+  pre code { background: none; padding: 0; font-size: inherit; }
+  ul, ol { padding-left: 22px; margin: 0 0 16px; }
+  li { margin: 4px 0; }
+  strong { font-weight: 640; }
+  .muted { color: var(--muted); }
+  hr { border: 0; border-top: 1px solid var(--line); margin: 40px 0; }
+
+  /* cards */
+  .grid { display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); margin: 22px 0; }
+  .card { background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius);
+    padding: 18px 20px; text-decoration: none; color: var(--ink); display: block; transition: border-color .15s, transform .15s; }
+  a.card:hover { border-color: var(--accent); transform: translateY(-2px); }
+  .card .n { font-family: var(--mono); font-size: 12px; color: var(--accent); letter-spacing: .04em; }
+  .card h3 { margin: 6px 0 6px; font-size: 1.08rem; }
+  .card p { margin: 0; font-size: .92rem; color: var(--muted); }
+
+  /* callouts (mirror Obsidian collapsed callouts) */
+  details.callout { border: 1px solid var(--line); border-left: 4px solid var(--accent);
+    border-radius: 8px; background: var(--panel); margin: 16px 0; padding: 0 16px; }
+  details.callout.warn { border-left-color: var(--warn); background: var(--warn-soft); }
+  details.callout.info { border-left-color: var(--accent); }
+  details.callout > summary { cursor: pointer; font-weight: 600; padding: 12px 0; list-style: none;
+    display: flex; gap: 8px; align-items: center; }
+  details.callout > summary::-webkit-details-marker { display: none; }
+  details.callout > summary::before { content: "▸"; color: var(--faint); font-size: 12px; }
+  details.callout[open] > summary::before { content: "▾"; }
+  details.callout > summary .lbl { font-size: 12px; text-transform: uppercase; letter-spacing: .06em; color: var(--faint); }
+  details.callout > *:not(summary) { margin-top: 0; }
+  details.callout > div { padding-bottom: 14px; }
+
+  /* note bar */
+  .note { border: 1px solid var(--line); background: var(--accent-soft); border-radius: 8px;
+    padding: 14px 18px; margin: 22px 0; font-size: .96rem; }
+  .note.fork { background: var(--super-soft); border-color: #ecd9a8; }
+
+  /* figure / diagrams */
+  figure { margin: 26px 0; }
+  figcaption { font-size: 13px; color: var(--faint); margin-top: 10px; text-align: center; }
+  .diagram { background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); padding: 26px 22px; }
+
+  /* pills */
+  .pill { display: inline-block; font-family: var(--mono); font-size: 11px; font-weight: 600;
+    padding: 2px 8px; border-radius: 999px; letter-spacing: .02em; vertical-align: middle; }
+  .pill.head { background: var(--head-soft); color: var(--head); }
+  .pill.super { background: var(--super-soft); color: var(--super); }
+
+  /* system-at-a-glance lanes */
+  .lanes { display: grid; gap: 14px; }
+  .lane { display: grid; grid-template-columns: 120px 1fr; gap: 14px; align-items: stretch; }
+  .lane .lname { font-family: var(--mono); font-size: 12px; color: var(--muted); align-self: center; }
+  .lane .lboxes { display: flex; gap: 10px; flex-wrap: wrap; }
+  .box { border: 1px solid var(--line); border-radius: 8px; padding: 8px 12px; background: var(--bg);
+    font-size: 13px; font-family: var(--mono); }
+  .box.accent { border-color: var(--accent); background: var(--accent-soft); color: var(--accent); }
+  .box.disk { border-color: var(--head); background: var(--head-soft); color: var(--head); }
+  table { border-collapse: collapse; width: 100%; margin: 18px 0; font-size: 14.5px; }
+  th, td { text-align: left; padding: 9px 12px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  th { font-size: 12px; text-transform: uppercase; letter-spacing: .05em; color: var(--faint); }
+  footer { color: var(--faint); font-size: 13px; margin-top: 64px; padding-top: 20px; border-top: 1px solid var(--line); }
+  @media (max-width: 560px) { .lane { grid-template-columns: 1fr; } body { font-size: 16px; } }
+</style>
+</head>
+<body>
+<header class="site"><div class="bar">
+  <a class="brand" href="index.html">NDR · explainers</a>
+  <nav>
+    <a href="index.html" aria-current="page">Overview</a>
+    <a href="atom-anatomy.html">Atom anatomy</a>
+    <a href="supersession.html">Supersession</a>
+    <a href="lifecycle.html">Lifecycle</a>
+    <a href="validation.html">Validation</a>
+  </nav>
+</div></header>
+
+<div class="wrap">
+
+<h1>Nested Decision Records</h1>
+<p class="lede">How engineering decisions get captured as atomic markdown, revised through supersession, and read back without going stale.</p>
+
+<p>NDR is a personal-discipline system for recording engineering decisions as <strong>atomic markdown artifacts</strong> in an Obsidian vault, with explicit lineage and <strong>supersession-aware reading</strong>. The point is not "write decisions down" — plenty of tools do that. The point is that when a decision is revised, the revision is <em>structurally linked</em> to what it replaced, and every read <em>walks that link to the current head</em>. Cross-session decision drift becomes visible by construction instead of discoverable in hindsight.</p>
+
+<p>This set documents how that works and — more importantly — <em>why the supersession discipline is the load-bearing idea</em>. If you only read one page, read <a href="supersession.html">Supersession</a>.</p>
+
+<h2>Start here</h2>
+<div class="grid">
+  <a class="card" href="atom-anatomy.html">
+    <span class="n">01 · DATA SHAPE</span>
+    <h3>Atom anatomy</h3>
+    <p>One decision per file: frontmatter fields, the hybrid-altitude body, and the atomicity rule that makes the rest possible.</p>
+  </a>
+  <a class="card" href="supersession.html">
+    <span class="n">02 · THE PRIMITIVE</span>
+    <h3>Supersession</h3>
+    <p>How a revising decision declares <code>supersedes:</code>, how chains form, and why every read must walk to the head.</p>
+  </a>
+  <a class="card" href="lifecycle.html">
+    <span class="n">03 · FLOWS</span>
+    <h3>Lifecycle</h3>
+    <p>Capture (extract → draft → review → persist) and the three read paths: <code>/decisions</code>, <code>/ground</code>, <code>/drift-check</code>.</p>
+  </a>
+  <a class="card" href="validation.html">
+    <span class="n">04 · ENFORCEMENT</span>
+    <h3>Validation</h3>
+    <p>Soft checks in <code>ndr-reviewer</code> vs. hard checks in <code>persist.py</code> — and the second, read-side schema gate.</p>
+  </a>
+</div>
+
+<h2>The system at a glance</h2>
+<p>NDR is split into three layers, each with one job. A thin <strong>skill</strong> owns conversation scope and user interaction; focused <strong>subagents</strong> compose and judge atoms in isolated context; a deterministic <strong>script</strong> is the only thing that touches disk. The same split runs in reverse on the read side.</p>
+
+<figure>
+  <div class="diagram">
+    <div class="lanes">
+      <div class="lane">
+        <div class="lname">Skills</div>
+        <div class="lboxes">
+          <span class="box accent">/capture-decision</span>
+          <span class="box accent">/decisions</span>
+          <span class="box accent">/ground</span>
+          <span class="box accent">/drift-check</span>
+        </div>
+      </div>
+      <div class="lane">
+        <div class="lname">Subagents</div>
+        <div class="lboxes">
+          <span class="box">ndr-extractor</span>
+          <span class="box">ndr-drafter</span>
+          <span class="box">ndr-reviewer</span>
+          <span class="box">ndr-reader</span>
+          <span class="box">ndr-drift-auditor</span>
+          <span class="box">ndr-curator</span>
+        </div>
+      </div>
+      <div class="lane">
+        <div class="lname">Disk</div>
+        <div class="lboxes">
+          <span class="box disk">persist.py → ~/Loose&nbsp;Ends/Decisions/&lt;id&gt;-&lt;slug&gt;.md</span>
+          <span class="box">.taxonomy/{areas,topics}.yaml</span>
+        </div>
+      </div>
+    </div>
+  </div>
+  <figcaption>Three layers. Skills detect scope and talk to the user; subagents do focused work in isolation; <code>persist.py</code> is the single write path. Read paths (<code>/decisions</code>, <code>/ground</code>) dispatch <code>ndr-reader</code>, which never writes.</figcaption>
+</figure>
+
+<h3>Why this shape</h3>
+<ul>
+  <li><strong>Skill = scope + interaction.</strong> The conversation context is already loaded, so "what is this about?" stays in the skill — sending it to a subagent costs tokens and latency.</li>
+  <li><strong>Subagents = focused composition in isolated context.</strong> The reviewer can't accidentally rewrite a draft; the drafter can't accidentally touch disk; the reader can't write at all.</li>
+  <li><strong><code>persist.py</code> = determinism.</strong> ID assignment, taxonomy enforcement, and the supersession transaction must not depend on LLM judgment. It is plain code, tested in isolation, the only path to disk.</li>
+</ul>
+
+<h2>The four user-facing skills</h2>
+<table>
+  <thead><tr><th>Skill</th><th>Side</th><th>What it does</th></tr></thead>
+  <tbody>
+    <tr><td><code>/capture-decision</code></td><td>write</td><td>Scan a chat for atomic decisions, confirm with the user, draft → review → persist. Refuses to write a revising decision without <code>supersedes:</code>.</td></tr>
+    <tr><td><code>/decisions &lt;topic&gt;</code></td><td>read</td><td>User has a topic or <code>ndr:</code> ref in hand → walk supersession to the head → return a brief.</td></tr>
+    <tr><td><code>/ground [scope]</code></td><td>read</td><td>Before substantive code work: infer scope, surface the heads that govern this area, hand <code>ndr:</code> refs to a coding subagent.</td></tr>
+    <tr><td><code>/drift-check [scope]</code></td><td>audit</td><td>Compare current decision heads against a code diff; surface divergences with three resolutions each — amend, supersede, revert.</td></tr>
+  </tbody>
+</table>
+
+<div class="note fork">
+  <strong>One thing to know before the Validation page.</strong> There are <em>two</em> implementations in play. The Claude Code <strong>plugin</strong> (skills + agents + <code>persist.py</code>, Python) is what runs the live capture workflow today. The standalone <strong><code>~/Projects/ndr</code></strong> repo is a TypeScript reimplementation whose <em>read</em> side is complete (<code>ndr resolve / search / lineage / current</code>) but whose <em>write</em> verb (<code>ndr capture</code>) is still a future slice. They agree on the atom shape; they enforce it at different points. The <a href="validation.html">Validation</a> page keeps them distinct rather than blurring them.
+</div>
+
+<h2>The one idea that matters</h2>
+<p>A decision is never edited in place to mean something new. When the call changes, you write a <em>new</em> atom that declares <code>supersedes: [old]</code>, and the system patches the old atom's <code>superseded_by:</code> back-pointer in the same operation. The old atom stays on disk, frozen, honest about what was true then. Reading resolves forward along that chain to whatever is current now.</p>
+<p>The failure mode this prevents — and the single biggest way to misuse NDR — is <strong>reading a stale starting atom directly</strong>. A ticket cites <code>ndr:0070</code>; you open <code>0070</code>; it says "swamp is canonical." But <code>0070</code> was superseded twice. The head says the opposite. Every read path exists to walk that chain for you. <a href="supersession.html">Why this matters →</a></p>
+
+<footer>
+  NDR explainers · sourced from the <code>ndr</code> plugin (skills, agents, <code>persist.py</code>), the standalone <code>~/Projects/ndr</code> TypeScript repo (<code>schema.ts</code>), and live atoms in <code>~/Loose&nbsp;Ends/Decisions/</code>. Self-contained HTML — no external assets.
+</footer>
+
+</div>
+</body>
+</html>

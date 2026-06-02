@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Validation · NDR explainers</title>
+<style>
+  :root {
+    --bg: #fbfaf7; --panel: #ffffff; --ink: #1d1c1a; --muted: #6b675f; --faint: #8c887f;
+    --line: #e6e2d9; --accent: #4f46e5; --accent-soft: #eceafd;
+    --head: #15803d; --head-soft: #e3f3e8; --head-line: #7cc395; --super: #9a6b00; --super-soft: #f6ecd4;
+    --warn: #b54708; --warn-soft: #fdeee0; --soft: #6d5bd0; --soft-soft: #eceafd; --code-bg: #f4f1ea; --radius: 10px;
+    --mono: ui-monospace, "SF Mono", "JetBrains Mono", Menlo, Consolas, monospace;
+    --sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--sans); line-height: 1.6; font-size: 17px; -webkit-font-smoothing: antialiased; }
+  .wrap { max-width: 920px; margin: 0 auto; padding: 0 24px 96px; }
+  header.site { border-bottom: 1px solid var(--line); background: var(--panel); position: sticky; top: 0; z-index: 10; }
+  header.site .bar { max-width: 920px; margin: 0 auto; padding: 12px 24px; display: flex; gap: 18px; align-items: baseline; flex-wrap: wrap; }
+  header.site a.brand { font-weight: 700; color: var(--ink); text-decoration: none; letter-spacing: -.01em; }
+  header.site nav { display: flex; gap: 14px; flex-wrap: wrap; font-size: 14px; }
+  header.site nav a { color: var(--muted); text-decoration: none; }
+  header.site nav a:hover, header.site nav a[aria-current] { color: var(--accent); }
+  h1, h2, h3 { line-height: 1.25; letter-spacing: -.015em; }
+  h1 { font-size: 2.1rem; margin: 40px 0 8px; }
+  .lede { font-size: 1.16rem; color: var(--muted); margin: 0 0 8px; }
+  h2 { font-size: 1.5rem; margin: 56px 0 14px; }
+  h3 { font-size: 1.16rem; margin: 32px 0 8px; }
+  p { margin: 0 0 16px; }
+  a { color: var(--accent); text-decoration: underline; text-underline-offset: 2px; }
+  code { font-family: var(--mono); font-size: .86em; background: var(--code-bg); padding: 1px 5px; border-radius: 5px; }
+  pre { background: var(--code-bg); border: 1px solid var(--line); border-radius: var(--radius); padding: 16px 18px; overflow-x: auto; font-family: var(--mono); font-size: 13px; line-height: 1.5; }
+  pre code { background: none; padding: 0; font-size: inherit; }
+  ul, ol { padding-left: 22px; margin: 0 0 16px; }
+  li { margin: 4px 0; }
+  strong { font-weight: 640; }
+  hr { border: 0; border-top: 1px solid var(--line); margin: 40px 0; }
+  details.callout { border: 1px solid var(--line); border-left: 4px solid var(--accent); border-radius: 8px; background: var(--panel); margin: 16px 0; padding: 0 16px; }
+  details.callout > summary { cursor: pointer; font-weight: 600; padding: 12px 0; list-style: none; display: flex; gap: 8px; align-items: center; }
+  details.callout > summary::-webkit-details-marker { display: none; }
+  details.callout > summary::before { content: "▸"; color: var(--faint); font-size: 12px; }
+  details.callout[open] > summary::before { content: "▾"; }
+  details.callout > summary .lbl { font-size: 12px; text-transform: uppercase; letter-spacing: .06em; color: var(--faint); }
+  details.callout > div { padding-bottom: 14px; }
+  .note { border: 1px solid var(--line); background: var(--accent-soft); border-radius: 8px; padding: 14px 18px; margin: 22px 0; font-size: .96rem; }
+  .note.fork { background: var(--super-soft); border-color: #ecd9a8; }
+  figure { margin: 28px 0; }
+  figcaption { font-size: 13px; color: var(--faint); margin-top: 12px; text-align: center; }
+  .diagram { background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); padding: 24px 20px; }
+  table { border-collapse: collapse; width: 100%; margin: 18px 0; font-size: 14px; }
+  th, td { text-align: left; padding: 9px 11px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  th { font-size: 12px; text-transform: uppercase; letter-spacing: .05em; color: var(--faint); }
+  .tick { color: var(--head); font-weight: 700; }
+  .soft { color: var(--soft); font-weight: 700; }
+  .dash { color: var(--faint); }
+  footer { color: var(--faint); font-size: 13px; margin-top: 64px; padding-top: 20px; border-top: 1px solid var(--line); }
+  .prevnext { display: flex; justify-content: space-between; gap: 16px; margin-top: 48px; font-size: 15px; }
+  .pill { display: inline-block; font-family: var(--mono); font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 999px; }
+  .pill.head { background: var(--head-soft); color: var(--head); }
+
+  /* gates diagram */
+  .gates { display: flex; align-items: stretch; gap: 0; overflow-x: auto; }
+  .gcol { flex: 1 1 0; min-width: 150px; display: flex; flex-direction: column; }
+  .gbox { border: 1px solid var(--line); border-radius: 10px; padding: 13px 14px; height: 100%; background: var(--bg); }
+  .gbox.soft { border-color: #c7c2f5; background: var(--soft-soft); }
+  .gbox.hard { border: 2px solid var(--head-line); background: var(--head-soft); }
+  .gbox .gt { font-family: var(--mono); font-size: 10px; text-transform: uppercase; letter-spacing: .05em; color: var(--faint); }
+  .gbox .gn { font-weight: 700; font-size: 14px; margin: 3px 0 6px; }
+  .gbox.soft .gn { color: var(--soft); }
+  .gbox.hard .gn { color: var(--head); }
+  .gbox .gl { font-size: 12px; color: var(--muted); }
+  .gbox .gl li { margin: 2px 0; }
+  .gsep { flex: 0 0 40px; display: flex; align-items: center; justify-content: center; color: var(--faint); font-size: 20px; }
+  @media (max-width: 640px) { body { font-size: 16px; } .gates { flex-direction: column; } .gsep { height: 30px; } .gsep span { transform: rotate(90deg); display: inline-block; } }
+</style>
+</head>
+<body>
+<header class="site"><div class="bar">
+  <a class="brand" href="index.html">NDR · explainers</a>
+  <nav>
+    <a href="index.html">Overview</a>
+    <a href="atom-anatomy.html">Atom anatomy</a>
+    <a href="supersession.html">Supersession</a>
+    <a href="lifecycle.html">Lifecycle</a>
+    <a href="validation.html" aria-current="page">Validation</a>
+  </nav>
+</div></header>
+
+<div class="wrap">
+
+<h1>Validation</h1>
+<p class="lede">The rules that keep atoms well-formed are enforced twice on the way in: a <em>soft</em> pre-flight an agent runs on in-memory drafts, and a <em>hard</em> gate the write script enforces at disk. They overlap on purpose.</p>
+
+<p>Validation in NDR is defense in depth. The soft layer catches problems early — before a draft is even a file — and gives actionable feedback an LLM can fix. The hard layer assumes nothing about what came before it and refuses to write anything malformed, because it is the last thing standing between a draft and the vault. A check appearing in <em>both</em> is not redundancy; it's the soft layer saving a round trip and the hard layer guaranteeing the invariant.</p>
+
+<h2>Two gates on the write path</h2>
+
+<figure>
+  <div class="diagram">
+    <div class="gates">
+      <div class="gcol"><div class="gbox"><div class="gt">in memory</div><div class="gn">Draft</div><div class="gl">From <code>ndr-drafter</code>: <code>{frontmatter, body}</code>, <code>id: "PLACEHOLDER"</code>.</div></div></div>
+      <div class="gsep"><span>→</span></div>
+      <div class="gcol"><div class="gbox soft"><div class="gt">soft gate · agent</div><div class="gn">ndr-reviewer</div><ul class="gl">
+        <li><strong>Atomicity</strong> (load-bearing)</li>
+        <li><strong>Body altitude</strong> (load-bearing)</li>
+        <li>Required fields present</li>
+        <li>Enums, taxonomy non-null</li>
+        <li>Alias <code>ndr-</code> prefix</li>
+      </ul><div class="gl" style="margin-top:6px;color:var(--soft)">fail ⇒ fix &amp; re-draft. Advisory: a human can override.</div></div></div>
+      <div class="gsep"><span>→</span></div>
+      <div class="gcol"><div class="gbox hard"><div class="gt">hard gate · script</div><div class="gn">persist.py</div><ul class="gl">
+        <li>Required fields non-empty</li>
+        <li><code>supersedes:</code> present</li>
+        <li>Enums valid</li>
+        <li><strong>Taxonomy</strong> vs on-disk YAML</li>
+        <li>Alias <code>ndr-</code> prefix</li>
+        <li>Supersession conflict refusal</li>
+      </ul><div class="gl" style="margin-top:6px;color:var(--head)">fail ⇒ non-zero exit, nothing written.</div></div></div>
+      <div class="gsep"><span>→</span></div>
+      <div class="gcol"><div class="gbox"><div class="gt">on disk</div><div class="gn">Atom file</div><div class="gl"><code>&lt;id&gt;-&lt;slug&gt;.md</code> in <code>~/Loose&nbsp;Ends/Decisions/</code>.</div></div></div>
+    </div>
+  </div>
+  <figcaption>The write path has two validation gates. <span class="soft">ndr-reviewer</span> is advisory — it judges <em>shape</em> early and can be overridden by a human. <span class="tick">persist.py</span> is the hard gate — it re-checks the mechanical rules against disk reality and refuses to write on any failure. <strong>Plain-text reading:</strong> Draft → soft gate (reviewer) → hard gate (persist.py) → file. The middle checks are validated twice by design.</figcaption>
+</figure>
+
+<h2>Who enforces what</h2>
+<p><span class="soft">◆ soft</span> = flagged, fixable, overridable · <span class="tick">● hard</span> = refuses to write · <span class="dash">—</span> = not checked here.</p>
+<table>
+  <thead><tr><th>Check</th><th>ndr-reviewer<br><span style="font-weight:400">(pre-persist)</span></th><th>persist.py<br><span style="font-weight:400">(write)</span></th><th>Notes</th></tr></thead>
+  <tbody>
+    <tr><td><strong>Atomicity</strong> — one chosen path</td><td class="soft">◆ load-bearing</td><td class="dash">—</td><td>Judgment call; lives only in the soft layer. A bundle that slips past becomes two-decisions-in-one-file forever.</td></tr>
+    <tr><td><strong>Body altitude</strong> — heading + gist + collapsed callout</td><td class="soft">◆ load-bearing</td><td class="dash">—</td><td>Shape/readability; not machine-critical, so not a hard gate.</td></tr>
+    <tr><td>Required fields present &amp; non-empty</td><td class="soft">◆</td><td class="tick">●</td><td><code>title, status, decision_date, project, area, topic, reversibility</code>.</td></tr>
+    <tr><td><code>supersedes:</code> present (may be <code>[]</code>)</td><td class="soft">◆</td><td class="tick">●</td><td>Presence is the structural "I considered supersession" signal.</td></tr>
+    <tr><td><code>status</code> / <code>reversibility</code> enums</td><td class="soft">◆</td><td class="tick">●</td><td><code>current|superseded|retracted</code> · <code>easy|medium|hard</code>.</td></tr>
+    <tr><td><code>area</code> / <code>topic</code> in taxonomy</td><td class="soft">◆ non-null only</td><td class="tick">● vs YAML</td><td>Reviewer checks non-null in pre-persist; <code>persist.py</code> validates against the actual <code>.taxonomy/*.yaml</code>.</td></tr>
+    <tr><td>Alias <code>ndr-</code> prefix</td><td class="soft">◆</td><td class="tick">●</td><td>Both require the namespace prefix.</td></tr>
+    <tr><td>Slug uniqueness (vault-wide)</td><td class="dash">— (needs disk)</td><td class="tick">●</td><td>Reviewer can't see the whole vault from a draft; only the write path can.</td></tr>
+    <tr><td>ID assignment</td><td class="dash">— (<code>PLACEHOLDER</code>)</td><td class="tick">● <code>max+1</code></td><td>Determinism requirement — never an LLM's job.</td></tr>
+    <tr><td>Supersession conflict (predecessor already superseded)</td><td class="dash">—</td><td class="tick">● refuses, exit 2</td><td>Two competing successors ⇒ stop; a human reconciles.</td></tr>
+    <tr><td>Bidirectional back-pointer integrity</td><td>audit-mode only</td><td class="tick">● writes it</td><td><code>persist.py</code> patches <code>superseded_by:</code>; <code>ndr-curator</code> audits it corpus-wide later.</td></tr>
+  </tbody>
+</table>
+
+<details class="callout">
+  <summary>persist.py exit codes — the failure contract <span class="lbl">mechanics</span></summary>
+  <div>
+    <p>The write path validates <em>all</em> drafts before writing <em>any</em>, then performs writes transactionally. Its exit code tells the orchestrator exactly how to respond:</p>
+    <table style="margin:8px 0 0">
+      <thead><tr><th>Exit</th><th>Meaning</th><th>Orchestrator response</th></tr></thead>
+      <tbody>
+        <tr><td><code>0</code></td><td>success</td><td>parse <code>written</code> / <code>superseded</code> / <code>aliases_moved</code> for the summary</td></tr>
+        <tr><td><code>1</code></td><td>validation (taxonomy, missing field, bad JSON)</td><td>surface errors, loop back to drafting</td></tr>
+        <tr><td><code>2</code></td><td>supersession conflict</td><td>stop — needs manual resolution</td></tr>
+        <tr><td><code>3</code></td><td>mid-transaction half-state</td><td>surface the <code>half_state</code> so the user repairs by hand</td></tr>
+      </tbody>
+    </table>
+    <p style="margin-top:10px">No silent partial writes: a supersession that fails halfway reports which slugs moved and which atoms were patched, then exits 3.</p>
+  </div>
+</details>
+
+<h2>A third gate, on the read side</h2>
+<p>The two gates above live in the <strong>plugin</strong> (Python). There is a second implementation — the standalone <code>~/Projects/ndr</code> repo — and it enforces the same atom shape at a <em>different</em> moment: when an atom is <strong>read</strong>. Its parse pipeline is <code>fence-split → YAML → Zod</code>, and the Zod <code>FrontmatterSchema</code> is the gate:</p>
+
+<pre><code>// ~/Projects/ndr · src/domain/schema.ts (excerpt)
+export const FrontmatterSchema = z.object({
+  id:            z.string().regex(/^\d{4}$/),   // quoted 4-digit; "0128" not 128
+  title:         z.string().min(1),
+  status:        z.enum(["current","superseded","retracted"]),
+  decision_date: IsoDate,
+  project:       Wikilink,
+  supersedes:    z.array(Wikilink),             // REQUIRED present (no default)
+  superseded_by: z.array(Wikilink).default([]),
+  area:          z.string().min(1),
+  topic:         z.string().min(1),
+  reversibility: z.enum(["easy","medium","hard"]),
+  // ... aliases, derived_from, informed_by, impacts, revisit_triggers, tags
+});</code></pre>
+
+<p>This is why a malformed atom can be caught even if it somehow reached disk unvalidated: the reader rejects it on the way out. Corpus-wide read verbs (<code>ndr search</code>, <code>ndr current</code>) <em>skip</em> a malformed atom with a warning rather than aborting the whole query; a targeted <code>ndr resolve &lt;id&gt;</code> still throws, because you asked for that specific atom.</p>
+
+<h2>The fork — two implementations, honestly</h2>
+<div class="note fork">
+  <p style="margin:0 0 10px"><strong>The mechanics live in two places, and they are not the same code.</strong></p>
+  <ul style="margin:0">
+    <li><strong>Plugin (Python).</strong> <code>scripts/persist.py</code> is the <em>live write enforcement</em> today — the capture pipeline pipes drafts to it and it owns ID assignment, the taxonomy gate, and the supersession transaction.</li>
+    <li><strong>Standalone <code>~/Projects/ndr</code> (TypeScript).</strong> Its <em>read</em> side is complete — <code>ndr resolve / search / lineage / current</code>, with the Zod schema above as the read-time gate. Its <em>write</em> verb, <code>ndr capture</code>, is explicitly "a later slice" — not built yet.</li>
+  </ul>
+  <p style="margin:10px 0 0">So right now: <strong>writes are validated by <code>persist.py</code>; reads (in the standalone CLI) are validated by Zod.</strong> When <code>ndr capture</code> lands, the write gate is expected to move into the TypeScript domain layer alongside the schema. Until then, treat <code>persist.py</code> as authoritative for what actually gets written, and <code>schema.ts</code> as authoritative for the canonical field contract.</p>
+</div>
+
+<h3>Where the two definitions differ today</h3>
+<p>They agree on the field set, the enums, and "<code>supersedes:</code> must be present." Two divergences worth knowing:</p>
+<table>
+  <thead><tr><th>Rule</th><th>persist.py (write)</th><th>schema.ts (read)</th><th>Reading of it</th></tr></thead>
+  <tbody>
+    <tr><td>Alias format</td><td>must start with <code>ndr-</code></td><td>generic kebab-case (<code>^[a-z0-9][a-z0-9-]*$</code>)</td><td><code>persist.py</code> is stricter. An atom written by the plugin always satisfies Zod; a hand-authored kebab alias without <code>ndr-</code> would pass Zod but be refused by <code>persist.py</code>.</td></tr>
+    <tr><td>Taxonomy</td><td>validated against on-disk <code>.taxonomy/*.yaml</code></td><td><code>area</code>/<code>topic</code> only checked non-empty</td><td>Taxonomy membership is a write-time concern; the read schema treats them as free strings.</td></tr>
+  </tbody>
+</table>
+<p>Neither is "wrong" — they enforce at different moments for different reasons. The honest summary: <strong>the field contract is shared; the membership and namespace rules are enforced by the write path.</strong> If you're hand-editing an atom, satisfy <code>persist.py</code>'s rules, since it's the stricter of the two.</p>
+
+<details class="callout">
+  <summary>Real atoms carry harmless variance the schema tolerates <span class="lbl">field note</span></summary>
+  <div>
+    <p>Reading actual vault atoms, you'll see frontmatter that isn't byte-identical to the template — e.g. <code>id: "0005"</code> (double-quoted) vs <code>id: '0007'</code> (single-quoted), older atoms with extra <code>date_created:</code> / <code>date_modified:</code> keys from an Obsidian plugin, or atoms predating the <code>aliases:</code> field entirely. The YAML→Zod pipeline accepts these: quoting style is irrelevant once parsed, unknown extra keys are ignored, and absent optional fields fall back to their defaults (<code>aliases: []</code>, etc.). What it will <em>not</em> tolerate is an unquoted <code>id: 0128</code> (parses as the integer 128 and fails the <code>/^\d{4}$/</code> string regex) — which is exactly why the schema comment insists the id be quoted.</p>
+  </div>
+</details>
+
+<h2>Validation isn't only on the way in</h2>
+<p>Two more agents check invariants the write/read gates can't see, because they span multiple atoms:</p>
+<ul>
+  <li><strong><code>ndr-curator</code></strong> — corpus health: bidirectional chain integrity, orphaned supersession, alias drift (one slug on two <code>current</code> atoms), taxonomy violations, missing fields. Read-only by default; <code>--fix</code> repairs only missing back-pointers.</li>
+  <li><strong><code>ndr-drift-auditor</code></strong> — coherence against code: does the implementation still match what the current heads claim? (See <a href="lifecycle.html">Lifecycle</a>.)</li>
+</ul>
+<p>So the full picture is four checkpoints: <span class="soft">soft pre-flight</span> (per draft) → <span class="tick">hard write</span> (per draft, at disk) → <strong>read schema</strong> (per atom, on resolve) → <strong>corpus audit</strong> (cross-atom, on demand). Shape is judged where judgment helps; invariants are enforced where they must hold.</p>
+
+<div class="prevnext">
+  <a href="lifecycle.html">← Lifecycle</a>
+  <a href="index.html">Overview ↺</a>
+</div>
+
+<footer>
+  Soft checks per <code>agents/ndr-reviewer.md</code>; hard checks and exit codes per <code>scripts/persist.py</code>; read-side schema per <code>~/Projects/ndr/src/domain/schema.ts</code> and that repo's <code>README.md</code>. Field-variance observations from live atoms in <code>~/Loose&nbsp;Ends/Decisions/</code>.
+</footer>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Contract structure — spec-flow</title>
+<style>
+  :root{
+    --bg:#faf9f7; --panel:#ffffff; --text:#1f2328; --muted:#57606a;
+    --border:#e4e1da; --code-bg:#f3f1ec; --accent:#4f46e5; --warn:#b45309; --gate:#0d9488;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--text);
+    font:16px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;}
+  .wrap{max-width:860px;margin:0 auto;padding:0 24px 96px;}
+  nav.crumbs{font-size:.85rem;color:var(--muted);padding:24px 0 0;}
+  nav.crumbs a{color:var(--muted);}
+  a{color:var(--accent);text-decoration:none;} a:hover{text-decoration:underline;}
+  h1{font-size:2.1rem;margin:18px 0 8px;letter-spacing:-.02em;}
+  h2{font-size:1.45rem;margin:50px 0 14px;letter-spacing:-.01em;}
+  .lede{font-size:1.12rem;color:var(--muted);margin:0 0 8px;}
+  code{background:var(--code-bg);padding:.12em .4em;border-radius:4px;font-size:.88em;
+    font-family:"SF Mono",ui-monospace,Menlo,Consolas,monospace;}
+  pre{background:var(--code-bg);border:1px solid var(--border);border-radius:8px;padding:16px;overflow:auto;font-size:.82rem;line-height:1.5;}
+  pre code{background:none;padding:0;}
+  ul{padding-left:1.2em;} li{margin:5px 0;}
+  .note{border-left:3px solid var(--warn);background:#fff8ee;padding:2px 18px;border-radius:0 8px 8px 0;margin:22px 0;}
+  .note strong{color:var(--warn);}
+  table{border-collapse:collapse;width:100%;margin:16px 0;font-size:.9rem;}
+  th,td{border:1px solid var(--border);padding:9px 12px;text-align:left;vertical-align:top;}
+  th{background:var(--code-bg);font-weight:600;}
+  .sec{background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:4px 20px 12px;margin:16px 0;border-left:4px solid var(--accent);}
+  .sec h3{margin:16px 0 4px;font-size:1.08rem;}
+  .sec .role{font-size:.78rem;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;}
+  .sec.gate{border-left-color:var(--gate);}
+  .badge{display:inline-block;font-size:.68rem;font-weight:700;letter-spacing:.04em;padding:2px 8px;border-radius:5px;
+    background:var(--gate);color:#fff;vertical-align:middle;margin-left:6px;}
+</style>
+</head>
+<body>
+<div class="wrap">
+<nav class="crumbs"><a href="index.html">spec-flow</a> / contract structure</nav>
+<h1>The contract structure</h1>
+<p class="lede">A fixed, host-agnostic scaffold of headed sections — bullets and tables, never prose. The same shape whether the body lives in a <code>.docs/</code> file or a Linear ticket.</p>
+
+<div class="note">
+<p><strong>A naming note up front.</strong> The source calls this a "five-section" contract in several places (the <code>start</code> skill's <code>description:</code>, the README, <code>hosts.md</code>), but the actual template scaffold — and the <code>start</code> skill's own step 5 — define <strong>six</strong> headed sections. The README's own list even omits one of them (<em>Done when</em>). The <em>Done when</em> section was evidently added after the "five-section" language was written, and not all the prose caught up. This page documents the six real sections as the template defines them, and flags the drift rather than picking a number.</p>
+</div>
+
+<h2>The scaffold</h2>
+<p>This is the literal scaffold <code>spec-flow:start</code> produces (the frontmatter block is file-host only — Linear has its own metadata):</p>
+<pre><code>---
+status: active
+topic: &lt;slug&gt;
+started: YYYY-MM-DD
+---
+
+# &lt;Goal in plain language, one line&gt;
+
+## What we're doing
+- &lt;one or two bullets describing the change&gt;
+
+## Why
+- &lt;one or two bullets — the trigger or motivation&gt;
+
+## Approach
+- &lt;larger strokes only — architecture, libraries, integration points&gt;
+- &lt;no task list, no enumeration&gt;
+
+## Out of scope
+- &lt;explicit non-goals — fence against the AI "helpfully" expanding&gt;
+
+## Done when
+- &lt;observable outcome — what the user/system can now do&gt;
+- &lt;visible state change — file exists, command works, endpoint returns&gt;
+- &lt;verification gate — "tests pass", or "manual smoke: X"&gt;
+
+## Open questions
+- &lt;things deferred to during implementation — these inform cadence&gt;</code></pre>
+
+<h2>The six sections</h2>
+
+<div class="sec">
+  <h3>1 · What we're doing</h3>
+  <p class="role">one or two bullets</p>
+  <p>The change in plain language. The shared starting point.</p>
+</div>
+
+<div class="sec">
+  <h3>2 · Why</h3>
+  <p class="role">one or two bullets</p>
+  <p>The trigger or motivation — "the reason future-you cares."</p>
+</div>
+
+<div class="sec">
+  <h3>3 · Approach</h3>
+  <p class="role">bullets · larger strokes only</p>
+  <p>Architecture, libraries, integration points. Explicitly <strong>no task list, no enumeration</strong> — if a task list is emerging, it belongs in implementation, not in the contract. This is also the section the optional <strong>debate</strong> fork feeds, and the section <code>close</code> compares against the shipped code to find decisions worth migrating to ndr atoms.</p>
+</div>
+
+<div class="sec">
+  <h3>4 · Out of scope</h3>
+  <p class="role">explicit non-goals</p>
+  <p>A fence against the AI "helpfully" expanding the change. During implementation this is load-bearing: a tempting addition must be proposed as an amendment, not just added.</p>
+</div>
+
+<div class="sec gate">
+  <h3>5 · Done when <span class="badge">close gate</span></h3>
+  <p class="role">2–4 bullets · observable, not procedural · bullets not checkboxes</p>
+  <p>What is visibly different when the change ships — "command returns the head atom", not "implement walk function in reader.py". Checkboxes are avoided deliberately because they invite task-list creep. This section is the <strong>first gate</strong> of the <code>close</code> skill: each bullet is checked met / not met / drifted, and an unmet bullet halts the close. Thin drafting here means a fuzzy close later.</p>
+</div>
+
+<div class="sec">
+  <h3>6 · Open questions</h3>
+  <p class="role">deferred items</p>
+  <p>Things pushed to "decide during implementation." Load-bearing in a non-obvious way: their presence or absence shapes the <strong>cadence</strong> conversation at handoff — many open questions lean toward "check in after a piece," few lean toward "all at once." A resolved open question is a candidate to promote into <em>Approach</em> via an amendment.</p>
+</div>
+
+<h2>Conventions behind the shape</h2>
+<table>
+  <tr><th>Convention</th><th>Why</th></tr>
+  <tr><td>Bullets / lists / tables over prose</td><td>Short, scannable, retrievable — matches the user's reading style.</td></tr>
+  <tr><td>Approach is larger strokes only</td><td>Task lists are implementation residue, not agreement.</td></tr>
+  <tr><td>Done when is observable, not procedural; bullets not checkboxes</td><td>Gives <code>close</code> something concrete to verify; checkboxes invite creep.</td></tr>
+  <tr><td>Open questions are load-bearing</td><td>They drive the per-session cadence negotiation.</td></tr>
+  <tr><td>Placement signals state</td><td><code>status: active</code> while in flight; on done the file moves to <code>.docs/archive/</code>. The frontmatter field is informational redundancy.</td></tr>
+  <tr><td>No amendments without sign-off</td><td>The contract is an agreement — both parties accept before any edit lands.</td></tr>
+</table>
+
+<h2>What the contract deliberately leaves out</h2>
+<p>Just as important as the sections is what is excluded by design. These belong elsewhere:</p>
+<ul>
+  <li><strong>Task list / enumerated steps</strong> — belong in implementation, not the contract.</li>
+  <li><strong>System spec / "current state of the app"</strong> — the durable layer's job (README, ndr atoms, code).</li>
+  <li><strong>Cross-change roadmap</strong> — spec-flow is single-change-scoped.</li>
+  <li><strong>Enumerated acceptance criteria / test plan</strong> — <em>Done when</em> captures verification gates as observable outcomes; specific test cases stay in implementation.</li>
+</ul>
+
+<p style="color:var(--muted);font-size:.92rem;margin-top:28px">The recurring idea: the contract holds the <em>agreement</em> (shared model), and everything that is durable knowledge or enumerated work lives somewhere else. The bullets are the residue, not the deliverable.</p>
+
+<div style="margin-top:40px;display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap"><a href="hosts.html">← Previous: the two hosts</a><a href="skills.html">Next: skills, triggers, and refusals →</a></div>
+</div>
+</body>
+</html>

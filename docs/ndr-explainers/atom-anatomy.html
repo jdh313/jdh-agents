@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Atom anatomy · NDR explainers</title>
+<style>
+  :root {
+    --bg: #fbfaf7; --panel: #ffffff; --ink: #1d1c1a; --muted: #6b675f; --faint: #8c887f;
+    --line: #e6e2d9; --accent: #4f46e5; --accent-soft: #eceafd;
+    --head: #15803d; --head-soft: #e3f3e8; --super: #9a6b00; --super-soft: #f6ecd4;
+    --warn: #b54708; --warn-soft: #fdeee0; --code-bg: #f4f1ea; --radius: 10px;
+    --mono: ui-monospace, "SF Mono", "JetBrains Mono", Menlo, Consolas, monospace;
+    --sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--sans); line-height: 1.6; font-size: 17px; -webkit-font-smoothing: antialiased; }
+  .wrap { max-width: 920px; margin: 0 auto; padding: 0 24px 96px; }
+  header.site { border-bottom: 1px solid var(--line); background: var(--panel); position: sticky; top: 0; z-index: 10; }
+  header.site .bar { max-width: 920px; margin: 0 auto; padding: 12px 24px; display: flex; gap: 18px; align-items: baseline; flex-wrap: wrap; }
+  header.site a.brand { font-weight: 700; color: var(--ink); text-decoration: none; letter-spacing: -.01em; }
+  header.site nav { display: flex; gap: 14px; flex-wrap: wrap; font-size: 14px; }
+  header.site nav a { color: var(--muted); text-decoration: none; }
+  header.site nav a:hover, header.site nav a[aria-current] { color: var(--accent); }
+  h1, h2, h3 { line-height: 1.25; letter-spacing: -.015em; }
+  h1 { font-size: 2.1rem; margin: 40px 0 8px; }
+  .lede { font-size: 1.16rem; color: var(--muted); margin: 0 0 8px; }
+  h2 { font-size: 1.5rem; margin: 56px 0 14px; }
+  h3 { font-size: 1.16rem; margin: 32px 0 8px; }
+  p { margin: 0 0 16px; }
+  a { color: var(--accent); text-decoration: underline; text-underline-offset: 2px; }
+  code { font-family: var(--mono); font-size: .86em; background: var(--code-bg); padding: 1px 5px; border-radius: 5px; }
+  pre { background: var(--code-bg); border: 1px solid var(--line); border-radius: var(--radius); padding: 16px 18px; overflow-x: auto; font-family: var(--mono); font-size: 13.5px; line-height: 1.5; }
+  pre code { background: none; padding: 0; font-size: inherit; }
+  ul, ol { padding-left: 22px; margin: 0 0 16px; }
+  li { margin: 4px 0; }
+  strong { font-weight: 640; }
+  .muted { color: var(--muted); }
+  hr { border: 0; border-top: 1px solid var(--line); margin: 40px 0; }
+  details.callout { border: 1px solid var(--line); border-left: 4px solid var(--accent); border-radius: 8px; background: var(--panel); margin: 16px 0; padding: 0 16px; }
+  details.callout.warn { border-left-color: var(--warn); background: var(--warn-soft); }
+  details.callout > summary { cursor: pointer; font-weight: 600; padding: 12px 0; list-style: none; display: flex; gap: 8px; align-items: center; }
+  details.callout > summary::-webkit-details-marker { display: none; }
+  details.callout > summary::before { content: "▸"; color: var(--faint); font-size: 12px; }
+  details.callout[open] > summary::before { content: "▾"; }
+  details.callout > summary .lbl { font-size: 12px; text-transform: uppercase; letter-spacing: .06em; color: var(--faint); }
+  details.callout > div { padding-bottom: 14px; }
+  .note { border: 1px solid var(--line); background: var(--accent-soft); border-radius: 8px; padding: 14px 18px; margin: 22px 0; font-size: .96rem; }
+  .note.fork { background: var(--super-soft); border-color: #ecd9a8; }
+  figure { margin: 26px 0; }
+  figcaption { font-size: 13px; color: var(--faint); margin-top: 10px; text-align: center; }
+  .diagram { background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); padding: 22px; }
+  .pill { display: inline-block; font-family: var(--mono); font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 999px; letter-spacing: .02em; vertical-align: middle; }
+  .pill.head { background: var(--head-soft); color: var(--head); }
+  .pill.super { background: var(--super-soft); color: var(--super); }
+  table { border-collapse: collapse; width: 100%; margin: 18px 0; font-size: 14.5px; }
+  th, td { text-align: left; padding: 9px 12px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  th { font-size: 12px; text-transform: uppercase; letter-spacing: .05em; color: var(--faint); }
+  td code { white-space: nowrap; }
+  .req { color: var(--warn); font-weight: 700; }
+  footer { color: var(--faint); font-size: 13px; margin-top: 64px; padding-top: 20px; border-top: 1px solid var(--line); }
+  .prevnext { display: flex; justify-content: space-between; gap: 16px; margin-top: 48px; font-size: 15px; }
+
+  /* anatomy-specific */
+  .shape { display: grid; gap: 0; border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; background: var(--panel); }
+  .shape .seg-head { background: var(--code-bg); padding: 8px 14px; font-family: var(--mono); font-size: 11px; letter-spacing: .06em; text-transform: uppercase; color: var(--faint); border-top: 1px solid var(--line); }
+  .shape .seg-head:first-child { border-top: 0; }
+  .fmrow { display: grid; grid-template-columns: 240px 1fr; gap: 12px; padding: 7px 14px; border-top: 1px solid #f0ece3; align-items: baseline; }
+  .fmrow .yaml { font-family: var(--mono); font-size: 13px; color: var(--ink); white-space: pre-wrap; word-break: break-word; }
+  .fmrow .yaml .k { color: var(--accent); }
+  .fmrow .ann { font-size: 13px; color: var(--muted); }
+  .fmrow .ann .star { color: var(--warn); font-weight: 700; }
+  .alt { display: grid; grid-template-columns: 120px 1fr; gap: 12px; padding: 12px 14px; border-top: 1px solid #f0ece3; }
+  .alt .atag { font-family: var(--mono); font-size: 11px; color: var(--accent); text-transform: uppercase; letter-spacing: .04em; }
+  .alt .abody { font-size: 14px; }
+  .alt .gist { font-weight: 600; }
+  .alt .collapsed { font-size: 12.5px; color: var(--faint); font-style: italic; margin-top: 4px; }
+  @media (max-width: 620px) { .fmrow, .alt { grid-template-columns: 1fr; gap: 3px; } body { font-size: 16px; } }
+</style>
+</head>
+<body>
+<header class="site"><div class="bar">
+  <a class="brand" href="index.html">NDR · explainers</a>
+  <nav>
+    <a href="index.html">Overview</a>
+    <a href="atom-anatomy.html" aria-current="page">Atom anatomy</a>
+    <a href="supersession.html">Supersession</a>
+    <a href="lifecycle.html">Lifecycle</a>
+    <a href="validation.html">Validation</a>
+  </nav>
+</div></header>
+
+<div class="wrap">
+
+<h1>Atom anatomy</h1>
+<p class="lede">One decision per file. YAML frontmatter the machine reads; a hybrid-altitude body a human scans. Atomicity is what makes everything downstream work.</p>
+
+<p>A <strong>decision atom</strong> is a single markdown file under <code>~/Loose&nbsp;Ends/Decisions/</code>, named <code>&lt;id&gt;-&lt;kebab-title&gt;.md</code> (e.g. <code>0007-mvp-substrate-markdown.md</code>). It has two parts: a <strong>frontmatter block</strong> that carries identity, lineage, and classification as queryable fields, and a <strong>body</strong> that records the decision and its reasoning at graduated levels of detail. Nothing else lives in the file — assumptions, alternatives, and consequences all fold into the body's altitude structure.</p>
+
+<h2>The data shape, from a real atom</h2>
+<p>Below is a live atom from the vault — <code>0007-mvp-substrate-markdown.md</code> — split into its two parts and annotated. <span class="req">★</span> marks a field the write path refuses to omit. This atom happens to be <span class="pill super">superseded</span> (its head is now <code>0102</code>), which is convenient: it shows both <code>supersedes:</code> and <code>superseded_by:</code> carrying real values. See <a href="supersession.html">Supersession</a> for what those links do.</p>
+
+<figure>
+  <div class="shape">
+    <div class="seg-head">Frontmatter — identity</div>
+    <div class="fmrow"><div class="yaml"><span class="k">id</span>: '0007'</div><div class="ann"><span class="star">★</span> 4-digit zero-padded, <em>quoted</em> so YAML doesn't coerce <code>0007</code> → int <code>7</code>. Auto-assigned by <code>persist.py</code>.</div></div>
+    <div class="fmrow"><div class="yaml"><span class="k">title</span>: Substrate revised to markdown-in-vault</div><div class="ann"><span class="star">★</span> short imperative phrase.</div></div>
+    <div class="fmrow"><div class="yaml"><span class="k">status</span>: superseded</div><div class="ann"><span class="star">★</span> enum <code>current | superseded | retracted</code>. The chain-position signal.</div></div>
+    <div class="fmrow"><div class="yaml"><span class="k">decision_date</span>: 2026-05-14</div><div class="ann"><span class="star">★</span> ISO date — when the call was <em>made</em>, not when the file was written.</div></div>
+    <div class="fmrow"><div class="yaml"><span class="k">aliases</span>: []</div><div class="ann">Optional <code>ndr-</code>-prefixed slugs for external reference. Minted lazily; most atoms carry none. Moves to the successor on supersession.</div></div>
+
+    <div class="seg-head">Frontmatter — membership</div>
+    <div class="fmrow"><div class="yaml"><span class="k">project</span>: '[[Decision Pipeline]]'</div><div class="ann"><span class="star">★</span> single wikilink to the owning project. Bases filter on this; a project-less atom hides from that view.</div></div>
+
+    <div class="seg-head">Frontmatter — lineage (wikilinks)</div>
+    <div class="fmrow"><div class="yaml"><span class="k">derived_from</span>:<br>&nbsp;- '[[Mulling/2026-05-14_…]]'</div><div class="ann">The rich source — the chat or mull that produced it. No supersession semantics.</div></div>
+    <div class="fmrow"><div class="yaml"><span class="k">informed_by</span>:<br>&nbsp;- '[[Decisions/0006-…]]'</div><div class="ann">Other decisions that shaped this one. A soft edge, not a revision.</div></div>
+    <div class="fmrow"><div class="yaml"><span class="k">supersedes</span>:<br>&nbsp;- '[[Decisions/0005-…graphiti]]'</div><div class="ann"><span class="star">★ presence</span> — must be present, may be <code>[]</code>. Non-empty here: this atom <em>revises</em> 0005. The structural signal that the author considered supersession.</div></div>
+    <div class="fmrow"><div class="yaml"><span class="k">superseded_by</span>:<br>&nbsp;- '[[Decisions/0070-…]]'</div><div class="ann">Back-pointer, patched in automatically when a successor lands. Non-empty ⇒ this atom is <em>not</em> the head.</div></div>
+
+    <div class="seg-head">Frontmatter — impact</div>
+    <div class="fmrow"><div class="yaml"><span class="k">area</span>: substrate</div><div class="ann"><span class="star">★</span> one value from <code>.taxonomy/areas.yaml</code>. Unknown values are rejected.</div></div>
+    <div class="fmrow"><div class="yaml"><span class="k">topic</span>: substrate</div><div class="ann"><span class="star">★</span> one value from <code>.taxonomy/topics.yaml</code>. Finer grain within the area.</div></div>
+    <div class="fmrow"><div class="yaml"><span class="k">impacts</span>: []</div><div class="ann">Wikilinks to code refs, architecture pages, design docs this touches — so Obsidian backlinks surface "decisions touching this."</div></div>
+
+    <div class="seg-head">Frontmatter — revisit &amp; classification</div>
+    <div class="fmrow"><div class="yaml"><span class="k">revisit_triggers</span>: []</div><div class="ann">Free-text conditions that should prompt re-deciding ("quarterly perf review").</div></div>
+    <div class="fmrow"><div class="yaml"><span class="k">reversibility</span>: medium</div><div class="ann"><span class="star">★</span> enum <code>easy | medium | hard</code>. How expensive it is to walk back.</div></div>
+    <div class="fmrow"><div class="yaml"><span class="k">tags</span>:<br>&nbsp;- decision</div><div class="ann">Always includes <code>decision</code>.</div></div>
+
+    <div class="seg-head">Body — hybrid altitude (heading + gist + optional collapsed callout)</div>
+    <div class="alt"><div class="atag">Decision</div><div class="abody"><div class="gist">Markdown in <code>~/Loose&nbsp;Ends/Decisions/</code> is the MVP substrate.</div><div class="collapsed">gist only — never wrapped in a callout</div></div></div>
+    <div class="alt"><div class="atag">Why</div><div class="abody"><div class="gist">Tool-assisted markdown vs tool-assisted Graphiti was the apples-to-apples comparison; markdown wins at personal scale.</div><div class="collapsed">▸ [!info]- Full reasoning — the category-error story, collapsed by default</div></div></div>
+    <div class="alt"><div class="atag">Alternatives</div><div class="abody"><div class="gist">Graphiti (rejected) · Hosted CMS (deferred to team scope).</div><div class="collapsed">▸ [!info]- Why they lost — per-alternative detail, collapsed</div></div></div>
+    <div class="alt"><div class="atag">Assumptions</div><div class="abody"><div class="gist"><code>personal-scale</code> · <code>obsidian-mcp-frontmatter-search-stays</code> · <code>vault-stays-the-substrate</code></div><div class="collapsed">▸ [!warning]- one callout per slug — description + Current state + Revisit if</div></div></div>
+    <div class="alt"><div class="atag">Consequences</div><div class="abody"><div class="gist">No new service · decisions are first-class Obsidian citizens · disambiguation stays manual.</div><div class="collapsed">▸ [!info]- Detail — bulleted ripple effects, collapsed</div></div></div>
+  </div>
+  <figcaption>A real atom split into its two parts. Frontmatter = what the machine queries and walks; body = what a human reads, deepening one click at a time. <strong>If this rendered as plain text, read it top to bottom: each labeled row is <code>field: value — annotation</code>, then five body sections each as <code>heading → one-line gist → collapsed detail</code>.</strong></figcaption>
+</figure>
+
+<h2>Frontmatter field reference</h2>
+<p><span class="req">★</span> = required (the write path refuses without it). <code>supersedes:</code> is required to be <em>present</em>, even as <code>[]</code> — its presence is the proof the author thought about supersession.</p>
+<table>
+  <thead><tr><th>Field</th><th>Type</th><th>Req</th><th>Notes</th></tr></thead>
+  <tbody>
+    <tr><td><code>id</code></td><td>4-digit quoted string</td><td class="req">★</td><td>Auto-assigned as <code>max(existing)+1</code>. Quote it.</td></tr>
+    <tr><td><code>title</code></td><td>string</td><td class="req">★</td><td>Short imperative phrase; also the filename slug.</td></tr>
+    <tr><td><code>status</code></td><td>enum</td><td class="req">★</td><td><code>current</code> · <code>superseded</code> · <code>retracted</code>.</td></tr>
+    <tr><td><code>decision_date</code></td><td>ISO date</td><td class="req">★</td><td>When decided.</td></tr>
+    <tr><td><code>aliases</code></td><td>list&lt;slug&gt;</td><td>—</td><td>Lazy <code>ndr-</code> slugs; unique vault-wide; moves on supersession.</td></tr>
+    <tr><td><code>project</code></td><td>wikilink</td><td class="req">★</td><td>Single owning project.</td></tr>
+    <tr><td><code>derived_from</code></td><td>list&lt;wikilink&gt;</td><td>—</td><td>Rich source (chat / mull).</td></tr>
+    <tr><td><code>informed_by</code></td><td>list&lt;wikilink&gt;</td><td>—</td><td>Decisions that shaped this; no supersession meaning.</td></tr>
+    <tr><td><code>supersedes</code></td><td>list&lt;wikilink&gt;</td><td class="req">★ present</td><td>Non-empty ⇒ this revises the named atom(s).</td></tr>
+    <tr><td><code>superseded_by</code></td><td>list&lt;wikilink&gt;</td><td>—</td><td>Back-pointer; auto-patched. Non-empty ⇒ not the head.</td></tr>
+    <tr><td><code>area</code> / <code>topic</code></td><td>taxonomy value</td><td class="req">★</td><td>Both validated against on-disk YAML. Unknown ⇒ rejected.</td></tr>
+    <tr><td><code>impacts</code></td><td>list&lt;wikilink&gt;</td><td>—</td><td>Code / docs this touches; powers backlinks.</td></tr>
+    <tr><td><code>revisit_triggers</code></td><td>list&lt;string&gt;</td><td>—</td><td>Free-text re-decide conditions.</td></tr>
+    <tr><td><code>reversibility</code></td><td>enum</td><td class="req">★</td><td><code>easy</code> · <code>medium</code> · <code>hard</code>.</td></tr>
+    <tr><td><code>tags</code></td><td>list&lt;string&gt;</td><td>—</td><td>Always includes <code>decision</code>.</td></tr>
+  </tbody>
+</table>
+
+<details class="callout">
+  <summary>Why assumptions live in the body, not frontmatter <span class="lbl">design note</span></summary>
+  <div>
+    <p>Each assumption is a small structured record — a description, a current-state, and a "revisit if" condition. Obsidian's Properties UI is flat: nested objects don't render and Bases can't filter on inner fields. So assumptions live in the body as <code>&gt; [!warning]- &lt;slug&gt;</code> callouts (description paragraph + <code>Current state:</code> / <code>Revisit if:</code> bullets), with a backtick-separated slug list at the top of <code>## Assumptions</code> giving enough surface for "which assumptions does this rest on?" without expanding any. Human-readable <em>and</em> skill-parseable, without pretending to be a query target it can't be.</p>
+  </div>
+</details>
+
+<h2>The hybrid-altitude body</h2>
+<p>The body is not free prose. Every section is <strong>heading + a one-line gist</strong> (always visible) plus an <strong>optional collapsed callout</strong> for deeper texture. A reader scanning the atom sees only headings and gist lines; drilling down is one click per altitude. The trailing <code>-</code> on <code>[!info]-</code> / <code>[!warning]-</code> is what makes Obsidian render the callout collapsed — the artifact itself declares "this is supplementary," so the reader doesn't curate altitude on every read.</p>
+
+<figure>
+  <div class="diagram">
+    <table style="margin:0">
+      <thead><tr><th>Altitude</th><th>Reader's question</th><th>Where it lives</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Gist</strong></td><td>What was decided?</td><td><code>## Decision</code> — always visible, never in a callout</td></tr>
+        <tr><td><strong>Why this</strong></td><td>Rationale for the chosen path</td><td><code>## Why</code> gist + <code>[!info]- Full reasoning</code></td></tr>
+        <tr><td><strong>Why not that</strong></td><td>Rejected alternatives</td><td><code>## Alternatives</code> gist + <code>[!info]- Why they lost</code></td></tr>
+        <tr><td><strong>What flips it</strong></td><td>Load-bearing assumptions</td><td><code>## Assumptions</code> slug list + one <code>[!warning]-</code> per slug</td></tr>
+        <tr><td><strong>Consequences</strong></td><td>Ripple effects</td><td><code>## Consequences</code> gist + <code>[!info]- Detail</code></td></tr>
+      </tbody>
+    </table>
+  </div>
+  <figcaption>Five altitudes, each answering one reader question. Only <code>## Decision</code> is mandatory; omit any section that has no content rather than render an empty heading.</figcaption>
+</figure>
+
+<p>This page's own collapsed boxes are the same pattern — the callout above is exactly what a <code>[!info]-</code> renders to in Obsidian. Try it:</p>
+
+<details class="callout warn">
+  <summary>personal-scale <span class="lbl">assumption · real, from 0007</span></summary>
+  <div>
+    <p>Personal-scale corpus (~50–200 decisions/year) — automatic entity disambiguation is not load-bearing.</p>
+    <ul>
+      <li><strong>Current state:</strong> active assumption; revisit if corpus grows past ~500 atoms</li>
+      <li><strong>Revisit if:</strong> personal corpus crosses ~500 atoms OR disambiguation drift becomes a felt problem</li>
+    </ul>
+  </div>
+</details>
+
+<h2>The atomicity rule</h2>
+<p><strong>One chosen path, one set of consequences, per file.</strong> "Use FastAPI <em>and</em> Postgres" is two atoms. "Use FastAPI because it's async and we already have Postgres" is one atom — Postgres is context for the choice, not a co-decision. The capture pipeline splits bundles before drafting, and the reviewer fails any draft that smuggles two choices into one body.</p>
+
+<p>Atomicity is not a style preference — it is what makes the supersession primitive work. This is recorded in the corpus itself, atom <code>0008</code>:</p>
+
+<details class="callout">
+  <summary>Why atomicity is load-bearing <span class="lbl">from 0008-decisions-atomic</span></summary>
+  <div>
+    <p>Once "use FastAPI + Postgres" lives in one file, revising just the Postgres half breaks the supersession primitive — you can't cleanly supersede half a file. Bundled decisions can't supersede per-part. The grouping that bundling would have given you is carried instead by cross-decision edges (<code>informed_by:</code>, <code>area:</code>, <code>topic:</code>) — let structure emerge from the corpus rather than be flattened into one document.</p>
+    <p><strong>Consequence:</strong> the capture skill MUST split bundled candidates into N atoms; relationships live in lineage fields, not shared documents.</p>
+  </div>
+</details>
+
+<p>So the whole file format earns its keep only because each file holds exactly one revisable decision. That sets up the next page.</p>
+
+<div class="prevnext">
+  <a href="index.html">← Overview</a>
+  <a href="supersession.html">Supersession — the primitive →</a>
+</div>
+
+<footer>
+  Frontmatter values and body excerpts taken verbatim from <code>~/Loose&nbsp;Ends/Decisions/0007-mvp-substrate-markdown.md</code> and <code>0008-decisions-atomic.md</code>. Field rules per the plugin's <code>references/frontmatter-schema.md</code>.
+</footer>
+
+</div>
+</body>
+</html>

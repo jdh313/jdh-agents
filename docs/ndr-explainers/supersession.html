@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Supersession · NDR explainers</title>
+<style>
+  :root {
+    --bg: #fbfaf7; --panel: #ffffff; --ink: #1d1c1a; --muted: #6b675f; --faint: #8c887f;
+    --line: #e6e2d9; --accent: #4f46e5; --accent-soft: #eceafd;
+    --head: #15803d; --head-soft: #e3f3e8; --head-line: #7cc395; --super: #9a6b00; --super-soft: #f6ecd4;
+    --warn: #b54708; --warn-soft: #fdeee0; --code-bg: #f4f1ea; --radius: 10px;
+    --mono: ui-monospace, "SF Mono", "JetBrains Mono", Menlo, Consolas, monospace;
+    --sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--sans); line-height: 1.6; font-size: 17px; -webkit-font-smoothing: antialiased; }
+  .wrap { max-width: 920px; margin: 0 auto; padding: 0 24px 96px; }
+  header.site { border-bottom: 1px solid var(--line); background: var(--panel); position: sticky; top: 0; z-index: 10; }
+  header.site .bar { max-width: 920px; margin: 0 auto; padding: 12px 24px; display: flex; gap: 18px; align-items: baseline; flex-wrap: wrap; }
+  header.site a.brand { font-weight: 700; color: var(--ink); text-decoration: none; letter-spacing: -.01em; }
+  header.site nav { display: flex; gap: 14px; flex-wrap: wrap; font-size: 14px; }
+  header.site nav a { color: var(--muted); text-decoration: none; }
+  header.site nav a:hover, header.site nav a[aria-current] { color: var(--accent); }
+  h1, h2, h3 { line-height: 1.25; letter-spacing: -.015em; }
+  h1 { font-size: 2.1rem; margin: 40px 0 8px; }
+  .lede { font-size: 1.16rem; color: var(--muted); margin: 0 0 8px; }
+  h2 { font-size: 1.5rem; margin: 56px 0 14px; }
+  h3 { font-size: 1.16rem; margin: 32px 0 8px; }
+  p { margin: 0 0 16px; }
+  a { color: var(--accent); text-decoration: underline; text-underline-offset: 2px; }
+  code { font-family: var(--mono); font-size: .86em; background: var(--code-bg); padding: 1px 5px; border-radius: 5px; }
+  pre { background: var(--code-bg); border: 1px solid var(--line); border-radius: var(--radius); padding: 16px 18px; overflow-x: auto; font-family: var(--mono); font-size: 13.5px; line-height: 1.5; }
+  pre code { background: none; padding: 0; font-size: inherit; }
+  ul, ol { padding-left: 22px; margin: 0 0 16px; }
+  li { margin: 4px 0; }
+  strong { font-weight: 640; }
+  hr { border: 0; border-top: 1px solid var(--line); margin: 40px 0; }
+  details.callout { border: 1px solid var(--line); border-left: 4px solid var(--accent); border-radius: 8px; background: var(--panel); margin: 16px 0; padding: 0 16px; }
+  details.callout.warn { border-left-color: var(--warn); background: var(--warn-soft); }
+  details.callout > summary { cursor: pointer; font-weight: 600; padding: 12px 0; list-style: none; display: flex; gap: 8px; align-items: center; }
+  details.callout > summary::-webkit-details-marker { display: none; }
+  details.callout > summary::before { content: "▸"; color: var(--faint); font-size: 12px; }
+  details.callout[open] > summary::before { content: "▾"; }
+  details.callout > summary .lbl { font-size: 12px; text-transform: uppercase; letter-spacing: .06em; color: var(--faint); }
+  details.callout > div { padding-bottom: 14px; }
+  .note { border: 1px solid var(--line); background: var(--accent-soft); border-radius: 8px; padding: 14px 18px; margin: 22px 0; font-size: .96rem; }
+  .note.danger { background: var(--warn-soft); border-color: #f0c9a6; }
+  figure { margin: 28px 0; }
+  figcaption { font-size: 13px; color: var(--faint); margin-top: 12px; text-align: center; }
+  .diagram { background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); padding: 26px 22px; }
+  .pill { display: inline-block; font-family: var(--mono); font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 999px; letter-spacing: .02em; vertical-align: middle; }
+  .pill.head { background: var(--head-soft); color: var(--head); }
+  .pill.super { background: var(--super-soft); color: var(--super); }
+  table { border-collapse: collapse; width: 100%; margin: 18px 0; font-size: 14.5px; }
+  th, td { text-align: left; padding: 9px 12px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  th { font-size: 12px; text-transform: uppercase; letter-spacing: .05em; color: var(--faint); }
+  footer { color: var(--faint); font-size: 13px; margin-top: 64px; padding-top: 20px; border-top: 1px solid var(--line); }
+  .prevnext { display: flex; justify-content: space-between; gap: 16px; margin-top: 48px; font-size: 15px; }
+
+  /* chain diagram */
+  .chain { display: flex; align-items: stretch; gap: 0; overflow-x: auto; padding-bottom: 6px; }
+  .node { flex: 1 1 0; min-width: 150px; border: 1px solid var(--line); border-radius: 10px; padding: 12px 13px; background: var(--bg); position: relative; }
+  .node.super { border-color: #e3cd97; background: var(--super-soft); }
+  .node.head { border: 2px solid var(--head-line); background: var(--head-soft); }
+  .node .id { font-family: var(--mono); font-size: 13px; font-weight: 700; color: var(--ink); }
+  .node .t { font-size: 12.5px; color: var(--muted); margin: 4px 0 8px; line-height: 1.35; }
+  .node .meta { font-size: 11px; color: var(--faint); font-family: var(--mono); }
+  .arrow { flex: 0 0 46px; display: flex; flex-direction: column; align-items: center; justify-content: center; color: var(--super); font-family: var(--mono); }
+  .arrow .lab { font-size: 9px; letter-spacing: .03em; color: var(--faint); white-space: nowrap; transform: translateY(-2px); }
+  .arrow .gly { font-size: 20px; line-height: 1; }
+  .walk { margin-top: 14px; display: flex; align-items: center; gap: 10px; background: var(--head-soft);
+    border: 1px dashed var(--head-line); border-radius: 8px; padding: 10px 14px; font-size: 13.5px; color: var(--head); }
+  .walk .big { font-size: 18px; }
+  .enter { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; font-size: 13px; color: var(--muted); align-items: center; }
+  .enter .chip { font-family: var(--mono); font-size: 11px; background: var(--panel); border: 1px solid var(--line); border-radius: 999px; padding: 2px 9px; }
+  @media (max-width: 620px) { body { font-size: 16px; } .chain { flex-direction: column; } .arrow { flex-basis: auto; height: 34px; flex-direction: row; gap: 8px; } .arrow .gly { transform: rotate(90deg); } }
+</style>
+</head>
+<body>
+<header class="site"><div class="bar">
+  <a class="brand" href="index.html">NDR · explainers</a>
+  <nav>
+    <a href="index.html">Overview</a>
+    <a href="atom-anatomy.html">Atom anatomy</a>
+    <a href="supersession.html" aria-current="page">Supersession</a>
+    <a href="lifecycle.html">Lifecycle</a>
+    <a href="validation.html">Validation</a>
+  </nav>
+</div></header>
+
+<div class="wrap">
+
+<h1>Supersession</h1>
+<p class="lede">A decision is never edited to mean something new. When the call changes, a new atom <em>supersedes</em> the old one — and every read walks the chain to the current head.</p>
+
+<p>This is the idea the whole system is built around. Without it, NDR is a folder of markdown notes. With it, decision history is a linked, append-only ledger where "what's current" is always one walk away and "what was true then" is never destroyed.</p>
+
+<h2>The primitive: declare what you replace</h2>
+<p>A revising decision must declare <code>supersedes: [[Decisions/&lt;old&gt;]]</code> in its frontmatter. That single declaration drives a small transaction the write path performs atomically — the predecessor is flipped and back-linked in the <em>same</em> operation that writes the successor. There is no "edit the old file later" step that could be forgotten.</p>
+
+<figure>
+  <div class="diagram">
+<pre style="margin:0; background:transparent; border:0; padding:0;"><code>successor 0102          predecessor 0070
+─────────────           ─────────────
+status: current         status: <span style="color:var(--super)">current → superseded</span>
+supersedes:             superseded_by:
+  - [[…0070…]]  ───────►   - [[…0102…]]      (back-pointer appended)
+aliases: [ndr-x]  ◄─────  aliases: [ndr-x] → []   (slug moves to successor)</code></pre>
+  </div>
+  <figcaption>The "three-write" supersession: (1) write the successor, (2) flip the predecessor to <code>superseded</code> and append the back-pointer, (3) if the predecessor held a slug alias, move it to the successor and clear it on the predecessor. All-or-nothing — a mid-transaction failure reports the half-state rather than leaving a silent partial write.</figcaption>
+</figure>
+
+<p>The link is <strong>bidirectional</strong>: <code>supersedes:</code> on the new atom, <code>superseded_by:</code> on the old. Forward links let a reader who lands on an old atom walk to the head; backward links let an audit confirm the chain is intact from either end.</p>
+
+<h2>How chains form — a real one from the vault</h2>
+<p>The substrate decision has been re-decided three times. Here is the actual chain in <code>~/Loose&nbsp;Ends/Decisions/</code> today. Note how each link's <em>content</em> reverses or refines the last — this is exactly why reading the wrong link misleads you.</p>
+
+<figure>
+  <div class="diagram">
+    <div class="enter">
+      <span>A read might enter at <em>any</em> of these:</span>
+      <span class="chip">ndr:0005</span><span class="chip">ndr:0007</span><span class="chip">ndr:0070</span><span class="chip">a ticket link</span><span class="chip">a code comment</span>
+    </div>
+    <div class="chain">
+      <div class="node super">
+        <div class="id">0005 <span class="pill super">superseded</span></div>
+        <div class="t">Graphiti is canonical; markdown is a periodic export.</div>
+        <div class="meta">2026-05-13 · substrate</div>
+      </div>
+      <div class="arrow"><div class="lab">superseded_by</div><div class="gly">→</div></div>
+      <div class="node super">
+        <div class="id">0007 <span class="pill super">superseded</span></div>
+        <div class="t">Markdown-in-vault is the MVP substrate.</div>
+        <div class="meta">2026-05-14 · substrate</div>
+      </div>
+      <div class="arrow"><div class="lab">superseded_by</div><div class="gly">→</div></div>
+      <div class="node super">
+        <div class="id">0070 <span class="pill super">superseded</span></div>
+        <div class="t">Hybrid: swamp canonical, vault as a projection.</div>
+        <div class="meta">2026-05-18 · substrate</div>
+      </div>
+      <div class="arrow"><div class="lab">superseded_by</div><div class="gly">→</div></div>
+      <div class="node head">
+        <div class="id">0102 <span class="pill head">current · HEAD</span></div>
+        <div class="t">Markdown remains canonical; swamp migration paused.</div>
+        <div class="meta">2026-05-24 · substrate</div>
+      </div>
+    </div>
+    <div class="walk">
+      <span class="big">↻</span>
+      <span><strong>Always resolve to head.</strong> Whichever atom a reference points at, follow <code>superseded_by:</code> forward until it is empty. Here that lands on <strong>0102</strong> — no matter where you started.</span>
+    </div>
+  </div>
+  <figcaption>The live substrate chain: <code>0005 → 0007 → 0070 → 0102</code>. Four atoms, four different answers to "what is the substrate?" Only the head, 0102, is current. <strong>If this rendered as plain text:</strong> read left to right — each box is <code>id · status · one-line decision · date</code>, joined by <code>superseded_by →</code> links; the last box (0102, current) is the head every walk terminates at.</figcaption>
+</figure>
+
+<h2>Why every read walks to the head</h2>
+<p>Look at what the four atoms in that chain actually claim:</p>
+<table>
+  <thead><tr><th>If you read…</th><th>…you'd conclude</th><th>Reality</th></tr></thead>
+  <tbody>
+    <tr><td><code>0005</code> directly</td><td>"Graphiti is the canonical store."</td><td>Rejected the next day.</td></tr>
+    <tr><td><code>0007</code> directly</td><td>"Markdown is the MVP substrate, full stop."</td><td>Superseded by a hybrid plan.</td></tr>
+    <tr><td><code>0070</code> directly</td><td>"Swamp is canonical; vault is a projection."</td><td>Reversed — migration paused.</td></tr>
+    <tr><td>walk to <code>0102</code></td><td>"Markdown is canonical; swamp paused."</td><td><span class="pill head">correct</span></td></tr>
+  </tbody>
+</table>
+
+<div class="note danger">
+  <strong>The single biggest failure mode of this system:</strong> reading a stale <em>starting</em> atom directly. A ticket body, a code comment, or your own memory hands you <code>ndr:0070</code>. You <code>Read</code> the file. It confidently states the opposite of current policy — because it <em>was</em> true on 2026-05-18. Nothing about the file warns you it's three revisions deep unless you check <code>superseded_by:</code> and follow it. This is why the read skills <strong>refuse to <code>Read</code> atom files directly</strong>, even when you already know the exact ID.
+</div>
+
+<h2>The reference grains — naming intent at write-time</h2>
+<p>References are <em>bi-temporal</em>. Sometimes you mean "the atom that justified this code back then" (historical); sometimes "the decision that governs this code now" (live). Forcing one reference form to do both jobs is exactly what makes <code>ADR-NNNN</code>-style links rot on supersession. NDR's <code>ndr:</code> scheme has three grains so the writer names intent and the reader resolves the right atom(s):</p>
+<table>
+  <thead><tr><th>Form</th><th>Example</th><th>Resolves to</th><th>Use when</th></tr></thead>
+  <tbody>
+    <tr><td><strong>atom-id</strong></td><td><code>ndr:0070</code></td><td>that exact atom, frozen</td><td>documenting <em>why something was built</em> — a historical anchor</td></tr>
+    <tr><td><strong>slug</strong></td><td><code>ndr:#substrate-shape</code></td><td>the atom currently holding that alias — follows supersession</td><td>current governance matters; you want the live atom</td></tr>
+    <tr><td><strong>topic</strong></td><td><code>ndr:substrate/substrate</code></td><td>all <code>current</code> atoms in that area/topic</td><td>the whole area governs the call site</td></tr>
+  </tbody>
+</table>
+<p>The slug grain is why aliases <em>move</em> during supersession: <code>ndr:#substrate-shape</code> keeps resolving to the head because the slug is handed from predecessor to successor in the same transaction. The link text never changes; its target follows the chain.</p>
+
+<details class="callout">
+  <summary>Where the walk lives, and the guard rails around it <span class="lbl">mechanics</span></summary>
+  <div>
+    <ul>
+      <li><strong>One walker.</strong> Both read skills (<code>/decisions</code>, <code>/ground</code>) are thin; the supersession walk lives in a single worker, <code>ndr-reader</code> (Stage&nbsp;3). Keeping the walk in one place is why it can't drift between entry points.</li>
+      <li><strong>Cycle guard.</strong> If a chain revisits an already-seen ID, the walker records the cycle and stops rather than looping forever.</li>
+      <li><strong>Convergence.</strong> Multiple search hits in one lineage dedupe to a single head.</li>
+      <li><strong>Multi-supersession is manual.</strong> If a predecessor is already <code>superseded</code> by a <em>different</em> successor, the write path refuses — almost always two competing successors drafted in parallel, which a human must reconcile.</li>
+      <li><strong>Atomicity is the precondition.</strong> A bundled decision can't supersede per-part. The walk only stays clean because each atom holds exactly one decision (see <a href="atom-anatomy.html">Atom anatomy</a>).</li>
+    </ul>
+  </div>
+</details>
+
+<h2>Why not just edit the old file?</h2>
+<p>Because the old reasoning is data. Atom <code>0102</code> is in the corpus precisely because it records a <em>reversal</em> — the assumptions behind <code>0070</code> weakened, so the head flipped back toward markdown. If the rule were "only capture forward progress" or "edit in place," that flip would be invisible, and the chain head would lie about how the system actually came to its current state. Supersession exists to record the change <em>without rewriting history</em>. The stale atoms aren't clutter; they're the audit trail.</p>
+
+<div class="prevnext">
+  <a href="atom-anatomy.html">← Atom anatomy</a>
+  <a href="lifecycle.html">Lifecycle — the flows →</a>
+</div>
+
+<footer>
+  Chain <code>0005 → 0007 → 0070 → 0102</code> is the live substrate lineage in <code>~/Loose&nbsp;Ends/Decisions/</code> as of 2026-06-02. Transaction mechanics per the plugin's <code>scripts/persist.py</code> and <code>references/workflow.md</code>; the walk per <code>agents/ndr-reader.md</code>.
+</footer>
+
+</div>
+</body>
+</html>
