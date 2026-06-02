@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Contract lifecycle — spec-flow</title>
+<style>
+  :root{
+    --bg:#faf9f7; --panel:#ffffff; --text:#1f2328; --muted:#57606a;
+    --border:#e4e1da; --code-bg:#f3f1ec; --accent:#4f46e5;
+    --start:#2563eb; --impl:#0d9488; --amend:#b45309; --close:#7c3aed;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--text);
+    font:16px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;}
+  .wrap{max-width:880px;margin:0 auto;padding:0 24px 96px;}
+  nav.crumbs{font-size:.85rem;color:var(--muted);padding:24px 0 0;}
+  nav.crumbs a{color:var(--muted);}
+  a{color:var(--accent);text-decoration:none;} a:hover{text-decoration:underline;}
+  h1{font-size:2.1rem;margin:18px 0 8px;letter-spacing:-.02em;}
+  h2{font-size:1.45rem;margin:52px 0 14px;letter-spacing:-.01em;}
+  h3{font-size:1.1rem;margin:26px 0 6px;}
+  .lede{font-size:1.12rem;color:var(--muted);margin:0 0 8px;}
+  code{background:var(--code-bg);padding:.12em .4em;border-radius:4px;font-size:.88em;
+    font-family:"SF Mono",ui-monospace,Menlo,Consolas,monospace;}
+  pre{background:var(--code-bg);border:1px solid var(--border);border-radius:8px;padding:16px;overflow:auto;font-size:.84rem;}
+  pre code{background:none;padding:0;}
+  ul{padding-left:1.2em;} li{margin:5px 0;}
+  figure{margin:28px 0;}
+  figcaption{font-size:.85rem;color:var(--muted);margin-top:10px;text-align:center;font-style:italic;}
+  .phase{background:var(--panel);border:1px solid var(--border);border-left-width:4px;border-radius:10px;padding:6px 22px;margin:18px 0;}
+  .phase.start{border-left-color:var(--start);}
+  .phase.impl{border-left-color:var(--impl);}
+  .phase.amend{border-left-color:var(--amend);}
+  .phase.close{border-left-color:var(--close);}
+  .tag{display:inline-block;font-size:.7rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;
+    padding:2px 8px;border-radius:5px;color:#fff;vertical-align:middle;margin-left:6px;}
+  .tag.start{background:var(--start);} .tag.impl{background:var(--impl);}
+  .tag.amend{background:var(--amend);} .tag.close{background:var(--close);}
+  table{border-collapse:collapse;width:100%;margin:16px 0;font-size:.9rem;}
+  th,td{border:1px solid var(--border);padding:9px 12px;text-align:left;vertical-align:top;}
+  th{background:var(--code-bg);font-weight:600;}
+  .note{border-left:3px solid var(--amend);background:#fff8ee;padding:2px 18px;border-radius:0 8px 8px 0;margin:18px 0;}
+
+  /* ---- flow diagram (styled HTML; degrades to a readable labeled list) ---- */
+  .flow{display:flex;flex-direction:column;align-items:center;gap:0;
+    background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:28px 20px;}
+  .node{border:2px solid var(--border);border-radius:10px;padding:12px 18px;text-align:center;max-width:520px;width:100%;}
+  .node .t{font-weight:700;} .node .s{font-size:.8rem;color:var(--muted);}
+  .node.start{border-color:var(--start);} .node.impl{border-color:var(--impl);}
+  .node.amend{border-color:var(--amend);background:#fffaf2;}
+  .node.close{border-color:var(--close);}
+  .node.term{border-radius:30px;background:var(--code-bg);max-width:200px;font-size:.85rem;font-weight:600;}
+  .arrow{font-size:1.3rem;color:var(--muted);line-height:1;margin:4px 0;}
+  .arrow .lbl{font-size:.72rem;font-style:italic;}
+  .loop{display:flex;align-items:center;gap:14px;flex-wrap:wrap;justify-content:center;max-width:560px;width:100%;
+    border:1px dashed var(--impl);border-radius:12px;padding:16px;margin:6px 0;background:#f4fbfa;}
+  .loop .col{display:flex;flex-direction:column;align-items:center;gap:8px;flex:1;min-width:200px;}
+  .loop .biarrow{font-size:.8rem;color:var(--amend);font-style:italic;text-align:center;}
+
+  /* ---- state strip ---- */
+  .states{display:flex;flex-wrap:wrap;gap:0;align-items:stretch;background:var(--panel);
+    border:1px solid var(--border);border-radius:12px;padding:22px;justify-content:center;}
+  .st{flex:1;min-width:150px;border:1px solid var(--border);border-radius:9px;padding:14px;margin:6px;text-align:center;}
+  .st .lab{font-weight:700;font-size:.95rem;} .st .meta{font-size:.78rem;color:var(--muted);margin-top:4px;}
+  .st.draft{border-top:4px solid #9ca3af;}
+  .st.active{border-top:4px solid var(--impl);}
+  .st.archived{border-top:4px solid var(--close);}
+  .stsep{display:flex;align-items:center;font-size:1.4rem;color:var(--muted);padding:0 2px;}
+</style>
+</head>
+<body>
+<div class="wrap">
+<nav class="crumbs"><a href="index.html">spec-flow</a> / contract lifecycle</nav>
+<h1>The contract lifecycle</h1>
+<p class="lede">One change moves through three explicit, user-triggered phases. Nothing advances on its own.</p>
+
+<p>A contract is opened, worked against, and closed. Implementation can loop back through <strong>amend</strong> whenever reality diverges from what was agreed. Each transition is a deliberate user action — spec-flow never auto-advances, never auto-closes, and never edits the contract silently.</p>
+
+<figure>
+  <div class="flow" role="img" aria-label="Lifecycle flow: start opens a contract, then implement runs in a loop with amend, then close migrates and archives. Each phase is user-triggered.">
+    <div class="node term">user: /spec-flow start &lt;goal&gt;</div>
+    <div class="arrow">↓</div>
+    <div class="node start"><div class="t">start <span class="tag start">draft only</span></div><div class="s">detect host · flag other contracts · gather context · converse · draft 6 sections · write to host</div></div>
+    <div class="arrow"><span class="lbl">does NOT implement — explicit handoff required</span><br>↓</div>
+    <div class="node term">user: /spec-flow implement [name]</div>
+    <div class="arrow">↓</div>
+    <div class="loop">
+      <div class="col">
+        <div class="node impl"><div class="t">implement</div><div class="s">read contract · assess state · negotiate cadence · execute</div></div>
+      </div>
+      <div class="col" style="flex:0 0 auto;min-width:120px">
+        <div class="biarrow">reality diverges ⇄ amendment lands</div>
+      </div>
+      <div class="col">
+        <div class="node amend"><div class="t">amend</div><div class="s">summarize drift · propose edit · <strong>wait for sign-off</strong> · apply</div></div>
+      </div>
+    </div>
+    <div class="arrow"><span class="lbl">user signals "done" — close is never automatic</span><br>↓</div>
+    <div class="node term">user: /spec-flow close [name]</div>
+    <div class="arrow">↓</div>
+    <div class="node close"><div class="t">close <span class="tag close">migrate + archive</span></div><div class="s">done-when gate · optional drift check · propose migrations · sign-off · archive (host-aware)</div></div>
+  </div>
+  <figcaption>Lifecycle flow — each gray pill is a user action; colored boxes are skills. <code>implement</code> and <code>amend</code> form a loop until the user calls done.</figcaption>
+</figure>
+
+<h2 id="start">Phase 1 — start <span class="tag start">draft only</span></h2>
+<div class="phase start">
+<p>Opens a contract for a new change. Drafts only; it explicitly does <strong>not</strong> begin coding.</p>
+<ol>
+  <li><strong>Detect host</strong> — <code>.docs/</code> file vs. existing Linear ticket, from the goal text. See <a href="hosts.html">the two hosts</a>.</li>
+  <li><strong>Flag other active contracts</strong> — lists open <code>.docs/*.md</code>; a visibility nudge, not a gate.</li>
+  <li><strong>Gather context proactively</strong> — reads <code>CLAUDE.md</code>, searches the code, pulls library docs via Context7, checks the installed dep version, scans relevant ndr atoms, reads project rules. (Linear host: reads the existing ticket body as drafting input.)</li>
+  <li><strong>Converse only where uncertain</strong> — surfaces findings, then asks targeted questions <em>only</em> where the path isn't clear. Proposes defaults rather than open-ended "what do you want?". May suggest forking into the <strong>debate</strong> skill, or <code>/grill-with-docs</code> if vocabulary is contested.</li>
+  <li><strong>Draft</strong> the six-section contract from the template.</li>
+  <li><strong>Confirm &amp; write</strong> to the chosen host after the user approves.</li>
+  <li><strong>End</strong> — tells the user to run <code>/spec-flow implement</code> when ready. Stops there.</li>
+</ol>
+</div>
+
+<h2 id="implement">Phase 2 — implement <span class="tag impl">first run = resumption</span></h2>
+<div class="phase impl">
+<p>Starts or resumes coding against an active contract. First-run and resumption share one flow — behavior differs on <em>observed state</em> (git history, working tree), never on a stored flag.</p>
+<ol>
+  <li><strong>Identify target &amp; detect host</strong> — from the argument's shape, or by scanning active <code>.docs/</code> contracts.</li>
+  <li><strong>Read the contract</strong> and follow any linked ndr atoms.</li>
+  <li><strong>Assess state</strong> — recent commits, uncommitted changes, files touched. Summarizes in 2–3 lines as either "no work yet" (first run) or "last session did A, B" (resumption).</li>
+  <li><strong>Negotiate cadence</strong> — asks <em>"all at once, or check in after a piece?"</em> and may propose a breakpoint. Decided per session; never persisted.</li>
+  <li><strong>Execute</strong> to the agreed cadence.</li>
+  <li><strong>Amend when reality diverges</strong> — invokes the amend skill instead of silently working outside the contract.</li>
+  <li><strong>End</strong> — when scope ships, prompts the user to run <code>/spec-flow close</code>. Does <strong>not</strong> auto-close.</li>
+</ol>
+</div>
+<div class="note">
+<p><strong>The Out-of-scope fence holds here.</strong> If a tempting addition surfaces during implementation, the skill must propose an amendment — it may not just add it.</p>
+</div>
+
+<h2 id="amend">Mid-stream — amend <span class="tag amend">sign-off required</span></h2>
+<div class="phase amend">
+<p>Proposes a contract edit when the work reveals the contract is becoming inaccurate. Usually invoked from <em>within</em> implement, not directly by the user. The load-bearing rule: <strong>it never edits the contract silently.</strong></p>
+<ol>
+  <li><strong>Summarize the divergence</strong> in one short paragraph — what drifted and why.</li>
+  <li><strong>Propose the specific edit</strong> as before/after, scoped only to the affected section(s).</li>
+  <li><strong>Wait for sign-off</strong> — "yes" applies the AI's version; a modified edit applies the user's version; "no" leaves the contract untouched and forces reconciliation within it.</li>
+  <li><strong>Apply</strong> to the host (<code>Edit</code> for files; <code>get_issue</code> + <code>save_issue</code> for Linear, preserving untouched sections).</li>
+  <li><strong>Resume</strong> implementation. The amendment is now part of the agreement.</li>
+</ol>
+<p style="color:var(--muted);font-size:.9rem">Triggers on: wrong approach, a new constraint, a scope shift, or a resolved open question worth promoting to <em>Approach</em>. Not for trivial details (variable names, helper choices). Frequent amendments are flagged as a signal the original drafting was thin.</p>
+</div>
+
+<h2 id="close">Phase 3 — close <span class="tag close">migrate to durable layer</span></h2>
+<div class="phase close">
+<p>Ends an active contract by migrating durable findings out of the ephemeral contract and into the durable layer, then archiving. Closing implies completion — it is not for pausing or abandoning.</p>
+<ol>
+  <li><strong>Identify target &amp; detect host.</strong></li>
+  <li><strong>Read contract + actual change</strong> — <code>git log</code>/<code>git diff</code> since the contract was created; compares <em>Approach</em> against the code.</li>
+  <li><strong>Done-when check (first gate)</strong> — walks each <em>Done when</em> bullet: met / not met / drifted. If any bullet is <strong>not met</strong>, it halts and asks (close anyway as a known gap, amend to a narrower done, or pause). It will not silently archive an unmet contract.</li>
+  <li><strong>Offer a drift check (optional)</strong> — if ndr atoms exist for the repo, prompts once to run <code>ndr:drift-check</code> against the diff. Opt-in, never auto.</li>
+  <li><strong>Propose migrations</strong> — ndr atoms via <code>/capture-decision</code> for real architectural choices; README updates for user-facing changes; an explicit "not migrated" list (out-of-scope items, resolved open questions, conversation history).</li>
+  <li><strong>Sign-off + apply</strong> — migrations are AI-proposed, applied only after approval. If any fails, it halts before archiving.</li>
+  <li><strong>Archive (host-aware)</strong> — see the state view below.</li>
+  <li><strong>Confirm</strong> with a short host-specific summary.</li>
+</ol>
+</div>
+
+<h2>Where the contract lives at each phase</h2>
+<p>The contract is born ephemeral and ends archived. Its on-disk state depends on host: a file moves and flips a frontmatter field; a Linear ticket is deliberately left untouched.</p>
+
+<figure>
+  <div class="states" role="img" aria-label="Contract states: Draft during start before write, then Active once written, then Archived at close. File host moves the file to .docs/archive and flips status to archived; Linear host leaves the ticket in place untouched.">
+    <div class="st draft"><div class="lab">DRAFT</div><div class="meta">during <code>start</code>, before write — exists only in the conversation</div></div>
+    <div class="stsep">→</div>
+    <div class="st active"><div class="lab">ACTIVE</div><div class="meta"><span style="color:var(--start)">file:</span> <code>.docs/YYYY-MM-DD-&lt;slug&gt;.md</code>, <code>status: active</code><br><span style="color:var(--close)">linear:</span> ticket description holds the body</div></div>
+    <div class="stsep">→</div>
+    <div class="st archived"><div class="lab">ARCHIVED / CLOSED</div><div class="meta"><span style="color:var(--start)">file:</span> moved to <code>.docs/archive/</code>, <code>status: archived</code><br><span style="color:var(--close)">linear:</span> ticket <strong>untouched</strong>; body stays for retrospect</div></div>
+  </div>
+  <figcaption>Contract state across the lifecycle. Placement (not the frontmatter field) is the canonical file-host signal; Linear-host close mutates nothing.</figcaption>
+</figure>
+
+<table>
+  <tr><th>Action at close</th><th>File host</th><th>Linear host</th></tr>
+  <tr><td>Container</td><td><code>mv</code> to <code>.docs/archive/</code> (or <code>git mv</code> if tracked)</td><td>None — ticket left in place</td></tr>
+  <tr><td>State field</td><td>flip <code>status: active</code> → <code>status: archived</code></td><td>None — never calls <code>save_issue</code> to flip state</td></tr>
+  <tr><td>Human follow-up</td><td>none needed</td><td>suggestion only: flip ticket state when you push the PR</td></tr>
+</table>
+<p style="color:var(--muted);font-size:.9rem">Closing is non-destructive in both hosts: the file is archived, not deleted; the ticket is preserved. Linear state flow stays the user's call.</p>
+
+<h2>File layout (file host)</h2>
+<pre><code>.docs/
+├── 2026-05-17-okta-auth.md         # active file-host contract
+├── 2026-05-12-image-pipeline.md    # active file-host contract
+└── archive/
+    └── 2026-05-03-config-cleanup.md  # closed</code></pre>
+<p style="color:var(--muted);font-size:.9rem"><code>.docs/</code> is gitignored by the user's scratch-artifact convention. Linear-host contracts have no file-system footprint.</p>
+
+<h2>Three things that are never persisted</h2>
+<table>
+  <tr><th>What</th><th>Re-derived each time from…</th></tr>
+  <tr><td><strong>Host</strong> (file vs. Linear)</td><td>the identifier shape (or goal text at <code>start</code>)</td></tr>
+  <tr><td><strong>Cadence</strong> (all-at-once vs. check-in)</td><td>re-negotiated per implement session</td></tr>
+  <tr><td><strong>First-run vs. resumption</strong></td><td>observed git state — not a stored flag</td></tr>
+</table>
+
+<div style="margin-top:40px;display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap"><a href="index.html">← Home</a><a href="hosts.html">Next: the two hosts and host detection →</a></div>
+</div>
+</body>
+</html>

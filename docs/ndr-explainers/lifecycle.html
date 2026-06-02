@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lifecycle · NDR explainers</title>
+<style>
+  :root {
+    --bg: #fbfaf7; --panel: #ffffff; --ink: #1d1c1a; --muted: #6b675f; --faint: #8c887f;
+    --line: #e6e2d9; --accent: #4f46e5; --accent-soft: #eceafd;
+    --head: #15803d; --head-soft: #e3f3e8; --head-line: #7cc395; --super: #9a6b00; --super-soft: #f6ecd4;
+    --warn: #b54708; --warn-soft: #fdeee0; --code-bg: #f4f1ea; --radius: 10px;
+    --mono: ui-monospace, "SF Mono", "JetBrains Mono", Menlo, Consolas, monospace;
+    --sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--sans); line-height: 1.6; font-size: 17px; -webkit-font-smoothing: antialiased; }
+  .wrap { max-width: 920px; margin: 0 auto; padding: 0 24px 96px; }
+  header.site { border-bottom: 1px solid var(--line); background: var(--panel); position: sticky; top: 0; z-index: 10; }
+  header.site .bar { max-width: 920px; margin: 0 auto; padding: 12px 24px; display: flex; gap: 18px; align-items: baseline; flex-wrap: wrap; }
+  header.site a.brand { font-weight: 700; color: var(--ink); text-decoration: none; letter-spacing: -.01em; }
+  header.site nav { display: flex; gap: 14px; flex-wrap: wrap; font-size: 14px; }
+  header.site nav a { color: var(--muted); text-decoration: none; }
+  header.site nav a:hover, header.site nav a[aria-current] { color: var(--accent); }
+  h1, h2, h3 { line-height: 1.25; letter-spacing: -.015em; }
+  h1 { font-size: 2.1rem; margin: 40px 0 8px; }
+  .lede { font-size: 1.16rem; color: var(--muted); margin: 0 0 8px; }
+  h2 { font-size: 1.5rem; margin: 56px 0 14px; }
+  h3 { font-size: 1.16rem; margin: 32px 0 8px; }
+  p { margin: 0 0 16px; }
+  a { color: var(--accent); text-decoration: underline; text-underline-offset: 2px; }
+  code { font-family: var(--mono); font-size: .86em; background: var(--code-bg); padding: 1px 5px; border-radius: 5px; }
+  pre { background: var(--code-bg); border: 1px solid var(--line); border-radius: var(--radius); padding: 16px 18px; overflow-x: auto; font-family: var(--mono); font-size: 13.5px; line-height: 1.5; }
+  pre code { background: none; padding: 0; font-size: inherit; }
+  ul, ol { padding-left: 22px; margin: 0 0 16px; }
+  li { margin: 4px 0; }
+  strong { font-weight: 640; }
+  hr { border: 0; border-top: 1px solid var(--line); margin: 40px 0; }
+  details.callout { border: 1px solid var(--line); border-left: 4px solid var(--accent); border-radius: 8px; background: var(--panel); margin: 16px 0; padding: 0 16px; }
+  details.callout > summary { cursor: pointer; font-weight: 600; padding: 12px 0; list-style: none; display: flex; gap: 8px; align-items: center; }
+  details.callout > summary::-webkit-details-marker { display: none; }
+  details.callout > summary::before { content: "▸"; color: var(--faint); font-size: 12px; }
+  details.callout[open] > summary::before { content: "▾"; }
+  details.callout > summary .lbl { font-size: 12px; text-transform: uppercase; letter-spacing: .06em; color: var(--faint); }
+  details.callout > div { padding-bottom: 14px; }
+  .note { border: 1px solid var(--line); background: var(--accent-soft); border-radius: 8px; padding: 14px 18px; margin: 22px 0; font-size: .96rem; }
+  figure { margin: 28px 0; }
+  figcaption { font-size: 13px; color: var(--faint); margin-top: 12px; text-align: center; }
+  .diagram { background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); padding: 24px 20px; }
+  table { border-collapse: collapse; width: 100%; margin: 18px 0; font-size: 14.5px; }
+  th, td { text-align: left; padding: 9px 12px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  th { font-size: 12px; text-transform: uppercase; letter-spacing: .05em; color: var(--faint); }
+  footer { color: var(--faint); font-size: 13px; margin-top: 64px; padding-top: 20px; border-top: 1px solid var(--line); }
+  .prevnext { display: flex; justify-content: space-between; gap: 16px; margin-top: 48px; font-size: 15px; }
+
+  /* flow */
+  .legend { display: flex; gap: 16px; flex-wrap: wrap; font-size: 12px; color: var(--muted); margin-bottom: 18px; }
+  .legend span { display: inline-flex; align-items: center; gap: 6px; }
+  .swatch { width: 13px; height: 13px; border-radius: 3px; border: 1px solid var(--line); display: inline-block; }
+  .sw-skill { background: var(--accent-soft); border-color: #c7c2f5; }
+  .sw-agent { background: var(--bg); }
+  .sw-script { background: var(--head-soft); border-color: var(--head-line); }
+  .flow { display: flex; flex-direction: column; gap: 0; }
+  .step { display: grid; grid-template-columns: 92px 1fr; gap: 14px; align-items: start; }
+  .step .owner { font-family: var(--mono); font-size: 10px; text-transform: uppercase; letter-spacing: .05em; color: var(--faint); padding-top: 14px; text-align: right; }
+  .step .stepbox { border: 1px solid var(--line); border-radius: 9px; padding: 11px 14px; margin: 5px 0; background: var(--bg); }
+  .step.skill .stepbox { background: var(--accent-soft); border-color: #c7c2f5; }
+  .step.script .stepbox { background: var(--head-soft); border-color: var(--head-line); }
+  .step .stepbox .h { font-weight: 640; font-size: 14.5px; }
+  .step .stepbox .d { font-size: 12.5px; color: var(--muted); margin-top: 3px; }
+  .step .stepbox code { font-size: 12px; }
+  .conn { grid-column: 2; color: var(--faint); font-size: 15px; line-height: 1; padding-left: 16px; height: 16px; }
+  .gate { grid-column: 2; border-left: 3px solid var(--warn); background: var(--warn-soft); border-radius: 0 7px 7px 0; padding: 7px 12px; margin: 5px 0; font-size: 12.5px; color: var(--warn); }
+
+  /* read fan */
+  .fan { display: grid; grid-template-columns: 1fr; gap: 14px; }
+  .entries { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+  .entry { border: 1px solid #c7c2f5; background: var(--accent-soft); border-radius: 9px; padding: 11px 13px; }
+  .entry .cmd { font-family: var(--mono); font-size: 13px; font-weight: 700; color: var(--accent); }
+  .entry .d { font-size: 12px; color: var(--muted); margin-top: 4px; }
+  .downarrows { text-align: center; color: var(--faint); font-size: 16px; }
+  .worker { border: 1px solid var(--line); border-radius: 9px; padding: 12px 14px; background: var(--bg); text-align: center; }
+  .worker.b { }
+  .workrow { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .worker .wn { font-family: var(--mono); font-size: 13px; font-weight: 700; }
+  .worker .wd { font-size: 12px; color: var(--muted); margin-top: 4px; }
+  .outbox { border: 1px dashed var(--head-line); background: var(--head-soft); border-radius: 9px; padding: 11px 14px; text-align: center; font-size: 13px; color: var(--head); }
+  @media (max-width: 620px) { body { font-size: 16px; } .step { grid-template-columns: 64px 1fr; } .entries, .workrow { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+<header class="site"><div class="bar">
+  <a class="brand" href="index.html">NDR · explainers</a>
+  <nav>
+    <a href="index.html">Overview</a>
+    <a href="atom-anatomy.html">Atom anatomy</a>
+    <a href="supersession.html">Supersession</a>
+    <a href="lifecycle.html" aria-current="page">Lifecycle</a>
+    <a href="validation.html">Validation</a>
+  </nav>
+</div></header>
+
+<div class="wrap">
+
+<h1>Lifecycle</h1>
+<p class="lede">Two halves. Capture turns a conversation into atoms on disk; reading turns a question into the current head. Each half is a thin skill plus focused workers, with exactly one component allowed to touch disk.</p>
+
+<div class="legend">
+  <span><span class="swatch sw-skill"></span> skill — scope &amp; user interaction</span>
+  <span><span class="swatch sw-agent"></span> subagent — isolated, focused work</span>
+  <span><span class="swatch sw-script"></span> persist.py — the only write path</span>
+</div>
+
+<h2>Capture: <code>/capture-decision</code></h2>
+<p>The skill is a thin orchestrator. It detects what the conversation is about and talks to the user; the composing, judging, and writing are delegated. No draft reaches disk until the reviewer passes <em>and</em> the user accepts — there is no <code>draft</code> status, drafts live in memory.</p>
+
+<figure>
+  <div class="diagram">
+    <div class="flow">
+      <div class="step skill"><div class="owner">skill</div><div class="stepbox"><div class="h">1 · Scan</div><div class="d">Read the live conversation for atomic decisions ("use X for Y", "don't do X", "X over Y"). Split bundles. Context is already loaded — no subagent needed.</div></div></div>
+      <div class="conn">│</div>
+      <div class="step"><div class="owner">agent ∗</div><div class="stepbox"><div class="h">1b · Extract <span style="font-weight:400;color:var(--faint)">(long sources only)</span></div><div class="d">If the input is a pasted transcript / file / PR thread, dispatch <code>ndr-extractor</code> to return structured candidates with quotes instead of scanning inline.</div></div></div>
+      <div class="conn">│</div>
+      <div class="step skill"><div class="owner">skill</div><div class="stepbox"><div class="h">2 · Detect supersession intent &nbsp;+&nbsp; 2.5 · Worthiness pass</div><div class="d">Flag revising signals ("instead of", contradicts an <code>informed_by</code> atom). Run the three-question rubric (named alternative? future-revisitable? rationale outlives the code site?) → tag <code>ndr-worthy</code> / <code>borderline</code> / <code>not-ndr</code> with a routing nudge.</div></div></div>
+      <div class="conn">│</div>
+      <div class="step skill"><div class="owner">skill</div><div class="stepbox"><div class="h">3 · Confirm candidates &nbsp;+&nbsp; 4 · Taxonomy preflight</div><div class="d">Present one-liners; user edits titles, drops, routes, and <strong>names predecessors</strong> for revising candidates. Suggest <code>area</code>/<code>topic</code> from the on-disk taxonomy; "add new" appends to the YAML.</div></div></div>
+      <div class="gate">⛔ Structural refusal — revising signal present but no predecessor named and user didn't confirm "fresh" ⇒ stop.</div>
+      <div class="conn">│</div>
+      <div class="step"><div class="owner">agent</div><div class="stepbox"><div class="h">5 · Draft</div><div class="d"><code>ndr-drafter</code> composes <code>{frontmatter, body, missing_fields}</code> per atom. Never touches disk, never assigns an ID (<code>id: "PLACEHOLDER"</code>). Missing fields loop back to the user.</div></div></div>
+      <div class="conn">│</div>
+      <div class="step"><div class="owner">agent</div><div class="stepbox"><div class="h">6 · Review</div><div class="d"><code>ndr-reviewer</code> judges <strong>atomicity</strong> and <strong>body altitude</strong> (load-bearing) plus soft mechanical checks. Verdict <code>pass</code>/<code>fail</code>. Mechanical fails may be auto-fixed and re-reviewed; load-bearing fails route back to the drafter.</div></div></div>
+      <div class="gate">⛔ No call to <code>persist.py</code> until the reviewer passes (or the user explicitly overrides a load-bearing flag).</div>
+      <div class="conn">│</div>
+      <div class="step script"><div class="owner">script</div><div class="stepbox"><div class="h">7 · Persist</div><div class="d"><code>persist.py</code> (stdin JSON): hard-validate taxonomy + required fields, assign <code>id = max(existing)+1</code>, write <code>&lt;id&gt;-&lt;slug&gt;.md</code>, and on non-empty <code>supersedes:</code> run the three-write supersession. Exit <code>0/1/2/3</code>.</div></div></div>
+      <div class="conn">│</div>
+      <div class="step skill"><div class="owner">skill</div><div class="stepbox"><div class="h">8 · Summarize</div><div class="d">One line per file: IDs written, IDs patched (status flips), any alias handovers.</div></div></div>
+    </div>
+  </div>
+  <figcaption>Capture pipeline, top to bottom. Colour = who owns the step (skill / subagent / <code>persist.py</code>). Two ⛔ gates are structural, not advisory: a supersession-blind revision and an unreviewed draft both halt the pipeline. <strong>Plain-text reading:</strong> steps 1→8 in order; only step 7 writes to disk.</figcaption>
+</figure>
+
+<details class="callout">
+  <summary>Why the work is split this way <span class="lbl">design rationale</span></summary>
+  <div>
+    <ul>
+      <li><strong>Skill owns scope + interaction.</strong> The conversation is already in context; "what is this about?" stays local to avoid token/latency cost of shipping it to a subagent.</li>
+      <li><strong>Subagents have one job each, in isolation.</strong> The reviewer cannot rewrite the draft; the drafter cannot write to disk. Failure stays contained.</li>
+      <li><strong><code>persist.py</code> is deterministic.</strong> ID assignment, taxonomy enforcement, and the supersession transaction must not depend on LLM judgment — it's plain, tested code, and the <em>only</em> path to disk.</li>
+    </ul>
+  </div>
+</details>
+
+<h2>Reading: <code>/decisions</code>, <code>/ground</code>, <code>/drift-check</code></h2>
+<p>Three entry points, two workers. <code>/decisions</code> and <code>/ground</code> both dispatch the same supersession-walking reader; <code>/drift-check</code> dispatches a different worker that compares heads against code. The skills stay thin so the <strong>walk to head lives in exactly one place</strong> — that's what keeps it from drifting between entry points.</p>
+
+<figure>
+  <div class="diagram">
+    <div class="fan">
+      <div class="entries">
+        <div class="entry"><div class="cmd">/decisions &lt;topic&gt;</div><div class="d">User has a topic or <code>ndr:</code> ref in hand. "What did we decide about X?"</div></div>
+        <div class="entry"><div class="cmd">/ground [scope]</div><div class="d">Before code work: infer scope from cwd / file path / area. Pulls heads proactively.</div></div>
+        <div class="entry"><div class="cmd">/drift-check [scope]</div><div class="d">Audit current heads against a code diff (working tree / range / full repo).</div></div>
+      </div>
+      <div class="downarrows">│ &nbsp; parse &amp; detect scope &nbsp; │ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; │</div>
+      <div class="workrow">
+        <div class="worker">
+          <div class="wn">ndr-reader</div>
+          <div class="wd">probe frontmatter → load 1–3 hits → <strong>walk <code>superseded_by:</code> to head</strong> → synthesize a brief. Read-only.</div>
+        </div>
+        <div class="worker">
+          <div class="wn">ndr-drift-auditor</div>
+          <div class="wd">enumerate current heads → compare each "at-risk clause" against the diff scope → list divergences. Read-only.</div>
+        </div>
+      </div>
+      <div class="downarrows">│ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; │ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; │</div>
+      <div class="workrow">
+        <div class="outbox"><strong>Brief</strong> — head title + gist + lineage <code>A → … → head</code> + <code>ndr:</code> refs + assumption warnings</div>
+        <div class="outbox"><strong>Punch list</strong> — per divergence: at-risk clause, evidence, and three resolutions: amend · supersede · revert</div>
+      </div>
+    </div>
+  </div>
+  <figcaption>Read paths. <code>/decisions</code> and <code>/ground</code> share <code>ndr-reader</code> (whose Stage 3 is the supersession walk); <code>/drift-check</code> uses <code>ndr-drift-auditor</code>. All three workers are strictly read-only — the only write path in the whole system is <code>persist.py</code>. <strong>Plain-text reading:</strong> three skills on top → dispatch down to a worker → emit a brief or a punch list.</figcaption>
+</figure>
+
+<h3>What separates <code>/decisions</code> from <code>/ground</code></h3>
+<p>Same worker, different driver and output shape:</p>
+<table>
+  <thead><tr><th>Aspect</th><th><code>/decisions</code></th><th><code>/ground</code></th></tr></thead>
+  <tbody>
+    <tr><td>Scope source</td><td>user argument (topic or <code>ndr:</code> ref)</td><td>cwd, edited files, area phrase, task context</td></tr>
+    <tr><td>Activation</td><td>user asks a topic-shaped question</td><td>orchestrator is about to do or delegate code work</td></tr>
+    <tr><td>Output emphasis</td><td>one brief answering the question</td><td>brief(s) + <code>ndr:</code> refs ready to paste into a delegation prompt</td></tr>
+    <tr><td>On no match</td><td>optional "no matches" line</td><td>one quiet line, no nag</td></tr>
+  </tbody>
+</table>
+
+<h3>Drift resolutions land back in capture</h3>
+<p>A <code>/drift-check</code> divergence is never auto-applied. The human picks one of three, and two of them re-enter the capture flow above:</p>
+<ul>
+  <li><strong>Amend</strong> — narrow the atom: draft a successor with <code>supersedes: [original]</code> that refines scope. → <code>/capture-decision</code></li>
+  <li><strong>Supersede</strong> — replace it wholesale: a successor with <code>supersedes: [original]</code>. → <code>/capture-decision</code></li>
+  <li><strong>Revert</strong> — the code drifted, not the decision: change the code back. → a follow-up edit</li>
+</ul>
+<p>In NDR, "amend" and "supersede" both materialize as a new atom that supersedes the original — the difference is only how much of the decision the successor revises. There is no in-place edit of a decision's substance; the chain is the record.</p>
+
+<div class="note">
+  <strong>Grounding is opt-in per repo.</strong> A repo joins the NDR-tracked set by pasting a snippet into its <code>.claude/CLAUDE.md</code> that names it as tracked and tells the orchestrator to <code>/ground</code> before substantive code work. Editing CLAUDE.md is the commitment; repos without coverage get no vault noise.
+</div>
+
+<div class="prevnext">
+  <a href="supersession.html">← Supersession</a>
+  <a href="validation.html">Validation — where it's enforced →</a>
+</div>
+
+<footer>
+  Capture steps per <code>skills/capture-decision/SKILL.md</code> + <code>references/workflow.md</code>; worthiness per <code>references/worthiness.md</code>; read flow per <code>skills/{decisions,ground,drift-check}/SKILL.md</code> and <code>agents/{ndr-reader,ndr-drift-auditor}.md</code>.
+</footer>
+
+</div>
+</body>
+</html>
