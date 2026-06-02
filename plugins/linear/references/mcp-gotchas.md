@@ -77,7 +77,39 @@ Once an estimate is set via MCP, clearing it requires UI access — either disab
 
 ---
 
-## 4. `state: "Duplicate"` + `duplicateOf` in one call fails
+## 4. `estimate` values silently snap to the team's configured scale
+
+**Broken — passing values that don't exist in the team's estimate scale:**
+
+```
+mcp__linear-server__save_issue({id: "CAR-37", estimate: 5})
+→ response shows estimate.value: 4  # silently snapped to nearest bucket
+```
+
+No error, no warning. The stored value is whatever was closest in the team's configured scale.
+
+**Cause:** Linear teams configure estimates as a fixed bucket set (Linear → Team settings → Features → Estimates). The CAR team uses **exponential** scale: `{1, 2, 4, 8, 16, ...}`. Other built-in scales:
+
+- **Linear (default)** — `{1, 2, 3, 5, 8}` (Fibonacci-ish)
+- **Exponential** — `{1, 2, 4, 8, 16, ...}` (powers of two)
+- **T-shirt** — `{1, 2, 3, 4, 5}` displayed as XS/S/M/L/XL
+- **Custom** — team-defined
+
+Values outside the configured bucket set snap to the nearest allowed value. Passing `3` to an exponential team stores `4`. Passing `5` also stores `4` (nearest, not next-larger).
+
+**Working:**
+
+1. Check the team's estimate scale before setting points.
+2. Pass values that exist in the bucket set.
+3. For exponential teams: map a "5"-shaped intent to `8`, not `5`.
+
+**Practical rule:** When setting estimates from a skill, **either** pass values that match the team's bucket set, **or** read the response's `estimate.value` and compare to what you passed — silent snapping means the response is the source of truth, not the request.
+
+**Caught 2026-05-29** while setting points on cycle 2 tickets. Intended Fibonacci `{1, 2, 3, 5, 8}` against an exponential team — three tickets at intended `3` stored as `4`, two at intended `5` also stored as `4`.
+
+---
+
+## 5. `state: "Duplicate"` + `duplicateOf` in one call fails
 
 **Broken:**
 

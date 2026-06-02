@@ -41,6 +41,12 @@ started: YYYY-MM-DD
 ## Open questions
 
 - <things deferred to during implementation — these inform cadence at handoff>
+
+## References
+
+- <ndr:atom-id or ndr:#slug — one line on what this contributes>
+- <path/to/CLAUDE.md — operational context for the surface>
+- <path/to/file or directory — load-bearing pointer for implementers>
 ```
 
 ## Conventions
@@ -49,8 +55,10 @@ started: YYYY-MM-DD
 - **Approach is larger strokes only.** If a task list is emerging, it belongs in implementation, not in the contract.
 - **Done when is observable, not procedural.** 2–4 bullets describing visible outcomes — "command returns the head atom", not "implement walk function in reader.py". Bullets, not checkboxes (checkboxes invite task-list creep). Load-bearing for the close skill's review pass.
 - **Open questions are load-bearing.** Their presence/absence shapes the cadence conversation at implementation handoff (all-at-once vs check in after a piece).
+- **References are annotated pointers, not citation lists.** One line per item: the load-bearing reason this matters for implementation. Lets `implement` start from a clean context without reconstructing grounding from Approach. Approach asserts (`per ndr:0125`); References explains what each pointer contributes. Omit the section entirely if the change has no governing NDR atoms or path pointers — a greenfield change in an untracked area legitimately has nothing here.
 - **State signaling:** `status: active` while the contract is in flight. On done, the file moves to `.docs/archive/`. Placement signals state; the frontmatter field is informational redundancy.
 - **No amendments without sign-off.** AI proposes contract edits during implementation; user accepts before any edit lands.
+- **Implement-from-clean is the design goal.** The contract is the complete handoff artifact — `/spec-flow implement <ID>` in a fresh session should have everything it needs from the body alone. If a session-side edit (atom update, repo file change) materially affects what the implementer needs to know, fold it into References or a `Pre-implementation notes` bullet before closing the start skill.
 
 ## Out-of-scope sections
 
