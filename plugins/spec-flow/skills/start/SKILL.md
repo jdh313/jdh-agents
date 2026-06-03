@@ -142,4 +142,4 @@ Do NOT proceed to implementation. Tell the user:
 - The contract is an agreement, not a delivery — its purpose is shared model, not enumerated work.
 - `.docs/` is gitignored by the user's scratch-artifact convention.
 - Host is not persisted. `implement`, `amend`, and `close` re-detect host from the identifier each time.
-- spec-flow does not own Linear-side conventions (title patterns, labels, the team's status taxonomy). It writes the contract body and drives two lifecycle transitions — → Contract Review at `start`, → In Progress at `implement`. Broader Linear workflow lives outside spec-flow.
+- spec-flow does not own Linear-side conventions (title patterns, labels, the team's status taxonomy). It writes the contract body and drives the lifecycle state transitions — → Contract Review at `start`, → In Progress at `implement`, → a review state at `close` (never Done — that's the user's at merge). Broader Linear workflow lives outside spec-flow.

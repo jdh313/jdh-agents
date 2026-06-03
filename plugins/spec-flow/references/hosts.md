@@ -56,8 +56,8 @@ No phrasing analysis at this stage — the identifier shape is the signal.
 | **`implement` — status** | n/a — no status | Before coding, set state to "In Progress" (fallback: first `started`-type state) via `save_issue` |
 | **`amend` — write** | `Edit` the file | `mcp__linear-server__save_issue` |
 | **`close` — done-when check** | Walk bullets from file body | Walk bullets from ticket description |
-| **`close` — container action** | `mv` to `.docs/archive/`, flip frontmatter | None. Suggest the human flip ticket state at PR push; do not call `save_issue` to mutate state |
-| **`close` — confirm wording** | "Contract archived at `.docs/archive/...`" | "Archive: N/A — Linear-tracked. Suggestion: flip ticket state when you push the PR." |
+| **`close` — container action** | `mv` to `.docs/archive/`, flip frontmatter | Advance state to a review state (In Review / Code Review / …) via `save_issue`; never set a completed state. Body untouched |
+| **`close` — confirm wording** | "Contract archived at `.docs/archive/...`" | "Moved to In Review; body intact. Set Done yourself at merge." |
 
 ## Linear MCP availability
 
@@ -79,7 +79,7 @@ spec-flow owns the contract lifecycle. It does **not** own:
 - PR-to-ticket linking expectations
 - The decision of *when* to open a Linear ticket vs. a `.docs/` file
 
-spec-flow *does* drive exactly two status transitions on the contract lifecycle: → **Contract Review** when the contract body is written at `start`, and → **In Progress** when `implement` begins coding. Both resolve the target state by name via `list_issue_statuses` (never hardcoded) and skip gracefully if the team has no matching state. It still does **not** mutate state at `close` — that stays suggestion-only.
+spec-flow *does* drive the contract-lifecycle state transitions: → **Contract Review** when the contract body is written at `start`, → **In Progress** when `implement` begins coding, and → a **review state** when `close` finishes. All resolve the target by name via `list_issue_statuses` (never hardcoded) and skip gracefully if the team has no matching state. It never sets a **completed** state (Done/Closed) — merge happens outside the lifecycle, so that flip stays the human's.
 
 Those concerns belong to the user's broader Linear workflow, owned by the sibling `linear` plugin (`~/cc-marketplace/plugins/linear/skills/linear-workflow/SKILL.md`). spec-flow assumes the user has a Linear ticket already (or knows how to create one — by deferring to the `linear` plugin's conventions); spec-flow only writes the contract body and reads it back.
 
