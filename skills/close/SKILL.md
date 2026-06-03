@@ -63,7 +63,7 @@ If the contract has no *Done when* section (older format), surface that and eith
 
 If the `ndr` plugin is installed and has atoms scoped to this project/repo, prompt once:
 
-> "Want to run a drift check against ndr atoms before archiving? (`Skill(ndr:drift-check)` with scope `<base>...HEAD`.)"
+> "Want to run a drift check against ndr atoms before archiving? (`Skill(ndr:drift-check)` scoped to the change since the contract was created — a jj revset or git range, per the VCS detected in step 2.)"
 
 If yes, dispatch the skill and weave its findings into the migration proposal in step 3 — e.g. an atom flagged with `recommendation: amend` becomes a candidate successor in the *ndr atoms to capture* list. Do not auto-invoke; this is opt-in per close.
 
