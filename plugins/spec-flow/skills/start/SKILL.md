@@ -116,22 +116,25 @@ started: YYYY-MM-DD
 
 **Linear host:**
 
-If the ticket's existing description was *not substantive* (empty, very short, or matches a stub template), overwrite the body via `mcp__linear-server__save_issue` with the formatted contract. No prompt — just write.
+Overwrite the ticket's description with the formatted contract via `mcp__linear-server__save_issue`. Overwrite is the default — do **not** prompt, even when the existing description is substantive.
 
-If the existing description *was substantive* (>~300 chars and not a stub), ask:
-
-> "The ticket already has a description (N chars). Overwrite with the formatted contract, or prepend the contract above the original?"
-
-Apply the user's choice. Do not silently overwrite substantive content.
+Exception — only when the user explicitly asked to preserve the existing text (e.g. "prepend", "keep the description", "don't overwrite") in the goal or during the conversation. In that case, prepend the contract above the original instead of replacing it.
 
 No frontmatter in Linear-hosted contracts. The ticket's own metadata (state, assignee, labels) is the workflow signal; the contract body holds only the 5 sections.
+
+**Linear host — move to Contract Review.** Once the contract body is written, the contract is ready to be reviewed. Transition the ticket's state:
+
+- Fetch the team's workflow states via `mcp__linear-server__list_issue_statuses` (the team comes from the issue read in step 3).
+- Find the state named "Contract Review" (case-insensitive match).
+- Set it via `mcp__linear-server__save_issue` (state field).
+- If no such state exists on the team, tell the user once — *"No 'Contract Review' state on this team; leaving status unchanged."* — and skip. Do not guess a different state.
 
 ### 7. End
 
 Do NOT proceed to implementation. Tell the user:
 
 - **File host:** *"Contract drafted at `.docs/YYYY-MM-DD-<slug>.md`. Run `/spec-flow implement` when ready to start coding."*
-- **Linear host:** *"Contract written to CAR-49's description. Run `/spec-flow implement CAR-49` when ready to start coding."*
+- **Linear host:** *"Contract written to CAR-49's description and moved to Contract Review. Run `/spec-flow implement CAR-49` when ready to start coding."*
 
 ## Notes
 
@@ -139,4 +142,4 @@ Do NOT proceed to implementation. Tell the user:
 - The contract is an agreement, not a delivery — its purpose is shared model, not enumerated work.
 - `.docs/` is gitignored by the user's scratch-artifact convention.
 - Host is not persisted. `implement`, `amend`, and `close` re-detect host from the identifier each time.
-- spec-flow does not own Linear-side conventions (title patterns, labels, status flow). It only writes the contract body. Broader Linear workflow lives outside spec-flow.
+- spec-flow does not own Linear-side conventions (title patterns, labels, the team's status taxonomy). It writes the contract body and drives two lifecycle transitions — → Contract Review at `start`, → In Progress at `implement`. Broader Linear workflow lives outside spec-flow.
