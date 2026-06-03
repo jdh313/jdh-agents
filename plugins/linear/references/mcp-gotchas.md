@@ -108,6 +108,31 @@ Setting `duplicateOf` alone is sufficient — Linear creates the relation AND tr
 
 ---
 
+## 5. Editing a description re-anchors (corrupts) inline comments
+
+**Broken:** `save_issue({id, description})` does a *full-body replace*. Any **inline** comment (a `list_comments` entry with non-null `quotedText`) anchored to text you change gets re-anchored to the nearest surviving text — Linear serializes the anchor as a `<linear-comment id=... resolved=...>` range inside the markdown, so the tags reappear, often splattered word-by-word, on every subsequent save:
+
+```
+save_issue({id: "TEAM-84", description: "<rewrite that deletes the anchored text>"})
+→ stored body now contains:
+  * Full-app<linear-comment id="..." resolved="true"> </linear-comment>host port is 4280 ...
+```
+
+Re-saving clean markdown does **not** remove them — the comment entity owns the range and re-injects it each time. Stripping the tags from the body string is unreliable for the same reason.
+
+**Working — two halves:**
+
+- **Prevention:** keep the *exact* anchored substring intact. Fetch the raw body (tags included), edit *around* the `<linear-comment>` ranges, never delete or reword the text a live comment points at.
+- **Cure:** the only way to remove the tags is to **delete the inline comment itself** (resolving it is not enough — resolved comments still serialize their anchor). The MCP surface has **no delete-comment tool**, so deletion requires the Linear UI (or a raw GraphQL `commentDelete` mutation outside MCP). Plan around this: if a description rewrite must drop anchored text, expect to clean up the orphaned tags by hand in the UI.
+
+**Cause:** same class as Atlassian's Confluence MCP `updateConfluencePage` (atlassian-mcp-server#54) — the programmatic API replaces whole content instead of structurally diffing the way the web editor does, so inline-comment anchors don't survive. Cross-platform MCP limitation, not Linear-specific.
+
+**Practical rule:** treat text under a live inline comment as immutable. To capture a resolved decision that started as an inline comment, write the resolution into a *new* section and delete the inline comment in the UI — don't rely on editing the anchored text away.
+
+**Caught 2026-06-03** during `spec-flow:start` on TEAM-84, replacing an Open-questions section that two resolved inline comments were anchored to.
+
+---
+
 ## Reporting new gotchas
 
 When a new silent-failure mode surfaces:
