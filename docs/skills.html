@@ -48,12 +48,12 @@
 <h1>Skills, triggers &amp; refusals</h1>
 <p class="lede">Four skills, one dispatcher. What fires each one — and, just as deliberately, what each one refuses to do.</p>
 
-<p>The refusals are not incidental; they are where spec-flow's principles live. <strong>amend</strong> never edits silently, <strong>close</strong> never mutates a Linear ticket and never archives an unmet contract, <strong>start</strong> never implements, <strong>implement</strong> never auto-closes. Each is called out below.</p>
+<p>The refusals are not incidental; they are where spec-flow's principles live. <strong>amend</strong> never edits silently, <strong>close</strong> never sets a completed Linear state and never archives an unmet contract, <strong>start</strong> never implements, <strong>implement</strong> never auto-closes. Each is called out below.</p>
 
 <!-- START -->
 <div class="skill start">
 <h2>start <span class="cmd">/spec-flow start &lt;goal&gt;</span></h2>
-<p>Open a contract for a new code change. Drafts only.</p>
+<p>Open a contract for a new code change. Drafts only. On a Linear host, moves the ticket to <strong>Contract Review</strong> once the body is written.</p>
 <div class="grid">
   <div>
     <h4>Triggers when</h4>
@@ -73,14 +73,14 @@
   </div>
 </div>
 <div class="refuse">
-  <p><strong>Refuses to:</strong> proceed to implementation (ends by telling you to run <code>/spec-flow implement</code>); silently overwrite a <em>substantive</em> existing Linear description (asks overwrite-or-prepend first); silently pick a host in the ambiguous "reference" case (asks once); connect the Linear MCP for you.</p>
+  <p><strong>Refuses to:</strong> proceed to implementation (ends by telling you to run <code>/spec-flow implement</code>); silently pick a host in the ambiguous "reference" case (asks once); connect the Linear MCP for you. Note: on the Linear host it <em>overwrites</em> the existing description by default — it prepends instead only when you explicitly ask to preserve the text.</p>
 </div>
 </div>
 
 <!-- IMPLEMENT -->
 <div class="skill impl">
 <h2>implement <span class="cmd">/spec-flow implement [name]</span></h2>
-<p>Start or resume coding against an active contract. First-run and resumption are one flow; behavior differs on observed git state, not a stored flag.</p>
+<p>Start or resume coding against an active contract. First-run and resumption are one flow; behavior differs on observed git state, not a stored flag. On a Linear host, moves the ticket to <strong>In Progress</strong> before writing code. Before declaring the work done, it dispatches the <code>contract-verifier</code> agent to verify each <em>Done when</em> bullet by running the change (not by reading the diff).</p>
 <div class="grid">
   <div>
     <h4>Triggers when</h4>
@@ -100,7 +100,7 @@
   </div>
 </div>
 <div class="refuse">
-  <p><strong>Refuses to:</strong> auto-close (prompts you to run <code>/spec-flow close</code> when scope ships); work outside the contract's <em>Out of scope</em> — a tempting addition must go through <code>amend</code>; silently edit the contract — divergence routes through <code>amend</code>; persist the cadence choice (re-negotiated every session).</p>
+  <p><strong>Refuses to:</strong> auto-close (prompts you to run <code>/spec-flow close</code> once scope ships <em>and</em> the Done-when checks pass); declare done on the strength of the diff — the <code>contract-verifier</code> agent must observe each <em>Done when</em> bullet by running the change first; work outside the contract's <em>Out of scope</em> — a tempting addition must go through <code>amend</code>; silently edit the contract — divergence routes through <code>amend</code>; persist the cadence choice (re-negotiated every session).</p>
 </div>
 </div>
 
@@ -135,7 +135,7 @@
 <!-- CLOSE -->
 <div class="skill close">
 <h2>close <span class="cmd">/spec-flow close [name]</span></h2>
-<p>End an active contract by migrating durable findings to the durable layer, then archiving. Closing implies completion.</p>
+<p>End an active contract by migrating durable findings to the durable layer, then archiving. Closing implies completion. On a Linear host, advances the ticket to a <strong>review</strong> state (body left intact) — never to Done. The <em>Done when</em> gate reuses <code>implement</code>'s verify result or dispatches the <code>contract-verifier</code> agent itself.</p>
 <div class="grid">
   <div>
     <h4>Triggers when</h4>
@@ -154,10 +154,15 @@
   </div>
 </div>
 <div class="refuse">
-  <p><strong>Refuses to:</strong> silently archive an <em>unmet</em> contract — the <em>Done when</em> gate halts on any unmet bullet and asks (close as known gap / amend to a narrower done / pause); migrate silently — every ndr atom and README edit is proposed, then applied only after sign-off; mutate a Linear ticket at all (no <code>save_issue</code>, no state flip — only a suggestion that you flip it at PR push); auto-run the optional drift check; delete anything (file is archived, not deleted; ticket is preserved).</p>
+  <p><strong>Refuses to:</strong> silently archive an <em>unmet</em> contract — the <em>Done when</em> gate halts on any unmet bullet and asks (close as known gap / amend to a narrower done / pause); migrate silently — every ndr atom and README edit is proposed, then applied only after sign-off; set a <em>completed</em> Linear state (it advances to a review state but leaves Done for you at merge); edit the ticket <em>body</em> (the contract stays in the description for retrospective); auto-run the optional drift check; delete anything (file is archived, not deleted; ticket is preserved).</p>
 </div>
 <p style="font-size:.9rem;color:var(--muted)"><strong>Migration targets:</strong> architectural choices → ndr atoms via <code>Skill(ndr:capture-decision)</code>; user-facing changes → README via <code>librarian</code>. Out-of-scope items, resolved-but-artifactless open questions, and conversation history are explicitly <em>not</em> migrated.</p>
 </div>
+
+<!-- AGENT -->
+<h2 style="margin-top:54px">The <code>contract-verifier</code> agent</h2>
+<p>spec-flow now ships its first agent. It is a read-and-execute verifier: given the contract's <em>Done when</em> bullets and a change scope, it runs each bullet — exercising the relevant test, command, or endpoint — and returns a per-bullet verdict (<code>met</code> / <code>not_met</code> / <code>drifted</code> / <code>unverifiable</code>) with evidence. It is deliberately adversarial: a bullet is <code>not_met</code> until the outcome is positively observed, because "looks done in the diff" is exactly the drift it exists to catch. It never edits source, commits, or runs destructive commands.</p>
+<p>It is dispatched in isolated context — independent of the implementer's view — by <code>implement</code> (before declaring done) and reused or re-dispatched by <code>close</code> (the <em>Done when</em> gate). If unavailable, both skills fall back to running the checks inline.</p>
 
 <!-- DISPATCHER -->
 <h2 style="margin-top:54px">The <code>/spec-flow</code> dispatcher</h2>
@@ -175,10 +180,10 @@
 <h2 style="margin-top:50px">The refusals at a glance</h2>
 <table>
   <tr><th>Skill</th><th>The line it won't cross</th></tr>
-  <tr><td style="color:var(--start);font-weight:600">start</td><td>won't implement; won't silently overwrite substantive Linear bodies; won't silently pick a host</td></tr>
-  <tr><td style="color:var(--impl);font-weight:600">implement</td><td>won't auto-close; won't work outside <em>Out of scope</em>; won't silently edit the contract</td></tr>
+  <tr><td style="color:var(--start);font-weight:600">start</td><td>won't implement; won't silently pick a host; overwrites the Linear body by default (prepends only if you ask to preserve it)</td></tr>
+  <tr><td style="color:var(--impl);font-weight:600">implement</td><td>won't auto-close; won't declare done without the <code>contract-verifier</code> agent observing each <em>Done when</em> bullet; won't work outside <em>Out of scope</em>; won't silently edit the contract</td></tr>
   <tr><td style="color:var(--amend);font-weight:600">amend</td><td>won't edit the contract without sign-off; won't restructure beyond the drifting section</td></tr>
-  <tr><td style="color:var(--close);font-weight:600">close</td><td>won't archive an unmet contract silently; won't migrate without sign-off; won't mutate or delete a Linear ticket</td></tr>
+  <tr><td style="color:var(--close);font-weight:600">close</td><td>won't archive an unmet contract silently; won't migrate without sign-off; won't set a completed Linear state or edit the ticket body (advances to a review state only)</td></tr>
   <tr><td>all four</td><td>won't connect the Linear MCP for you — surfaces the gap and waits</td></tr>
 </table>
 
