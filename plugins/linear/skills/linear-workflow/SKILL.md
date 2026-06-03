@@ -45,12 +45,39 @@ Exactly **one surface + one type** per ticket.
 | Dimension | Values | Casing |
 |---|---|---|
 | Surface | `backend`, `frontend`, `infra`, `database`, `pipeline` | bare lowercase |
-| Type | `Feature`, `Improvement`, `Docs`, `Chore`, `Decision` | Capitalized |
+| Type | `Feature`, `Improvement`, `Docs`, `Chore`, `Decision`, `Spike` | Capitalized |
 
 Rules:
 - Surface labels live under a **`surface` label group** in Linear (group name `surface`, children `pipeline` / `backend` / `frontend` / `infra` / `database`). The MCP `save_issue` tool does NOT resolve colon-prefixed strings like `"surface:backend"` — pass the **bare child name** (`"backend"`). If you pass the colon form, `save_issue` returns silently with `labels: []`. Stable label IDs from `list_issue_labels` also work; bare child names are more readable. See `../../references/mcp-gotchas.md` § 2 for full details.
 - `Bug` is unused — do not add tickets with it. If a defect comes up, it's a `Feature` regression or a `Chore` cleanup depending on framing.
 - `Decision` is for tickets that mark a decision point (formerly written as `D# — ...` titles). The decision content itself becomes an ndr atom; the ticket tracks the work of making the call.
+- `Spike` is for timeboxed empirical investigations — see "Spike vs Decision" below.
+
+### Spike vs Decision
+
+Both labels mark "we don't know something yet" work. The boundary test is **empirical vs judgment**: *could I answer this from my chair, or do I have to go do something first?*
+
+- **`Spike`** — unknown resolved *empirically*. Timeboxed, throwaway code, a **finding** as output (vault note; ndr atom only if the finding itself resolves a decision).
+- **`Decision`** — fork resolved by *judgment*. Tradeoffs weighed from the chair; an **ndr atom** as output.
+
+**Embed by default; ticket only orphans.** A decision whose lifecycle fits one work item lives in that item's `Open questions` (spec-flow contract) and gets lazily resolved at point of contact by the implementing agent. A standalone ticket is earned only when the unknown is *orphaned*:
+
+- no future work will naturally collide with it (silent-default risk), or
+- its input needs lead time (stakeholder availability, external data).
+
+TEAM-99 and TEAM-116 are the existing examples of tickets that clear the orphan bar.
+
+The 2×2:
+
+| | Judgment | Empirical |
+|---|---|---|
+| **Hosted** (fits one work item) | `Open questions` in the contract | probe mid-implementation (`craft:prototype`) |
+| **Homeless** (orphaned) | `Decision` ticket | `Spike` ticket |
+
+Labels are not static:
+
+- A `Decision` may convert to `Spike` on pickup, when making the call turns out to need evidence first (TEAM-116 is the live example of this pressure).
+- A `Spike`'s finding often feeds a `Decision` — wire a blocks relation (Spike blocks Decision).
 
 ### Status flow
 
@@ -107,6 +134,22 @@ Two templates depending on what the ticket is for.
 ```
 
 `Goal` + `Done when` is the de facto house template across the existing ticket corpus. The `Done when` heading matches spec-flow's contract template — same vocabulary, lower altitude.
+
+**Spike template (for `Spike`-labeled tickets):**
+
+```markdown
+## Question
+
+<the unknown, stated as a question>
+
+Timebox: <e.g. 2h, half a day>
+
+## Done when
+
+- Question answered; finding written up (vault note; ndr atom only if it resolves a decision)
+```
+
+`## Question` replaces `## Goal` — a spike exists to answer something, not to ship something. State the timebox in the description. "Done when" is always the finding, never "code merged" — spike code is throwaway by definition.
 
 **Full spec-flow contract template (when the ticket *is* the contract):**
 

@@ -72,6 +72,7 @@ This is the multi-ticket-from-a-plan skill. For one-shot single-ticket drafting,
    - A completed slice is **demoable or verifiable on its own**.
    - **Many thin slices > few thick ones.** When in doubt, split.
    - **Decision-shaped slices count as a slice.** If the breakdown requires choosing between options before implementation can proceed, that's its own slice with `Decision` type label and `Done when: decision captured as ndr atom and linked here`.
+   - **Spike-shaped slices count as a slice.** If a slice can't be shaped because of an *empirical* unknown (must go measure/probe/try, not just weigh tradeoffs), emit a `Spike` slice that blocks the unshapeable slice. Spike body: `## Question` instead of `## Context`, timebox stated, `Done when: question answered; finding written up` — never "code merged". Boundary test and full conventions: `linear-workflow`'s "Spike vs Decision" section (linear plugin).
    - **Cross-cutting concerns** (auth, observability, schema migrations) often belong inside a slice, not as separate horizontal slices.
 
 5. **Quiz the user.** Present the proposed slices as a numbered list. For each slice show:
@@ -79,7 +80,7 @@ This is the multi-ticket-from-a-plan skill. For one-shot single-ticket drafting,
    ```
    N. <Title>
       Surface: <pipeline | backend | frontend | infra | database>
-      Type:    <Feature | Improvement | Chore | Docs | Decision>
+      Type:    <Feature | Improvement | Chore | Docs | Decision | Spike>
       Blocked by: <slice #s, or "none — can start immediately">
       Why a slice: <one line — what end-to-end path this cuts>
    ```
@@ -88,7 +89,7 @@ This is the multi-ticket-from-a-plan skill. For one-shot single-ticket drafting,
    - Does the granularity feel right? (Too coarse / too fine.)
    - Are the dependency relationships correct?
    - Should any slices be merged or split further?
-   - Any slice that should be `Decision` type rather than `Feature`?
+   - Any slice that should be `Decision` or `Spike` type rather than `Feature`?
 
    Iterate until the user approves the breakdown.
 
@@ -137,6 +138,7 @@ Granularity right? Dependencies correct? Anything to merge or split?
 - **Never mutate existing tickets** — only create new ones. The skill is creating-only.
 - **Confirm before publishing.** Show the user the final ordered list once more before any ticket is created. Publishing is the only destructive step in this skill.
 - **Decision-type slices** get `Done when: decision captured as ndr atom and linked here`. After the call is made, recommend `Skill(ndr:capture-decision)`.
+- **Spike-type slices** get `Done when: question answered; finding written up` (vault note; ndr atom only if the finding resolves a decision) — never "code merged". Wire the spike as a blocker of the slice it unblocks.
 - **Cycle assignment is not breakdown's job.** Slices land in Backlog. `pm:groom` pulls them into a cycle later.
 - **Skip horizontal-slice anti-patterns.** Never propose "do all schema work first, then all API work, then all UI work" as three slices — that's a layer-by-layer plan, not tracer bullets.
 - **Avoid file paths or code snippets in issue bodies.** They go stale. Exception: a prototype-derived snippet that encodes a decision more precisely than prose (state machine, schema, type shape) — inline the decision-rich parts only, with a note that it came from a prototype.

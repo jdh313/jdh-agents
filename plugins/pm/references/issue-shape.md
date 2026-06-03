@@ -10,7 +10,7 @@ A ticket is "well-formed" when it has all six:
 2. **Project** — assigned to the active AcmeOS phase project (rotates per phase)
 3. **Priority** — set to one of `urgent` / `high` / `medium` / `low`; not `None`
 4. **Surface label** — exactly one of `pipeline`, `backend`, `frontend`, `infra`, `database`
-5. **Type label** — exactly one of `Feature`, `Improvement`, `Docs`, `Chore`, `Decision`
+5. **Type label** — exactly one of `Feature`, `Improvement`, `Docs`, `Chore`, `Decision`, `Spike`
 6. **Description body** — with the sections below
 
 A ticket missing any of #1–6 lands in `pm:groom`'s Missing-fields bucket. The body-section requirements (see next section) are checked as part of #6.
@@ -65,6 +65,10 @@ Inline `ndr:` mentions in the Context paragraph also count for the NDR-moot scan
 ### `## Notes` (optional)
 
 Anything else: observations, risk flags, decisions deferred, links to related work. Free-form.
+
+### Spike variant
+
+`Spike`-labeled tickets open with `## Question` instead of `## Context` — the unknown stated as a question, with the timebox in the description. Their `## Done when:` is always `question answered; finding written up` (vault note; ndr atom only if the finding resolves a decision) — never "code merged"; spike code is throwaway. Boundary test (Spike vs Decision) and full conventions live in `linear-workflow`'s "Spike vs Decision" section (linear plugin).
 
 ## Anti-conventions
 
