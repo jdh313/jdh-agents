@@ -5,7 +5,7 @@ A spec-flow contract has a **host** — the container that holds the contract bo
 - **`file`** — `.docs/YYYY-MM-DD-<slug>.md` in the working repo. Default.
 - **`linear`** — a Linear issue (e.g. `TEAM-123`), whose description holds the contract body.
 
-The contract *shape* (the 5-section template in `contract-template.md`) is host-agnostic. The host changes only:
+The contract *shape* (the 6-section template in `contract-template.md`) is host-agnostic. The host changes only:
 
 - Where the body is read from and written to.
 - What happens to the container at close.
@@ -48,7 +48,7 @@ No phrasing analysis at this stage — the identifier shape is the signal.
 | Step | File host | Linear host |
 |---|---|---|
 | **`start` — locate** | Scan `.docs/*.md` for active contracts | n/a — Linear contracts are not enumerable cheaply; user names the ticket |
-| **`start` — draft body** | Compose 5-section contract | Compose 5-section contract |
+| **`start` — draft body** | Compose 6-section contract | Compose 6-section contract |
 | **`start` — write container** | `Write` to `.docs/YYYY-MM-DD-<slug>.md` | `mcp__linear-server__save_issue` against the ticket ID |
 | **`start` — existing body** | n/a — file is new | Overwrite by default — no prompt. Prepend only if the user explicitly asked to preserve the existing text |
 | **`start` — status** | n/a — no status | After writing the body, set state to "Contract Review" via `list_issue_statuses` + `save_issue`; skip with a note if no such state |
@@ -99,4 +99,4 @@ Why deferred: requires team/status discovery logic and decisions about Linear-si
 
 ## Future shape: GitHub Issues (Shape C)
 
-Not implemented. Same adapter pattern as Linear would apply: detection by issue-URL or `owner/repo#NN` shape, read/write via `gh` or GitHub MCP, close-state-flip handled the same way (suggestion-only, no automated mutation). Out of scope for the current update.
+Not implemented. Same adapter pattern as Linear would apply: detection by issue-URL or `owner/repo#NN` shape, read/write via `gh` or GitHub MCP, close-state-flip handled the same way as the Linear host (advance to a review state by name, never a completed state). Out of scope for the current update.

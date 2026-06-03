@@ -43,7 +43,7 @@ Do not run `claude mcp add` or suggest a paste-and-go connect command.
 ### 2. Read the contract
 
 - **File host** — `Read` the contract file.
-- **Linear host** — Fetch via `mcp__linear-server__get_issue` and parse the description for the 5 sections.
+- **Linear host** — Fetch via `mcp__linear-server__get_issue` and parse the description for the 6 sections.
 
 Follow any linked ndr atoms (`[[ndr-...]]` references) and read them.
 
