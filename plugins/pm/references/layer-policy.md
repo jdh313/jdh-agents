@@ -74,7 +74,8 @@ The orthogonal-axes mental model:
 - **Project + milestone + cycle** = actively committed (normal active state)
 - **Project + milestone, no cycle** = backlog (scoped, not yet pulled)
 - **Project, no milestone, no cycle** = parked in-project (explicit Phase 1 stretch / known-deferred)
-- **No project, no milestone, no cycle** = parked out-of-project (Phase 2 / future, no Phase 2 project exists yet)
+- **Parking Lot project, no milestone, no cycle** = parked deliberately with no owning project (added 2026-06-05; the "Parking Lot" Linear project is a rolling holding pen following the Pipeline Cleanup pattern — exit = a real project claims the ticket; nothing executes from it)
+- **No project** = ❌ unfiled. Previously a legal parked state ("no Phase 2 project exists yet"), retired 2026-06-05 once Phase 2 and Parking Lot existed — an out-of-project ticket is now indistinguishable from a forgot-to-file and gets flagged as Missing-fields.
 - **No milestone, in cycle** = ❌ orphan. `pm:groom` flags these as Missing-fields.
 
 ## Composes with
