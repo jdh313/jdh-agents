@@ -49,10 +49,12 @@ Follow any linked ndr atoms (`[[ndr-...]]` references) and read them.
 
 ### 3. Assess state
 
+**Detect the VCS first.** If `.jj/` exists at the repo root, this is a jj-colocated repo — use `jj log` / `jj diff` / `jj st`, not `git`. Under jj, `git status` reflects the jj working-copy commit and misreads whether work has "already begun." Otherwise use `git`.
+
 Check whether implementation has already begun:
 
-- Recent git commits referencing the contract's topic or slug.
-- Uncommitted changes in working tree.
+- Recent commits (`jj log` / `git log`) referencing the contract's topic or slug.
+- Uncommitted changes in the working tree (`jj st` / `git status`).
 - Files modified since the contract was created.
 
 Summarize back to the user in 2–3 lines:
@@ -92,11 +94,21 @@ Work according to the chosen cadence:
 
 If implementation reveals the contract is becoming inaccurate (wrong approach, new constraint, scope shift, resolved open question), invoke `Skill(spec-flow:amend)` to propose an edit. Do NOT silently work outside the contract; do NOT silently edit it.
 
-### 7. End
+### 7. Verify against *Done when*
 
-When the user signals completion (or the agreed scope has shipped), prompt:
+Before declaring the work done, verify each *Done when* bullet by **observing behavior**, not by reading the diff. Drift's signature is plausible code that looks right at a glance but doesn't do what the contract promised — reading the diff won't catch it; running the change will.
 
-> "Looks done from my end. Run `/spec-flow close` when ready to migrate findings to the durable layer."
+- Run the tests relevant to the change if the repo has a suite.
+- Drive the actual behavior each bullet describes — run the app / command / endpoint and check the real outcome. If the `/verify` skill is available, use it to drive the app and observe live.
+- Classify each *Done when* bullet: **met** (observed), **not met** (missing or partial), or **drifted** (shipped, but the bullet no longer describes it).
+
+Report the per-bullet result. If a bullet is **not met**, surface it plainly — do not paper over it. Either keep working, or (if the contract's notion of done genuinely changed) invoke `Skill(spec-flow:amend)`.
+
+### 8. End
+
+When the user signals completion (or the agreed scope has shipped) and the Done-when bullets verify, prompt:
+
+> "Looks done from my end and the Done-when checks pass. Run `/spec-flow close` when ready to migrate findings to the durable layer."
 
 Do NOT auto-close. Closing is an explicit user action.
 

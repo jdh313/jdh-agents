@@ -21,7 +21,7 @@ spec-flow's load-bearing principle is **epistemic fit**: it must work the way *y
 5. **Implementation** — At handoff, AI asks *"all at once, or check in after a piece?"* and may propose a sensible breakpoint. Cadence decided per session, not persisted.
 6. **Amendment** — When reality diverges, AI proposes a contract edit; user signs off before it lands.
 7. **Resumption** — `/spec-flow resume <name>` or natural reference (*"pick up okta-auth"*). Multiple contracts in flight are allowed; the resume command matches the prompt to the best fit or asks.
-8. **Done** — Explicit signal (*"this is done"*). AI proposes migrations: ndr atoms via `/capture-decision`, README updates via librarian. File-host contracts move to `.docs/archive/`; Linear-host contracts are left in place with a suggestion to flip the ticket state at PR push.
+8. **Done** — Explicit signal (*"this is done"*). AI proposes migrations: ndr atoms via `/capture-decision`, README updates via librarian. File-host contracts move to `.docs/archive/`; Linear-host contracts have their body left intact and advance to a review state.
 
 ## File layout
 
