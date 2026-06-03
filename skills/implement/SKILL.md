@@ -74,6 +74,15 @@ Wait for the user's choice. Do not persist this — cadence is per-session.
 
 ### 5. Execute
 
+**Linear host — move to In Progress.** Before writing any code, transition the ticket to the started state:
+
+- Fetch the team's workflow states via `mcp__linear-server__list_issue_statuses` (the team comes from the issue read in step 2).
+- Find the state named "In Progress" (case-insensitive match); if absent, fall back to the team's first `started`-type state.
+- Set it via `mcp__linear-server__save_issue` (state field).
+- If no started-type state exists, note it once and continue. Never block coding on a status change.
+
+(File host has no status — skip this.)
+
 Work according to the chosen cadence:
 
 - **All at once** — Implement the full change; surface the diff at the end.
