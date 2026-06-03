@@ -18,10 +18,14 @@ spec-flow's load-bearing principle is **epistemic fit**: it must work the way *y
 2. **Context-gathering** — AI does proactive research (codebase, library docs via Context7, relevant ndr atoms), then asks targeted questions only where its path isn't clear. Conversation builds the shared model.
 3. **Drafting** — Contract gets five sections: *What we're doing*, *Why*, *Approach* (larger strokes only), *Out of scope*, *Open questions*. Bullets/lists/tables, never prose.
 4. **(Optional) Debate** — When the *how* is non-obvious, fork into the debate skill (advocate / devils-advocate / fact-checker / synthesizer); recommended approach + draft ndr atoms flow back into the contract.
-5. **Implementation** — At handoff, AI asks *"all at once, or check in after a piece?"* and may propose a sensible breakpoint. Cadence decided per session, not persisted.
+5. **Implementation** — At handoff, AI asks *"all at once, or check in after a piece?"* and may propose a sensible breakpoint. Cadence decided per session, not persisted. Before declaring done, the **`contract-verifier`** agent runs each *Done when* bullet in isolated context and returns a met / not-met / drifted verdict — verification is behavioral, not a diff-read.
 6. **Amendment** — When reality diverges, AI proposes a contract edit; user signs off before it lands.
 7. **Resumption** — `/spec-flow resume <name>` or natural reference (*"pick up okta-auth"*). Multiple contracts in flight are allowed; the resume command matches the prompt to the best fit or asks.
-8. **Done** — Explicit signal (*"this is done"*). AI proposes migrations: ndr atoms via `/capture-decision`, README updates via librarian. File-host contracts move to `.docs/archive/`; Linear-host contracts have their body left intact and advance to a review state.
+8. **Done** — Explicit signal (*"this is done"*). AI proposes migrations: ndr atoms via `/capture-decision`, README updates via librarian. File-host contracts move to `.docs/archive/`; Linear-host contracts have their body left intact and advance to a review state (see *Linear status lifecycle* below).
+
+### Linear status lifecycle
+
+On a Linear-host contract, spec-flow advances the ticket's state through the lifecycle: → **Contract Review** at kickoff, → **In Progress** when implementation starts, → a **review state** at done. It never sets a completed state (Done/Closed) — merge happens outside the contract lifecycle, so that flip stays yours. Target states are resolved by name (never hardcoded) and skipped gracefully if the team doesn't define them.
 
 ## File layout
 
