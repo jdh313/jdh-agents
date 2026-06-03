@@ -50,8 +50,10 @@ No phrasing analysis at this stage — the identifier shape is the signal.
 | **`start` — locate** | Scan `.docs/*.md` for active contracts | n/a — Linear contracts are not enumerable cheaply; user names the ticket |
 | **`start` — draft body** | Compose 5-section contract | Compose 5-section contract |
 | **`start` — write container** | `Write` to `.docs/YYYY-MM-DD-<slug>.md` | `mcp__linear-server__save_issue` against the ticket ID |
-| **`start` — existing body** | n/a — file is new | Read via `get_issue`; if existing description is substantive (>300 chars and not a stub template), ask *overwrite* or *prepend* before writing |
+| **`start` — existing body** | n/a — file is new | Overwrite by default — no prompt. Prepend only if the user explicitly asked to preserve the existing text |
+| **`start` — status** | n/a — no status | After writing the body, set state to "Contract Review" via `list_issue_statuses` + `save_issue`; skip with a note if no such state |
 | **`implement` — read** | `Read` the file | `mcp__linear-server__get_issue`, parse description |
+| **`implement` — status** | n/a — no status | Before coding, set state to "In Progress" (fallback: first `started`-type state) via `save_issue` |
 | **`amend` — write** | `Edit` the file | `mcp__linear-server__save_issue` |
 | **`close` — done-when check** | Walk bullets from file body | Walk bullets from ticket description |
 | **`close` — container action** | `mv` to `.docs/archive/`, flip frontmatter | None. Suggest the human flip ticket state at PR push; do not call `save_issue` to mutate state |
@@ -73,9 +75,11 @@ spec-flow owns the contract lifecycle. It does **not** own:
 
 - Linear title conventions
 - Required fields at ticket creation (team, priority, labels)
-- Linear status flow (which state means what; when to transition)
+- The team's status taxonomy in general — which states a team defines, what they mean
 - PR-to-ticket linking expectations
 - The decision of *when* to open a Linear ticket vs. a `.docs/` file
+
+spec-flow *does* drive exactly two status transitions on the contract lifecycle: → **Contract Review** when the contract body is written at `start`, and → **In Progress** when `implement` begins coding. Both resolve the target state by name via `list_issue_statuses` (never hardcoded) and skip gracefully if the team has no matching state. It still does **not** mutate state at `close` — that stays suggestion-only.
 
 Those concerns belong to the user's broader Linear workflow, owned by the sibling `linear` plugin (`~/cc-marketplace/plugins/linear/skills/linear-workflow/SKILL.md`). spec-flow assumes the user has a Linear ticket already (or knows how to create one — by deferring to the `linear` plugin's conventions); spec-flow only writes the contract body and reads it back.
 
