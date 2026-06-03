@@ -87,7 +87,7 @@
     <div class="arrow">↓</div>
     <div class="loop">
       <div class="col">
-        <div class="node impl"><div class="t">implement</div><div class="s">read contract · assess state · negotiate cadence · execute</div></div>
+        <div class="node impl"><div class="t">implement</div><div class="s">read contract · assess state (jj/git) · negotiate cadence · execute · verify Done-when</div></div>
       </div>
       <div class="col" style="flex:0 0 auto;min-width:120px">
         <div class="biarrow">reality diverges ⇄ amendment lands</div>
@@ -99,7 +99,7 @@
     <div class="arrow"><span class="lbl">user signals "done" — close is never automatic</span><br>↓</div>
     <div class="node term">user: /spec-flow close [name]</div>
     <div class="arrow">↓</div>
-    <div class="node close"><div class="t">close <span class="tag close">migrate + archive</span></div><div class="s">done-when gate · optional drift check · propose migrations · sign-off · archive (host-aware)</div></div>
+    <div class="node close"><div class="t">close <span class="tag close">migrate + archive</span></div><div class="s">behavioral done-when gate (contract-verifier) · optional drift check · propose migrations · sign-off · archive (host-aware)</div></div>
   </div>
   <figcaption>Lifecycle flow — each gray pill is a user action; colored boxes are skills. <code>implement</code> and <code>amend</code> form a loop until the user calls done.</figcaption>
 </figure>
@@ -113,22 +113,24 @@
   <li><strong>Gather context proactively</strong> — reads <code>CLAUDE.md</code>, searches the code, pulls library docs via Context7, checks the installed dep version, scans relevant ndr atoms, reads project rules. (Linear host: reads the existing ticket body as drafting input.)</li>
   <li><strong>Converse only where uncertain</strong> — surfaces findings, then asks targeted questions <em>only</em> where the path isn't clear. Proposes defaults rather than open-ended "what do you want?". May suggest forking into the <strong>debate</strong> skill, or <code>/grill-with-docs</code> if vocabulary is contested.</li>
   <li><strong>Draft</strong> the six-section contract from the template.</li>
-  <li><strong>Confirm &amp; write</strong> to the chosen host after the user approves.</li>
+  <li><strong>Confirm &amp; write</strong> to the chosen host after the user approves. (Linear host: overwrites the existing ticket description by default — it prepends above the original text only when the user explicitly asked to preserve it.)</li>
+  <li><strong>Move to Contract Review</strong> <span class="tag start">linear only</span> — once the body is written, advances the ticket to the <code>Contract Review</code> state (resolved by name via <code>list_issue_statuses</code>; skipped with a note if the team has no such state). File host has no status.</li>
   <li><strong>End</strong> — tells the user to run <code>/spec-flow implement</code> when ready. Stops there.</li>
 </ol>
 </div>
 
 <h2 id="implement">Phase 2 — implement <span class="tag impl">first run = resumption</span></h2>
 <div class="phase impl">
-<p>Starts or resumes coding against an active contract. First-run and resumption share one flow — behavior differs on <em>observed state</em> (git history, working tree), never on a stored flag.</p>
+<p>Starts or resumes coding against an active contract. First-run and resumption share one flow — behavior differs on <em>observed state</em> (VCS history, working tree), never on a stored flag.</p>
 <ol>
   <li><strong>Identify target &amp; detect host</strong> — from the argument's shape, or by scanning active <code>.docs/</code> contracts.</li>
   <li><strong>Read the contract</strong> and follow any linked ndr atoms.</li>
-  <li><strong>Assess state</strong> — recent commits, uncommitted changes, files touched. Summarizes in 2–3 lines as either "no work yet" (first run) or "last session did A, B" (resumption).</li>
+  <li><strong>Assess state</strong> — detects the VCS first (<code>.jj/</code> present → prefer <code>jj log</code> / <code>jj st</code> over <code>git</code>; under jj, <code>git status</code> misreads the working copy). Surveys recent commits, uncommitted changes, files touched. Summarizes in 2–3 lines as either "no work yet" (first run) or "last session did A, B" (resumption).</li>
   <li><strong>Negotiate cadence</strong> — asks <em>"all at once, or check in after a piece?"</em> and may propose a breakpoint. Decided per session; never persisted.</li>
-  <li><strong>Execute</strong> to the agreed cadence.</li>
+  <li><strong>Execute</strong> to the agreed cadence. <span class="tag impl">linear only</span> Before writing any code, advances the ticket to <code>In Progress</code> (fallback: the team's first <code>started</code>-type state), resolved by name via <code>list_issue_statuses</code>; never blocks coding on a status change. File host has no status.</li>
   <li><strong>Amend when reality diverges</strong> — invokes the amend skill instead of silently working outside the contract.</li>
-  <li><strong>End</strong> — when scope ships, prompts the user to run <code>/spec-flow close</code>. Does <strong>not</strong> auto-close.</li>
+  <li><strong>Verify against <em>Done when</em></strong> — before declaring done, dispatches the <strong>contract-verifier</strong> agent, which <em>runs</em> each <em>Done when</em> bullet and returns a per-bullet verdict (met / not&nbsp;met / drifted / unverifiable) with evidence. Verification is behavioral, not a diff-read — drift is plausible code that reads right but doesn't do what was promised. Inline <code>/verify</code> is the fallback if the agent is unavailable.</li>
+  <li><strong>End</strong> — when scope ships and the Done-when checks pass, prompts the user to run <code>/spec-flow close</code>. Does <strong>not</strong> auto-close.</li>
 </ol>
 </div>
 <div class="note">
@@ -153,8 +155,8 @@
 <p>Ends an active contract by migrating durable findings out of the ephemeral contract and into the durable layer, then archiving. Closing implies completion — it is not for pausing or abandoning.</p>
 <ol>
   <li><strong>Identify target &amp; detect host.</strong></li>
-  <li><strong>Read contract + actual change</strong> — <code>git log</code>/<code>git diff</code> since the contract was created; compares <em>Approach</em> against the code.</li>
-  <li><strong>Done-when check (first gate)</strong> — walks each <em>Done when</em> bullet: met / not met / drifted. If any bullet is <strong>not met</strong>, it halts and asks (close anyway as a known gap, amend to a narrower done, or pause). It will not silently archive an unmet contract.</li>
+  <li><strong>Read contract + actual change</strong> — detects the VCS first (<code>.jj/</code> present → <code>jj log</code> / <code>jj diff</code>, else <code>git log</code> / <code>git diff</code>) and surveys what shipped since the contract was created; compares <em>Approach</em> against the code.</li>
+  <li><strong>Done-when check (first gate)</strong> — walks each <em>Done when</em> bullet: met / not met / drifted. Prefers behavioral confirmation over diff-reading — reuses <code>implement</code>'s verify result if it ran this session, otherwise dispatches the <strong>contract-verifier</strong> agent (Done-when bullets + diff scope + detected VCS) to <em>run</em> the checks now in isolated context, falling back to inline <code>/verify</code>. If any bullet is <strong>not met</strong>, it halts and asks (close anyway as a known gap, amend to a narrower done, or pause). It will not silently archive an unmet contract.</li>
   <li><strong>Offer a drift check (optional)</strong> — if ndr atoms exist for the repo, prompts once to run <code>ndr:drift-check</code> against the diff. Opt-in, never auto.</li>
   <li><strong>Propose migrations</strong> — ndr atoms via <code>/capture-decision</code> for real architectural choices; README updates for user-facing changes; an explicit "not migrated" list (out-of-scope items, resolved open questions, conversation history).</li>
   <li><strong>Sign-off + apply</strong> — migrations are AI-proposed, applied only after approval. If any fails, it halts before archiving.</li>
@@ -164,26 +166,26 @@
 </div>
 
 <h2>Where the contract lives at each phase</h2>
-<p>The contract is born ephemeral and ends archived. Its on-disk state depends on host: a file moves and flips a frontmatter field; a Linear ticket is deliberately left untouched.</p>
+<p>The contract is born ephemeral and ends archived. What happens at close depends on host: a file moves and flips a frontmatter field; a Linear ticket's body is left intact while its <em>state</em> advances to a review state — spec-flow never sets a completed state (Done/Closed), which stays the human's call at merge.</p>
 
 <figure>
-  <div class="states" role="img" aria-label="Contract states: Draft during start before write, then Active once written, then Archived at close. File host moves the file to .docs/archive and flips status to archived; Linear host leaves the ticket in place untouched.">
+  <div class="states" role="img" aria-label="Contract states: Draft during start before write, then Active once written, then Archived at close. File host moves the file to .docs/archive and flips status to archived; Linear host leaves the ticket body intact and advances its state to a review state, never to a completed state.">
     <div class="st draft"><div class="lab">DRAFT</div><div class="meta">during <code>start</code>, before write — exists only in the conversation</div></div>
     <div class="stsep">→</div>
-    <div class="st active"><div class="lab">ACTIVE</div><div class="meta"><span style="color:var(--start)">file:</span> <code>.docs/YYYY-MM-DD-&lt;slug&gt;.md</code>, <code>status: active</code><br><span style="color:var(--close)">linear:</span> ticket description holds the body</div></div>
+    <div class="st active"><div class="lab">ACTIVE</div><div class="meta"><span style="color:var(--start)">file:</span> <code>.docs/YYYY-MM-DD-&lt;slug&gt;.md</code>, <code>status: active</code><br><span style="color:var(--close)">linear:</span> ticket description holds the body; state walks <code>Contract Review</code> → <code>In Progress</code></div></div>
     <div class="stsep">→</div>
-    <div class="st archived"><div class="lab">ARCHIVED / CLOSED</div><div class="meta"><span style="color:var(--start)">file:</span> moved to <code>.docs/archive/</code>, <code>status: archived</code><br><span style="color:var(--close)">linear:</span> ticket <strong>untouched</strong>; body stays for retrospect</div></div>
+    <div class="st archived"><div class="lab">ARCHIVED / CLOSED</div><div class="meta"><span style="color:var(--start)">file:</span> moved to <code>.docs/archive/</code>, <code>status: archived</code><br><span style="color:var(--close)">linear:</span> body stays for retrospect; state advances to a <strong>review state</strong> — never Done/Closed</div></div>
   </div>
-  <figcaption>Contract state across the lifecycle. Placement (not the frontmatter field) is the canonical file-host signal; Linear-host close mutates nothing.</figcaption>
+  <figcaption>Contract state across the lifecycle. Placement (not the frontmatter field) is the canonical file-host signal; Linear-host close leaves the body intact and advances only the ticket's state, never to a completed state.</figcaption>
 </figure>
 
 <table>
   <tr><th>Action at close</th><th>File host</th><th>Linear host</th></tr>
-  <tr><td>Container</td><td><code>mv</code> to <code>.docs/archive/</code> (or <code>git mv</code> if tracked)</td><td>None — ticket left in place</td></tr>
-  <tr><td>State field</td><td>flip <code>status: active</code> → <code>status: archived</code></td><td>None — never calls <code>save_issue</code> to flip state</td></tr>
-  <tr><td>Human follow-up</td><td>none needed</td><td>suggestion only: flip ticket state when you push the PR</td></tr>
+  <tr><td>Container</td><td><code>mv</code> to <code>.docs/archive/</code> (plain <code>mv</code> if untracked; if tracked, under jj plain <code>mv</code> auto-tracks, on pure git use <code>git mv</code>)</td><td>body left intact in the ticket description</td></tr>
+  <tr><td>State field</td><td>flip <code>status: active</code> → <code>status: archived</code></td><td>advance to a <strong>review state</strong> (In Review / Code Review / Ready for Review / Review, resolved by name) via <code>save_issue</code>; never a completed state</td></tr>
+  <tr><td>Human follow-up</td><td>none needed</td><td>set the ticket Done yourself when the PR merges</td></tr>
 </table>
-<p style="color:var(--muted);font-size:.9rem">Closing is non-destructive in both hosts: the file is archived, not deleted; the ticket is preserved. Linear state flow stays the user's call.</p>
+<p style="color:var(--muted);font-size:.9rem">Closing is non-destructive in both hosts: the file is archived, not deleted; the ticket body is preserved. spec-flow advances Linear state through the lifecycle (<code>start</code> → Contract Review, <code>implement</code> → In Progress, <code>close</code> → a review state) but never sets Done/Closed — the merge flip stays the user's call.</p>
 
 <h2>File layout (file host)</h2>
 <pre><code>.docs/
@@ -198,7 +200,7 @@
   <tr><th>What</th><th>Re-derived each time from…</th></tr>
   <tr><td><strong>Host</strong> (file vs. Linear)</td><td>the identifier shape (or goal text at <code>start</code>)</td></tr>
   <tr><td><strong>Cadence</strong> (all-at-once vs. check-in)</td><td>re-negotiated per implement session</td></tr>
-  <tr><td><strong>First-run vs. resumption</strong></td><td>observed git state — not a stored flag</td></tr>
+  <tr><td><strong>First-run vs. resumption</strong></td><td>observed VCS state (jj or git) — not a stored flag</td></tr>
 </table>
 
 <div style="margin-top:40px;display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap"><a href="index.html">← Home</a><a href="hosts.html">Next: the two hosts and host detection →</a></div>
