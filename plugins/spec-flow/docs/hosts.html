@@ -58,7 +58,7 @@
 <div class="wrap">
 <nav class="crumbs"><a href="index.html">spec-flow</a> / the two hosts</nav>
 <h1>The two contract hosts</h1>
-<p class="lede">The same five-section contract lives in one of two places. The host changes <em>where</em> the body is read and written — and what happens to it at close — but never the contract's shape.</p>
+<p class="lede">The same six-section contract lives in one of two places. The host changes <em>where</em> the body is read and written — and what happens to it at close — but never the contract's shape.</p>
 
 <div class="two">
   <div class="hostcard file">
@@ -76,7 +76,7 @@
       <li>An existing Linear issue (e.g. <code>TEAM-49</code>); its description holds the body.</li>
       <li>No frontmatter — the ticket's own metadata is the workflow signal.</li>
       <li>Not enumerable cheaply — you name the ticket explicitly.</li>
-      <li>At close: ticket left untouched; you flip its state yourself.</li>
+      <li>At close: state advanced to a review state (never a completed one); body untouched.</li>
     </ul>
   </div>
 </div>
@@ -118,12 +118,14 @@
   <tr><td><strong>start — locate</strong></td><td>scan <code>.docs/*.md</code> for active contracts</td><td>n/a — not enumerable; user names the ticket</td></tr>
   <tr><td><strong>start — draft body</strong></td><td colspan="2" style="text-align:center">identical — compose the same contract</td></tr>
   <tr><td><strong>start — write</strong></td><td><code>Write</code> to <code>.docs/YYYY-MM-DD-&lt;slug&gt;.md</code></td><td><code>save_issue</code> against the ticket ID</td></tr>
-  <tr><td><strong>start — existing body</strong></td><td>n/a — file is new</td><td>read via <code>get_issue</code>; if existing description is <strong>substantive</strong> (&gt;~300 chars, not a stub), ask <em>overwrite</em> or <em>prepend</em>. Never silently overwrite substantive content.</td></tr>
-  <tr><td><strong>implement — read</strong></td><td><code>Read</code> the file</td><td><code>get_issue</code>, parse the description for the sections</td></tr>
+  <tr><td><strong>start — existing body</strong></td><td>n/a — file is new</td><td>overwrite by default — no prompt. Prepend only if the user explicitly asked to preserve the existing text.</td></tr>
+  <tr><td><strong>start — status</strong></td><td>n/a — no status</td><td>after writing the body, set state to "Contract Review" by name via <code>list_issue_statuses</code> + <code>save_issue</code>; skip with a note if no such state</td></tr>
+  <tr><td><strong>implement — read</strong></td><td>detect <code>.jj/</code> first, use <code>jj</code> over <code>git</code>; <code>Read</code> the file</td><td><code>get_issue</code>, parse the description for the sections</td></tr>
+  <tr><td><strong>implement — status</strong></td><td>n/a — no status</td><td>before coding, set state to "In Progress" (fallback: first <code>started</code>-type state) via <code>save_issue</code></td></tr>
   <tr><td><strong>amend — write</strong></td><td><code>Edit</code> the file in place</td><td><code>get_issue</code> + <code>save_issue</code> (the API replaces the description — untouched sections must be preserved)</td></tr>
   <tr><td><strong>close — done-when</strong></td><td>walk bullets from the file body</td><td>walk bullets from the ticket description</td></tr>
-  <tr><td><strong>close — container</strong></td><td><code>mv</code> to <code>.docs/archive/</code>, flip frontmatter</td><td><strong>none</strong> — suggest the human flip ticket state at PR push; never <code>save_issue</code> to mutate state</td></tr>
-  <tr><td><strong>close — wording</strong></td><td>"Contract archived at <code>.docs/archive/…</code>"</td><td>"Archive: N/A — Linear-tracked. Suggestion: flip ticket state when you push the PR."</td></tr>
+  <tr><td><strong>close — container</strong></td><td><code>mv</code> to <code>.docs/archive/</code>, flip frontmatter</td><td>advance state to a review state (In Review / Code Review / …) via <code>save_issue</code>; never set a completed state. Body untouched.</td></tr>
+  <tr><td><strong>close — wording</strong></td><td>"Contract archived at <code>.docs/archive/…</code>"</td><td>"Moved to In Review; body intact. Set Done yourself at merge."</td></tr>
 </table>
 
 <h2>Linear MCP availability is a gate</h2>
@@ -139,17 +141,18 @@
 <ul>
   <li>Linear title conventions.</li>
   <li>Required fields at ticket creation (team, priority, labels).</li>
-  <li>Linear status flow — which state means what, and when to transition.</li>
+  <li>The team's status taxonomy in general — which states a team defines, what they mean.</li>
   <li>PR-to-ticket linking expectations.</li>
   <li>The decision of <em>when</em> to open a Linear ticket vs. a <code>.docs/</code> file.</li>
 </ul>
-<p>Those belong to the broader Linear workflow (the sibling <code>linear</code> plugin). spec-flow assumes a ticket already exists; it only writes and reads the contract body.</p>
+<p>spec-flow <em>does</em> drive the contract-lifecycle state transitions: → <strong>Contract Review</strong> when the contract body is written at <code>start</code>, → <strong>In Progress</strong> when <code>implement</code> begins coding, and → a <strong>review state</strong> when <code>close</code> finishes. All resolve the target by name via <code>list_issue_statuses</code> (never hardcoded) and skip gracefully if the team has no matching state. It never sets a <strong>completed</strong> state (Done/Closed) — merge happens outside the lifecycle, so that flip stays the human's.</p>
+<p>Those broader concerns belong to the user's Linear workflow (the sibling <code>linear</code> plugin). spec-flow assumes a ticket already exists; it only writes and reads the contract body.</p>
 
 <h2 style="color:var(--muted)">Documented-but-unbuilt host shapes</h2>
 <p style="color:var(--muted);font-size:.92rem">The <code>hosts.md</code> reference records two future shapes that are <strong>not implemented</strong>, kept on file so the design intent is visible:</p>
 <ul style="color:var(--muted);font-size:.92rem">
   <li><strong>Linear-new (Shape B)</strong> — <code>start</code> could <em>create</em> a new ticket (prompting for title/team/status) rather than only attaching to an existing one. Deferred until Linear-side defaults settle.</li>
-  <li><strong>GitHub Issues (Shape C)</strong> — same adapter pattern, detected by issue-URL or <code>owner/repo#NN</code> shape, with the same suggestion-only close behavior. Out of scope for now.</li>
+  <li><strong>GitHub Issues (Shape C)</strong> — same adapter pattern, detected by issue-URL or <code>owner/repo#NN</code> shape, with the same close behavior as the Linear host (advance to a review state by name, never a completed state). Out of scope for now.</li>
 </ul>
 
 <div style="margin-top:40px;display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap"><a href="lifecycle.html">← Previous: the contract lifecycle</a><a href="contract-structure.html">Next: the contract structure →</a></div>
