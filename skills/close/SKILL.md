@@ -53,7 +53,7 @@ Walk each *Done when* bullet against the actual change:
 - **Not met** — outcome is missing or partial. Surface explicitly.
 - **Drifted** — outcome shipped, but the bullet no longer describes it well (rephrase candidate during close).
 
-Prefer behavioral confirmation over diff-reading. If `implement`'s verify step ran this session, reuse its per-bullet result; otherwise run the tests and drive the change now (via the `/verify` skill if available) before judging each bullet. A bullet that only *looks* met in the diff is exactly the drift this gate exists to catch.
+Prefer behavioral confirmation over diff-reading. If `implement`'s verify step ran this session, reuse its per-bullet result; otherwise dispatch the **`contract-verifier`** agent (Done-when bullets + diff scope + detected VCS) to run the checks now in isolated context — or fall back to running them inline (`/verify` if available). A bullet that only *looks* met in the diff is exactly the drift this gate exists to catch.
 
 If any bullet is **not met**, halt and ask: continue closing anyway (treat as a known gap, note it in the summary), amend the contract via `spec-flow:amend` to reflect a narrower done, or pause closing until the gap ships? Do not silently archive an unmet contract.
 
