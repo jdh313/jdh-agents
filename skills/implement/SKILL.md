@@ -98,11 +98,15 @@ If implementation reveals the contract is becoming inaccurate (wrong approach, n
 
 Before declaring the work done, verify each *Done when* bullet by **observing behavior**, not by reading the diff. Drift's signature is plausible code that looks right at a glance but doesn't do what the contract promised — reading the diff won't catch it; running the change will.
 
-- Run the tests relevant to the change if the repo has a suite.
-- Drive the actual behavior each bullet describes — run the app / command / endpoint and check the real outcome. If the `/verify` skill is available, use it to drive the app and observe live.
-- Classify each *Done when* bullet: **met** (observed), **not met** (missing or partial), or **drifted** (shipped, but the bullet no longer describes it).
+Dispatch the **`contract-verifier`** agent (via the Agent tool) so the running and log-reading happen in isolated context and the judgment is independent of your view as the implementer. Pass it:
 
-Report the per-bullet result. If a bullet is **not met**, surface it plainly — do not paper over it. Either keep working, or (if the contract's notion of done genuinely changed) invoke `Skill(spec-flow:amend)`.
+- The *Done when* bullets verbatim.
+- The change scope — `<base>..HEAD` (jj or git, per the VCS detected in step 3) or `"working tree"` if uncommitted.
+- The detected `vcs`, and a `repo_hint` if you already know the test command; otherwise let the agent discover it.
+
+It returns a per-bullet verdict (`met` / `not_met` / `drifted` / `unverifiable`, each with evidence). Surface the result to the user. If any bullet is **not met** (or unverifiable), do not paper over it — keep working, or (if the contract's notion of done genuinely changed) invoke `Skill(spec-flow:amend)`.
+
+If the `contract-verifier` agent is unavailable for any reason, fall back to running the checks inline (tests + driving each behavior, `/verify` if available).
 
 ### 8. End
 
