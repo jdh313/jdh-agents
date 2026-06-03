@@ -1,5 +1,12 @@
 # ndr — Nested Decision Records
 
+> [!WARNING]
+> **DEPRECATED — this copy is no longer maintained.** The plugin moved to
+> [`~/Projects/ndr`](https://github.com/jdhoehler/ndr) (the repo that also hosts
+> the `ndr` CLI it depends on) and is served from that repo's own marketplace
+> (`ndr@ndr`). This copy remains for history only; do not install or edit it here.
+> See JUN-175 for the migration rationale.
+
 A personal-discipline plugin for capturing engineering decisions as **atomic markdown artifacts** with explicit lineage and **supersession-aware reading**, so cross-session decision drift becomes structurally visible rather than discoverable in hindsight.
 
 ## What it does
