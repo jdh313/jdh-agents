@@ -63,7 +63,7 @@ Before asking the user anything, do legwork:
 - **Installed version** — If the goal names a specific dep, check the installed major version in the target repo (`bun info <pkg>`, `npm ls <pkg>`, `pip show <pkg>`, `cargo tree | grep <pkg>`, etc.) before drafting against the docs. Docs-vs-installed drift is a common amendment trigger.
 - **Relevant ndr atoms** — Scan `~/Loose Ends/Decisions/` for atoms tagged with the area, project, or related concepts.
 - **Project rules** — Check `.claude/rules/` if present.
-- **Linear host only** — Read the existing ticket description via `mcp__linear-server__get_issue`. Treat it as input to drafting (stakeholder context, what the PM or you-yesterday wrote). Note whether it's substantive (>~300 chars, not a stub template) — that affects step 6.
+- **Linear host only** — Read the existing ticket description via `mcp__linear-server__get_issue`. Treat it as input to drafting (stakeholder context, what the PM or you-yesterday wrote). The body is overwritten by default at step 6, so its length no longer gates a prompt — it's drafting input only.
 
 Synthesize: what you have a clear path on vs. what you don't.
 
@@ -120,7 +120,7 @@ Overwrite the ticket's description with the formatted contract via `mcp__linear-
 
 Exception — only when the user explicitly asked to preserve the existing text (e.g. "prepend", "keep the description", "don't overwrite") in the goal or during the conversation. In that case, prepend the contract above the original instead of replacing it.
 
-No frontmatter in Linear-hosted contracts. The ticket's own metadata (state, assignee, labels) is the workflow signal; the contract body holds only the 5 sections.
+No frontmatter in Linear-hosted contracts. The ticket's own metadata (state, assignee, labels) is the workflow signal; the contract body holds only the 6 sections.
 
 **Linear host — move to Contract Review.** Once the contract body is written, the contract is ready to be reviewed. Transition the ticket's state:
 
