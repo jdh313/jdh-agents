@@ -133,6 +133,27 @@ Re-saving clean markdown does **not** remove them — the comment entity owns th
 
 ---
 
+## 6. `save_issue` has no project-removal path
+
+**Broken:**
+
+```
+mcp__linear-server__save_issue({id: "TEAM-123", project: ""})
+→ success-shaped response; issue still assigned to its project
+```
+
+Passing an empty string for `project` is a **silent no-op** — no error, no change. There is no value that clears the project assignment via MCP.
+
+**Working:** Reassign to another project instead (e.g. `project: "Parking Lot"`), or clear the field in the Linear UI.
+
+**Cause:** The tool treats empty/falsy `project` as "not provided" rather than "set to null" — same missing-null-path class as `estimate` (§3).
+
+**Practical rule:** Don't plan workflows around moving a ticket to bare no-project via MCP. Mostly moot for this team anyway: per `pm`'s `layer-policy.md` (2026-06-05), bare no-project is no longer a legal parked state — parked tickets go to the Parking Lot project, which `save_issue` handles fine.
+
+**Caught 2026-06-05** during the weekly grooming pass, attempting to unfile a ticket before the Parking Lot project existed.
+
+---
+
 ## Reporting new gotchas
 
 When a new silent-failure mode surfaces:
