@@ -59,8 +59,9 @@ The bet: classification is mechanical (rule-based) and tedious, so the skill doe
 4. Classify each ticket into exactly ONE bucket per the taxonomy below. Precedence when multiple criteria match: **NDR-moot > Missing fields > Stale > Push-out > Pull-in**.
 5. For tickets whose body or title references `ndr:<atom-id>`, `ndr:#<slug>`, or `ndr:<area/topic>`, dispatch `Skill(ndr:decisions)` to resolve the supersession head. Flag any whose referenced atom has been superseded as `NDR-moot`.
 6. Search vault `~/Loose Ends/Carta/Projects/CartaOS/` for working-session notes touched in the last 7 days. Surface any work items mentioned in those notes but not represented by a Linear ticket as `Vault-unfiled` candidates.
-7. Format the punch list per the output format below. Emit to chat.
-8. **Write the cycle log.** Replace the log issue's body with the formatted punch list (cycle header + buckets). Skip this step if step 1 found no candidate — warn the user instead.
+7. **Smell check — Decision proliferation.** Count open `Decision`-labeled tickets across cycle + backlog. If ≥3, append a smell line to the punch list: decisions are not being resolved inside spec-flow contracts (embed-by-default — a standalone ticket is earned only by the orphan bar; see `linear-workflow`'s "Spike vs Decision" section). For each, propose checking it against the orphan bar — non-orphans should fold into the `Open questions` of the work item that will collide with them.
+8. Format the punch list per the output format below. Emit to chat.
+9. **Write the cycle log.** Replace the log issue's body with the formatted punch list (cycle header + buckets). Skip this step if step 1 found no candidate — warn the user instead.
 
 ## Buckets (load-bearing taxonomy)
 
@@ -99,7 +100,13 @@ End with a one-line load summary:
 Current cycle: N tickets total, M in progress.
 ```
 
-## Cycle log body (written to Linear in step 8)
+If the Decision-proliferation smell triggered (step 7), append one line:
+
+```
+Smell: N open Decision tickets — decisions may not be resolving inside contracts. Check each against the orphan bar; fold non-orphans into the colliding work item's Open questions.
+```
+
+## Cycle log body (written to Linear in step 9)
 
 The log body written to the recurring grooming child issue mirrors the chat output, prefixed with a cycle header:
 
@@ -129,7 +136,7 @@ Replace-on-write each run. Rerunning the same week overwrites with the latest sw
 - **Skip sub-projects of CAR not assigned to the user.**
 - **Always flag the current cycle load** before proposing pull-ins.
 - **Do not re-classify a ticket the user moved during the session** — assume the move was deliberate.
-- **Confirm the log issue ID with the user** before writing in step 8.
+- **Confirm the log issue ID with the user** before writing in step 9.
 
 ## Composes with
 
