@@ -1,23 +1,28 @@
 ---
 name: groom
 description: >-
-  Weekly Thursday-AM backlog grooming sweep for AcmeOS Linear (team CAR). This
-  skill should be used when the user invokes `/pm:groom`, says "groom the
+  Weekly Thursday-AM backlog grooming sweep for Wayfinder Linear (team CAR).
+  This skill should be used when the user invokes `/pm:groom`, says "groom the
   backlog", "weekly groom", "thursday grooming", "let's groom", or signals the
   start of the weekly Thu→Wed cycle grooming ritual. Scans active cycle +
   backlog, cross-refs NDR atoms and recent vault session notes, and outputs a
   punch list grouped by action bucket (pull-in, push-out, stale, missing-fields,
-  NDR-moot, vault-unfiled). Writes the same punch list to this cycle's
-  recurring grooming child issue as the cycle log. Proposes actions only —
-  never applies state transitions, never closes tickets, never edits the bodies
-  of groomed tickets. The user reviews and applies any changes manually via the
-  `linear-workflow` skill.
+  NDR-moot, vault-unfiled) plus a hygiene sweep (expired target dates,
+  prose-only dependencies, parked markers in the active phase, priority
+  mismatches across blocks relations). Writes the same punch list to this
+  cycle's recurring grooming child issue as the cycle log. Proposes actions
+  only — never applies state transitions, never closes tickets, never edits
+  the bodies of groomed tickets. The user reviews and applies any changes
+  manually via the `linear-workflow` skill.
 argument-hint: "[grooming log issue ID, e.g. TEAM-128]"
 allowed-tools:
   # Linear — cycle + backlog scan + write the cycle log
   - mcp__linear-server__list_issues
   - mcp__linear-server__list_cycles
   - mcp__linear-server__get_issue
+  # Hygiene sweep — project + milestone target dates
+  - mcp__linear-server__list_projects
+  - mcp__linear-server__list_milestones
   - mcp__linear-server__list_comments
   - mcp__linear-server__list_issue_statuses
   - mcp__linear-server__list_issue_labels
@@ -37,7 +42,7 @@ allowed-tools:
 
 ## Overview
 
-Run the weekly Thursday-AM grooming sweep for AcmeOS Linear (team `CAR`). Read-mostly: scan the active cycle and backlog, cross-reference NDR atoms and recent vault session notes, produce a punch list grouped by action bucket. Write the punch list to this cycle's recurring grooming child issue as the cycle log. The user reviews and applies any approved transitions manually via the `linear-workflow` skill.
+Run the weekly Thursday-AM grooming sweep for Wayfinder Linear (team `CAR`). Read-mostly: scan the active cycle and backlog, cross-reference NDR atoms and recent vault session notes, produce a punch list grouped by action bucket plus a Hygiene section of mechanical drift flags. Write the punch list to this cycle's recurring grooming child issue as the cycle log. The user reviews and applies any approved transitions manually via the `linear-workflow` skill.
 
 The bet: classification is mechanical (rule-based) and tedious, so the skill does it. Prioritization is judgment, so the user does it.
 
@@ -45,23 +50,28 @@ The bet: classification is mechanical (rule-based) and tedious, so the skill doe
 
 - **Linear team:** `CAR` (Work Healthcare). Single-team workspace.
 - **Grooming log anchor:** `TEAM-63` is the recurring-issue template. Each cycle spawns a child issue (e.g. `TEAM-128`); the punch list is written to that child as the cycle log. This skill does NOT read `TEAM-63`'s body — the grooming procedure is encoded in this skill, not in Linear.
-- **Vault project root:** `~/Loose Ends/Work/Projects/AcmeOS/`
-- **NDR atoms root:** `~/Loose Ends/Decisions/` — filter to atoms with `project: [[AcmeOS]]` frontmatter.
+- **Vault project root:** `~/Loose Ends/Work/Projects/Wayfinder/`
+- **NDR atoms root:** `~/Loose Ends/Decisions/` — filter to atoms with `project: [[Wayfinder]]` frontmatter.
 - **Cycle cadence:** Thu→Wed, weekly. Cycle boundary aligns with the Thursday 11 AM ops review meeting — cycle closes Wed EOD; Thursday morning meeting reviews the just-closed cycle; new cycle starts Thursday.
-- **Issue shape spec:** `../../references/issue-shape.md` (plugin reference). Defines what counts as a well-formed AcmeOS ticket. Load when classifying for the Missing-fields or NDR-moot buckets.
-- **Layer policy:** `../../references/layer-policy.md` (plugin reference). Defines the active layers (project / milestone / issue / cycle), the retired ones (epic, subissue, initiative), and the legal states for a ticket. Load when flagging orphans (no milestone, in cycle) or evaluating whether a proposed parent ticket earns its keep.
+- **Issue shape spec:** `../../references/issue-shape.md` (plugin reference). Defines what counts as a well-formed Wayfinder ticket. Load when classifying for the Missing-fields or NDR-moot buckets.
+- **Layer policy:** `../../references/layer-policy.md` (plugin reference). Defines the active layers (project / milestone / issue / cycle), the retired ones (epic, subissue, initiative), and the legal states for a ticket — including the Parking Lot project. Load when flagging orphans (no milestone, in cycle), evaluating whether a proposed parent ticket earns its keep, or running the parked-marker hygiene check (cite the legal-states table; don't restate it).
 
 ## Procedure
 
 1. **Locate the log issue.** If an argument was passed (e.g. `TEAM-128`), use that. Otherwise, query `mcp__linear-server__list_issues` for the most recently updated open issue in team `CAR` matching the grooming-recurrence pattern (title contains "groom" OR label `grooming`). Confirm with the user before writing — one-line prompt, e.g. "Write log to TEAM-128?".
 2. Pull active cycle issues via `mcp__linear-server__list_cycles` + `list_issues` filtered by the current cycle. **Resolve the current cycle's numeric name (e.g. `"2"`) via `list_cycles({type: "current"})` first, then pass that to `list_issues({cycle: "2"})` — `cycle: "current"` silently returns `[]`.** See `~/cc-marketplace/plugins/linear/references/mcp-gotchas.md` § 1 for the failure mode and other Linear MCP gotchas. Capture state, priority, `updatedAt`, blocker links.
-3. Pull backlog issues filtered to the active AcmeOS project. Sort by `updatedAt` descending.
+3. Pull backlog issues filtered to the active Wayfinder phase project. Sort by `updatedAt` descending.
 4. Classify each ticket into exactly ONE bucket per the taxonomy below. Precedence when multiple criteria match: **NDR-moot > Missing fields > Stale > Push-out > Pull-in**.
 5. For tickets whose body or title references `ndr:<atom-id>`, `ndr:#<slug>`, or `ndr:<area/topic>`, dispatch `Skill(ndr:decisions)` to resolve the supersession head. Flag any whose referenced atom has been superseded as `NDR-moot`.
-6. Search vault `~/Loose Ends/Work/Projects/AcmeOS/` for working-session notes touched in the last 7 days. Surface any work items mentioned in those notes but not represented by a Linear ticket as `Vault-unfiled` candidates.
-7. **Smell check — Decision proliferation.** Count open `Decision`-labeled tickets across cycle + backlog. If ≥3, append a smell line to the punch list: decisions are not being resolved inside spec-flow contracts (embed-by-default — a standalone ticket is earned only by the orphan bar; see `linear-workflow`'s "Spike vs Decision" section). For each, propose checking it against the orphan bar — non-orphans should fold into the `Open questions` of the work item that will collide with them.
-8. Format the punch list per the output format below. Emit to chat.
-9. **Write the cycle log.** Replace the log issue's body with the formatted punch list (cycle header + buckets). Skip this step if step 1 found no candidate — warn the user instead.
+6. Search vault `~/Loose Ends/Work/Projects/Wayfinder/` for working-session notes touched in the last 7 days. Surface any work items mentioned in those notes but not represented by a Linear ticket as `Vault-unfiled` candidates.
+7. **Hygiene sweep.** Mechanical drift checks over the tickets already pulled in steps 2–3 plus project/milestone metadata (`list_projects` for the active phase project's target date, `list_milestones` for milestone dates). Findings go in the punch list's Hygiene section — these are sweep findings, NOT classification buckets; a ticket may appear in a bucket AND carry a hygiene flag. Four checks:
+   - **Expired dates** — the active phase project or any milestone has a `targetDate` in the past, or a milestone is marked done while open tickets remain in it. Propose a new target date or a milestone close-out/re-home.
+   - **Prose-only dependencies** — a ticket body contains "blocked on", "depends on", "pairs with", "follow-up to" (or close variants) alongside a `TEAM-` reference, but the issue has no corresponding Linear relation. Propose the matching relation (`blocks` / `blocked by` / `related`).
+   - **Parked markers in the active phase** — title contains "(Phase 2)" or "stretch", or the body has a "When to pick this up" trigger section, while the ticket sits in the active-phase project. Propose a move to the Parking Lot project or the next-phase project, per the legal-states table in `../../references/layer-policy.md`.
+   - **Priority mismatch across `blocks`** — a ticket blocks a higher-priority ticket while itself carrying lower priority. **Flag only — never propose a priority value.** Classification is mechanical; prioritization is human (the skill's core bet).
+8. **Smell check — Decision proliferation.** Count open `Decision`-labeled tickets across cycle + backlog. If ≥3, append a smell line to the punch list: decisions are not being resolved inside spec-flow contracts (embed-by-default — a standalone ticket is earned only by the orphan bar; see `linear-workflow`'s "Spike vs Decision" section). For each, propose checking it against the orphan bar — non-orphans should fold into the `Open questions` of the work item that will collide with them.
+9. Format the punch list per the output format below. Emit to chat.
+10. **Write the cycle log.** Replace the log issue's body with the formatted punch list (cycle header + buckets + hygiene). Skip this step if step 1 found no candidate — warn the user instead.
 
 ## Buckets (load-bearing taxonomy)
 
@@ -94,19 +104,28 @@ For `Vault-unfiled`, substitute the note name for `TEAM-N`:
   - Why: <one-line rationale>
 ```
 
+After the buckets, emit a `## Hygiene` section (skip if no findings). Subjects may be tickets, milestones, or the project itself:
+
+```
+- **<check name>**: <subject> — <finding>
+  - Proposed: <action>
+```
+
+For priority-mismatch findings, the `Proposed:` line is always `none — flag only; priority is yours to set`.
+
 End with a one-line load summary:
 
 ```
 Current cycle: N tickets total, M in progress.
 ```
 
-If the Decision-proliferation smell triggered (step 7), append one line:
+If the Decision-proliferation smell triggered (step 8), append one line:
 
 ```
 Smell: N open Decision tickets — decisions may not be resolving inside contracts. Check each against the orphan bar; fold non-orphans into the colliding work item's Open questions.
 ```
 
-## Cycle log body (written to Linear in step 9)
+## Cycle log body (written to Linear in step 10)
 
 The log body written to the recurring grooming child issue mirrors the chat output, prefixed with a cycle header:
 
@@ -124,6 +143,12 @@ Reviewed N tickets (C in cycle, B in backlog). Current load: N tickets, M in pro
 - ...
 
 (empty buckets omitted)
+
+## Hygiene
+
+- ...
+
+(omitted when no findings)
 ```
 
 Replace-on-write each run. Rerunning the same week overwrites with the latest sweep.
@@ -136,7 +161,8 @@ Replace-on-write each run. Rerunning the same week overwrites with the latest sw
 - **Skip sub-projects of CAR not assigned to the user.**
 - **Always flag the current cycle load** before proposing pull-ins.
 - **Do not re-classify a ticket the user moved during the session** — assume the move was deliberate.
-- **Confirm the log issue ID with the user** before writing in step 9.
+- **Hygiene findings are proposals like everything else** — and the priority-mismatch check never proposes a priority value, only flags the inversion.
+- **Confirm the log issue ID with the user** before writing in step 10.
 
 ## Composes with
 
