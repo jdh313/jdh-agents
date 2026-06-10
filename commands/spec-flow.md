@@ -1,5 +1,5 @@
 ---
-description: Drive a code change through spec-flow's contract lifecycle (start, implement, close)
+description: Drive a code change through spec-flow's contract lifecycle (draft, implement, close)
 argument-hint: <subcommand> [args]
 allowed-tools:
   - Bash
@@ -17,7 +17,7 @@ Dispatcher for spec-flow's contract lifecycle. Parses the first argument as a su
 
 ## Subcommands
 
-- **`start <goal>`** — Open a contract for a new code change. Invokes `Skill(spec-flow:start)` with the goal text.
+- **`draft <goal>`** — Open a contract for a new code change. Invokes `Skill(spec-flow:draft)` with the goal text.
 - **`implement [name]`** — Start (or resume) implementation against an existing contract. Invokes `Skill(spec-flow:implement)`. If `name` is omitted, infer from active contracts in `.docs/`.
 - **`close [name]`** — Close an active contract and migrate findings to the durable layer. Invokes `Skill(spec-flow:close)`. If `name` is omitted, infer from active contracts.
 

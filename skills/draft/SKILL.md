@@ -1,9 +1,9 @@
 ---
-name: start
-description: This skill should be used when the user runs `/spec-flow start <goal>` or otherwise signals the start of a new contract-tracked code change. Trigger phrases include "spec-flow start", "open a contract for", "let's scaffold a contract for", "new spec-flow change", "draft a contract for this change". Performs the kickoff lifecycle — detects the contract host (`.docs/` file or existing Linear ticket), flags any other active contracts, runs proactive context-gathering (codebase, library docs via Context7, relevant ndr atoms), conducts a conversational pass asking targeted questions only where the AI's path isn't clear, drafts a six-section contract using the contract template, and writes it to the chosen host. Does NOT start implementation — that requires explicit `/spec-flow implement`.
+name: draft
+description: This skill should be used when the user runs `/spec-flow draft <goal>` or otherwise signals the start of a new contract-tracked code change. Trigger phrases include "spec-flow draft", "open a contract for", "let's scaffold a contract for", "new spec-flow change", "draft a contract for this change". Performs the kickoff lifecycle — detects the contract host (`.docs/` file or existing Linear ticket), flags any other active contracts, runs proactive context-gathering (codebase, library docs via Context7, relevant ndr atoms), conducts a conversational pass asking targeted questions only where the AI's path isn't clear, drafts a six-section contract using the contract template, and writes it to the chosen host. Does NOT start implementation — that requires explicit `/spec-flow implement`.
 ---
 
-# spec-flow:start
+# spec-flow:draft
 
 Open a contract for a new code change. Drafts only; does not implement.
 
@@ -11,7 +11,7 @@ A contract has a **host** — either a `.docs/` file or an existing Linear ticke
 
 ## When to invoke
 
-- User runs `/spec-flow start <goal>`.
+- User runs `/spec-flow draft <goal>`.
 - User explicitly says "let's spec-flow this" or "open a contract for X".
 - User describes a non-trivial change and asks for a contract first.
 
@@ -79,7 +79,7 @@ If the *done* state isn't obvious from the goal — i.e. you can't list 2–3 ob
 
 If the *how* is non-obvious enough to warrant real deliberation, suggest forking into the debate skill (advocate / devils-advocate / fact-checker / synthesizer). The debate's output — recommended approach plus draft ndr atoms — flows back into the contract's *Approach* section.
 
-If contested or fuzzy vocabulary surfaces during the conversation — terms used inconsistently, ambiguous nouns, drift between code naming and how the user is talking about the change — and the `craft` plugin is installed, suggest invoking `/grill-with-docs` to lock the terms down in the repo's `CONTEXT.md` glossary before drafting. Soft composition: spec-flow:start works fine without craft installed; the suggestion simply doesn't fire if the skill isn't available.
+If contested or fuzzy vocabulary surfaces during the conversation — terms used inconsistently, ambiguous nouns, drift between code naming and how the user is talking about the change — and the `craft` plugin is installed, suggest invoking `/grill-with-docs` to lock the terms down in the repo's `CONTEXT.md` glossary before drafting. Soft composition: spec-flow:draft works fine without craft installed; the suggestion simply doesn't fire if the skill isn't available.
 
 ### 5. Draft the contract
 
@@ -142,4 +142,4 @@ Do NOT proceed to implementation. Tell the user:
 - The contract is an agreement, not a delivery — its purpose is shared model, not enumerated work.
 - `.docs/` is gitignored by the user's scratch-artifact convention.
 - Host is not persisted. `implement`, `amend`, and `close` re-detect host from the identifier each time.
-- spec-flow does not own Linear-side conventions (title patterns, labels, the team's status taxonomy). It writes the contract body and drives the lifecycle state transitions — → Contract Review at `start`, → In Progress at `implement`, → a review state at `close` (never Done — that's the user's at merge). Broader Linear workflow lives outside spec-flow.
+- spec-flow does not own Linear-side conventions (title patterns, labels, the team's status taxonomy). It writes the contract body and drives the lifecycle state transitions — → Contract Review at `draft`, → In Progress at `implement`, → a review state at `close` (never Done — that's the user's at merge). Broader Linear workflow lives outside spec-flow.

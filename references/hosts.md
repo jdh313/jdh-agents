@@ -11,11 +11,11 @@ The contract *shape* (the 6-section template in `contract-template.md`) is host-
 - What happens to the container at close.
 - Whether MCP availability gates the action.
 
-The host is **not persisted**. Each skill re-detects it from the identifier (or goal text, at `start`). Same model as cadence — no per-contract flag.
+The host is **not persisted**. Each skill re-detects it from the identifier (or goal text, at `draft`). Same model as cadence — no per-contract flag.
 
 ## Host detection
 
-### At `start`
+### At `draft`
 
 The user is typing a goal, not an identifier. Detection uses the goal text:
 
@@ -47,11 +47,11 @@ No phrasing analysis at this stage — the identifier shape is the signal.
 
 | Step | File host | Linear host |
 |---|---|---|
-| **`start` — locate** | Scan `.docs/*.md` for active contracts | n/a — Linear contracts are not enumerable cheaply; user names the ticket |
-| **`start` — draft body** | Compose 6-section contract | Compose 6-section contract |
-| **`start` — write container** | `Write` to `.docs/YYYY-MM-DD-<slug>.md` | `mcp__linear-server__save_issue` against the ticket ID |
-| **`start` — existing body** | n/a — file is new | Overwrite by default — no prompt. Prepend only if the user explicitly asked to preserve the existing text |
-| **`start` — status** | n/a — no status | After writing the body, set state to "Contract Review" via `list_issue_statuses` + `save_issue`; skip with a note if no such state |
+| **`draft` — locate** | Scan `.docs/*.md` for active contracts | n/a — Linear contracts are not enumerable cheaply; user names the ticket |
+| **`draft` — draft body** | Compose 6-section contract | Compose 6-section contract |
+| **`draft` — write container** | `Write` to `.docs/YYYY-MM-DD-<slug>.md` | `mcp__linear-server__save_issue` against the ticket ID |
+| **`draft` — existing body** | n/a — file is new | Overwrite by default — no prompt. Prepend only if the user explicitly asked to preserve the existing text |
+| **`draft` — status** | n/a — no status | After writing the body, set state to "Contract Review" via `list_issue_statuses` + `save_issue`; skip with a note if no such state |
 | **`implement` — read** | `Read` the file | `mcp__linear-server__get_issue`, parse description |
 | **`implement` — status** | n/a — no status | Before coding, set state to "In Progress" (fallback: first `started`-type state) via `save_issue` |
 | **`amend` — write** | `Edit` the file | `mcp__linear-server__save_issue` |
@@ -79,7 +79,7 @@ spec-flow owns the contract lifecycle. It does **not** own:
 - PR-to-ticket linking expectations
 - The decision of *when* to open a Linear ticket vs. a `.docs/` file
 
-spec-flow *does* drive the contract-lifecycle state transitions: → **Contract Review** when the contract body is written at `start`, → **In Progress** when `implement` begins coding, and → a **review state** when `close` finishes. All resolve the target by name via `list_issue_statuses` (never hardcoded) and skip gracefully if the team has no matching state. It never sets a **completed** state (Done/Closed) — merge happens outside the lifecycle, so that flip stays the human's.
+spec-flow *does* drive the contract-lifecycle state transitions: → **Contract Review** when the contract body is written at `draft`, → **In Progress** when `implement` begins coding, and → a **review state** when `close` finishes. All resolve the target by name via `list_issue_statuses` (never hardcoded) and skip gracefully if the team has no matching state. It never sets a **completed** state (Done/Closed) — merge happens outside the lifecycle, so that flip stays the human's.
 
 Those concerns belong to the user's broader Linear workflow, owned by the sibling `linear` plugin in this marketplace. spec-flow assumes the user has a Linear ticket already (or knows how to create one — by deferring to the `linear` plugin's conventions); spec-flow only writes the contract body and reads it back.
 
@@ -87,7 +87,7 @@ Those concerns belong to the user's broader Linear workflow, owned by the siblin
 
 Not implemented. Documented here so the design shape is on record.
 
-A future addition: `start` could *create* a new Linear ticket as part of the kickoff, not just attach to an existing one. The flow would be:
+A future addition: `draft` could *create* a new Linear ticket as part of the kickoff, not just attach to an existing one. The flow would be:
 
 1. Detect Shape B from phrasing: *"open a Linear ticket and …"*, *"new linear ticket for …"*, or an explicit hint
 2. Same context-gathering and drafting as today

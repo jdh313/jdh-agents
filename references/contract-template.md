@@ -1,6 +1,6 @@
 # Contract Template
 
-Used by `spec-flow:start` to scaffold a new contract. The body below is the literal scaffold the start skill produces.
+Used by `spec-flow:draft` to scaffold a new contract. The body below is the literal scaffold the draft skill produces.
 
 The contract shape is **host-agnostic** — the same six sections work whether the contract lives in `.docs/YYYY-MM-DD-<slug>.md` or in a Linear ticket description. Only frontmatter is file-only (Linear has its own metadata). See `hosts.md` (same directory) for the host-selection decision and per-host behavior.
 

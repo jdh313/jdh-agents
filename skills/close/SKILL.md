@@ -145,5 +145,5 @@ Brief summary to the user, wording differs by host:
 
 - Migrations are *AI-assisted/auto* — AI proposes the diff, applies after user sign-off. No silent migration; no fully manual migration.
 - Closing is non-destructive in both hosts. File host: the contract file is archived, not deleted. Linear host: the ticket body is untouched and the contract remains in its description for retrospective; only the state advances to a review state.
-- spec-flow advances Linear state through the contract lifecycle (`start` → Contract Review, `implement` → In Progress, `close` → a review state) but never sets a completed state (Done/Closed). Merge happens outside the lifecycle, so that final flip stays the user's call.
+- spec-flow advances Linear state through the contract lifecycle (`draft` → Contract Review, `implement` → In Progress, `close` → a review state) but never sets a completed state (Done/Closed). Merge happens outside the lifecycle, so that final flip stays the user's call.
 - If the contract had frequent amendments, surface that observation — it can signal the original drafting was thin and worth thinking about for next time.

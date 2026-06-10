@@ -14,7 +14,7 @@ spec-flow's load-bearing principle is **epistemic fit**: it must work the way *y
 
 ## How it works
 
-1. **Kickoff** — `/spec-flow start <goal>` opens a contract. Default host is `.docs/YYYY-MM-DD-<name>.md` in the working repo. If the goal names a Linear ticket as the contract (`/spec-flow start "the contract is TEAM-123"`), the kickoff writes the contract to the ticket description instead. If other file-host contracts are already open, the kickoff flags them. See `references/hosts.md`.
+1. **Kickoff** — `/spec-flow draft <goal>` opens a contract. Default host is `.docs/YYYY-MM-DD-<name>.md` in the working repo. If the goal names a Linear ticket as the contract (`/spec-flow draft "the contract is TEAM-123"`), the kickoff writes the contract to the ticket description instead. If other file-host contracts are already open, the kickoff flags them. See `references/hosts.md`.
 2. **Context-gathering** — AI does proactive research (codebase, library docs via Context7, relevant ndr atoms), then asks targeted questions only where its path isn't clear. Conversation builds the shared model.
 3. **Drafting** — Contract gets six sections: *What we're doing*, *Why*, *Approach* (larger strokes only), *Out of scope*, *Done when*, *Open questions*. Bullets/lists/tables, never prose.
 4. **(Optional) Debate** — When the *how* is non-obvious, fork into the debate skill (advocate / devils-advocate / fact-checker / synthesizer); recommended approach + draft ndr atoms flow back into the contract.
