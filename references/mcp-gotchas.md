@@ -2,7 +2,7 @@
 
 Silent-failure modes observed in the `mcp__linear-server__*` tool surface. Each is paired with the working shape and a one-line cause. **Read before calling Linear MCP from any skill** — these failures return success-shaped responses with empty or wrong data instead of erroring.
 
-Universal — applies to `linear-workflow`, `pm:groom`, `pm:retro`, `pm:breakdown`, `spec-flow:*`, or any direct Linear MCP usage.
+Universal — applies to `linear-workflow`, `spec-flow:*`, or any direct Linear MCP usage.
 
 ---
 
@@ -29,7 +29,7 @@ mcp__linear-server__list_issues({team: "TEAM", cycle: "2", ...})
 
 **Cause:** `cycle` parameter expects a cycle **name, number, or ID** — `"current"` is not a recognized identifier despite reading like a natural shortcut. Always resolve via `list_cycles({type: "current"})` first, then pass the numeric name or ID.
 
-**Why it bites:** Returning an empty array (vs. an error) makes the failure invisible to downstream classification. Caught 2026-05-26 when `pm:groom` reported "cycle empty, 0 push-outs" against a 16-ticket cycle.
+**Why it bites:** Returning an empty array (vs. an error) makes the failure invisible to downstream classification. Caught 2026-05-26 when a backlog-grooming pass reported "cycle empty, 0 push-outs" against a 16-ticket cycle.
 
 ---
 
