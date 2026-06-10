@@ -5,7 +5,7 @@ description: This skill should be used when the user runs `/spec-flow close [nam
 
 # spec-flow:close
 
-Close an active contract. Migrate durable findings to ndr atoms and README; archive the file or hand the ticket back to the human, depending on host. See `references/hosts.md` for the dual-host model.
+Close an active contract. Migrate durable findings to ndr atoms and README; archive the file or hand the ticket back to the human, depending on host. See `../../references/hosts.md` for the dual-host model.
 
 ## When to invoke
 

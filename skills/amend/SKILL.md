@@ -5,7 +5,7 @@ description: This skill should be used when the AI realizes during implementatio
 
 # spec-flow:amend
 
-Propose a contract amendment mid-implementation. Sign-off required before any edit. Host (file vs. Linear) is re-detected from the contract identifier; see `references/hosts.md`.
+Propose a contract amendment mid-implementation. Sign-off required before any edit. Host (file vs. Linear) is re-detected from the contract identifier; see `../../references/hosts.md`.
 
 ## When to invoke
 
