@@ -5,7 +5,7 @@ description: This skill should be used when the user runs `/spec-flow implement 
 
 # spec-flow:implement
 
-Start or resume implementation against an active contract. Works for both file-hosted (`.docs/`) and Linear-hosted contracts; the only difference is where the body is read from. See `references/hosts.md`.
+Start or resume implementation against an active contract. Works for both file-hosted (`.docs/`) and Linear-hosted contracts; the only difference is where the body is read from. See `../../references/hosts.md`.
 
 ## When to invoke
 

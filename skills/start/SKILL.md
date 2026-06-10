@@ -7,7 +7,7 @@ description: This skill should be used when the user runs `/spec-flow start <goa
 
 Open a contract for a new code change. Drafts only; does not implement.
 
-A contract has a **host** — either a `.docs/` file or an existing Linear ticket. The contract *shape* is host-agnostic; the host changes only where the body is written. See `references/hosts.md` for the dual-host model.
+A contract has a **host** — either a `.docs/` file or an existing Linear ticket. The contract *shape* is host-agnostic; the host changes only where the body is written. See `../../references/hosts.md` for the dual-host model.
 
 ## When to invoke
 
@@ -38,7 +38,7 @@ If host = linear, check that `mcp__linear-server__*` tools are loaded. If not:
 
 Do not run `claude mcp add` or suggest a paste-and-go connect command. Wait for the user.
 
-Full detection table and rationale: `references/hosts.md`.
+Full detection table and rationale: `../../references/hosts.md`.
 
 ### 2. Detect other active contracts
 
@@ -83,7 +83,7 @@ If contested or fuzzy vocabulary surfaces during the conversation — terms used
 
 ### 5. Draft the contract
 
-Use `references/contract-template.md` as the literal scaffold. Six sections:
+Use `../../references/contract-template.md` as the literal scaffold. Six sections:
 
 - **What we're doing** — one or two bullets, plain language.
 - **Why** — one or two bullets, trigger or motivation.

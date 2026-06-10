@@ -81,7 +81,7 @@ spec-flow owns the contract lifecycle. It does **not** own:
 
 spec-flow *does* drive the contract-lifecycle state transitions: → **Contract Review** when the contract body is written at `start`, → **In Progress** when `implement` begins coding, and → a **review state** when `close` finishes. All resolve the target by name via `list_issue_statuses` (never hardcoded) and skip gracefully if the team has no matching state. It never sets a **completed** state (Done/Closed) — merge happens outside the lifecycle, so that flip stays the human's.
 
-Those concerns belong to the user's broader Linear workflow, owned by the sibling `linear` plugin (`~/cc-marketplace/plugins/linear/skills/linear-workflow/SKILL.md`). spec-flow assumes the user has a Linear ticket already (or knows how to create one — by deferring to the `linear` plugin's conventions); spec-flow only writes the contract body and reads it back.
+Those concerns belong to the user's broader Linear workflow, owned by the sibling `linear` plugin in this marketplace. spec-flow assumes the user has a Linear ticket already (or knows how to create one — by deferring to the `linear` plugin's conventions); spec-flow only writes the contract body and reads it back.
 
 ## Future shape: Linear-new (Shape B)
 
