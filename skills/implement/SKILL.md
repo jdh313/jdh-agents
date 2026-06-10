@@ -15,7 +15,7 @@ Start or resume implementation against an active contract. Works for both file-h
 
 ## Do NOT invoke for
 
-- Drafting a new contract — that is `spec-flow:start`.
+- Drafting a new contract — that is `spec-flow:draft`.
 - Closing a finished change — that is `spec-flow:close`.
 - Code work that has no associated contract (trivial changes are out of scope by design).
 
@@ -32,7 +32,7 @@ If no name was given, scan `.docs/` for active file-host contracts (excluding `a
 
 - **Single active file contract** — Use it.
 - **Multiple active** — Match the user's recent prompt against contract topics. If unambiguous, use the match. If ambiguous, list active contracts and ask which.
-- **None active** — Tell the user there is nothing to implement and suggest `/spec-flow start`. (Linear-host contracts are not enumerable cheaply; the user is expected to name the ticket explicitly when resuming Linear work.)
+- **None active** — Tell the user there is nothing to implement and suggest `/spec-flow draft`. (Linear-host contracts are not enumerable cheaply; the user is expected to name the ticket explicitly when resuming Linear work.)
 
 If host = linear, check that `mcp__linear-server__*` tools are loaded. If not:
 
