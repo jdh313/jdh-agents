@@ -153,7 +153,7 @@ Timebox: <e.g. 2h, half a day>
 
 **Full spec-flow contract template (when the ticket *is* the contract):**
 
-The six-section template from `spec-flow:start` (`What we're doing` / `Why` / `Approach` / `Out of scope` / `Done when` / `Open questions`). Used when the ticket is being created or written by `spec-flow:start` against a Linear host. spec-flow handles writing this — this skill governs the surrounding fields (labels, priority, state, milestone).
+The six-section template from `spec-flow:draft` (`What we're doing` / `Why` / `Approach` / `Out of scope` / `Done when` / `Open questions`). Used when the ticket is being created or written by `spec-flow:draft` against a Linear host. spec-flow handles writing this — this skill governs the surrounding fields (labels, priority, state, milestone).
 
 ## MCP gotchas
 
@@ -223,7 +223,7 @@ Useful for "what's in todo", "show my backlog", weekly review.
 
 ## Composition
 
-- **spec-flow** — When a contract is hosted in Linear (e.g. `/spec-flow start TEAM-123`), spec-flow writes the contract body to the ticket description using the full six-section template. This skill governs the surrounding ticket fields. spec-flow does not set labels, priority, or milestone — those follow the conventions here.
+- **spec-flow** — When a contract is hosted in Linear (e.g. `/spec-flow draft TEAM-123`), spec-flow writes the contract body to the ticket description using the full six-section template. This skill governs the surrounding ticket fields. spec-flow does not set labels, priority, or milestone — those follow the conventions here.
 - **ndr** — Tickets carrying the `Decision` label correspond to ndr atoms. The ticket tracks the work of making the decision; the atom holds the captured decision content. Reference atoms from ticket descriptions via `ndr:<atom-id>` or `ndr:<area>/<topic>`.
 - **Project CLAUDE.md** — Owns the floor rule: "can't do now, or has dependencies to sequence" → open a ticket. This skill takes over once the decision to open has been made.
 
