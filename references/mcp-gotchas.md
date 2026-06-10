@@ -129,7 +129,7 @@ Re-saving clean markdown does **not** remove them — the comment entity owns th
 
 **Practical rule:** treat text under a live inline comment as immutable. To capture a resolved decision that started as an inline comment, write the resolution into a *new* section and delete the inline comment in the UI — don't rely on editing the anchored text away.
 
-**Caught 2026-06-03** during `spec-flow:start` on TEAM-123, replacing an Open-questions section that two resolved inline comments were anchored to.
+**Caught 2026-06-03** during `spec-flow:draft` on TEAM-123, replacing an Open-questions section that two resolved inline comments were anchored to.
 
 ---
 
