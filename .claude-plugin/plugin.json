@@ -1,0 +1,16 @@
+{
+  "name": "feedback",
+  "version": "0.1.0",
+  "description": "Tester-facing feedback helpers. The 'session' skill analyzes the current session transcript and produces a copy-pasteable report on what worked and what didn't across the plugins exercised — for handing back to a plugin author.",
+  "author": {
+    "name": "Jacob Hoehler"
+  },
+  "keywords": [
+    "feedback",
+    "testing",
+    "dogfooding",
+    "session-review",
+    "plugins"
+  ],
+  "license": "Apache-2.0"
+}
