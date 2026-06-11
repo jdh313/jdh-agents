@@ -1,6 +1,12 @@
 ---
 name: grill-with-docs
 description: Grill a plan against this repo's CONTEXT.md glossary and NDR atoms, sharpen terminology, and update CONTEXT.md inline as decisions crystallise. Use when stress-testing a plan against project vocabulary, locking in a domain term, or surfacing drift between code naming and the glossary. Adapted from mattpocock/skills (MIT, © 2026 Matt Pocock).
+upstream:
+  repo: mattpocock/skills
+  path: skills/engineering/grill-with-docs
+  reviewed_sha: e3b90b5238f3
+  reviewed: 2026-06-11
+  status: reviewed
 ---
 
 Interview the user about every aspect of this plan until reaching a shared understanding. Walk down each branch of the design tree, resolving dependencies between decisions one-by-one. For each question, propose a recommended answer.
@@ -67,6 +73,10 @@ Either side may propose the canonical name first. The agent often spots drift th
 
 When a statement about behavior conflicts with the code, surface it. "The code calls this `cancelOrder` but you said partial cancellation is supported — does CONTEXT.md need a different term, or does the code need a rename?"
 
+### Test concept boundaries with edge cases
+
+When a term's scope is unclear, invent an edge case that forces the boundary. "If a customer cancels half the items on an order, is that still a `cancellation`, or do we need a separate term for partial cancellation?" The goal is to expose where one concept ends and another begins *before* the glossary entry locks in a fuzzy boundary. Keep edge cases pointed at terminology, not at general plan correctness — boundary-finding for the glossary, not a test plan.
+
 ### Update CONTEXT.md inline
 
 When a term is resolved, update CONTEXT.md right then. Don't batch. Use the format in CONTEXT-FORMAT.md.
@@ -84,6 +94,8 @@ Do **not** mix vault wikilinks into CONTEXT.md for **Work repos** — Work code 
 
 ## Offering NDR atoms
 
+NDR atoms replace the in-repo ADRs (`docs/adr/*.md`) of the source skill — same decision gate, different destination and authority. Rationale lives in the NDR ledger, written via `/capture-decision`; this skill never writes decision records to the repo directly.
+
 Only offer to capture an NDR atom when **all three** hold:
 
 1. **Hard to reverse** — meaningful cost to changing the decision later
@@ -100,6 +112,6 @@ Skip if any is missing. If offering, route through `/capture-decision` — don't
 
 ## Explicit non-goals
 
-- **No example dialogue.** Matt's original `CONTEXT-FORMAT.md` asked for a "conversation between a dev and a domain expert" demonstrating the terms. Write-once-never-maintained content. Skip.
+- **No example dialogue.** Definitions only — no demonstrative "dev meets domain expert" conversation. Write-once-never-maintained content. Skip.
 - **No prose explanations.** Definitions only. Pressure to grow CONTEXT.md beyond a glossary is a sign content belongs elsewhere (code, NDR, wiki).
 - **No CONTEXT-MAP.md for personal repos.** Multi-context maps are for proprietary monorepos with bounded contexts; personal repos use vault wiki pages as the cross-cutting authority.
