@@ -45,11 +45,11 @@ Exactly **one surface + one type** per ticket.
 | Dimension | Values | Casing |
 |---|---|---|
 | Surface | `backend`, `frontend`, `infra`, `database`, `pipeline` | bare lowercase |
-| Type | `Feature`, `Improvement`, `Docs`, `Chore`, `Decision`, `Spike` | Capitalized |
+| Type | `Feature`, `Improvement`, `Bug`, `Docs`, `Chore`, `Decision`, `Spike` | Capitalized |
 
 Rules:
 - Surface labels live under a **`surface` label group** in Linear (group name `surface`, children `pipeline` / `backend` / `frontend` / `infra` / `database`). The MCP `save_issue` tool does NOT resolve colon-prefixed strings like `"surface:backend"` — pass the **bare child name** (`"backend"`). If you pass the colon form, `save_issue` returns silently with `labels: []`. Stable label IDs from `list_issue_labels` also work; bare child names are more readable. See `../../references/mcp-gotchas.md` § 2 for full details.
-- `Bug` is unused — do not add tickets with it. If a defect comes up, it's a `Feature` regression or a `Chore` cleanup depending on framing.
+- `Bug` is for defects — a regression or incorrect behavior in shipped code. Distinguish from neighbors: net-new functionality is `Feature`, an enhancement to already-correct behavior is `Improvement`, and maintenance / tooling / config plumbing is `Chore`. (Convention updated 2026-06-09; `Bug` was previously unused, with defects routed to `Feature`/`Chore`.)
 - `Decision` is for tickets that mark a decision point (formerly written as `D# — ...` titles). The decision content itself becomes an ndr atom; the ticket tracks the work of making the call.
 - `Spike` is for timeboxed empirical investigations — see "Spike vs Decision" below.
 
