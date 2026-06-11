@@ -1,6 +1,12 @@
 ---
 name: diagnose
 description: Disciplined diagnosis loop for hard bugs and performance regressions. Reproduce → minimise → hypothesise → instrument → fix → regression-test. Use when user says "diagnose this" / "debug this", reports a bug, says something is broken/throwing/failing, or describes a performance regression. Adapted from mattpocock/skills (MIT, © 2026 Matt Pocock).
+upstream:
+  repo: mattpocock/skills
+  path: skills/engineering/diagnose
+  reviewed_sha: 7afa86d3a5dd
+  reviewed: 2026-06-11
+  status: baseline
 ---
 
 # Diagnose

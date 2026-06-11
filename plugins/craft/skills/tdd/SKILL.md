@@ -1,6 +1,12 @@
 ---
 name: tdd
 description: Test-driven development with red-green-refactor loop. Use when user wants to build features or fix bugs using TDD, mentions "red-green-refactor", wants integration tests, or asks for test-first development. Adapted from mattpocock/skills (MIT, © 2026 Matt Pocock).
+upstream:
+  repo: mattpocock/skills
+  path: skills/engineering/tdd
+  reviewed_sha: 7afa86d3a5dd
+  reviewed: 2026-06-11
+  status: baseline
 ---
 
 # Test-Driven Development

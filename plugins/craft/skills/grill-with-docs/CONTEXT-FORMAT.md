@@ -71,6 +71,6 @@ The skill infers which structure applies:
 
 ## Explicit non-goals
 
-- **No example dialogue.** Matt's original format asked for "a conversation between a dev and a domain expert" demonstrating term interactions. Write-once-never-maintained content. Skip.
+- **No example dialogue.** Definitions only — no demonstrative "dev meets domain expert" conversation. Write-once-never-maintained content. Skip.
 - **No rationale.** Why a term was chosen, what alternatives were considered, what trade-offs were weighed — none of that goes in CONTEXT.md. That's NDR territory.
 - **No implementation hints.** What functions use a term, what files implement it, what the migration path is — none of that goes here. CONTEXT.md answers "what do we call this?" Only.

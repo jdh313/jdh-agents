@@ -1,6 +1,12 @@
 ---
 name: improve-codebase-architecture
 description: Find deepening opportunities in a codebase, informed by the domain language in CONTEXT.md and the decisions surfaced via NDR atoms. Use when the user wants to improve architecture, find refactoring opportunities, consolidate tightly-coupled modules, or make a codebase more testable and AI-navigable. Adapted from mattpocock/skills (MIT, © 2026 Matt Pocock).
+upstream:
+  repo: mattpocock/skills
+  path: skills/engineering/improve-codebase-architecture
+  reviewed_sha: a36584e09eae
+  reviewed: 2026-06-11
+  status: baseline
 ---
 
 # Improve Codebase Architecture
