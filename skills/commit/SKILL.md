@@ -24,7 +24,7 @@ The body below is VCS-agnostic. All concrete commands live in the per-VCS workfl
 
 **Before doing anything else, determine two things: which VCS and which commit message style.**
 
-Run the algorithm in `references/detection.md` — it reads the repo's CLAUDE.md for explicit declarations and auto-detects whatever isn't declared. The detection reference also documents the project-wide house style (no `Co-Authored-By` footers, no trailing periods, imperative mood, body ≤5 lines).
+Run the algorithm in `references/detection.md` — it reads CLAUDE.md for explicit declarations and auto-detects whatever isn't declared (CLAUDE.md always wins over inference). It also resolves the Co-Authored-By policy and issue-ref placement, and documents the rest of the house style (no trailing periods, imperative mood, body ≤5 lines).
 
 After detection, load the matching workflow reference (`references/git-workflow.md` or `references/jj-workflow.md`) and style reference (`references/conventional-commits.md` or `references/freeform-commits.md`). Every "execute per your VCS recipe" instruction below refers to the loaded workflow reference.
 
@@ -122,7 +122,7 @@ Use when the user provides a commit message for review.
    - **Hidden bundling:** if the diff contains multiple atomic units, recommend Workflow A instead of approving the message.
    Don't paste the diff back at the user — use it as context for sharper feedback.
 4. **Analyze against the detected style.**
-   - Universal: purpose clear? imperative mood? concise and specific? body explains WHY? body ≤5 lines? no `Co-Authored-By:` footer? no trailing period? no issue numbers in the summary?
+   - Universal: purpose clear? imperative mood? concise and specific? body explains WHY? body ≤5 lines? `Co-Authored-By:` footer matches detected policy (default strip; keep if CLAUDE.md mandates it or history uses it)? no trailing period? issue refs match detected placement (default PR-only; keep `(TEAM-123)`/`#123` in summary if CLAUDE.md declares it or history uses it)?
    - Conventional additionally: proper type? type appropriate for the change (verify against the diff if visible)? lowercase?
 5. **Provide feedback** in this shape: original message → issues identified → improved version → changes made. If the message's claims don't match the visible diff, flag that prominently — it's the highest-value catch of this workflow.
 6. **Offer to commit** with the improved message if the user wants.

@@ -41,11 +41,11 @@ Detection order (canonical algorithm lives in `skills/commit/references/detectio
 
 Applied to every generated message:
 
-- No `Co-Authored-By:` footers — the commit describes the change, not the author
+- `Co-Authored-By:` footers follow the detected policy (default strip) — see Configuration
 - No trailing period on the summary
 - Imperative mood
 - Body ≤5 lines, explains WHY (the diff shows WHAT)
-- No issue numbers in the summary (those belong in the PR description)
+- Issue refs follow the detected placement (default PR-only) — see Configuration
 
 ## Configuration
 
@@ -65,7 +65,18 @@ Or for freeform / git:
 - Commit style: freeform
 ```
 
-If unspecified, the plugin auto-detects both from the repo state.
+Two more optional keys control message conventions:
+
+```markdown
+## VCS
+- Co-Authored-By: keep   # keep | strip (default strip)
+- Issue refs: summary    # summary | pr (default pr)
+```
+
+- **`Co-Authored-By`** — `keep` preserves the `Co-Authored-By:` trailer; `strip` removes it.
+- **`Issue refs`** — `summary` keeps a ticket key like `(CAR-153)` / `#123` in the subject (useful when a Linear/Jira integration parses it); `pr` keeps refs out of the subject.
+
+If unspecified, the plugin auto-detects all four from the repo state: it samples recent commits and keeps the trailer / in-summary refs when ≥60% of history uses them. **Precedence: repo CLAUDE.md > user CLAUDE.md > history.** A user-level mandate to add `Co-Authored-By:` is honored unless the repo declares otherwise.
 
 ## Safety Hook
 
