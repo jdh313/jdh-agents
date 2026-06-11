@@ -80,8 +80,8 @@
     {
       "name": "craft",
       "source": "./plugins/craft",
-      "description": "Software craftsmanship discipline skills. Currently houses grill-with-docs (vocabulary grilling against per-repo CONTEXT.md glossaries). Planned additions: diagnose, prototype, tdd, improve-codebase-architecture, zoom-out \u2014 adapted in part from mattpocock/skills (MIT). Composes with spec-flow and ndr plugins.",
-      "version": "0.2.0",
+      "description": "Software craftsmanship discipline skills: grill-with-docs (vocabulary grilling against per-repo CONTEXT.md glossaries), diagnose, prototype, tdd, improve-codebase-architecture, zoom-out (adapted in part from mattpocock/skills, MIT), and infra-review (architecture/security review of Terraform+Atlantis PRs). Composes with spec-flow and ndr plugins.",
+      "version": "0.3.0",
       "author": {
         "name": "Jacob Hoehler"
       },
@@ -91,7 +91,10 @@
         "discipline",
         "vocabulary",
         "context",
-        "glossary"
+        "glossary",
+        "terraform",
+        "infrastructure",
+        "review"
       ]
     },
     {
