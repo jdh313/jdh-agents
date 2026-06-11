@@ -358,13 +358,30 @@
         "ndr",
         "librarian"
       ]
+    },
+    {
+      "name": "teach",
+      "source": "./plugins/teach",
+      "description": "A stateful, multi-session teaching workspace routed into the Obsidian vault. The /teach skill grounds learning in the user's documented learning style and high-trust sources, builds a mission, resources, glossary, and learning records as vault notes under the topic's best-fit context, and keeps lessons + cheat sheets as self-contained HTML. Requires an Obsidian vault (obsidian-cli). Adapted from mattpocock/skills (MIT, \u00a9 2026 Matt Pocock).",
+      "version": "0.2.0",
+      "author": {
+        "name": "Jacob Hoehler"
+      },
+      "keywords": [
+        "teach",
+        "learn",
+        "education",
+        "lessons",
+        "spaced-repetition",
+        "productivity"
+      ]
     }
   ],
   "metadata": {
     "description": "Personal Claude Code plugin marketplace",
     "version": "1.0.0",
     "homepage": "https://github.com/jdh313/cc-marketplace",
-    "totalPlugins": 18,
-    "lastUpdated": "2026-06-11"
+    "totalPlugins": 19,
+    "lastUpdated": "2026-06-12"
   }
 }
