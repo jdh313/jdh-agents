@@ -165,9 +165,9 @@ When choosing a type:
 
 ## House Style
 
-- **No `Co-Authored-By:` footers.** The commit describes the change; the VCS already records authorship. Strip these if present in a draft or template.
+- **`Co-Authored-By:` footers follow the detected policy** (see `detection.md`). Default: strip — the commit describes the change, the VCS records authorship. Keep when CLAUDE.md mandates it or repo history consistently carries it.
 - No trailing period on the summary line.
-- No issue numbers in the summary — those belong in the PR description.
+- **Issue refs follow the detected placement** (see `detection.md`). Default: out of the summary, in the PR description. Keep `(TEAM-123)`/`#123` in the summary when CLAUDE.md declares `Issue refs: summary` or history consistently uses it (e.g. a Linear/Jira integration keys off the subject).
 
 ## Anti-Patterns to Avoid
 
@@ -175,10 +175,10 @@ When choosing a type:
 - End summary with period: `feat: add login.`
 - Use past tense: `fix: fixed the bug`
 - Use capital letters: `Feat: Add Login`
-- Include issue numbers in summary: `fix: #123 resolve bug`
+- Include issue numbers in summary: `fix: #123 resolve bug` — *unless the repo convention is `summary` (see House Style)*
 - Write vague summaries: `fix: bug fix` or `chore: updates`
 - Exceed 5 lines in body
-- Append `Co-Authored-By:` footers
+- Append `Co-Authored-By:` footers — *unless the policy is `keep` (see House Style)*
 
 **Do:**
 - Keep summary concise and descriptive: `feat: add login`

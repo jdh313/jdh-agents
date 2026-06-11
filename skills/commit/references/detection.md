@@ -6,20 +6,24 @@ Canonical detection algorithm for the commit skill. The SKILL.md points here ins
 
 1. **VCS**: `git` or `jj` (Jujutsu)
 2. **Commit style**: `conventional` (e.g. `feat: add login`) or `freeform` (e.g. `Add login`)
+3. **Co-Authored-By policy**: `keep` or `strip` (default `strip`)
+4. **Issue-ref placement**: `summary` or `pr` (default `pr`)
 
-Both can be declared in the repo's CLAUDE.md; otherwise auto-detect from repo state.
+All four can be declared in the repo's CLAUDE.md; otherwise auto-detect from repo state.
 
 ## Step 1 — Read CLAUDE.md for explicit config
 
 Use the Grep tool against `CLAUDE.md` (if it exists):
 
-- pattern: `^\s*-\s*(VCS|Commit style)\s*:`
+- pattern: `^\s*-\s*(VCS|Commit style|Co-Authored-By|Issue refs)\s*:`
 - flags: `-i` (case-insensitive), `path: CLAUDE.md`
 
 Recognized lines:
 
 - `- VCS: jj` or `- VCS: git`
 - `- Commit style: conventional` or `- Commit style: freeform`
+- `- Co-Authored-By: keep` or `- Co-Authored-By: strip`
+- `- Issue refs: summary` or `- Issue refs: pr`
 
 Use what's declared. Auto-detect anything not declared. If `CLAUDE.md` doesn't exist, skip to Step 2.
 
@@ -53,6 +57,15 @@ This accepts `feat:`, `feat(scope):`, and `feat[scope]:`. Anything else is **fre
 
 If ≥60% of sampled subjects are conventional → `conventional`. Otherwise → `freeform`.
 
+## Step 3b — Auto-detect message conventions
+
+Only for whatever Step 1 didn't declare. Sample the same recent commits (use full messages, not just subjects, for the trailer check):
+
+- **Co-Authored-By:** if ≥60% of recent commit messages carry a `Co-Authored-By:` trailer → `keep`; otherwise → `strip`.
+- **Issue refs:** if ≥60% of recent subjects carry a ticket key (`(TEAM-123)`, `#123`) → `summary`; otherwise → `pr`.
+
+**Precedence: repo CLAUDE.md > user CLAUDE.md > history.** A user-level mandate to add `Co-Authored-By:` is honored unless the repo declares otherwise.
+
 ## Step 4 — Load matching references
 
 | VCS | Reference |
@@ -67,8 +80,8 @@ If ≥60% of sampled subjects are conventional → `conventional`. Otherwise →
 
 ## House style (both VCSes, both message styles)
 
-- **No `Co-Authored-By:` footers.** The commit message describes the change; the VCS records authorship separately. Strip these footers if present in a draft message.
+- **`Co-Authored-By:` footers** follow the detected policy (Step 1, else Step 3b). Default `strip` — the message describes the change, the VCS records authorship separately. Honor `keep` when CLAUDE.md mandates it or history consistently uses it.
 - **No trailing period** on the summary line.
 - **Imperative mood** ("add" not "added" or "adds").
 - **Body ≤5 lines**, explains WHY (the diff shows WHAT).
-- **No issue numbers** in the summary (PR description, not commit subject).
+- **Issue numbers in the summary** follow the detected placement (Step 1, else Step 3b). Default `pr` — refs belong in the PR description, not the subject. Honor `summary` when CLAUDE.md declares it or history consistently uses it.
