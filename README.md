@@ -1,0 +1,72 @@
+# Commit
+
+Format-aware atomic commits for git and jj (Jujutsu).
+
+## What It Does
+
+- **Auto-detects VCS**: Checks for `.jj/` to determine git vs jj
+- **Auto-detects commit style**: Analyzes recent commits to match the repo's convention (conventional or freeform); explicit CLAUDE.md config wins
+- **Atomic splitting**: Groups changes by logical coupling, not by file co-location — including two logical changes inside one file (edit-split-restore, no interactive staging)
+- **Retrofit lane**: "this belongs in an earlier commit" via `jj absorb` (hunk-precise, auto-targeted) or `git commit --fixup` + non-interactive autosquash
+- **Message review**: Checks a draft message against the repo's style AND against the actual diff (type match, scope honesty, hidden bundling)
+- **Safety-first**: A `PreToolUse` hook hard-blocks destructive operations (`git reset --hard`, `git restore` without `--staged`, `git checkout --`, `jj restore`, `jj abandon`) so changes aren't accidentally discarded
+- **jj-fluent**: Decision-card-style reference covers `jj commit`, `jj split` (with `-m` semantics explained), `jj squash --from/--into`, `jj absorb`, stacked-change hygiene, bookmarks, push, and recovery — agents shouldn't need to re-read `jj --help` mid-task
+
+## One Skill
+
+A single `commit` skill handles everything. It's invoked automatically for any commit-shaped request, or explicitly via `/commit`. Internally it routes between four workflows:
+
+| Workflow | Trigger |
+|----------|---------|
+| Single commit | "commit this", "write a commit message" |
+| Split and compose | "split these into atomic commits" |
+| Review and improve | "review my commit message" (checks the diff, not just the style) |
+| Retrofit | "this belongs in the last commit", fixup/absorb requests |
+
+The skill body is VCS-agnostic; after detection it loads exactly one VCS recipe (`git-workflow.md` or `jj-workflow.md`) and one style reference (`conventional-commits.md` or `freeform-commits.md`).
+
+## Commit Style Detection
+
+Detection order (canonical algorithm lives in `skills/commit/references/detection.md`):
+
+1. **CLAUDE.md** — explicit declarations win
+2. **Auto-detect** — sample the last ~20 subjects; if ≥60% match a conventional type prefix (allows `feat:`, `feat(scope):`, and `feat[scope]:`), use conventional; otherwise freeform
+
+### Supported Styles
+
+- **Conventional**: `feat: add user auth` — type prefix, lowercase, imperative mood
+- **Freeform**: `Add user auth` — capitalized, imperative mood, no type prefix
+
+## House Style
+
+Applied to every generated message:
+
+- No `Co-Authored-By:` footers — the commit describes the change, not the author
+- No trailing period on the summary
+- Imperative mood
+- Body ≤5 lines, explains WHY (the diff shows WHAT)
+- No issue numbers in the summary (those belong in the PR description)
+
+## Configuration
+
+Add to your repo's CLAUDE.md to skip auto-detection:
+
+```markdown
+## VCS
+- VCS: jj
+- Commit style: conventional
+```
+
+Or for freeform / git:
+
+```markdown
+## VCS
+- VCS: git
+- Commit style: freeform
+```
+
+If unspecified, the plugin auto-detects both from the repo state.
+
+## Safety Hook
+
+`plugins/commit/hooks/destructive-vcs-guard.sh` is a `PreToolUse`/`Bash` hook that blocks the commands listed under "Safety-first" above. The hook fires only when the plugin is enabled. Override by running the destructive command from your own terminal — Claude can't bypass it.

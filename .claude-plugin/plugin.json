@@ -1,0 +1,20 @@
+{
+  "name": "commit",
+  "version": "3.0.0",
+  "description": "Format-aware atomic commits for git and jj (Jujutsu). One skill covering commit, split, message review, and retrofitting edits into earlier commits (jj absorb / git fixup). Auto-detects VCS and commit message style from repo context. Includes PreToolUse hook that blocks destructive working-copy operations.",
+  "author": {
+    "name": "Jacob Hoehler"
+  },
+  "keywords": [
+    "git",
+    "jj",
+    "jujutsu",
+    "commits",
+    "atomic",
+    "absorb",
+    "fixup",
+    "conventional-commits",
+    "freeform"
+  ],
+  "license": "Apache-2.0"
+}
