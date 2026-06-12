@@ -126,7 +126,7 @@ If the draft upgrades a `status: captured` stub: rewrite that file in place (kee
 **Linear-new host (fresh ticket created at draft):**
 
 1. Derive a title from the goal per the linear plugin's title conventions (noun-phrase). No confirmation — the user reviews title and body together in Linear and can rename there.
-2. Create the ticket via `mcp__linear-server__save_issue` with the six-section contract as the description, deferring all other fields (team, project, labels, priority) to the linear plugin's `linear-workflow` conventions.
+2. Create the ticket via `mcp__linear-server__save_issue` with the six-section contract as the description, deferring all other fields (team, project, labels, priority) to the `linear` skill's conventions.
 3. Report the new ticket ID, then continue with the Contract Review transition below as if it were an existing-ticket host.
 
 **Linear host (existing ticket):**
