@@ -7,7 +7,7 @@ upstream:
   path: skills/engineering/zoom-out
   reviewed_sha: 7afa86d3a5dd
   reviewed: 2026-06-11
-  status: baseline
+  status: reviewed
 ---
 
 I don't know this area of code well. Go up a layer of abstraction. Give me a map of all the relevant modules and callers, using the project's domain glossary vocabulary.
