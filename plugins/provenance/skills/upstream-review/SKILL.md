@@ -32,6 +32,28 @@ upstream:
 - **`reviewed`** — a full behavioral comparison was run against `reviewed_sha`; divergences are known and documented.
 - **`baseline`** — provenance was pinned without a behavioral review (e.g. a backfill). The SHA is captured, but **pre-existing silent divergences between the local adaptation and `reviewed_sha` have not been checked**. A drift check on a baseline skill only catches *future* upstream commits — so a `baseline` skill still owes a first full review. Treat `baseline` as a to-do, not a clean bill.
 
+## Divergence ledger (`UPSTREAM.md`)
+
+Each intentional divergence is recorded once, so re-reviews are incremental — adjudicate only what is *new*, never re-litigate decisions already made. Without this, every review re-derives the full kept/diverged/dropped/added classification and re-flags deliberate divergences as fresh findings.
+
+The ledger is a **sidecar** at `UPSTREAM.md` next to the target skill's `SKILL.md`:
+
+```markdown
+# Upstream divergences — <skill name>
+
+_Upstream: `<repo>` · `<path>` · ledger current as of `reviewed_sha: <sha>`_
+
+| Kind | What | Why |
+|------|------|-----|
+| dropped | <upstream behavior we deliberately removed> | <rationale> |
+| added | <local-only behavior not in upstream> | <rationale> |
+| changed | <upstream behavior we altered (renamed / rescoped / re-routed)> | <rationale> |
+```
+
+**Critical: never reference `UPSTREAM.md` from the target skill's `SKILL.md`.** A skill's body loads on every invocation; a referenced sibling loads with it; an *unreferenced* sibling never loads (verified against the skills docs — on-demand loading happens *because* SKILL.md references a file). The ledger is review-time meta, irrelevant to anyone using the skill — keep it out of the skill's runtime context. `upstream-review` reads it by explicit path; the target skill stays oblivious.
+
+`Kind` mirrors the comparison classes (`dropped` / `added` / `changed`). Don't record `kept` — equivalence is the default and needs no entry.
+
 ## Procedure
 
 1. **Resolve provenance.** Drift mode: read the `upstream:` block. Intake mode: take `repo` + `path` from the user (derive from a URL if given).
@@ -48,21 +70,25 @@ upstream:
    ```
    List the directory first (`gh api repos/<repo>/contents/<path>`) and pull every relevant file (SKILL.md, FORMAT/template files, referenced docs), not just SKILL.md.
 
-4. **Compare behavior, not prose.** Enumerate the load-bearing units on each side — conversation moves, sections, gates, decision criteria, file/artifact conventions — and classify:
+4. **Read the divergence ledger first** (`UPSTREAM.md` next to the target skill, if it exists). Everything in it is already-adjudicated intentional divergence — do **not** re-surface those as findings. The review's job is the delta against the ledger, not a fresh from-scratch comparison.
+
+5. **Compare behavior, not prose.** Enumerate the load-bearing units on each side — conversation moves, sections, gates, decision criteria, file/artifact conventions — and classify:
    - **Kept** — present and substantively equivalent.
    - **Diverged** — present on both, behavior changed (renamed concept, narrowed scope, swapped destination/authority).
    - **Dropped** — in upstream, absent locally. Ask: deliberate (and documented as a non-goal) or silent? Silent drops are the main finding.
    - **Added** — local-only. Fine, but should not be attributed to upstream.
 
-5. **Hunt fabricated attributions specifically.** Any local claim of the form "the original did/asked for/required X" must be checked against the fetched upstream. If upstream doesn't contain X, the claim is fabricated — flag it and reword to a positive statement that drops the false provenance. This is the highest-value check; it is the class of error a human adapter most often introduces from memory.
+6. **Hunt fabricated attributions specifically.** Any local claim of the form "the original did/asked for/required X" must be checked against the fetched upstream. If upstream doesn't contain X, the claim is fabricated — flag it and reword to a positive statement that drops the false provenance. This is the highest-value check; it is the class of error a human adapter most often introduces from memory.
 
-6. **Report**, load-bearing finding first: a short table (kept / diverged / dropped / added) plus a callout list of fabricated attributions and silent divergences. One finding at a time if the user prefers to work through them.
+7. **Report**, load-bearing finding first: a short table (kept / diverged / dropped / added) plus a callout list of fabricated attributions and silent divergences. Mark each finding **new** vs **known** (already in the ledger). One finding at a time if the user prefers to work through them.
 
-7. **Propose fixes, apply on sign-off** — reword false attributions, document deliberate divergences as explicit non-goals, re-add dropped moves the adaptation didn't mean to lose. Never apply silently.
+8. **Propose fixes, apply on sign-off** — reword false attributions, re-add dropped moves the adaptation didn't mean to lose. For divergences the user confirms are *intentional*, the fix is to record them in the ledger, not to revert them. Never apply silently.
 
-8. **Refresh provenance.** After review (and any applied fixes), update the `upstream:` block: `reviewed_sha` → the SHA from step 2, `reviewed` → today. For intake, write the block for the first time.
+9. **Refresh provenance and ledger.** After review (and any applied fixes):
+   - Update the `upstream:` block: `reviewed_sha` → the SHA from step 2, `reviewed` → today, `status` → `reviewed`. For intake, write the block for the first time.
+   - Append any newly-confirmed intentional divergences to `UPSTREAM.md` and update its "ledger current as of `reviewed_sha`" line. Create the ledger if this is the first full review (e.g. promoting a `baseline`).
 
-9. **Run the marketplace verify loop** if any file changed — bump the plugin's `plugin.json` version, then:
+10. **Run the marketplace verify loop** if any file changed — bump the plugin's `plugin.json` version, then:
    ```bash
    uv run python scripts/sync_marketplace.py && uv run python scripts/validate_schema.py && uv run python scripts/lint_plugins.py
    ```
