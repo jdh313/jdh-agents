@@ -1,7 +1,7 @@
 {
   "name": "feedback",
-  "version": "0.1.0",
-  "description": "Tester-facing feedback helpers. The 'session' skill analyzes the current session transcript and produces a copy-pasteable report on what worked and what didn't across the plugins exercised — for handing back to a plugin author.",
+  "version": "0.2.0",
+  "description": "A two-sided loop for improving Claude Code plugins from test sessions. The 'session' skill (tester side) turns the current transcript into a copy-pasteable report grading the plugins exercised; the 'triage' skill (author side) aggregates many reports into a prioritized action plan, routing each finding to a concrete fix. Both share one report-format contract.",
   "author": {
     "name": "Jacob Hoehler"
   },
@@ -10,6 +10,7 @@
     "testing",
     "dogfooding",
     "session-review",
+    "triage",
     "plugins"
   ],
   "license": "Apache-2.0"
