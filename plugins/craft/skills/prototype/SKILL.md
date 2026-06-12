@@ -6,7 +6,7 @@ upstream:
   path: skills/engineering/prototype
   reviewed_sha: f304057d61d3
   reviewed: 2026-06-11
-  status: baseline
+  status: reviewed
 ---
 
 # Prototype

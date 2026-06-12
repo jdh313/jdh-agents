@@ -6,7 +6,7 @@ upstream:
   path: skills/engineering/diagnose
   reviewed_sha: 7afa86d3a5dd
   reviewed: 2026-06-11
-  status: baseline
+  status: reviewed
 ---
 
 # Diagnose

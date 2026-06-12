@@ -6,7 +6,7 @@ upstream:
   path: skills/engineering/improve-codebase-architecture
   reviewed_sha: a36584e09eae
   reviewed: 2026-06-11
-  status: baseline
+  status: reviewed
 ---
 
 # Improve Codebase Architecture
