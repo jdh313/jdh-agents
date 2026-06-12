@@ -28,11 +28,16 @@ If a name was given as argument:
 - Argument matches `^[A-Z]{2,5}-\d+$` (e.g. `TEAM-123`) → **linear** host. Use the ticket ID.
 - Otherwise → **file** host. Treat the argument as a slug or filename.
 
-If no name was given, scan `.docs/` for active file-host contracts (excluding `archive/`):
+If no name was given, enumerate active contracts across both hosts:
 
-- **Single active file contract** — Use it.
-- **Multiple active** — Match the user's recent prompt against contract topics. If unambiguous, use the match. If ambiguous, list active contracts and ask which.
-- **None active** — Tell the user there is nothing to implement and suggest `/spec-flow draft`. (Linear-host contracts are not enumerable cheaply; the user is expected to name the ticket explicitly when resuming Linear work.)
+- **File host** — scan `.docs/` (excluding `archive/` and `status: captured` stubs).
+- **Linear host** (when the MCP is connected) — `mcp__linear-server__list_issues` filtered to "Contract Review" and "In Progress" states (team per the linear plugin's conventions, assignee me), keeping only tickets whose description carries the six-section shape (`## What we're doing` heading is the cheap test).
+
+Then:
+
+- **Single active contract** — Use it.
+- **Multiple active** — Match the user's recent prompt against contract topics/titles. If unambiguous, use the match. If ambiguous, list active contracts and ask which.
+- **None active** — Tell the user there is nothing to implement and suggest `/spec-flow draft`. If the Linear MCP isn't connected, note that Linear contracts weren't checked.
 
 If host = linear, check that `mcp__linear-server__*` tools are loaded. If not:
 

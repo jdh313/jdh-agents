@@ -1,7 +1,7 @@
 {
   "name": "spec-flow",
-  "version": "0.8.0",
-  "description": "Personal SDLC scaffolding for AI-assisted development. A lightweight, ephemeral 'contract' between user and AI drives each code change from idea to done; the durable layer (CLAUDE.md, ndr atoms, README) lives elsewhere.",
+  "version": "0.9.0",
+  "description": "Personal SDLC scaffolding for AI-assisted development. A lightweight, ephemeral 'contract' between user and AI drives each code change from captured idea to verified done; the durable layer (CLAUDE.md, ndr atoms, README) lives elsewhere. Lifecycle: capture -> draft -> implement -> close.",
   "author": {
     "name": "Jacob Hoehler"
   },
@@ -10,6 +10,7 @@
     "spec-driven-development",
     "ai-assisted-dev",
     "contract",
+    "capture",
     "change-scoped",
     "ephemeral",
     "ndr",

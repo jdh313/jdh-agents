@@ -1,6 +1,6 @@
 ---
 name: draft
-description: This skill should be used when the user runs `/spec-flow draft <goal>` or otherwise signals the start of a new contract-tracked code change. Trigger phrases include "spec-flow draft", "open a contract for", "let's scaffold a contract for", "new spec-flow change", "draft a contract for this change". Performs the kickoff lifecycle — detects the contract host (`.docs/` file or existing Linear ticket), flags any other active contracts, runs proactive context-gathering (codebase, library docs via Context7, relevant ndr atoms), conducts a conversational pass asking targeted questions only where the AI's path isn't clear, drafts a six-section contract using the contract template, and writes it to the chosen host. Does NOT start implementation — that requires explicit `/spec-flow implement`.
+description: This skill should be used when the user runs `/spec-flow draft <goal>` or otherwise signals the start of a new contract-tracked code change. Trigger phrases include "spec-flow draft", "open a contract for", "let's scaffold a contract for", "new spec-flow change", "draft a contract for this change", "open a new ticket and draft a contract". Performs the kickoff lifecycle — detects the contract host (`.docs/` file, existing Linear ticket, or a NEW Linear ticket created at draft time), flags any other active contracts, runs proactive context-gathering (codebase, library docs via Context7, relevant ndr atoms), conducts a conversational pass asking targeted questions only where the AI's path isn't clear, drafts a six-section contract using the contract template, and writes it to the chosen host. Upgrades `status: captured` stubs from `spec-flow:capture` in place. Does NOT start implementation — that requires explicit `/spec-flow implement`.
 ---
 
 # spec-flow:draft
@@ -27,12 +27,13 @@ A contract has a **host** — either a `.docs/` file or an existing Linear ticke
 
 Parse the goal text for a Linear ticket token (`^[A-Z]{2,5}-\d+$`):
 
-- **No ticket token** → **file** host. Proceed.
+- **Explicit new-ticket framing** (`open a new ticket and ...`, `new linear ticket for ...`, `create a ticket as the contract`) → **linear-new** host: a fresh ticket created at write time (step 6). No ticket token needed.
+- **No ticket token** (and no new-ticket framing) → **file** host. Proceed. If the goal names an existing `status: captured` stub in `.docs/` (or the slug matches one), this draft is the stub's second touch — it will be upgraded in place at step 6.
 - **Ticket token framed as the contract** (`the contract is TEAM-123`, `use TEAM-123`, `implement TEAM-123`, or bare `TEAM-123`) → **linear** host.
 - **Ticket token framed as a reference** (`see TEAM-123`, `regarding TEAM-123`, `the work in TEAM-123`, `draft a contract for TEAM-123`) → **ask once**: *"Use TEAM-123 itself as the contract, or draft a `.docs/` file that references it?"* Use the user's answer.
 - **Explicit file framing** (`draft as .docs/`, `as a file`) → **file** host even if a ticket token is present.
 
-If host = linear, check that `mcp__linear-server__*` tools are loaded. If not:
+If host = linear or linear-new, check that `mcp__linear-server__*` tools are loaded. If not:
 
 > "Linear MCP server isn't connected — I can't read or write the ticket. Fall back to a `.docs/` file contract, or pause while you wire up the MCP yourself?"
 
@@ -42,17 +43,19 @@ Full detection table and rationale: `../../references/hosts.md`.
 
 ### 2. Detect other active contracts
 
-List file-host contracts in `.docs/` excluding `archive/`:
+List file-host contracts in `.docs/` excluding `archive/` (skip `status: captured` stubs — captures aren't contracts):
 
 ```bash
 ls .docs/*.md 2>/dev/null || true
 ```
 
-If any exist, surface them to the user:
+If the Linear MCP is connected, also enumerate Linear-host contracts: `mcp__linear-server__list_issues` filtered to the contract lifecycle states — "Contract Review" and "In Progress" (team per the linear plugin's conventions, assignee me). A ticket counts as a contract when its description carries the six-section shape (`## What we're doing` heading is the cheap test); "In Progress" tickets without it are ordinary work, not contracts.
+
+If any exist (either host), surface them to the user:
 
 > "You have N other active contracts: X, Y. Continue opening a new one?"
 
-Wait for confirmation. Do not block — this is a visibility flag, not a gate. Linear-host contracts are not enumerable cheaply and are skipped at this step; the user is responsible for knowing whether other tickets are in flight.
+Wait for confirmation. Do not block — this is a visibility flag, not a gate. If the Linear MCP isn't connected, note that Linear contracts weren't checked.
 
 ### 3. Gather context proactively
 
@@ -63,7 +66,8 @@ Before asking the user anything, do legwork:
 - **Installed version** — If the goal names a specific dep, check the installed major version in the target repo (`bun info <pkg>`, `npm ls <pkg>`, `pip show <pkg>`, `cargo tree | grep <pkg>`, etc.) before drafting against the docs. Docs-vs-installed drift is a common amendment trigger.
 - **Relevant ndr atoms** — If the `ndr` plugin is installed, hand off to it to surface atoms scoped to this project/repo for the area or related concepts.
 - **Project rules** — Check `.claude/rules/` if present.
-- **Linear host only** — Read the existing ticket description via `mcp__linear-server__get_issue`. Treat it as input to drafting (stakeholder context, what the PM or you-yesterday wrote). The body is overwritten by default at step 6, so its length no longer gates a prompt — it's drafting input only.
+- **Linear host (existing ticket) only** — Read the existing ticket description via `mcp__linear-server__get_issue`. Treat it as input to drafting (stakeholder context, what the PM or you-yesterday wrote — often a `spec-flow:capture` Goal/Context body). The body is overwritten by default at step 6, so its length no longer gates a prompt — it's drafting input only.
+- **Captured file stub only** — Read the stub's Goal/Context as drafting input, same role as an existing ticket body.
 
 Synthesize: what you have a clear path on vs. what you don't.
 
@@ -94,11 +98,14 @@ Use `../../references/contract-template.md` as the literal scaffold. Six section
 
 The shape is identical for both hosts.
 
-### 6. Confirm and write to the host
+### 6. Write to the host
 
-Present the drafted contract. Ask the user to read and approve. If amendments are needed, iterate inline before finalizing.
+Approval is host-dependent:
 
-Then write to the chosen host:
+- **File host** — present the drafted contract in chat and ask the user to read and approve. Iterate inline before finalizing. (A `.docs/` file has no review surface of its own, so chat is where review happens.)
+- **Linear hosts (existing or new)** — write immediately, **no in-chat approval gate**. The ticket lands in Contract Review and the user reviews it there; that state exists precisely for this. Don't paste the full contract into chat — report the ticket ID and a one-line summary. If the user wants changes after reading it in Linear, they say so and the description gets updated (no `amend` ceremony before implementation starts).
+
+Write to the chosen host:
 
 **File host:**
 
@@ -114,7 +121,15 @@ started: YYYY-MM-DD
 ---
 ```
 
-**Linear host:**
+If the draft upgrades a `status: captured` stub: rewrite that file in place (keep the filename), flip `status` to `active`, set `started` to today, and keep the original `captured:` date line.
+
+**Linear-new host (fresh ticket created at draft):**
+
+1. Derive a title from the goal per the linear plugin's title conventions (noun-phrase). No confirmation — the user reviews title and body together in Linear and can rename there.
+2. Create the ticket via `mcp__linear-server__save_issue` with the six-section contract as the description, deferring all other fields (team, project, labels, priority) to the linear plugin's `linear-workflow` conventions.
+3. Report the new ticket ID, then continue with the Contract Review transition below as if it were an existing-ticket host.
+
+**Linear host (existing ticket):**
 
 Overwrite the ticket's description with the formatted contract via `mcp__linear-server__save_issue`. Overwrite is the default — do **not** prompt, even when the existing description is substantive.
 
@@ -134,7 +149,7 @@ No frontmatter in Linear-hosted contracts. The ticket's own metadata (state, ass
 Do NOT proceed to implementation. Tell the user:
 
 - **File host:** *"Contract drafted at `.docs/YYYY-MM-DD-<slug>.md`. Run `/spec-flow implement` when ready to start coding."*
-- **Linear host:** *"Contract written to TEAM-123's description and moved to Contract Review. Run `/spec-flow implement TEAM-123` when ready to start coding."*
+- **Linear host:** *"Contract written to TEAM-123 and moved to Contract Review — review it in Linear. Run `/spec-flow implement TEAM-123` when it reads right."*
 
 ## Notes
 

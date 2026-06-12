@@ -27,7 +27,7 @@ Close an active contract. Migrate durable findings to ndr atoms and README; arch
 
 ### 1. Identify the target contract and detect host
 
-Same logic as `spec-flow:implement` step 1: explicit name, single active file contract, prompt match, or ask. Host detection:
+Same logic as `spec-flow:implement` step 1: explicit name, or enumerate active contracts across both hosts (`.docs/` scan plus, when the Linear MCP is connected, tickets in Contract Review / In Progress with a six-section description), then prompt match or ask. Host detection:
 
 - Identifier matches `^[A-Z]{2,5}-\d+$` → **linear** host.
 - Anything else → **file** host.
@@ -127,7 +127,21 @@ Update the file's frontmatter: flip `status: active` to `status: archived`. Plac
 
 **Linear host:**
 
-Move the ticket to its review state — the change is done from your side and headed for PR. Do **not** edit the body; the contract stays in the description for retrospective. Only the state advances.
+First, post the verification record as a ticket comment via `mcp__linear-server__save_comment`, so the review state carries evidence. Use the per-bullet result from the done-when gate (step 2.5):
+
+```markdown
+**Done-when verification** (contract-verifier, YYYY-MM-DD)
+
+- ✅ met — "<bullet>" (<one-line evidence>)
+- ❌ not_met — "<bullet>" (<what was observed instead>)
+- ⚠️ drifted — "<bullet>" (<rephrase note>)
+
+Verdict: pass | fail (closed as known gap per user)
+```
+
+One comment, compact. If the gate was skipped (no *Done when* section, user overrode), say that in the comment instead — the absence of verification is itself worth recording.
+
+Then move the ticket to its review state — the change is done from your side and headed for PR. Do **not** edit the body; the contract stays in the description for retrospective. Only the state advances.
 
 - Fetch the team's workflow states via `mcp__linear-server__list_issue_statuses` (the team comes from the issue read in step 2).
 - Find a review state by name (case-insensitive), trying in order: "In Review", "Code Review", "Ready for Review", "Review".
@@ -139,7 +153,7 @@ Move the ticket to its review state — the change is done from your side and he
 Brief summary to the user, wording differs by host:
 
 - **File host:** *"Closed `<slug>`. 2 ndr atoms created, 1 README update applied. Contract archived at `.docs/archive/<filename>.md`."*
-- **Linear host:** *"Closed TEAM-123. 2 ndr atoms created, 1 README update applied. Moved to In Review; ticket body left intact. Set it Done yourself when the PR merges."*
+- **Linear host:** *"Closed TEAM-123. 2 ndr atoms created, 1 README update applied. Verification record posted as a comment; moved to In Review; ticket body left intact. Set it Done yourself when the PR merges."*
 
 ## Notes
 
