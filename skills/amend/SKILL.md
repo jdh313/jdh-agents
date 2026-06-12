@@ -58,6 +58,20 @@ If approved, write the amendment to the contract's host. Preserve every section 
 - **File host** — `Edit` the contract file in place.
 - **Linear host** — Fetch current description via `mcp__linear-server__get_issue`, apply the targeted change locally, write the full updated description back via `mcp__linear-server__save_issue`. (Linear's API replaces the description; do not lose untouched sections.)
 
+**Linear host — audit trail.** Overwriting the description erases the amendment history, so after the `save_issue` write, post the before/after as a ticket comment via `mcp__linear-server__save_comment`:
+
+```markdown
+**Contract amendment** — <one-line reason for the divergence>
+
+**<Section>** before:
+- <old bullet(s)>
+
+**<Section>** after:
+- <new bullet(s)>
+```
+
+One comment per amendment, scoped to the sections that changed. The description stays the single source of truth; comments are the changelog.
+
 If the host is Linear and `mcp__linear-server__*` tools aren't loaded:
 
 > "Linear MCP server isn't connected — I can't write the amendment to TEAM-123. Pause while you wire up the MCP, or hold the amendment in conversation until you can?"
