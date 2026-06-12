@@ -20,7 +20,7 @@ The defining constraint is **zero ceremony**: no questions, no research, no cont
 
 - Drafting a contract — that is `spec-flow:draft`.
 - Work the user wants to start now — capture is for *future* changes.
-- General Linear ticket operations (transitions, queries, field edits) — that is the linear plugin's `linear-workflow`.
+- General Linear ticket operations (transitions, queries, field edits) — that is the linear plugin's `linear` skill.
 
 ## Workflow
 
@@ -37,7 +37,7 @@ No prompt about MCP wiring at capture time — fall back silently to the file ho
 
 ### 3. Shape the minimal artifact
 
-**Linear host** — create one Backlog ticket, deferring every convention to the linear plugin's `linear-workflow` skill (team, title shape, label set, priority, project lookup, MCP gotchas):
+**Linear host** — create one Backlog ticket, deferring every convention to the linear plugin's `linear` skill (team, title shape, label set, priority, project lookup, MCP gotchas):
 
 - **Title:** noun-phrase per linear conventions, derived from the thought. Don't confirm — capture trusts the derivation; the user can rename later.
 - **State:** `Backlog`, priority None — per linear conventions for unapproved ideas.

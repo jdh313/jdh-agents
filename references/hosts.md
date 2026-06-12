@@ -96,7 +96,7 @@ Those concerns belong to the user's broader Linear workflow, owned by the siblin
 1. Detected from phrasing: *"open a Linear ticket and …"*, *"new linear ticket for …"*, *"create a ticket as the contract"*
 2. Same context-gathering and drafting as the other hosts
 3. Derive the **title** from the goal per the linear plugin's title conventions — no confirmation; the user reviews title and body together in Linear
-4. `save_issue` with no ID to create, six-section contract as the body; **all other fields** (team, project, labels, priority) follow the linear plugin's `linear-workflow` conventions — spec-flow never hardcodes them
+4. `save_issue` with no ID to create, six-section contract as the body; **all other fields** (team, project, labels, priority) follow the `linear` skill's conventions — spec-flow never hardcodes them
 5. Return the new ticket ID; proceed with the Contract Review transition as if the ticket had pre-existed
 
 The original deferral reason — team/status discovery and Linear-side defaults — is resolved: the sibling `linear` plugin owns those conventions, and spec-flow defers to it.
