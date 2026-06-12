@@ -1,6 +1,6 @@
 {
   "name": "linear",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Personal Linear workflow conventions for AI-assisted development. Owns ticket creation defaults, status flow semantics, label set, title shape, and MCP call patterns. Composes with spec-flow (which uses Linear as a contract host but defers to this plugin for the conventions).",
   "author": {
     "name": "Jacob Hoehler"

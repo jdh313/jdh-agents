@@ -2,7 +2,7 @@
 
 Silent-failure modes observed in the `mcp__linear-server__*` tool surface. Each is paired with the working shape and a one-line cause. **Read before calling Linear MCP from any skill** — these failures return success-shaped responses with empty or wrong data instead of erroring.
 
-Universal — applies to `linear-workflow`, `spec-flow:*`, or any direct Linear MCP usage.
+Universal — applies to `linear`, `spec-flow:*`, or any direct Linear MCP usage.
 
 ---
 

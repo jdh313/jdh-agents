@@ -1,9 +1,9 @@
 ---
-name: linear-workflow
+name: linear
 description: This skill should be used when creating, updating, transitioning, reading, or querying Linear tickets in your Linear workspace. Trigger phrases include "open a linear ticket", "create a TEAM ticket", "add to linear", "add to backlog", "log this in linear", "move TEAM-N to", "transition TEAM-N", "promote to todo", "back to backlog", "mark TEAM-N done", "what state is TEAM-N", "set TEAM-N priority", "what's in todo", "show my linear tickets". Supplies ticket creation defaults (team, labels, priority, milestone), status flow semantics, title and description conventions, and MCP call patterns. Does NOT cover the spec-flow contract lifecycle (use spec-flow plugin) or the decision of whether to open a ticket at all (project CLAUDE.md owns the floor rule).
 ---
 
-# linear-workflow
+# linear
 
 Operational conventions for Linear work. Loads on any ticket create, transition, read, or update.
 
