@@ -10,7 +10,7 @@ description: >-
   the same punch list to this cycle's recurring grooming child issue as the
   cycle log. Proposes actions only — never applies state transitions, never
   closes tickets, never edits the bodies of groomed tickets. The user reviews
-  and applies any changes manually via the `linear-workflow` skill.
+  and applies any changes manually via the `linear` skill.
 argument-hint: "[grooming log issue ID, e.g. TEAM-128]"
 allowed-tools:
   # Linear — cycle + backlog scan + write the cycle log
@@ -36,7 +36,7 @@ allowed-tools:
 
 ## Overview
 
-Run the weekly grooming sweep for a solo Linear workspace (team `TEAM`). Read-mostly: scan the active cycle and backlog, optionally cross-reference ndr atoms and recent vault session notes, produce a punch list grouped by action bucket. Write the punch list to this cycle's recurring grooming child issue as the cycle log. The user reviews and applies any approved transitions manually via the `linear-workflow` skill.
+Run the weekly grooming sweep for a solo Linear workspace (team `TEAM`). Read-mostly: scan the active cycle and backlog, optionally cross-reference ndr atoms and recent vault session notes, produce a punch list grouped by action bucket. Write the punch list to this cycle's recurring grooming child issue as the cycle log. The user reviews and applies any approved transitions manually via the `linear` skill.
 
 The bet: classification is mechanical (rule-based) and tedious, so the skill does it. Prioritization is judgment, so the user does it.
 
@@ -88,7 +88,7 @@ For `Vault-unfiled`, substitute the note name for `TEAM-N`:
 
 ```
 - **<vault-note-name>** — <work item phrase>
-  - Proposed: open ticket via `linear-workflow` with done-when criterion
+  - Proposed: open ticket via `linear` with done-when criterion
   - Why: <one-line rationale>
 ```
 
@@ -132,6 +132,6 @@ Replace-on-write each run. Rerunning the same week overwrites with the latest sw
 
 ## Composes with
 
-- **`linear-workflow`** (linear plugin) — the user applies any approved transitions via this skill after reviewing the punch list. Do not call it from within `groom`.
+- **`linear`** (linear plugin) — the user applies any approved transitions via this skill after reviewing the punch list. Do not call it from within `groom`.
 - **`ndr:decisions`** (external ndr plugin — ships from its own separate marketplace) — supersession-aware lookup. Dispatch when a ticket body or title contains an `ndr:` reference, to decide if the ticket belongs in the NDR-moot bucket. Optional: without it, skip the NDR-moot bucket.
 - **`vault-reader`** (external librarian setup) — optional for the vault-unfiled pass. Inline `mcp__obsidian-mcp__search_notes` is sufficient.

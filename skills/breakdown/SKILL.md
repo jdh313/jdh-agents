@@ -30,7 +30,7 @@ allowed-tools:
   - Grep
   - Glob
   - Bash
-  # Compose with ndr:ground, linear-workflow, spec-flow:draft
+  # Compose with ndr:ground, linear, spec-flow:draft
   - Skill
   - Agent
 ---
@@ -95,11 +95,11 @@ This is the multi-ticket-from-a-plan skill. For one-shot single-ticket drafting,
 
 6. **Confirm parent linking.** If the source was a `TEAM-N` ticket, each child will get a Linear `parent` relation pointing at it. Confirm the parent ID once before publishing. If the source was vault/ndr/conversation, no Linear parent — each child's `## Context` describes the goal directly (link to vault note or ndr atom if applicable).
 
-7. **Publish in dependency order via `linear-workflow`.** Save blockers first so children can reference real `TEAM-N` IDs in the Linear blocks/blocked-by relation. For each slice:
+7. **Publish in dependency order via `linear`.** Save blockers first so children can reference real `TEAM-N` IDs in the Linear blocks/blocked-by relation. For each slice:
 
    - Compose body per `references/issue-shape.md`: `## Context`, `## Done when:`, `## NDR references` (if any), `## Notes` (if any).
    - Set labels: one Surface, one Type. Defaults: `Feature` type unless decision-shaped (`Decision`). Surface comes from the slice's primary layer.
-   - Set priority: `medium` (Backlog default per linear-workflow). Bump to `high` only when the user explicitly committed to the slice this cycle.
+   - Set priority: `medium` (Backlog default per the `linear` skill). Bump to `high` only when the user explicitly committed to the slice this cycle.
    - Set project: the active phase project (lookup via `mcp__linear-server__list_projects`, take the non-completed one).
    - Set parent relation if applicable.
    - After save, capture the returned `TEAM-N` for downstream blocks/blocked-by references.
@@ -147,7 +147,7 @@ Granularity right? Dependencies correct? Anything to merge or split?
 - **`ndr:ground`** (external ndr plugin — ships from its own separate marketplace) — grounding pass before slicing. Surfaces current decision heads relevant to the goal's area. Optional: without it, slice from the source + conversation alone.
 - **`ndr:decisions`** (external ndr plugin) — used when the source argument is an `ndr:` reference.
 - **`ndr:capture-decision`** (external ndr plugin) — recommended after a `Decision`-type slice's call is made.
-- **`linear-workflow`** (linear plugin) — performs the actual ticket saves with team conventions (labels, priority semantics, title shape).
+- **`linear`** (linear plugin) — performs the actual ticket saves with team conventions (labels, priority semantics, title shape).
 - **`spec-flow:draft`** (spec-flow plugin) — optional handoff for slices that warrant a contract-tracked workflow, via `/spec-flow draft`.
 - **`Explore` agent** (built-in) — optional codebase exploration in step 3.
 

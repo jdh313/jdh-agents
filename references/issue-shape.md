@@ -1,12 +1,12 @@
 # Issue shape
 
-What a well-formed Linear ticket contains. Source of truth for the Missing-fields bucket in `pm:groom`, the proposal shape in `pm:triage`, and the template in `pm:author`. Defers to `linear-workflow` (linear plugin) for title, labels, priority, and status conventions — this file covers what goes **inside the description body** plus the required-field checklist.
+What a well-formed Linear ticket contains. Source of truth for the Missing-fields bucket in `pm:groom`, the proposal shape in `pm:triage`, and the template in `pm:author`. Defers to `linear` (linear plugin) for title, labels, priority, and status conventions — this file covers what goes **inside the description body** plus the required-field checklist.
 
 ## Required fields
 
 A ticket is "well-formed" when it has all six:
 
-1. **Title** — per `linear-workflow` conventions (`Area: noun-phrase` or bare noun-phrase)
+1. **Title** — per `linear` conventions (`Area: noun-phrase` or bare noun-phrase)
 2. **Project** — assigned to the active phase project (rotates per phase)
 3. **Priority** — set to one of `urgent` / `high` / `medium` / `low`; not `None`
 4. **Surface label** — exactly one of `pipeline`, `backend`, `frontend`, `infra`, `database`
@@ -84,5 +84,5 @@ Anything else: observations, risk flags, decisions deferred, links to related wo
 
 ## See also
 
-- **`linear-workflow`** (linear plugin) — title, labels, priority, status flow, MCP call patterns
+- **`linear`** (linear plugin) — title, labels, priority, status flow, MCP call patterns
 - **Project `CLAUDE.md`** — repo-level conventions, including when to open a ticket at all

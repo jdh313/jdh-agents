@@ -86,5 +86,5 @@ The orthogonal-axes mental model:
 
 ## See also
 
-- **`linear-workflow`** (linear plugin) — title, labels, priority, status flow, and milestone-naming mechanics.
+- **`linear`** (linear plugin) — title, labels, priority, status flow, and milestone-naming mechanics.
 - **Project `CLAUDE.md`** — when to open a ticket at all.

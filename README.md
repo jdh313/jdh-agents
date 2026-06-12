@@ -25,12 +25,12 @@ Planned for later versions:
 
 ## References
 
-- **`references/issue-shape.md`** — what counts as a well-formed Linear ticket (required fields + description body structure + anti-conventions). Shared across all PM skills: `groom` uses it for the Missing-fields and NDR-moot buckets; `triage` and `author` will use it for proposals and templates. Defers to `linear-workflow` for title/label/priority/status mechanics.
+- **`references/issue-shape.md`** — what counts as a well-formed Linear ticket (required fields + description body structure + anti-conventions). Shared across all PM skills: `groom` uses it for the Missing-fields and NDR-moot buckets; `triage` and `author` will use it for proposals and templates. Defers to `linear` for title/label/priority/status mechanics.
 - **`references/layer-policy.md`** — what organizational layers the workspace uses (project / milestone / issue / cycle), what layers are deliberately off by default (epic / parent ticket, subissue, initiative), and the decision criteria for promoting work between layers. Used by `groom` to flag orphan tickets, by `breakdown` to decide milestone assignment, and by `retro` to surface layer-policy adherence.
 
 ## Composes with
 
-- **[linear](../linear/README.md)** — `pm` skills propose; `linear-workflow` applies any approved transitions.
+- **[linear](../linear/README.md)** — `pm` skills propose; `linear` applies any approved transitions.
 - **ndr** (external — ships from its own separate marketplace) — `pm:groom` calls `ndr:decisions` for supersession checks on tickets that reference ndr atoms. Optional: without it, the NDR-moot bucket and grounding passes are skipped.
 - **librarian** (external — personal setup, not published) — `pm:retro` writes retro notes via librarian's `note-editor` agent when present; otherwise the retro draft stays in chat for you to file manually.
 
