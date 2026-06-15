@@ -186,3 +186,13 @@ Some learning topics lend themselves to reference:
 - Glossaries for any topic with its own nomenclature
 
 Print-beautiful cheat sheets, algorithm cards, and pose sequences are HTML, saved to `./reference/`. The **glossary** is the exception — it is a markdown note, `Glossary.md`, because its terms graduate into the vault's wiki. Once a glossary exists, it should be adhered to in every lesson, and durable cross-cutting terms should be promoted to `Reference/` wiki concept notes via the `wiki-create` / `wiki-graduate` skills.
+
+### Keeping the durable layer fresh
+
+Lessons are ephemeral — they're "rarely revisited later," so a stale lesson costs little. **Reference documents and graduated wiki concepts are the opposite**: they exist *to be returned to*, so a stale one actively misleads the user every time they reach for it. The freshness obligation lives here, on the durable layer — not on lessons.
+
+When a reference doc or wiki concept carries pinned code citations (per "Citing a live codebase"), it can silently rot as the codebase moves past the pinned ref. So run a **freshness check** — modeled on the same posture as a decision/code drift audit:
+
+- **When:** at the start of a session that will lean on an existing reference doc, or on demand ("is this cheat sheet still accurate?", "re-pin the trace map").
+- **What:** re-resolve each pinned citation against the codebase's current `HEAD`. For each, decide: still accurate (re-pin to the new SHA + bump the as-of stamp), or **materially drifted** (the code now contradicts what the doc teaches).
+- **Posture:** read-only and advisory. Re-pinning to a newer SHA when the content still holds is safe to do directly. But where the code has *materially drifted* from the teaching, **do not silently rewrite** — surface the divergence and let the user decide whether the reference's content needs updating. Never let a freshness pass quietly change what a doc claims.
