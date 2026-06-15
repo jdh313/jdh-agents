@@ -79,6 +79,18 @@ Fluency can give the user an illusory sense of mastery, but storage strength is 
 - Spacing (distributing practice over time)
 - Interleaving (mixing up different but related topics in practice - for skills practice only)
 
+## Altitude: what a lesson binds to
+
+Learning a concept *through* a real codebase — e.g. learning auth via the stack the user's project actually uses — is the productive default. The user learns only the approaches that fit their work, not generic alternatives that don't. But it sets a trap: if a lesson binds to volatile implementation detail, it rots every time the code moves. Avoid the trap by pitching every lesson at the right **altitude**. Three layers:
+
+- **Concept** — the durable idea being taught (how token verification works; per-request scope resolution; RBAC). This is the *subject*. Lessons **always** bind here.
+- **Stack lens** — the specific technologies and patterns the user chose to learn through (Okta + OIDC; role-based authz; FastAPI + dependency injection). Semi-durable: it moves only on *major* changes (migrating off Okta; RBAC → ABAC). Lessons bind here too — it is the productivity win, and it is recorded in `Mission.md` (the `stack_lens:` field) so every lesson stays grounded in it and off-stack approaches stay out of scope.
+- **Wiring** — the exact code: which file, which line, which provider, a field's signature, an enum's member count. Volatile; changes on any refactor. Lessons **never** bind here. Wiring appears only as pinned, illustrative snapshots (see "Citing a live codebase") — there to make the concept concrete, never as the thing being taught.
+
+**The test:** if a fact would be falsified by a refactor that does *not* change the approach, it is wiring — keep it out of the lesson's load-bearing claims. A lesson should remain correct after the code is reorganised, as long as the stack lens still holds.
+
+This is also the boundary of the skill. `teach` is for **concept + stack lens** (durable). Understanding *how the current code does it today* — onboarding to a codebase, or digesting a specific PR — is **wiring-altitude** and perishable; that belongs in a code-grounded session or review tooling that reads `HEAD`, not in stored lessons. Don't route wiring-level "how does our code work right now" jobs into `teach`.
+
 ## Lessons
 
 A lesson is the main thing you produce — the unit in which knowledge and skills reach the user. Each lesson is one self-contained HTML file, saved to `./lessons/` inside the workspace folder and titled `0001-<dash-case-name>.html` where the number increments each time.
@@ -106,6 +118,8 @@ Failing to understand the mission will mean knowledge acquisition is not grounde
 Missions may change as the user develops more skills and knowledge. This is normal — make sure to update `Mission.md` and add a learning record to capture the change. Confirm with the user before changing the mission.
 
 When the topic serves a **real project the user already has** — a vault project page or a Linear project — tether the mission to it (the `project:` field in [MISSION-FORMAT.md](./MISSION-FORMAT.md)). This anchors the "why" in a concrete deliverable and lets a query answer "what am I learning for project X." But only link a project that genuinely exists — **never invent one just to have something to link.** A standalone personal interest needs no project, and a forced tie is worse than none.
+
+If the user is learning a concept *through a particular stack* (see [Altitude](#altitude-what-a-lesson-binds-to)) — "teach me auth the way Wayfinder does it" — record that choice in the mission's `stack_lens:` field. It names the technologies and patterns lessons should teach *through* (and, by implication, the off-stack alternatives that stay out of scope). Every lesson then stays grounded in the approach that fits the user's work, and a stack-lens change becomes the trigger for a freshness pass.
 
 ## Zone Of Proximal Development
 
@@ -148,7 +162,7 @@ So when you cite live code, **snapshot and pin**:
 - **Pin to an immutable ref.** Cite a commit SHA or permalink, never a live path on the default branch. Resolve the current SHA at authoring time (e.g. `git -C <repo> rev-parse --short HEAD`).
 - **Stamp it as-of.** Label the snapshot with the repo, SHA, and date — e.g. `cartaos@a1b2c3d (2026-06-15)` — so a future reader knows it is a snapshot and can diff against current code if they need to.
 
-The pinned link is provenance; the inline snapshot is what the lesson teaches from. This keeps the lesson valid even after the path moves.
+The pinned link is provenance; the inline snapshot is what the lesson teaches from. This keeps the lesson valid even after the path moves. Code snapshots are **wiring-altitude** (see [Altitude](#altitude-what-a-lesson-binds-to)): they illustrate the concept, they are never the lesson's load-bearing claim.
 
 ## Skills
 
@@ -207,8 +221,10 @@ Print-beautiful cheat sheets, algorithm cards, and pose sequences are HTML, save
 
 Lessons are ephemeral — they're "rarely revisited later," so a stale lesson costs little. **Reference documents and graduated wiki concepts are the opposite**: they exist *to be returned to*, so a stale one actively misleads the user every time they reach for it. The freshness obligation lives here, on the durable layer — not on lessons.
 
-When a reference doc or wiki concept carries pinned code citations (per "Citing a live codebase"), it can silently rot as the codebase moves past the pinned ref. So run a **freshness check** — modeled on the same posture as a decision/code drift audit:
+When a reference doc or wiki concept carries pinned code citations (per "Citing a live codebase"), it can silently rot as the codebase moves past the pinned ref. So run a **freshness check** — modeled on the same posture as a decision/code drift audit. Calibrate it to altitude (see [Altitude](#altitude-what-a-lesson-binds-to)): most citation drift is *wiring* and is cheap to absorb; the case that actually demands attention is a **stack-lens move**.
 
 - **When:** at the start of a session that will lean on an existing reference doc, or on demand ("is this cheat sheet still accurate?", "re-pin the trace map").
-- **What:** re-resolve each pinned citation against the codebase's current `HEAD`. For each, decide: still accurate (re-pin to the new SHA + bump the as-of stamp), or **materially drifted** (the code now contradicts what the doc teaches).
-- **Posture:** read-only and advisory. Re-pinning to a newer SHA when the content still holds is safe to do directly. But where the code has *materially drifted* from the teaching, **do not silently rewrite** — surface the divergence and let the user decide whether the reference's content needs updating. Never let a freshness pass quietly change what a doc claims.
+- **What:** re-resolve each pinned citation against the codebase's current `HEAD` and classify the drift by altitude:
+  - **Wiring drift** (file moved, lines shifted, a provider relocated, a signature changed) — re-pin to the new SHA + bump the as-of stamp. Safe to do directly; the teaching is unaffected.
+  - **Stack-lens move** (the *approach* changed — a new auth provider, RBAC → ABAC) — this is the real signal. It may mean the concept-level teaching is now taught through the wrong approach. **Do not silently rewrite** — surface it and let the user decide whether the reference (and the mission's `stack_lens:`) needs updating.
+- **Posture:** read-only and advisory. A freshness pass may re-pin wiring quietly, but must never quietly change what a doc *claims*. Trigger a full pass on major (stack-lens) change, not on every refactor.
