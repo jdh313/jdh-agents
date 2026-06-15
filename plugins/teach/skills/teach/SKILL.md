@@ -161,6 +161,20 @@ Each of these should be based on a **feedback loop**, where the user receives fe
 
 For quizzes, each answer should be exactly the same number of words (and characters, if possible). Don't give the user any clues about the answer through formatting.
 
+### Calibrated real-stakes application
+
+This user retains through **real stakes**, not sandbox drills (see the learning-style grounding above). So the strongest end-of-lesson move is to push them to apply the skill where it has a real consequence. But "real stakes" must be **calibrated** — for a work topic, sending them to make production edits mid-lesson would derail their actual throughput, which is a worse outcome than slightly weaker practice.
+
+Pick the lightest rung that still carries a real consequence:
+
+1. **Predict-then-verify** against real artifacts — "what will this function return / this pose feel like / this conjugation be? Now check." Real material, zero blast radius.
+2. **Review, don't author** — have them critique a real open PR, a real config, a real recipe, against what the lesson taught. Judgment under real conditions without shipping anything.
+3. **Explain to a real person** — the protégé effect; teaching a colleague or peer is high-stakes retrieval.
+4. **Capture, don't execute** — if applying the skill surfaces real work, file a follow-up (e.g. a Linear ticket / a `/spec-flow capture`) instead of doing it now. The stake is real; the timing stays under the user's control.
+5. **Do the thing** — a real edit, a real session, a real attempt — when the topic *is* the work and doing it now doesn't blow up something else.
+
+**Only escalate the rung when the topic is genuinely work-tied and the action won't derail other work.** For non-work topics (a language, an instrument, a pose), rungs 3 and 5 are usually the real-stakes path. Match the rung to the topic; don't force a work-tie where none exists.
+
 ## Acquiring Wisdom
 
 Wisdom comes from true real-world interaction - testing your skills outside the learning environment. This matters doubly for this user, whose retention depends on real stakes — push them toward it.
