@@ -83,7 +83,7 @@ Fluency can give the user an illusory sense of mastery, but storage strength is 
 
 A lesson is the main thing you produce — the unit in which knowledge and skills reach the user. Each lesson is one self-contained HTML file, saved to `./lessons/` inside the workspace folder and titled `0001-<dash-case-name>.html` where the number increments each time.
 
-A lesson should be **beautiful** — clean, readable typography and layout — since the user will return to these later to review. Think Tufte.
+A lesson should be **beautiful** — clean, readable typography and layout — since the user will return to these later to review. Think Tufte. Compose it from the shared **lesson design system** ([LESSON-DESIGN-SYSTEM.md](./LESSON-DESIGN-SYSTEM.md)) — a set of inline tokens and drop-in components (auto-grading quiz, reveal, callout, code-snapshot) that give every lesson a consistent base and a ready-made feedback loop. The system is a starting skeleton, **not a cage**: override or break it whenever a topic genuinely calls for something bespoke.
 
 The lesson should be short, and completable very quickly. Learners' working memory is very small, and we need to stay within it. But each lesson should give the user a single tangible win that they can build on. It should be directly tied to the mission, and should be in the user's zone of proximal development.
 
