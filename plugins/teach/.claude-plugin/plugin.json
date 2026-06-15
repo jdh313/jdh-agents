@@ -1,7 +1,7 @@
 {
   "name": "teach",
   "version": "0.3.0",
-  "description": "A stateful, multi-session teaching workspace routed into the Obsidian vault. The /teach skill grounds learning in the user's documented learning style and high-trust sources, builds a mission, resources, glossary, and learning records as vault notes under the topic's best-fit context, and keeps lessons + cheat sheets as self-contained HTML. Requires an Obsidian vault (obsidian-cli). Adapted from mattpocock/skills (MIT, © 2026 Matt Pocock).",
+  "description": "A stateful, multi-session teaching workspace routed into the Obsidian vault. The /teach skill grounds learning in the user's documented learning style and high-trust sources, builds a mission, resources, glossary, and learning records as vault notes under the topic's best-fit context, and keeps lessons + cheat sheets as self-contained HTML. Grounds in owned textbooks via DEVONthink when available and pins live-code citations to immutable refs. Requires an Obsidian vault (obsidian-cli); optionally surfaces owned textbooks from DEVONthink. Adapted from mattpocock/skills (MIT, © 2026 Matt Pocock).",
   "author": {
     "name": "Jacob Hoehler"
   },

@@ -5,6 +5,8 @@ A stateful, multi-session teaching workspace **routed into your Obsidian vault**
 > Adapted from [mattpocock/skills](https://github.com/mattpocock/skills) (`skills/productivity/teach`), MIT © 2026 Matt Pocock. The original treats the current directory as the workspace; this fork routes durable artifacts into the vault. Upstream provenance is pinned in the skill's frontmatter; divergences are tracked in `skills/teach/UPSTREAM.md` via `provenance:upstream-review`. Design spec: `.docs/2026-06-12-teach-vault-routing.md`.
 
 > **Requires** an Obsidian vault reachable via `obsidian-cli`.
+>
+> **Optional:** a `devonthink` MCP server connected **at the user level** unlocks grounding lessons in textbooks you own in DEVONthink (the highest-trust, most stable source class). The server is not bundled with this plugin — connect it yourself; without it, the skill falls back to web sources. See the "Owned textbooks (DEVONthink)" section in `skills/teach/SKILL.md`.
 
 ## /teach — learn something over time
 
