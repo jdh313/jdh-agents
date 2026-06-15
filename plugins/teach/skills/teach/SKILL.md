@@ -4,7 +4,7 @@ description: Teach the user a new skill or concept over multiple sessions, build
 disable-model-invocation: true
 effort: high
 argument-hint: "What would you like to learn about?"
-allowed-tools: Bash(obsidian-cli *), Write, Read, mcp__obsidian-mcp__patch_note
+allowed-tools: Bash(obsidian-cli *), Write, Read, mcp__obsidian-mcp__patch_note, mcp__devonthink__search_records, mcp__devonthink__lookup_records, mcp__devonthink__get_databases, mcp__devonthink__get_record_properties, mcp__devonthink__get_record_text, mcp__devonthink__extract_record_content
 disallowed-tools: Edit, Bash(rm *), Bash(trash *), Bash(git push *), Bash(jj abandon *), Bash(jj restore *)
 upstream:
   repo: mattpocock/skills
@@ -122,6 +122,31 @@ Lessons should be designed around a skill the user is going to learn. The knowle
 Knowledge should first be gathered from trusted resources. Use `Resources.md` to keep track of them. Lessons should be littered with citations - links to external resources to back up any claim made. This increases the trustworthiness of the lesson.
 
 For acquiring knowledge, difficulty is the enemy. It eats working memory you need for understanding.
+
+### Owned textbooks (DEVONthink)
+
+Before reaching for the web — and certainly before trusting your parametric knowledge — **survey the textbooks the user already owns in DEVONthink.** These are the highest-trust source class available: the user paid for them, chose to keep them, and they are *stable* (a textbook doesn't drift the way a live codebase or a moving web page does), so a citation into one stays valid.
+
+When gathering or expanding resources for a topic:
+
+- **Search DEVONthink first.** Use `mcp__devonthink__search_records` / `mcp__devonthink__lookup_records` (and `get_databases` to see what's available) to find textbooks relevant to the topic. Surface what you found to the user and let them confirm which are worth grounding lessons in.
+- **Pull content to ground lessons, not to replace them.** Use `get_record_text` / `extract_record_content` to read the relevant passages and ground your explanations in what the book actually says — then cite it. Quote sparingly; the lesson teaches, the book is the authority behind the claim.
+- **Cite by DEVONthink item link.** Record the textbook in `Resources.md` under Knowledge with its DEVONthink item link (`x-devonthink-item://<UUID>`, from `get_record_properties`) plus a page/chapter pointer where you can. See [RESOURCES-FORMAT.md](./RESOURCES-FORMAT.md).
+- **Read-only.** Never create, move, tag, or modify records in the user's DEVONthink library — it is their reference collection, not a teaching workspace.
+
+If no owned textbook covers the topic, say so and fall back to web sources via the normal ingest flow.
+
+### Citing a live codebase
+
+When a lesson references a codebase the user works in (e.g. `cartaos`), treat it differently from an external article. An external article is stable; a live path is a **moving target** — the file gets renamed, the function gets refactored, the line numbers shift, and a lesson that was a perfect reference today rots into a stale one. A lesson is a durable artifact the user returns to; a bare `path/to/file.ts:42` citation breaks that promise.
+
+So when you cite live code, **snapshot and pin**:
+
+- **Snapshot inline.** Quote the relevant code directly in the lesson so it is self-contained. The embedded snippet — not the live file — is the reference. The user should never need to open the repo to understand the lesson.
+- **Pin to an immutable ref.** Cite a commit SHA or permalink, never a live path on the default branch. Resolve the current SHA at authoring time (e.g. `git -C <repo> rev-parse --short HEAD`).
+- **Stamp it as-of.** Label the snapshot with the repo, SHA, and date — e.g. `cartaos@a1b2c3d (2026-06-15)` — so a future reader knows it is a snapshot and can diff against current code if they need to.
+
+The pinned link is provenance; the inline snapshot is what the lesson teaches from. This keeps the lesson valid even after the path moves.
 
 ## Skills
 
