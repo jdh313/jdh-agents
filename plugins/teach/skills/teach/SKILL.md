@@ -105,6 +105,8 @@ Failing to understand the mission will mean knowledge acquisition is not grounde
 
 Missions may change as the user develops more skills and knowledge. This is normal — make sure to update `Mission.md` and add a learning record to capture the change. Confirm with the user before changing the mission.
 
+When the topic serves a **real project the user already has** — a vault project page or a Linear project — tether the mission to it (the `project:` field in [MISSION-FORMAT.md](./MISSION-FORMAT.md)). This anchors the "why" in a concrete deliverable and lets a query answer "what am I learning for project X." But only link a project that genuinely exists — **never invent one just to have something to link.** A standalone personal interest needs no project, and a forced tie is worse than none.
+
 ## Zone Of Proximal Development
 
 Each lesson, the user should always feel as if they are being challenged 'just enough'.
