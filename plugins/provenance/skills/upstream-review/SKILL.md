@@ -1,6 +1,9 @@
 ---
 name: upstream-review
 description: Review an adapted/borrowed skill against its upstream source — compare behavior (not just text), flag dropped moves, silent divergences, and fabricated attributions, then refresh the pinned upstream commit SHA. Use when adopting a skill from another repo, when an upstream skill may have changed, or when the user says "review this against upstream", "check upstream drift", "did upstream change", "is our adaptation still honest".
+effort: high
+disallowed-tools:
+  - WebFetch
 ---
 
 Keep adapted skills honest against the source they came from. An adaptation is allowed to diverge — that is the point — but every divergence should be **deliberate and documented**, and no claim about what upstream "does" or "asked for" should be made unless upstream actually does it.
@@ -11,6 +14,18 @@ This is a judgment task, not a text diff. It produces a divergence report and pr
 
 - **Intake** — adopting a skill from another repo for the first time. No `upstream:` block exists yet. The user supplies the source (repo + path, or a URL). Produce the first review and write the provenance block.
 - **Drift** — an already-adapted skill whose `upstream:` block exists. Check whether upstream moved past the pinned SHA; if so, review what changed.
+
+## Multi-skill sweeps
+
+For reviewing more than one adapted skill in a session, dispatch the `@upstream-reviewer` agent once per skill rather than running everything inline. This keeps the comparison state (fetched upstream bytes, ledger reads, classification work) isolated per skill and out of this skill's context, so the session stays interactive — you can adjudicate each finding before moving to the next skill.
+
+```
+@upstream-reviewer skill_path=<path> upstream_repo=<owner/name> upstream_path=<path> reviewed_sha=<sha> ledger_path=<path or empty>
+```
+
+The agent is read-only: it returns findings but never writes. After you adjudicate, apply fixes and update the provenance block yourself (step 9 below).
+
+For a single-skill review you can run the procedure inline; the agent is optional but preferred when sweeping the full marketplace.
 
 ## Provenance block (SKILL.md frontmatter)
 
