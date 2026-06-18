@@ -3,11 +3,12 @@ name: wiki-query
 description: Answer questions using the Knowledge Wiki as context. Use when user asks questions about topics that may be covered in the wiki, says "check the wiki", "what do I know about", or "search the knowledge base".
 allowed-tools:
   - Read
-  - Write
-  - Edit
   - Glob
   - Grep
   - Bash(obsidian-cli *)
+disallowed-tools:
+  - Write
+  - Edit
 ---
 
 # Wiki Query
@@ -61,6 +62,20 @@ cited sources + any gaps noticed.
 
 Surface the agent's `## Result` block to the user. If the agent flagged
 gaps in `## Notes`, mention them.
+
+**Multi-question sessions — re-engage, don't re-dispatch.** If the user
+asks a follow-up wiki question in the same session, re-engage the *same*
+`@vault-reader` instance (via `SendMessage` to its agent ID) with the new
+question rather than cold-spawning a fresh reader. The reader keeps the
+conventions it loaded and the pages it already read, so a related
+follow-up ("and how does that compare to X?") is cheap and stays
+coherent across the thread. A single one-off question needs no
+re-engagement — take the one `## Result` and stop.
+
+This skill is **read-only** — it never writes (note `disallowed-tools:
+Write, Edit` in the frontmatter). Any persistence of a synthesis routes
+through a writing skill (`wiki-create` / `wiki-refresh`), which owns
+`@note-editor`.
 
 ### 4. Suggest next steps (when applicable)
 

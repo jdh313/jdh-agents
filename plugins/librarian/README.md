@@ -31,12 +31,20 @@ through `@vault-reader` (Sonnet); diagnostic sweeps run in
 
 ## Agents
 
-| Agent | Model | Verb | Invoked by |
-|---|---|---|---|
-| `vault-reader` | Sonnet 4.6 | Read + synthesize | `wiki-query`, `meeting-followup`, `experiment-review`, `event-capture` (entity lookup), `wiki-refresh` (drift check), `wiki-graduate` (link map), `catalog-evaluate` (existence check), `experiment-start` (promote mode) |
-| `note-editor` | Haiku 4.5 | Mechanical write + cascade | `wiki-create`, `wiki-refresh`, `wiki-graduate`, `catalog-evaluate`, `meeting-notes`, `meeting-restructure`, `experiment-start`, `experiment-review` (verdict), `event-capture`, `note-capture`, `base-add` |
-| `vault-curator` | Sonnet 4.6 | Interactive cleanup | `note-cleanup` |
-| `vault-inspector` | Haiku 4.5 | Rule-check + structured report | `vault-inspect` |
+| Agent | Model | Effort | Engagement | Verb | Invoked by |
+|---|---|---|---|---|---|
+| `vault-reader` | Sonnet 4.6 | medium | persistent | Read + synthesize | `wiki-query`, `meeting-followup`, `experiment-review`, `event-capture` (entity lookup), `wiki-refresh` (drift check), `wiki-graduate` (link map), `catalog-evaluate` (existence check), `experiment-start` (promote mode) |
+| `note-editor` | Haiku 4.5 | low | one-shot | Mechanical write + cascade | `wiki-create`, `wiki-refresh`, `wiki-graduate`, `catalog-evaluate`, `meeting-notes`, `meeting-restructure`, `experiment-start`, `experiment-review` (verdict), `event-capture`, `note-capture`, `base-add` |
+| `vault-curator` | Sonnet 4.6 | high | persistent | Interactive cleanup | `note-cleanup` |
+| `vault-inspector` | Haiku 4.5 | low | one-shot | Rule-check + structured report | `vault-inspect` |
+
+**Persistent vs one-shot:** stateful multi-turn sessions (the
+`vault-curator` cleanup loop; multi-step `vault-reader` sessions) dispatch
+the agent once and re-engage the same instance via `SendMessage` so it
+keeps loaded conventions and accumulated state. Single finalized
+operations (`note-editor` writes, the `vault-inspector` diagnostic pass)
+stay on a cold `context: fork`. Rationale and contracts in
+`references/architecture.md` (`## Persistent vs one-shot dispatch`).
 
 The canonical skill→agent intent payload spec lives in
 `agents/vault-reader.md` (`## Invocation contract`). All four agents

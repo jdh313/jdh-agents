@@ -9,6 +9,7 @@ description: >
 model: sonnet
 memory: project
 maxTurns: 10
+effort: medium
 tools:
   - Bash(obsidian-cli *)
   - Read
@@ -120,6 +121,32 @@ ERROR: <one-line reason>
 ## Suggested next step
 <what the caller should do — clarify intent, broaden scope, try a different agent>
 ```
+
+### Re-engagement (persistent reader sessions)
+
+A caller may dispatch you once and then re-engage you (via `SendMessage`
+to your agent ID) for follow-up reads in the same session — instead of
+cold-spawning a fresh reader each time. When this happens you retain your
+full prior context: the notes you already read, the conventions you
+loaded, and the synthesis you returned.
+
+On a re-engagement message:
+
+- **Do not re-load** `vault-conventions.md` or re-read notes you already
+  hold in context. Reuse what you have.
+- **Treat the new message as another inbound payload** (same `## Intent`
+  / `## Constraints` / `## Input` / `## Output shape` shape) scoped to the
+  follow-up. Read only what the follow-up newly requires.
+- **Keep your accumulated note map.** If a follow-up asks about a note you
+  already read, answer from memory and only re-read if the caller says the
+  note changed.
+
+This is the right mode for multi-step reader sessions (an
+`experiment-review` that pulls check-ins then asks follow-ups about the
+same page; a `wiki-query` session with several related questions; a
+`wiki-refresh` that re-reads a page after a write). One-shot lookups
+(single entity check, single synthesis) need no re-engagement — the
+caller simply takes your one `## Result` and moves on.
 
 ## Workflow
 

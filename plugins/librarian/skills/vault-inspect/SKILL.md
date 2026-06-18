@@ -6,11 +6,12 @@ context: fork
 agent: vault-inspector
 allowed-tools:
   - Read
-  - Write
-  - Edit
   - Glob
   - Grep
   - Bash(obsidian-cli *)
+disallowed-tools:
+  - Write
+  - Edit
 ---
 
 # Vault Inspect

@@ -19,6 +19,12 @@ Append a quick capture to today's daily note under the `## Captured`
 section. The slash command forks to `@note-editor`, which executes the
 write.
 
+**One-shot by design.** This is a single mechanical append with no
+carried state, so it stays on a cold `context: fork` dispatch — there's
+nothing to re-engage. Persistent re-engagement is reserved for stateful
+multi-turn sessions (`note-cleanup`'s curator loop, multi-step reader
+sessions); a single capture doesn't qualify.
+
 ## Usage
 
 ```

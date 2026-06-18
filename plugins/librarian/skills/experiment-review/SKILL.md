@@ -17,6 +17,17 @@ happened, probe gaps, and (if at/after `review_date`) guide the verdict.
 The check-in pull dispatches to `@vault-reader`; the verdict walk runs
 inline; the verdict write dispatches to `@note-editor`.
 
+**Dispatch shape:** this is a multi-step *reader* session — you pull the
+page, then often need follow-up reads (a related experiment, a linked
+wiki page, re-reading the page after a write). Keep the **same**
+`@vault-reader` instance alive across these reads: dispatch it once
+(step 1 or 2), then re-engage it (via `SendMessage` to its agent ID) for
+any further read in this review, rather than cold-spawning a fresh reader
+each time. The reader retains the experiment page and check-ins it
+already loaded, so follow-ups are cheap and consistent. The
+`@note-editor` write (step 6) stays **one-shot** — it's a single
+finalized append with no state to carry.
+
 Schema lives in `~/dotfiles/claude/rules/11-knowledge-wiki.md` →
 **Experiments**.
 
@@ -50,7 +61,9 @@ Ask the user to pick one.
 
 ### 2. Pull the page + check-ins (via vault-reader)
 
-Dispatch:
+If step 1 already spun up a `@vault-reader` to list experiments,
+**re-engage that same instance** with this payload instead of dispatching
+a new one. Otherwise dispatch fresh:
 
 ```markdown
 ## Intent
