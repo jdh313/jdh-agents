@@ -6,6 +6,7 @@ description: >-
   my day", or "day's over". Provides a quick end-of-day pulse that reads
   the morning's priorities, captures what actually happened, and writes a
   brief end-of-day section to the daily note.
+effort: low
 allowed-tools:
   # Todoist — completed tasks today
   - mcp__claude_ai_Todoist__find-completed-tasks
@@ -14,6 +15,16 @@ allowed-tools:
   # Obsidian — read daily note, write end-of-day
   - Bash(obsidian-cli *)
   - Edit
+disallowed-tools:
+  # This skill never creates or modifies tasks/issues — read-only on Todoist/Linear
+  - mcp__claude_ai_Todoist__add-tasks
+  - mcp__claude_ai_Todoist__update-tasks
+  - mcp__claude_ai_Todoist__complete-tasks
+  - mcp__linear-server__create_issue
+  - mcp__linear-server__save_issue
+  - mcp__linear-server__update_issue
+  - mcp__linear-server__create_project
+  - mcp__linear-server__update_project
 ---
 
 # /checkin -- End-of-Day Pulse

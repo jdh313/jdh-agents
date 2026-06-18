@@ -8,6 +8,7 @@ description: >-
   to surface focus trends, drift patterns, and life-area trajectories --
   making the invisible visible for ADHD time-blindness.
 model: inherit
+effort: high
 color: green
 tools:
   - Bash(obsidian-cli *)

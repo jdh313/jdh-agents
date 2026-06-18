@@ -7,6 +7,7 @@ description: >-
   Linear projects and Obsidian project/hobby notes to classify activity
   levels and surface neglected work.
 model: inherit
+effort: high
 color: cyan
 tools:
   - mcp__linear-server__list_projects

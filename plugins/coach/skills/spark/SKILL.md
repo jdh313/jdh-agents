@@ -7,10 +7,21 @@ description: >-
   log -- validates the dopamine hit without committing to a project. Speed over
   structure. Sparks get reviewed during /weekly or /review for promotion to
   /intake.
+effort: low
 allowed-tools:
   # Obsidian — read/create/append sparks log
   - Bash(obsidian-cli *)
   - Edit
+disallowed-tools:
+  # This skill never creates or modifies tasks/issues — Obsidian-only capture
+  - mcp__claude_ai_Todoist__add-tasks
+  - mcp__claude_ai_Todoist__update-tasks
+  - mcp__claude_ai_Todoist__complete-tasks
+  - mcp__linear-server__create_issue
+  - mcp__linear-server__save_issue
+  - mcp__linear-server__update_issue
+  - mcp__linear-server__create_project
+  - mcp__linear-server__update_project
 ---
 
 # /spark -- Interest/Idea Capture
