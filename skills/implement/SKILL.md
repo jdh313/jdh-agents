@@ -31,7 +31,7 @@ If a name was given as argument:
 If no name was given, enumerate active contracts across both hosts:
 
 - **File host** — scan `.docs/` (excluding `archive/` and `status: captured` stubs).
-- **Linear host** (when the MCP is connected) — `mcp__linear-server__list_issues` filtered to "Contract Review" and "In Progress" states (team per the linear plugin's conventions, assignee me), keeping only tickets whose description carries the six-section shape (`## What we're doing` heading is the cheap test).
+- **Linear host** (when the MCP is connected) — `mcp__linear-server__list_issues` filtered to "Contract Review" and "In Progress" states (team per the linear plugin's conventions; **no assignee filter** — list all team contracts), keeping only tickets whose description carries the six-section shape (`## What we're doing` heading is the cheap test). Display the assignee per contract so ownership is visible when listing.
 
 Then:
 
@@ -51,6 +51,19 @@ Do not run `claude mcp add` or suggest a paste-and-go connect command.
 - **Linear host** — Fetch via `mcp__linear-server__get_issue` and parse the description for the 6 sections.
 
 Follow any linked ndr atoms (`[[ndr-...]]` references) and read them.
+
+### 2.5. Claiming check (Linear host only)
+
+After reading the ticket, check its `assignee` field:
+
+- **Assignee is the current user (`me`) or unassigned** — proceed normally.
+- **Assignee is someone else** — warn before continuing:
+
+  > "This contract is assigned to **[name]** — implement on their behalf (leave assignee unchanged), or reassign it to yourself first?"
+
+  Wait for the user's explicit choice. Do not proceed silently, and do not block permanently — this is a guardrail, not a gate. If the user says "implement on their behalf", continue with the existing assignee. If "reassign to me", call `mcp__linear-server__save_issue(id=..., assignee="me")` before moving to In Progress.
+
+(File-host contracts have no assignee concept — skip this step.)
 
 ### 3. Assess state
 

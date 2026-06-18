@@ -51,15 +51,16 @@ No phrasing analysis at this stage — the identifier shape is the signal.
 | Step | File host | Linear host |
 |---|---|---|
 | **`capture` — write** | Stub at `.docs/YYYY-MM-DD-<slug>.md` with `status: captured` | New Backlog ticket, lightweight Goal/Context body, fields per linear plugin conventions |
-| **`draft` — locate** | Scan `.docs/*.md` for active contracts (skip `status: captured`) | `list_issues` on "Contract Review" + "In Progress" states; six-section description = contract |
+| **`draft` — locate** | Scan `.docs/*.md` for active contracts (skip `status: captured`) | `list_issues` on "Contract Review" + "In Progress" states; no assignee filter; display assignee per contract; six-section description = contract |
 | **`draft` — draft body** | Compose 6-section contract | Compose 6-section contract |
 | **`draft` — approval** | Present in chat; user approves before the file is written | None in chat — write immediately; the Contract Review state is the review surface |
-| **`draft` — write container** | `Write` to `.docs/YYYY-MM-DD-<slug>.md`; captured stubs upgraded in place | `mcp__linear-server__save_issue` against the ticket ID (linear-new: `save_issue` with no ID creates the ticket) |
-| **`draft` — existing body** | Captured stub's Goal/Context is drafting input | Overwrite by default — no prompt. Prepend only if the user explicitly asked to preserve the existing text |
+| **`draft` — write container** | `Write` to `.docs/YYYY-MM-DD-<slug>.md`; captured stubs upgraded in place | `mcp__linear-server__save_issue` against the ticket ID (linear-new: `save_issue` with no ID creates ticket, `assignee="me"`) |
+| **`draft` — existing body** | Captured stub's Goal/Context is drafting input | Overwrite by default. Concurrent-edit guard: if description changed since last read, warn and offer merge/overwrite/abort. Prepend only if user explicitly asked to preserve the existing text |
 | **`draft` — status** | n/a — no status | After writing the body, set state to "Contract Review" via `list_issue_statuses` + `save_issue`; skip with a note if no such state |
 | **`implement` — read** | `Read` the file | `mcp__linear-server__get_issue`, parse description |
+| **`implement` — claiming** | n/a — no assignee | After reading, check assignee: if owned by someone else, warn and ask to implement as-is or reassign to self |
 | **`implement` — status** | n/a — no status | Before coding, set state to "In Progress" (fallback: first `started`-type state) via `save_issue` |
-| **`amend` — write** | `Edit` the file | `mcp__linear-server__save_issue`, then post a before/after comment via `save_comment` (description overwrite erases history; comments are the changelog) |
+| **`amend` — write** | `Edit` the file | Re-fetch current description; concurrent-edit guard (warn if changed); apply targeted change; `mcp__linear-server__save_issue`; post before/after comment via `save_comment` (comments are the changelog) |
 | **`close` — done-when check** | Walk bullets from file body | Walk bullets from ticket description |
 | **`close` — verification record** | n/a — verdict lives in conversation | Post the per-bullet contract-verifier verdict as a comment via `save_comment` before the state change |
 | **`close` — container action** | `mv` to `.docs/archive/`, flip frontmatter | Advance state to a review state (In Review / Code Review / …) via `save_issue`; never set a completed state. Body untouched |
