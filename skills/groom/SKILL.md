@@ -1,7 +1,7 @@
 ---
 name: groom
 description: >-
-  Weekly backlog grooming sweep for a solo Linear workspace. This skill should
+  Weekly backlog grooming sweep for a team Linear workspace. This skill should
   be used when the user invokes `/pm:groom`, says "groom the backlog", "weekly
   groom", "let's groom", or signals the start of the weekly cycle grooming
   ritual. Scans active cycle + backlog, optionally cross-refs ndr atoms and
@@ -36,7 +36,7 @@ allowed-tools:
 
 ## Overview
 
-Run the weekly grooming sweep for a solo Linear workspace (team `TEAM`). Read-mostly: scan the active cycle and backlog, optionally cross-reference ndr atoms and recent vault session notes, produce a punch list grouped by action bucket. Write the punch list to this cycle's recurring grooming child issue as the cycle log. The user reviews and applies any approved transitions manually via the `linear` skill.
+Run the weekly grooming sweep for a team Linear workspace (team `TEAM`, two collaborators). Read-mostly: scan the active cycle and backlog, optionally cross-reference ndr atoms and recent vault session notes, produce a punch list grouped by action bucket. Write the punch list to this cycle's recurring grooming child issue as the cycle log (the shared team artifact). The user reviews and applies any approved transitions manually via the `linear` skill.
 
 The bet: classification is mechanical (rule-based) and tedious, so the skill does it. Prioritization is judgment, so the user does it.
 
@@ -53,8 +53,9 @@ The bet: classification is mechanical (rule-based) and tedious, so the skill doe
 ## Procedure
 
 1. **Locate the log issue.** If an argument was passed (e.g. `TEAM-128`), use that. Otherwise, query `mcp__linear-server__list_issues` for the most recently updated open issue in team `TEAM` matching the grooming-recurrence pattern (title contains "groom" OR label `grooming`). Confirm with the user before writing — one-line prompt, e.g. "Write log to TEAM-128?".
-2. Pull active cycle issues via `mcp__linear-server__list_cycles` + `list_issues` filtered by the current cycle. **Resolve the current cycle's numeric name (e.g. `"2"`) via `list_cycles({type: "current"})` first, then pass that to `list_issues({cycle: "2"})` — `cycle: "current"` silently returns `[]`.** See the `linear` plugin's `references/mcp-gotchas.md` § 1 for the failure mode and other Linear MCP gotchas. Capture state, priority, `updatedAt`, blocker links.
-3. Pull backlog issues filtered to the active project. Sort by `updatedAt` descending.
+2. Pull active cycle issues via `mcp__linear-server__list_cycles` + `list_issues` filtered by the current cycle. **Resolve the current cycle's numeric name (e.g. `"2"`) via `list_cycles({type: "current"})` first, then pass that to `list_issues({cycle: "2"})` — `cycle: "current"` silently returns `[]`.** See the `linear` plugin's `references/mcp-gotchas.md` § 1 for the failure mode and other Linear MCP gotchas. Capture state, priority, `updatedAt`, blocker links, and `assignee`.
+3. Pull backlog issues filtered to the active project. Sort by `updatedAt` descending. Capture `assignee` on each.
+3a. **Build a per-person WIP map.** From the cycle issues pulled in step 2, group by assignee: how many tickets per person are in progress / todo / unassigned. Keep it lightweight — count, not capacity math. Use this to inform pull-in recommendations: flag pull-in candidates as "ready for anyone" (unassigned, no blockers) vs "blocked on @person" (blocked by a ticket assigned to a specific person). Surface the WIP map in the output (see Output format below).
 4. Classify each ticket into exactly ONE bucket per the taxonomy below. Precedence when multiple criteria match: **NDR-moot > Missing fields > Stale > Push-out > Pull-in**.
 5. For tickets whose body or title references `ndr:<atom-id>`, `ndr:#<slug>`, or `ndr:<area/topic>`, dispatch `Skill(ndr:decisions)` to resolve the supersession head. Flag any whose referenced atom has been superseded as `NDR-moot`. (Skip this step without the external `ndr` plugin.)
 6. Search the vault project root for working-session notes touched in the last 7 days. Surface any work items mentioned in those notes but not represented by a Linear ticket as `Vault-unfiled` candidates. (Skip this step without a vault.)
@@ -92,10 +93,13 @@ For `Vault-unfiled`, substitute the note name for `TEAM-N`:
   - Why: <one-line rationale>
 ```
 
-End with a one-line load summary:
+End with a WIP summary by person:
 
 ```
-Current cycle: N tickets total, M in progress.
+Current cycle: N tickets total.
+  @you: X in progress, Y todo
+  @other: X in progress, Y todo
+  Unassigned: Z (ready for anyone)
 ```
 
 ## Cycle log body (written to Linear in step 8)
@@ -105,7 +109,9 @@ The log body written to the recurring grooming child issue mirrors the chat outp
 ```markdown
 # Grooming — cycle YYYY-MM-DD → YYYY-MM-DD
 
-Reviewed N tickets (C in cycle, B in backlog). Current load: N tickets, M in progress.
+Reviewed N tickets (C in cycle, B in backlog).
+
+WIP: @you X/Y (in progress/todo) · @other X/Y · Unassigned Z
 
 ## Pull-in candidates
 
@@ -125,7 +131,7 @@ Replace-on-write each run. Rerunning the same week overwrites with the latest sw
 - **Never apply state transitions, never close tickets.**
 - **Never edit groomed ticket bodies.** The grooming log issue (located in step 1) is the one exception — its body IS this skill's output destination.
 - **Skip urgent-priority tickets** — those are handled live, not in weekly grooming.
-- **Skip projects not assigned to the user.**
+- **Skip projects not assigned to the team.**
 - **Always flag the current cycle load** before proposing pull-ins.
 - **Do not re-classify a ticket the user moved during the session** — assume the move was deliberate.
 - **Confirm the log issue ID with the user** before writing in step 8.

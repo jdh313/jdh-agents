@@ -79,9 +79,10 @@ This is the multi-ticket-from-a-plan skill. For one-shot single-ticket drafting,
 
    ```
    N. <Title>
-      Surface: <pipeline | backend | frontend | infra | database>
-      Type:    <Feature | Improvement | Chore | Docs | Decision>
-      Blocked by: <slice #s, or "none — can start immediately">
+      Surface:     <pipeline | backend | frontend | infra | database>
+      Type:        <Feature | Improvement | Chore | Docs | Decision>
+      Blocked by:  <slice #s, or "none — can start immediately">
+      Assigned to: <unassigned — shared queue | @person if pre-assigned>
       Why a slice: <one line — what end-to-end path this cuts>
    ```
 
@@ -90,6 +91,7 @@ This is the multi-ticket-from-a-plan skill. For one-shot single-ticket drafting,
    - Are the dependency relationships correct?
    - Should any slices be merged or split further?
    - Any slice that should be `Decision` type rather than `Feature`?
+   - Any slice to pre-assign? (Default is unassigned — either person can pick it up.)
 
    Iterate until the user approves the breakdown.
 
@@ -102,6 +104,7 @@ This is the multi-ticket-from-a-plan skill. For one-shot single-ticket drafting,
    - Set priority: `medium` (Backlog default per the `linear` skill). Bump to `high` only when the user explicitly committed to the slice this cycle.
    - Set project: the active phase project (lookup via `mcp__linear-server__list_projects`, take the non-completed one).
    - Set parent relation if applicable.
+   - **Assignee:** Omit `assignee` by default — breakdown produces independently-grabbable slices that either person can pull from the shared team queue. Set `assignee` only for slices the user explicitly pre-assigned during the quiz. (See the `linear` skill's collaboration conventions for the accept ritual.)
    - After save, capture the returned `TEAM-N` for downstream blocks/blocked-by references.
 
 8. **Flag spec-flow candidates.** After publishing, scan the published slices for ones that warrant a spec-flow contract — multi-day work, architectural negotiation needed, or contract-shaped (clear handoff between user and AI). For each candidate, recommend `/spec-flow draft` with the slice's `TEAM-N` as the contract host.
@@ -112,24 +115,27 @@ For a hypothetical "Wire up the customer search page" goal, the skill might prop
 
 ```
 1. Customer search: list endpoint + search params
-   Surface: backend
-   Type:    Feature
-   Blocked by: none — can start immediately
+   Surface:     backend
+   Type:        Feature
+   Blocked by:  none — can start immediately
+   Assigned to: unassigned — shared queue
    Why a slice: GET /customers?q= returning a typed page model; unit tests on filter logic; no UI yet
 
 2. Customer search: route + table component
-   Surface: frontend
-   Type:    Feature
-   Blocked by: #1
+   Surface:     frontend
+   Type:        Feature
+   Blocked by:  #1
+   Assigned to: unassigned — shared queue
    Why a slice: TanStack Router + Table page at /customers, calls #1's endpoint via openapi-fetch
 
 3. Customer search: empty / loading / error states
-   Surface: frontend
-   Type:    Improvement
-   Blocked by: #2
+   Surface:     frontend
+   Type:        Improvement
+   Blocked by:  #2
+   Assigned to: unassigned — shared queue
    Why a slice: thin polish slice; demoable on its own with mocked responses
 
-Granularity right? Dependencies correct? Anything to merge or split?
+Granularity right? Dependencies correct? Anything to merge or split? Anyone to pre-assign?
 ```
 
 ## Rules
