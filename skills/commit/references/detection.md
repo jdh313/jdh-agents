@@ -80,7 +80,7 @@ Only for whatever Step 1 didn't declare. Sample the same recent commits (use ful
 
 ## House style (both VCSes, both message styles)
 
-- **`Co-Authored-By:` footers** follow the detected policy (Step 1, else Step 3b). Default `strip` — the message describes the change, the VCS records authorship separately. Honor `keep` when CLAUDE.md mandates it or history consistently uses it.
+- **`Co-Authored-By:` footers** follow the detected policy (Step 1, else Step 3b). Default `strip` — AI/tool-generated footers (e.g. `Co-Authored-By: Claude ...` or bot footers) are always stripped; the VCS records authorship separately. Honor `keep` (CLAUDE.md mandate or history) by preserving one `Co-Authored-By: Name <email>` per human co-author when two people genuinely paired on the commit. Default solo commit: no footer.
 - **No trailing period** on the summary line.
 - **Imperative mood** ("add" not "added" or "adds").
 - **Body ≤5 lines**, explains WHY (the diff shows WHAT).

@@ -41,11 +41,18 @@ Detection order (canonical algorithm lives in `skills/commit/references/detectio
 
 Applied to every generated message:
 
-- `Co-Authored-By:` footers follow the detected policy (default strip) — see Configuration
+- `Co-Authored-By:` footers follow the detected policy (default strip) — AI/tool footers (e.g. Claude, bots) are always stripped; human co-author footers (`Co-Authored-By: Name <email>`) are kept when the policy is `keep` and two people genuinely paired on the commit; omit for solo work — see Configuration
 - No trailing period on the summary
 - Imperative mood
 - Body ≤5 lines, explains WHY (the diff shows WHAT)
 - Issue refs follow the detected placement (default PR-only) — see Configuration
+
+## Team Usage
+
+When working in a shared repo with multiple committers:
+
+- **Human pairing:** if you and a teammate wrote a commit together (mob session, live pair coding), add one `Co-Authored-By: Name <email>` line after the body — one line per co-author. Omit it for commits you authored alone, even if a teammate reviewed it.
+- **Rewrite safety:** before amending or retrofitting into an existing commit, the skill checks the target commit's author. If it belongs to a teammate, it will prompt for confirmation before rewriting. This prevents silently rewriting another person's history.
 
 ## Configuration
 
