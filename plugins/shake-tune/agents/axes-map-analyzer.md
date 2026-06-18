@@ -7,6 +7,7 @@ description: >-
   placement, axis mapping, and measurement quality. Mostly a pass/fail check
   before running other tests.
 model: inherit
+effort: low
 color: cyan
 tools:
   - Read
