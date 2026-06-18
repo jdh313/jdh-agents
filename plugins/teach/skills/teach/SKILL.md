@@ -2,8 +2,10 @@
 name: teach
 description: Teach the user a new skill or concept over multiple sessions, building a teaching workspace in the Obsidian vault — a mission, resources, HTML lessons, a glossary, and learning records — grounded in the user's documented learning style and high-trust sources. Use when the user says "teach me X", "I want to learn X", or "/teach". Adapted from mattpocock/skills (MIT, © 2026 Matt Pocock).
 disable-model-invocation: true
+effort: high
 argument-hint: "What would you like to learn about?"
 allowed-tools: Bash(obsidian-cli *), Write, Read, mcp__obsidian-mcp__patch_note
+disallowed-tools: Edit, Bash(rm *), Bash(trash *), Bash(git push *), Bash(jj abandon *), Bash(jj restore *)
 upstream:
   repo: mattpocock/skills
   path: skills/productivity/teach
