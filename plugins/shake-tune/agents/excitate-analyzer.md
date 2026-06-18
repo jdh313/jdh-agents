@@ -7,6 +7,7 @@ description: >-
   helps identify vibration sources by exciting the printer at a specific
   frequency and observing the response. Used for targeted diagnosis.
 model: inherit
+effort: low
 color: magenta
 tools:
   - Read

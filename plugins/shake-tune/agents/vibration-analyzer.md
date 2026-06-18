@@ -6,7 +6,8 @@ description: >-
   "speed optimization", or shares a vibrations_profile PNG. Interprets
   Klippain Shake Tune vibration profile results -- identifies safe print
   speeds, hot spots to avoid, and optimal speed ranges for slicer configuration.
-model: inherit
+model: claude-opus-4-8
+effort: high
 color: yellow
 tools:
   - Read

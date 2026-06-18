@@ -7,7 +7,8 @@ description: >-
   Klippain Shake Tune input shaper calibration results -- reads both PSD graph
   and spectrogram, recommends shaper type and frequency, and produces Klipper
   config snippets.
-model: inherit
+model: claude-opus-4-8
+effort: high
 color: green
 tools:
   - Read
