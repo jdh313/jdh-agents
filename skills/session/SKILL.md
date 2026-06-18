@@ -43,18 +43,20 @@ over many reports at once and cluster findings. **Emit exactly the format in
 
 ## Procedure
 
-1. **Inventory what got exercised.** List every plugin skill, slash command,
+1. **Collect session metadata** (no questions — best effort from what's
+   available):
+   - Current date and time — use the session's `currentDate` if injected by the
+     harness, else `date -u +"%Y-%m-%dT%H:%M:%SZ"`.
+   - Repo and branch/commit of the repo under test: `git rev-parse --abbrev-ref HEAD`
+     and `git rev-parse --short HEAD` (read-only). If not in a git repo, write `n/a`.
+   - Tester identity: use the session's known user identity (harness environment
+     or prior transcript context). If unresolvable, write `[TESTER NAME]` as a
+     clearly-marked placeholder.
+
+2. **Inventory what got exercised.** List every plugin skill, slash command,
    subagent, or hook that was invoked or triggered this session, by
    `<plugin>:<surface>` id. Also flag any that the user clearly expected to fire
    but didn't (a `trigger` finding), or that fired when unwanted.
-
-2. **Detect the environment** (no questions — best effort from what's already
-   available):
-   - If the cwd is a git repo, capture `<repo-name> @ <short-sha>` from the
-     session's git context or a `git rev-parse --short HEAD`.
-   - Note the repos whose plugins were exercised when discernible (a surface's
-     repo is often visible in its file paths or the plugin id).
-   - If none of this is determinable, write `unknown`.
 
 3. **Judge each surface against the transcript** and assign a table verdict:
    - `✅` worked — triggered at the right time; output correct, useful, and in
@@ -76,8 +78,22 @@ over many reports at once and cluster findings. **Emit exactly the format in
 ## Output
 
 Emit exactly one fenced report block in the format defined by
-`../../references/report-format.md`. Keep it scannable — bullets over prose.
-After the block, stop.
+`../../references/report-format.md` — including the `Tester:` and session
+metadata header fields. Keep it scannable — bullets over prose. After the
+block, stop.
+
+## Optional file delivery
+
+After emitting the copy-pasteable block above, **only if the user asked to
+save it** (e.g. "save the report", "write it to a file", `--save`):
+
+1. Derive a filename: `<YYYY-MM-DD>-<tester-slug>.md` where `<tester-slug>` is
+   the tester name lowercased with spaces replaced by hyphens (e.g.
+   `2026-06-18-alice.md`). Use `[tester]` as the slug when the name is unknown.
+2. Write the report to `.docs/feedback/<filename>` inside the repo under test.
+   Create the `.docs/feedback/` directory if it does not exist.
+3. Confirm the path written. The default behavior (no save flag) is always the
+   copy-pasteable block only — never write a file silently.
 
 ## References
 

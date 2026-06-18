@@ -63,6 +63,18 @@ edits, write the hook, open tickets) — it never applies fixes on its own.
 3. Author runs `/feedback:triage <folder>`, reviews the punch list.
 4. Author picks fixes; triage hands the top item off to the right tool.
 
+## Team usage
+
+When multiple testers share a repo, each tester runs `/feedback:session`
+independently at the end of their own session. The report header identifies
+the tester by name so reports arriving out of order are still distinguishable.
+
+To leave a persistent record, ask to save the report:
+`/feedback:session` then "save the report" (or `--save`). Reports land at
+`.docs/feedback/<date>-<tester>.md`, which is collision-free across testers
+and committable. Designate one tester per round, or have each tester save and
+commit their own file.
+
 ## Requirements
 
 Testers need this plugin installed and enabled for `/feedback:session` to

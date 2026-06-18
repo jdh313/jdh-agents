@@ -14,10 +14,11 @@ structure; the prose carries the evidence.
 A report is exactly one fenced block with these sections, in order:
 
 ```
-## Plugin testing feedback — <YYYY-MM-DD>
+## Plugin testing feedback — <YYYY-MM-DD> | <tester>
 
+**Tester:** <name, or [TESTER NAME] if unknown>
 **Session summary:** <2-3 sentences: what the tester was trying to do>
-**Environment:** <cwd repo @ <short-sha> if in a git repo; repos whose plugins were exercised; "unknown" if not discernible>
+**Environment:** <cwd repo @ <short-sha> and branch if in a git repo; repos whose plugins were exercised; "unknown" if not discernible>
 
 ### Surfaces exercised
 
