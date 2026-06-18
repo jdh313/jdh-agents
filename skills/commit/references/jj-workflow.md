@@ -88,6 +88,26 @@ For atomic-commit workflows, the **default layout is what you want**: split off 
 
 ## Retrofit: edits that belong in an earlier commit
 
+### Author check before rewriting
+
+Before retrofitting into — or amending — any existing commit, check who authored it:
+
+```bash
+jj log -r <rev> -T 'author'
+```
+
+If the target commit was authored by someone other than the current user, **warn and require explicit confirmation** before rewriting it. Example prompt:
+
+> The target commit `<change-id> <summary>` was authored by `<author>`. Retrofit into that commit?
+
+For "add this to the last commit" requests, check the last commit's author first:
+
+```bash
+jj log -r @- -T 'author'
+```
+
+If it belongs to a teammate, ask: "The last commit is `<change-id> <summary>` by `<author>` — retrofit into that one?" Proceed only on explicit confirmation.
+
 jj's answer to git's amend/fixup, and usually better. Pick by how much you know about the target:
 
 | Situation | Command |

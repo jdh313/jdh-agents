@@ -122,7 +122,7 @@ Use when the user provides a commit message for review.
    - **Hidden bundling:** if the diff contains multiple atomic units, recommend Workflow A instead of approving the message.
    Don't paste the diff back at the user — use it as context for sharper feedback.
 4. **Analyze against the detected style.**
-   - Universal: purpose clear? imperative mood? concise and specific? body explains WHY? body ≤5 lines? `Co-Authored-By:` footer matches detected policy (default strip; keep if CLAUDE.md mandates it or history uses it)? no trailing period? issue refs match detected placement (default PR-only; keep `(TEAM-123)`/`#123` in summary if CLAUDE.md declares it or history uses it)?
+   - Universal: purpose clear? imperative mood? concise and specific? body explains WHY? body ≤5 lines? `Co-Authored-By:` footer matches detected policy (always strip AI/tool footers; keep human pairing footers when the policy is `keep` / CLAUDE.md mandates it / history uses it)? no trailing period? issue refs match detected placement (default PR-only; keep `(TEAM-123)`/`#123` in summary if CLAUDE.md declares it or history uses it)?
    - Conventional additionally: proper type? type appropriate for the change (verify against the diff if visible)? lowercase?
 5. **Provide feedback** in this shape: original message → issues identified → improved version → changes made. If the message's claims don't match the visible diff, flag that prominently — it's the highest-value catch of this workflow.
 6. **Offer to commit** with the improved message if the user wants.
@@ -133,9 +133,10 @@ Use when working-copy edits logically belong to an existing commit: "add this to
 
 1. **Detect and check state.**
 2. **Identify the target commit(s)** — which prior commit does each edit belong to? If an edit is genuinely new work, it stays out of this workflow (commit it normally).
-3. **Apply the retrofit** per the "Retrofit" recipe in your VCS recipe (`jj absorb` / squash-into for jj; `--amend` / fixup + autosquash for git).
-4. **Safety gate:** never rewrite commits that have been pushed to a shared branch without explicit user confirmation. The VCS recipes state how to check.
-5. **Verify** the edits landed in the intended commits and descendants are intact.
+3. **Author check:** before retrofitting into or amending any commit, inspect its author (see "Author check before rewriting" in your VCS recipe). If the target was authored by someone other than the current user, warn and require explicit confirmation before proceeding.
+4. **Apply the retrofit** per the "Retrofit" recipe in your VCS recipe (`jj absorb` / squash-into for jj; `--amend` / fixup + autosquash for git).
+5. **Safety gate:** never rewrite commits that have been pushed to a shared branch without explicit user confirmation. The VCS recipes state how to check.
+6. **Verify** the edits landed in the intended commits and descendants are intact.
 
 ---
 

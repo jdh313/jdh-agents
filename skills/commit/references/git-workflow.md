@@ -67,6 +67,26 @@ Unlike jj, git has no op log — the transcript copy of the diff from step 0 is 
 
 ## Retrofit: edits that belong in an earlier commit
 
+### Author check before rewriting
+
+Before retrofitting into — or amending — any existing commit, check who authored it:
+
+```bash
+git log -1 --format='%an <%ae>' <sha>
+```
+
+If the target commit was authored by someone other than the current user, **warn and require explicit confirmation** before rewriting it. Example prompt:
+
+> The target commit `<sha> <summary>` was authored by `<author>`. Retrofit into that commit?
+
+For "add this to the last commit" requests, check `HEAD`'s author first:
+
+```bash
+git log -1 --format='%an <%ae>'
+```
+
+If it belongs to a teammate, ask: "The last commit is `<sha> <summary>` by `<author>` — retrofit into that one?" Proceed only on explicit confirmation.
+
 | Situation | Command |
 |-----------|---------|
 | Edit belongs in the last commit | `git add <files> && git commit --amend --no-edit` |
