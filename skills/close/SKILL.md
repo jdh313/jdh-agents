@@ -74,16 +74,21 @@ Before migrating to the personal durable layer, post a compact outcome summary t
 **Linear host:** Post via `mcp__linear-server__save_comment`:
 
 ```markdown
-**Contract closed** — <one-line summary of what shipped> (YYYY-MM-DD)
+**Contract closed by @<closer>** — <one-line summary of what shipped> (YYYY-MM-DD)
 
 **What changed:**
 - <key outcome or decision, 1–3 bullets max>
 
-**Decisions captured:** <ndr atom slugs, or "none"> 
+**Decisions captured:** <ndr atom slugs, or "none">
 **README updated:** <yes/no + which section, or "no">
+**Verification:** <"pass" / "fail — gap noted" / "skipped", one word>
 ```
 
-Keep this compact — it's a team signal, not a prose retrospective. If the contract-verifier verdict is available, reference it here with a one-line summary (full verdict is already in the step 2.5 comment).
+Keep this compact — it's a team signal, not a prose retrospective. Use `me` if the Linear MCP doesn't expose the current user's display name, otherwise use their @-handle.
+
+**Reviewer routing (optional):** If the user wants a cross-review pass before the ticket moves to a review state, ask: *"Want to route this for review? @-mention who should review."* If yes, @-mention the reviewer in this same comment (or a follow-up comment) and transition to a review state. If no, transition to a review state as normal — self-review is the default. Do not force the reviewer prompt; it's opt-in.
+
+If the contract-verifier ran in this session and the verifier identity is available (e.g. the agent name), note it in the comment (`Verified by: contract-verifier agent`). This keeps attribution visible in the ticket without requiring a separate step.
 
 **File host:** skip this step — no shared visibility surface for file-host contracts.
 
@@ -161,7 +166,7 @@ Update the file's frontmatter: flip `status: active` to `status: archived`. Plac
 First, post the verification record as a ticket comment via `mcp__linear-server__save_comment`, so the review state carries evidence. Use the per-bullet result from the done-when gate (step 2.5):
 
 ```markdown
-**Done-when verification** (contract-verifier, YYYY-MM-DD)
+**Done-when verification** (contract-verifier agent, YYYY-MM-DD)
 
 - ✅ met — "<bullet>" (<one-line evidence>)
 - ❌ not_met — "<bullet>" (<what was observed instead>)
@@ -170,7 +175,7 @@ First, post the verification record as a ticket comment via `mcp__linear-server_
 Verdict: pass | fail (closed as known gap per user)
 ```
 
-One comment, compact. If the gate was skipped (no *Done when* section, user overrode), say that in the comment instead — the absence of verification is itself worth recording.
+One comment, compact. If the verification was run inline rather than by the contract-verifier agent, note that too (`verified inline, not by contract-verifier agent`). If the gate was skipped (no *Done when* section, user overrode), say that in the comment instead — the absence of verification is itself worth recording.
 
 Then move the ticket to its review state — the change is done from your side and headed for PR. Do **not** edit the body; the contract stays in the description for retrospective. Only the state advances.
 

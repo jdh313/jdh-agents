@@ -41,6 +41,22 @@ Do not run `claude mcp add` or suggest a paste-and-go connect command. Wait for 
 
 Full detection table and rationale: `../../references/hosts.md`.
 
+### 1.5. Contract lifecycle state preflight (Linear host only)
+
+When host = linear or linear-new and the MCP is connected, run a read-only check that the required lifecycle states exist on the team before doing any writing:
+
+- Fetch the team's workflow states via `mcp__linear-server__list_issue_statuses`.
+- Confirm each of the following state names exists (case-insensitive):
+  - `"Contract Review"` — used at draft to signal ready-for-review
+  - `"In Progress"` — used at implement to signal coding started
+  - At least one of: `"In Review"` / `"Code Review"` / `"Ready for Review"` / `"Review"` — used at close
+
+If any required state is missing, warn with the specific state name:
+
+> "The team's Linear workflow is missing the `Contract Review` state — spec-flow uses this state at draft. Continuing without it means the draft step won't be able to signal ready-for-review. Proceed anyway, or check your Linear team setup?"
+
+Do not block — warn and wait for the user's call. This is a preflight hint, not a hard gate. If the MCP isn't connected, skip this step silently (the graceful-fallback path handles that at step 6).
+
 ### 2. Detect other active contracts
 
 List file-host contracts in `.docs/` excluding `archive/` (skip `status: captured` stubs — captures aren't contracts):
