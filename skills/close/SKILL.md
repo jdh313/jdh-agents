@@ -67,7 +67,29 @@ If the `ndr` plugin is installed and has atoms scoped to this project/repo, prom
 
 If yes, dispatch the skill and weave its findings into the migration proposal in step 3 — e.g. an atom flagged with `recommendation: amend` becomes a candidate successor in the *ndr atoms to capture* list. Do not auto-invoke; this is opt-in per close.
 
-### 3. Propose migrations
+### 3. Post team-facing outcome summary (Linear host only)
+
+Before migrating to the personal durable layer, post a compact outcome summary to the Linear ticket as a comment. This lands in a place both collaborators can see.
+
+**Linear host:** Post via `mcp__linear-server__save_comment`:
+
+```markdown
+**Contract closed** — <one-line summary of what shipped> (YYYY-MM-DD)
+
+**What changed:**
+- <key outcome or decision, 1–3 bullets max>
+
+**Decisions captured:** <ndr atom slugs, or "none"> 
+**README updated:** <yes/no + which section, or "no">
+```
+
+Keep this compact — it's a team signal, not a prose retrospective. If the contract-verifier verdict is available, reference it here with a one-line summary (full verdict is already in the step 2.5 comment).
+
+**File host:** skip this step — no shared visibility surface for file-host contracts.
+
+**If Linear isn't connected** when closing a Linear-host contract (MCP unavailable): note in the conversation that the team-facing summary couldn't be posted, and continue with the rest of close normally.
+
+### 4. Propose migrations
 
 Surface a structured proposal:
 
@@ -81,6 +103,12 @@ Surface a structured proposal:
 - For each user-facing change (new commands, new behavior, new config, new dependencies), draft the README edit.
 - Use librarian for vault-resident README work; otherwise edit the repo README directly.
 
+**Vault / personal durable layer (optional, graceful fallback):**
+
+- If the ndr plugin is installed and relevant atoms emerge, invoke `/capture-decision` as usual.
+- If the librarian plugin is installed and a vault note is the right home for a finding, invoke it.
+- Both are optional — the team-facing outcome summary (step 3) already landed in Linear. Skip vault migrations if the user wants, or if the plugins aren't available; do not hard-depend on them.
+
 **Not migrated:**
 
 - *Out of scope* items (by definition not part of this change).
@@ -90,6 +118,9 @@ Surface a structured proposal:
 Present as a diff-style list:
 
 ```
+Linear comment (1):
+  - Outcome summary posted to TEAM-123
+
 ndr atoms (2):
   - dishka-di-pattern.md (new)
   - auth-token-adapter.md (new)
@@ -98,19 +129,19 @@ README (1):
   - Add `/auth-status` to the commands table (line 42).
 ```
 
-### 4. Sign-off + apply
+### 5. Sign-off + apply
 
 Ask: "Apply these migrations?"
 
 If approved, execute each:
 
-- Invoke `/capture-decision` per proposed ndr atom.
+- Invoke `/capture-decision` per proposed ndr atom (if any and if ndr plugin is available).
 - Apply README edits.
 - If any migration fails, halt and report; do not proceed to archive.
 
 If the user wants to skip or modify any item, accommodate that.
 
-### 5. Archive the contract (host-aware)
+### 6. Archive the contract (host-aware)
 
 **File host:**
 
@@ -148,12 +179,12 @@ Then move the ticket to its review state — the change is done from your side a
 - Set it via `mcp__linear-server__save_issue`.
 - If none match, skip with a note — *"No review state on this team; leaving status unchanged."* Never fall through to a completed state: merge hasn't happened, so spec-flow does not set Done/Closed. That transition stays the human's at merge time.
 
-### 6. Confirm
+### 7. Confirm
 
 Brief summary to the user, wording differs by host:
 
 - **File host:** *"Closed `<slug>`. 2 ndr atoms created, 1 README update applied. Contract archived at `.docs/archive/<filename>.md`."*
-- **Linear host:** *"Closed TEAM-123. 2 ndr atoms created, 1 README update applied. Verification record posted as a comment; moved to In Review; ticket body left intact. Set it Done yourself when the PR merges."*
+- **Linear host:** *"Closed TEAM-123. Outcome summary + verification record posted as comments; 2 ndr atoms created, 1 README update applied. Moved to In Review; ticket body left intact. Set it Done yourself when the PR merges."*
 
 ## Notes
 
