@@ -1,24 +1,28 @@
 ---
 name: retro
 description: >-
-  End-of-cycle retro note for a solo Linear workspace. This skill should be
-  used when the user invokes `/pm:retro`, says "cycle retro", "wrap up the
-  cycle", "retro this cycle", "what happened this cycle", or signals the end
-  of a weekly cycle. Pulls the just-closed cycle from Linear (or a
-  user-specified cycle), classifies tickets into shipped / carried / canceled /
-  added-mid-cycle, optionally pulls vault session notes and ndr atoms from the
-  cycle window, reads the last 2–3 prior retros to spot recurring patterns,
-  drafts a retro note, and writes it to the vault. Observational and read-only
-  on Linear — never mutates tickets. Pairs with `pm:groom` (forward-looking)
-  on the same weekly cadence.
+  End-of-cycle retro for a team Linear workspace. This skill should be used
+  when the user invokes `/pm:retro`, says "cycle retro", "wrap up the cycle",
+  "retro this cycle", "what happened this cycle", or signals the end of a
+  weekly cycle. Pulls the just-closed cycle from Linear (or a user-specified
+  cycle), classifies tickets into shipped / carried / canceled / added-mid-cycle
+  with assignee attribution, optionally pulls vault session notes and ndr atoms
+  from the cycle window, reads the last 2–3 prior retros to spot recurring
+  patterns, drafts a retro, and writes it to a Linear document by default
+  (shared visibility) with an optional personal vault copy. Observational and
+  read-only on Linear tickets — never mutates tickets. Pairs with `pm:groom`
+  (forward-looking) on the same weekly cadence.
 argument-hint: "[cycle name or any date in the cycle window]"
 allowed-tools:
-  # Linear — cycle + ticket history (read-only)
+  # Linear — cycle + ticket history (read-only); document write for retro output
   - mcp__linear-server__list_cycles
   - mcp__linear-server__list_issues
   - mcp__linear-server__get_issue
   - mcp__linear-server__list_comments
-  # Obsidian — read prior retros + session notes
+  - mcp__linear-server__list_projects
+  - mcp__linear-server__list_documents
+  - mcp__linear-server__save_document
+  # Obsidian — read prior retros + session notes; optional personal vault write
   - mcp__obsidian-mcp__search_notes
   - mcp__obsidian-mcp__read_multiple_notes
   # ndr atoms — find decisions captured during cycle window
@@ -34,9 +38,11 @@ allowed-tools:
 
 ## Overview
 
-End-of-cycle retro for a solo Linear workspace (team `TEAM`). The backward-looking counterpart to `pm:groom`: where groom plans forward, retro records backward. Pulls the just-closed cycle, classifies tickets by outcome, surfaces patterns across recent cycles, and writes a durable retro note to the vault.
+End-of-cycle retro for a team Linear workspace (team `TEAM`, two collaborators). The backward-looking counterpart to `pm:groom`: where groom plans forward, retro records backward. Pulls the just-closed cycle, classifies tickets by outcome with assignee attribution, surfaces patterns across recent cycles, and writes a durable retro document.
 
-Synthesis half of the weekly rhythm — the chat output captures the story of the cycle; the vault note is the durable record that future retros read for pattern detection.
+**Output priority:** Write the retro to a Linear document by default (shared visibility for both collaborators). The personal vault copy is optional — write it on request or if Linear isn't available (graceful fallback). The team Linear document is the primary artifact; the vault copy is the personal supplement.
+
+Synthesis half of the weekly rhythm — the chat output captures the story of the cycle; the Linear document is the shared durable record that future retros read for pattern detection.
 
 ## Inputs (load-bearing constants)
 
@@ -54,7 +60,7 @@ Synthesis half of the weekly rhythm — the chat output captures the story of th
 
 1. **Resolve the target cycle.** If an argument was passed, find the matching cycle via `mcp__linear-server__list_cycles` (match by name, or find the cycle whose window contains the date). Otherwise, take the most recently closed cycle. Confirm the window with the user before scanning: e.g. "Retro for Cycle 12, Thu 2026-05-28 → Wed 2026-06-03?".
 
-2. **Pull cycle tickets.** Use `mcp__linear-server__list_issues` filtered to the resolved cycle. Capture state at cycle close, priority, `createdAt`, `updatedAt`. For tickets whose history matters (carried, mid-cycle adds), use `list_comments` to reconstruct timing.
+2. **Pull cycle tickets.** Use `mcp__linear-server__list_issues` filtered to the resolved cycle. Capture state at cycle close, priority, `createdAt`, `updatedAt`, and `assignee`. For tickets whose history matters (carried, mid-cycle adds), use `list_comments` to reconstruct timing.
 
 3. **Classify each ticket** along two axes:
    - **Outcome axis:** Shipped (Done at close) / Carried (open at close, still in next cycle) / Canceled (Canceled state) — one of three.
@@ -74,7 +80,12 @@ Synthesis half of the weekly rhythm — the chat output captures the story of th
 
 8. **Present the draft in chat for review.** User may edit, ask for changes, or approve.
 
-9. **Write to the vault on approval.** If the external `librarian` setup is present, dispatch its `note-editor` agent with the drafted content, target path, and frontmatter shape — it reads the vault `CLAUDE.md` and honors folder/frontmatter conventions. Without librarian, write the note directly (create the Retros folder on first write), or leave the draft in chat for the user to file manually. Skip the write if the user declines or if a retro file already exists for the target cycle (ask before overwrite).
+9. **Write the retro on approval.** Two outputs; Linear is primary:
+
+   - **Linear document (default — shared visibility):** Look up the active project via `mcp__linear-server__list_projects`. Create or replace a document in that project titled `Cycle Retro — <cycle-name>` using `mcp__linear-server__save_document`. This is the shared team artifact; both collaborators can read and comment here.
+   - **Personal vault copy (optional):** Write to `~/Loose Ends/Projects/<project>/Retros/YYYY-MM-DD Cycle Retro.md` only if the user requests it OR if Linear is unavailable. If the external `librarian` setup is present, dispatch its `note-editor` agent with the drafted content, target path, and frontmatter shape — it reads the vault `CLAUDE.md` and honors folder/frontmatter conventions. Without librarian, write the note directly (create the Retros folder on first write).
+
+   Ask once: "Write to Linear and optionally the vault?" Let the user choose. Skip the write entirely if the user declines. If a retro document/note already exists for the target cycle, ask before overwriting.
 
 ## Body structure
 
@@ -112,27 +123,29 @@ Example: *"Solid cycle — 7 shipped, 4 carried (3 on a single infra-budget bloc
 
 ### `## Shipped`
 
-One bullet per shipped ticket:
+One bullet per shipped ticket, with assignee attribution:
 
-- **TEAM-N** — title — one-line context, ndr link if relevant
+- **TEAM-N** — title [@assignee] — one-line context, ndr link if relevant
+
+Attribution enables pattern detection across retros (e.g. "carried 3 cycles" names who). Use the Linear `assignee` field captured in step 2; write `[unassigned]` if none.
 
 ### `## Carried`
 
-For each carried ticket:
+For each carried ticket, with assignee attribution:
 
-- **TEAM-N** — title
+- **TEAM-N** — title [@assignee]
   - Reason: `blocked` | `scope-grew` | `deprioritized` | `partial` | `missing-spec`
   - Going into next cycle: `continued` | `paused` | `re-scoped`
 
 ### `## Canceled` (omit if empty)
 
-- **TEAM-N** — title — reason (e.g. "mooted by ndr:0091 supersession" or "deprioritized")
+- **TEAM-N** — title [@assignee] — reason (e.g. "mooted by ndr:0091 supersession" or "deprioritized")
 
 ### `## Added mid-cycle` (omit if empty)
 
 Tickets created inside the cycle window — measures plan fidelity.
 
-- **TEAM-N** — title — what triggered it (link to session note if known); outcome (shipped | carried | canceled)
+- **TEAM-N** — title [@assignee] — what triggered it (link to session note if known); outcome (shipped | carried | canceled)
 
 ### `## Decisions`
 
@@ -146,8 +159,8 @@ ndr atoms captured during the window:
 
 Observations across this cycle + the last 2–3 retros:
 
-- Chronic carries (e.g. "`Docs ingest` carried 3 consecutive cycles — consider scope split")
-- Recurring blocker types
+- Chronic carries, named by assignee (e.g. "`Docs ingest` [@you] carried 3 consecutive cycles — consider scope split")
+- Recurring blocker types, and whose work they block
 - Scope-creep instances
 - Plan fidelity trend (e.g. "mid-cycle adds: 1, 0, 1 across last 3 cycles — plan is holding")
 
@@ -165,17 +178,19 @@ Things flagged in chat or session notes that need an owner:
 
 ## Rules
 
-- **Read-only on Linear.** Retro never edits tickets, never transitions states, never changes priorities.
+- **Read-only on Linear tickets.** Retro never edits tickets, never transitions states, never changes priorities. Writing the Linear retro document is write-to-doc, not write-to-ticket.
 - **Confirm cycle window with the user** before scanning — wrong cycle = wasted scan, and Linear cycle naming can drift.
-- **Show the full draft in chat** before writing to vault. The user reviews and approves before any file lands.
-- **Prefer librarian for the write when present.** Do not call `mcp__obsidian-mcp__*` create/update tools directly when a vault-convention-aware writer exists; dispatch it with the drafted content instead.
-- **One retro per cycle.** If a retro file already exists for the target cycle, ask before overwriting.
+- **Show the full draft in chat** before writing anywhere. The user reviews and approves before any artifact lands.
+- **Linear document is the primary output.** Write there first. If Linear is unavailable, fall back to the vault — do not hard-depend on either.
+- **Personal vault copy is optional.** Write it only when the user requests it or when Linear is unavailable.
+- **Prefer librarian for the vault write when present.** Do not call `mcp__obsidian-mcp__*` create/update tools directly when a vault-convention-aware writer exists; dispatch it with the drafted content instead.
+- **One retro per cycle.** If a retro document/note already exists for the target cycle, ask before overwriting.
 - **Omit empty sections.** Canceled / Added mid-cycle / Decisions / Patterns / Notable moments / Open questions are omitted entirely when empty — don't write placeholder headers.
 
 ## Composes with
 
-- **`linear`** (linear plugin) — not directly called; retro just reads Linear state.
-- **`note-editor`** (external librarian setup) — performs the vault write when present. Honors frontmatter/folder conventions; creates the `Retros/` folder on first invocation.
+- **`linear`** (linear plugin) — retro reads Linear state (tickets, cycles) and writes the retro output to a Linear document via `mcp__linear-server__save_document`.
+- **`note-editor`** (external librarian setup) — performs the optional vault write when present. Honors frontmatter/folder conventions; creates the `Retros/` folder on first invocation.
 - **`vault-reader`** (external librarian setup) — optional alternative to inline `mcp__obsidian-mcp__*` reads for the session-note + prior-retro pass. Useful when the read scope is large.
 - **`ndr:decisions`** (external ndr plugin) — optional: dispatch when the retro narrative needs the current state of a referenced decision (e.g. confirming a cancellation reason).
 
