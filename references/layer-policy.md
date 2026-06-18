@@ -59,9 +59,20 @@ The week's commit batch. Cycles are scope-agnostic — they pull from whichever 
 
 Pass all three: add a parent ticket. Default shape is **sibling parent** — a regular ticket linked to its children via `relatedTo` or `blocks`, not via Linear's `parentId` (which creates a subissue tree).
 
+A parent ticket that earns its keep also serves as the **async-discussion venue** for children that span both collaborators. When children are split across people, the parent's comment thread is the canonical coordination point rather than ad-hoc chat — link the parent when handing off or requesting cross-review.
+
 Whether to instead use Linear's native subissue nesting (`parentId`) is **deferred** — see "Subissue" in the inactive-layers list above. Until the question is live, default to the sibling-parent shape if a parent is warranted at all.
 
 If the proposed epic fails any criterion: stay flat under the milestone, file an ndr atom or vault note for design substrate if needed, and live with the milestone's progress bar as the only grouping signal.
+
+### Per-person capacity (lightweight)
+
+Keep per-person WIP visible at a glance during grooming. The target is a low-overhead proxy, not a full capacity model:
+
+- Track in-progress + todo counts per assignee (the WIP map in `pm:groom`'s output does this automatically).
+- A person carrying ≥3 in-progress tickets is likely over capacity — `pm:groom` flags pull-in candidates as "ready for anyone" vs "blocked on @person" to surface this.
+- Unassigned tickets in the backlog are the shared team queue; neither person is implicitly responsible until one of them accepts (see the `linear` skill's accept ritual).
+- No formulas, no velocity math — the goal is to make imbalances visible so the team can redistribute voluntarily.
 
 ### When to add an initiative
 
