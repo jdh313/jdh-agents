@@ -32,6 +32,8 @@ Three pipeline modes control depth and thoroughness:
 
 **User override:** `--quick`, `--standard`, `--deep` (e.g., `/debate --deep Should I change careers?`)
 
+**Deep mode under `/goal` (optional, user-invoked):** Deep mode fans out up to 13 agents across multiple rounds, which is long-running and easy to lose the thread on. If the user wants Deep mode to run to a hard finish, suggest they launch it under a `/goal` completion condition — e.g. `/goal a verdict is produced with a stated confidence level, then /debate --deep <question>`. The completion condition keeps the pipeline driving to the synthesizer's verdict rather than stalling mid-round. This is a user-invoked convenience, not something the skill sets up itself.
+
 **Auto-detection heuristic:**
 - **Deep** triggers on: "career change", "invest", "irreversible", "major", "life decision", explicit `--deep`, or user asking for thoroughness
 - **Standard** triggers on: multi-option questions, domain-specific topics, moderate complexity
@@ -91,7 +93,13 @@ Classify the question and identify positions:
 
 ### Step 4: Dispatch Advocate Agents (Round 1)
 
-Launch all advocate agents simultaneously using the Task tool with `subagent_type: "advocate"` and `model: "sonnet"`.
+Launch all advocate agents simultaneously using the Task tool with `subagent_type: "advocate"`. Do **not** pass a per-dispatch `model` — the `advocate` agent pins `model: sonnet` in its own frontmatter, and that value is honored automatically.
+
+**Name each advocate** so it can be re-engaged in Deep mode Round 2 (see Step 8). Use a stable, descriptive name derived from the stance:
+- Binary: `advocate-for` and `advocate-against`
+- Multi-option: `advocate-<option-slug>` (e.g. `advocate-postgres`, `advocate-sqlite`)
+
+Record each advocate's name and the agent ID returned when it completes — Round 2 re-engagement keys off these.
 
 Each agent's prompt must include:
 
@@ -135,7 +143,7 @@ Skip to **Output Format** section.
 
 ### Step 6: Fact-Check (Standard + Deep)
 
-Dispatch the fact-checker agent using the Task tool with `subagent_type: "fact-checker"` and `model: "sonnet"`:
+Dispatch the fact-checker agent using the Task tool with `subagent_type: "fact-checker"` (the agent pins `model: sonnet` in its own frontmatter — do not override per-dispatch):
 
 ```
 ## Question
@@ -159,9 +167,27 @@ Same as Quick synthesis (Step 5) but additionally:
 
 Skip to **Output Format** section.
 
-### Step 8: Dispatch Advocates Round 2 (Deep Only)
+### Step 8: Advocates Round 2 (Deep Only)
 
-**Deep mode only.** After fact-checker returns, dispatch all advocates again in parallel:
+**Deep mode only.** After fact-checker returns, re-engage each advocate for an informed rebuttal.
+
+**Preferred path — re-engage the SAME named advocate via `SendMessage`.** Each Round 1 advocate was named and its agent ID recorded (Step 4). A stopped subagent auto-resumes when it receives a `SendMessage`, retaining its full Round 1 context — its own arguments, sources, and reasoning are already in its transcript, so they do **not** need to be re-pasted. Send each advocate only the new material:
+
+```
+Round 2 — informed rebuttal. Address the fact-checker findings and counterarguments below, then re-emit your full output in the same format.
+
+## Fact-Checker Assessment of Your Claims
+[paste relevant sections from fact-checker output for this advocate]
+
+## Counterarguments to Address
+[the strongest arguments from OTHER advocates that you must rebut]
+
+Shore up disputed claims with new evidence, directly engage each counterargument (rebut or concede), and update your confidence.
+```
+
+Send these to all advocates before awaiting replies so the rebuttals run in parallel.
+
+**Fallback path — respawn fresh advocates.** `SendMessage`-based re-engagement requires agent teams to be enabled (`CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1`). If `SendMessage` is unavailable, or an advocate's agent ID was not captured, fall back to dispatching a fresh `advocate` (Task tool, `subagent_type: "advocate"`, no per-dispatch model) and re-paste the full Round 1 context the fresh agent lacks:
 
 ```
 You are arguing [FOR/AGAINST] the following position: [framed question]
@@ -199,7 +225,7 @@ Shore up disputed claims with new evidence, directly address the counterargument
 
 ### Step 9: Dispatch Devil's Advocate (Deep Only)
 
-**Deep mode only.** After R2 advocates return, determine the leading position (highest confidence after R2), then dispatch using the Task tool with `subagent_type: "devils-advocate"` and `model: "sonnet"`:
+**Deep mode only.** After R2 advocates return, determine the leading position (highest confidence after R2), then dispatch using the Task tool with `subagent_type: "devils-advocate"` (the agent pins `model: opus` + `effort: high` in its own frontmatter — do not override per-dispatch):
 
 ```
 ## Question
@@ -222,7 +248,7 @@ Attack the leading position. Find weaknesses, hidden assumptions, and failure sc
 
 ### Step 10: Dispatch Synthesizer (Deep Only)
 
-**Deep mode only.** After devil's advocate returns, dispatch using the Task tool with `subagent_type: "synthesizer"` and `model: "sonnet"`:
+**Deep mode only.** After devil's advocate returns, dispatch using the Task tool with `subagent_type: "synthesizer"` (the agent pins `model: opus` + `effort: high` in its own frontmatter — do not override per-dispatch):
 
 ```
 ## Question
@@ -361,8 +387,8 @@ Express confidence as a percentage (0-100%):
 ## Constraints
 
 - Maximum 5 advocate agents per round
-- All agents run as `sonnet`; orchestrator stays in main context
-- Advocates do web research only — orchestrator handles all local/personal context gathering
+- **Per-role models (set in each agent's frontmatter — do not override per-dispatch):** `advocate` and `fact-checker` run as `sonnet`; `devils-advocate` and `synthesizer` run as `opus` with `effort: high` (the contrarian attack and the independent verdict are the reasoning-heaviest roles). The orchestrator stays in the main context.
+- Advocates and the fact-checker do **web research only** — their `tools:` is fenced to `WebSearch, WebFetch`, so they cannot read local files or the vault. The orchestrator handles all local/personal context gathering and passes it in the prompt. The synthesizer operates on **provided context only** (no tools).
 - All agents receive identical personal context (no asymmetry)
 - Sources must be real URLs from web search results, not hallucinated
 - If advocates return weak or conflicting evidence, say so — do not manufacture certainty

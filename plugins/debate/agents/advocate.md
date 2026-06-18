@@ -5,6 +5,7 @@ model: sonnet
 color: blue
 memory: project
 maxTurns: 10
+tools: WebSearch, WebFetch
 ---
 
 # Advocate Agent

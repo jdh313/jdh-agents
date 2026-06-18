@@ -1,10 +1,12 @@
 ---
 name: synthesizer
 description: Independent verdict agent that produces the final debate recommendation. Receives all advocate, fact-checker, and devil's advocate outputs and synthesizes without the framing bias of the orchestrator. Used in Deep mode only.
-model: sonnet
+model: opus
+effort: high
 color: green
 memory: project
 maxTurns: 5
+disallowedTools: WebSearch, WebFetch, Read, Write, Edit, Bash, Glob, Grep
 ---
 
 # Synthesizer Agent
