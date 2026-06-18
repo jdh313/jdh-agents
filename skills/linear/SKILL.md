@@ -1,6 +1,6 @@
 ---
 name: linear
-description: This skill should be used when creating, updating, transitioning, reading, or querying Linear tickets in your Linear workspace. Trigger phrases include "open a linear ticket", "create a TEAM ticket", "add to linear", "add to backlog", "log this in linear", "move TEAM-N to", "transition TEAM-N", "promote to todo", "back to backlog", "mark TEAM-N done", "what state is TEAM-N", "set TEAM-N priority", "what's in todo", "show my linear tickets". Supplies ticket creation defaults (team, labels, priority, milestone), status flow semantics, title and description conventions, and MCP call patterns. Does NOT cover the spec-flow contract lifecycle (use spec-flow plugin) or the decision of whether to open a ticket at all (project CLAUDE.md owns the floor rule).
+description: This skill should be used when creating, updating, transitioning, reading, or querying Linear tickets in your Linear workspace. Trigger phrases include "open a linear ticket", "create a TEAM ticket", "add to linear", "add to backlog", "log this in linear", "move TEAM-N to", "transition TEAM-N", "promote to todo", "back to backlog", "mark TEAM-N done", "what state is TEAM-N", "set TEAM-N priority", "what's in todo", "show my linear tickets", "show unassigned tickets", "show team backlog", "assign to me", "assign to the other person", "accept this ticket", "who should own this". Supplies ticket creation defaults (team, labels, priority, assignee, milestone), status flow semantics, title and description conventions, collaboration conventions, and MCP call patterns. Does NOT cover the spec-flow contract lifecycle (use spec-flow plugin) or the decision of whether to open a ticket at all (project CLAUDE.md owns the floor rule).
 ---
 
 # linear
@@ -13,7 +13,7 @@ Operational conventions for Linear work. Loads on any ticket create, transition,
 - **Does NOT own:**
   - The decision of *whether* to open a ticket — that's the project CLAUDE.md floor rule.
   - The spec-flow contract lifecycle — that's the spec-flow plugin. When a contract is hosted in Linear, spec-flow writes the contract body; this skill governs the ticket's other fields.
-- **Currently scoped to:** a single Linear team.
+- **Currently scoped to:** one Linear team, two collaborators. Each person runs their own Claude with their own Linear auth, so `assignee="me"` resolves per-person automatically.
 
 ## Conventions
 
@@ -86,14 +86,15 @@ Labels are not static:
 | **Backlog** | Added but not yet approved / not yet in-scope | Created without pre-approval; an idea or stakeholder ask awaiting sign-off |
 | **Todo** | Approved or clearly in-scope; ready to be picked up | Created directly when work is obviously in scope, OR promoted from Backlog after approval |
 | **In Progress** | Actively working on it right now | Manual when work starts. Typically 1–2 tickets at a time. |
-| **In Review** | Work done; needs my final manual review (optional gate) | Manual when work feels done but I want one more pass before calling it shipped |
+| **In Review** | Work done; needs a final review pass (optional gate) — self or cross-review | Manual when work feels done but a second look is wanted before calling it shipped |
 | **Done** | Reviewed, complete, shipped | Manual after self-review passes (or directly from In Progress when no review wanted) |
 | **Canceled** | Won't do | Manual |
 
 Semantics:
-- **All transitions are manual judgment.** No git-event-triggered automation (no PRs yet — direct-to-main solo workflow).
+- **All transitions are manual judgment.** No git-event-triggered automation (no PRs yet — direct-to-main workflow).
 - **Backlog → Todo is an authorization step.** Approval comes from the stakeholder OR self-confirmation that the work fits an existing milestone / phase scope.
-- **In Review is optional.** Skip it (In Progress → Done) when no second pass is wanted. Use it when stepping back from the work helps.
+- **Unassigned = shared team queue.** An unassigned ticket sits in a pool that either person can pull from. It should NOT move to Todo or In Progress until someone explicitly accepts it (reads it, confirms scope, self-assigns). This prevents silent plate-landing.
+- **In Review is flexible.** Self-review (step back, re-read) OR route to the other person for a cross-review pass. When routing to the other person, @-mention them in a comment at the point of transition.
 - **Cycle membership is orthogonal to status.** A Todo ticket may or may not be in the current cycle; cycle assignment is a separate axis (weekly cycles starting Tuesday).
 
 ### Priority
@@ -171,9 +172,9 @@ mcp__linear-server__save_issue(
     state="Backlog",                          # or "Todo" if pre-approved/in-scope
     labels=["<surface>", "<Type>"],           # exactly one of each (e.g. ["backend", "Feature"])
     priority=0,                               # 0=None default; 2=High when promoted to Todo
+    assignee="me",                            # DEFAULT: self-assign. Override explicitly if needed (see below)
     description="## Goal\n\n<para>\n\n## Done when\n\n- <outcome>\n- <outcome>",
     # milestone: only if obvious — look up via list_milestones; omit otherwise
-    # assignee: omit (defaults to me)
 )
 ```
 
@@ -181,6 +182,9 @@ Notes:
 - Pass real newlines in `description`, not literal `\n` escapes.
 - Omit `milestone` unless the ticket obviously fits one.
 - `state` accepts state names (not IDs) when team is specified.
+- **Assignee is a conscious choice.** Default is self (`"me"`). Overrides:
+  - *Shared team queue* — omit `assignee` entirely when the work is unowned and either person could pick it up.
+  - *Route to the other person* — pass their Linear username when asked; @-mention them in a comment after creation so they see it.
 
 ### Transition state
 
@@ -216,10 +220,37 @@ Use to inspect state, description, labels, milestone before taking action.
 ### List tickets in a state
 
 ```python
+# My tickets (default)
 mcp__linear-server__list_issues(team="TEAM", state="Todo", assignee="me", limit=50)
+
+# Unassigned / shared team queue — "show unassigned", "show team backlog"
+mcp__linear-server__list_issues(team="TEAM", state="Backlog", assignee=None, limit=50)
+
+# All team tickets regardless of assignee — "what's in todo for the team"
+mcp__linear-server__list_issues(team="TEAM", state="Todo", limit=50)
 ```
 
-Useful for "what's in todo", "show my backlog", weekly review.
+Useful for "what's in todo", "show my backlog", "show unassigned tickets", "show team backlog", weekly review.
+
+### Accept an unassigned ticket
+
+When picking up a ticket from the shared team queue:
+
+1. Read the ticket (`get_issue`) — confirm scope and done criteria make sense.
+2. Confirm with the user this is the ticket to take.
+3. Self-assign and move to Todo (or In Progress if starting immediately):
+
+```python
+mcp__linear-server__save_issue(id="TEAM-N", assignee="me", state="Todo")
+```
+
+4. Optionally leave a comment to signal acceptance (useful when the other person might also be considering it).
+
+### Collaboration conventions
+
+- **Reassigning to the other person:** @-mention them in a comment immediately after `save_issue` so they see the handoff. Don't just flip `assignee` silently.
+- **Routing to the other person for cross-review:** when transitioning to `In Review` with the intent of cross-review (not self-review), @-mention the reviewer in a comment at that moment. The ticket state alone doesn't communicate who the reviewer is.
+- **Unassigned tickets:** treat them as up for grabs. Neither person is implicitly responsible until one of them runs the accept ritual above.
 
 ## Composition
 
