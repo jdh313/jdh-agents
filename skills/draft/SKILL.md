@@ -49,7 +49,7 @@ List file-host contracts in `.docs/` excluding `archive/` (skip `status: capture
 ls .docs/*.md 2>/dev/null || true
 ```
 
-If the Linear MCP is connected, also enumerate Linear-host contracts: `mcp__linear-server__list_issues` filtered to the contract lifecycle states — "Contract Review" and "In Progress" (team per the linear plugin's conventions, assignee me). A ticket counts as a contract when its description carries the six-section shape (`## What we're doing` heading is the cheap test); "In Progress" tickets without it are ordinary work, not contracts.
+If the Linear MCP is connected, also enumerate Linear-host contracts: `mcp__linear-server__list_issues` filtered to the contract lifecycle states — "Contract Review" and "In Progress" (team per the linear plugin's conventions; **no assignee filter** — show all team contracts regardless of owner). A ticket counts as a contract when its description carries the six-section shape (`## What we're doing` heading is the cheap test); "In Progress" tickets without it are ordinary work, not contracts. Display the assignee for each contract so ownership is visible.
 
 If any exist (either host), surface them to the user:
 
@@ -126,10 +126,16 @@ If the draft upgrades a `status: captured` stub: rewrite that file in place (kee
 **Linear-new host (fresh ticket created at draft):**
 
 1. Derive a title from the goal per the linear plugin's title conventions (noun-phrase). No confirmation — the user reviews title and body together in Linear and can rename there.
-2. Create the ticket via `mcp__linear-server__save_issue` with the six-section contract as the description, deferring all other fields (team, project, labels, priority) to the `linear` skill's conventions.
+2. Create the ticket via `mcp__linear-server__save_issue` with the six-section contract as the description, `assignee="me"` (self-assign per linear plugin conventions), deferring all other fields (team, project, labels, priority) to the `linear` skill's conventions.
 3. Report the new ticket ID, then continue with the Contract Review transition below as if it were an existing-ticket host.
 
 **Linear host (existing ticket):**
+
+**Concurrent-edit guard:** Before writing, compare the ticket's current description (from the `get_issue` call in step 3) to what you're about to overwrite. If the description changed between when you read it and now — i.e. a second `get_issue` call returns different content — warn the user and offer three choices:
+
+> "The ticket description changed since I last read it (someone may have edited concurrently). Merge my draft over theirs, overwrite anyway, or abort and let you resolve it?"
+
+Wait for the user's choice before proceeding. If no re-fetch was done (e.g. the ticket was read only in step 3 and no time has passed in the session), proceed without the guard — re-fetching every write would be noisy in practice.
 
 Overwrite the ticket's description with the formatted contract via `mcp__linear-server__save_issue`. Overwrite is the default — do **not** prompt, even when the existing description is substantive.
 

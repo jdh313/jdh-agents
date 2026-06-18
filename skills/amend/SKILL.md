@@ -56,7 +56,11 @@ Do NOT apply without user confirmation. Acceptable responses:
 If approved, write the amendment to the contract's host. Preserve every section the amendment does not target.
 
 - **File host** — `Edit` the contract file in place.
-- **Linear host** — Fetch current description via `mcp__linear-server__get_issue`, apply the targeted change locally, write the full updated description back via `mcp__linear-server__save_issue`. (Linear's API replaces the description; do not lose untouched sections.)
+- **Linear host** — Fetch current description via `mcp__linear-server__get_issue`. **Concurrent-edit guard:** compare this fresh fetch against the description you read at the start of the `implement` session (or at the start of this `amend` invocation). If they differ, warn:
+
+  > "The ticket description changed since I started — someone may have edited concurrently. Merge my amendment over the current version, overwrite anyway, or abort?"
+
+  Wait for the user's choice before proceeding. If they say merge/overwrite: apply the targeted section change locally to the latest-fetched description, then write the full updated description back via `mcp__linear-server__save_issue`. (Linear's API replaces the description; do not lose untouched sections.)
 
 **Linear host — audit trail.** Overwriting the description erases the amendment history, so after the `save_issue` write, post the before/after as a ticket comment via `mcp__linear-server__save_comment`:
 
