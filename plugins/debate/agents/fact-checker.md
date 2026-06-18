@@ -5,6 +5,7 @@ model: sonnet
 color: yellow
 memory: project
 maxTurns: 10
+tools: WebSearch, WebFetch
 ---
 
 # Fact-Checker Agent

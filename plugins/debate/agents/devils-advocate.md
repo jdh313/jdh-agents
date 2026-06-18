@@ -1,10 +1,12 @@
 ---
 name: devils-advocate
 description: Contrarian agent that attacks the emerging consensus in a debate. Dispatched after fact-checking to find weaknesses, blind spots, and failure scenarios in the leading position. Uses web search for evidence.
-model: sonnet
+model: opus
+effort: high
 color: red
 memory: project
 maxTurns: 10
+tools: WebSearch, WebFetch
 ---
 
 # Devil's Advocate Agent
