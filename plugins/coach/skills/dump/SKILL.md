@@ -7,6 +7,7 @@ description: >-
   with stuff to do". Unstructured multi-item brain purge with optional
   categorization and routing to the right places -- Todoist tasks, sparks, intake
   candidates, decisions. Pressure-release valve for ADHD mental overload.
+effort: low
 allowed-tools:
   # Todoist — life-admin tasks and hard-deadline items
   - mcp__claude_ai_Todoist__add-tasks

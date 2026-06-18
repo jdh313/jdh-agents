@@ -7,6 +7,7 @@ description: >-
   surface patterns -- chronic reschedulers, project health, completion timing --
   making task management patterns visible. Data engine, not coach.
 model: inherit
+effort: high
 color: orange
 tools:
   - mcp__claude_ai_Todoist__find-tasks-by-date

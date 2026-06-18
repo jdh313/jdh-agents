@@ -6,11 +6,22 @@ description: >-
   choose", "document this decision", or "decision record". Captures structured
   decisions with context, options considered, rationale, and revisit conditions
   to prevent re-litigation.
+effort: low
 allowed-tools:
   # Linear — linked issues (if referenced)
   - mcp__linear-server__list_issues
   # Obsidian — prior decisions, project notes, write record
   - Bash(obsidian-cli *)
+disallowed-tools:
+  # This skill never creates or modifies tasks/issues — read-only on Todoist/Linear
+  - mcp__claude_ai_Todoist__add-tasks
+  - mcp__claude_ai_Todoist__update-tasks
+  - mcp__claude_ai_Todoist__complete-tasks
+  - mcp__linear-server__create_issue
+  - mcp__linear-server__save_issue
+  - mcp__linear-server__update_issue
+  - mcp__linear-server__create_project
+  - mcp__linear-server__update_project
 ---
 
 # /decide -- Decision Journal
