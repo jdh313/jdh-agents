@@ -1,6 +1,7 @@
 ---
 name: tdd
 description: Test-driven development with red-green-refactor loop. Use when user wants to build features or fix bugs using TDD, mentions "red-green-refactor", wants integration tests, or asks for test-first development. Adapted from mattpocock/skills (MIT, © 2026 Matt Pocock).
+effort: high
 upstream:
   repo: mattpocock/skills
   path: skills/engineering/tdd
@@ -47,6 +48,8 @@ RIGHT (vertical):
 ```
 
 ## Workflow
+
+> **Tip:** For multi-behavior features, run this skill under `/goal "<completion condition>"` so each RED→GREEN cycle reports progress against the stated goal and the loop ends cleanly when done.
 
 ### 1. Planning
 

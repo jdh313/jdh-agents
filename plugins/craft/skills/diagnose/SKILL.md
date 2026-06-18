@@ -1,6 +1,7 @@
 ---
 name: diagnose
 description: Disciplined diagnosis loop for hard bugs and performance regressions. Reproduce → minimise → hypothesise → instrument → fix → regression-test. Use when user says "diagnose this" / "debug this", reports a bug, says something is broken/throwing/failing, or describes a performance regression. Adapted from mattpocock/skills (MIT, © 2026 Matt Pocock).
+effort: high
 upstream:
   repo: mattpocock/skills
   path: skills/engineering/diagnose
@@ -12,6 +13,8 @@ upstream:
 # Diagnose
 
 A discipline for hard bugs. Skip phases only when explicitly justified.
+
+> **Tip:** For multi-phase investigations, run this skill under `/goal "<symptom resolved>"` so progress through phases is tracked and the loop ends when the bug is confirmed fixed.
 
 When exploring the codebase, use the project's domain glossary to get a clear mental model of the relevant modules, and invoke `/ground` to surface relevant NDR atoms in the area you're touching.
 

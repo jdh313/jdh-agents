@@ -10,3 +10,5 @@ The red-green-refactor loop, the horizontal-slices anti-pattern, the per-cycle c
 |------|------|-----|
 | changed | Planning §1 grounding: generic "domain glossary" → **CONTEXT.md**; "respect ADRs in the area" → invoke **`/ground`** to surface **NDR atoms** | Routes the upstream's vague grounding step into the concrete CONTEXT.md glossary + NDR decision-ledger primitives. |
 | changed | `deep-modules.md` retitled "Deep Modules" → "Deep Modules **in TDD**"; defers the canonical Module/Interface/Depth/Seam/Adapter/Leverage/Locality glossary to shared `../../references/LANGUAGE.md` and adds a TDD-specific depth payoff | De-dupes the shared `craft`-plugin glossary; one source of truth across sibling skills (grill-with-docs, improve-codebase-architecture). |
+| added | `effort: high` frontmatter field | Multi-phase RED→GREEN loops are reasoning-intensive; high effort engages deeper model reasoning for the full skill duration. |
+| added | `/goal` tip at top of Workflow section | Documents user-invoked `/goal "<completion condition>"` as the idiomatic way to run multi-behavior TDD sessions with a clear exit condition. Prose note only — no auto-behavior change. |
