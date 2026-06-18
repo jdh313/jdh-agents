@@ -5,7 +5,8 @@
         "hooks": [
           {
             "type": "command",
-            "command": "uv run --quiet \"${CLAUDE_PLUGIN_ROOT}\"/hooks/langfuse_hook.py"
+            "command": "uv",
+            "args": ["run", "--quiet", "${CLAUDE_PLUGIN_ROOT}/hooks/langfuse_hook.py"]
           }
         ]
       }
@@ -15,7 +16,8 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash \"${CLAUDE_PLUGIN_ROOT}\"/hooks/babysitter_spawn_tripwire.sh"
+            "command": "bash",
+            "args": ["${CLAUDE_PLUGIN_ROOT}/hooks/babysitter_spawn_tripwire.sh"]
           }
         ]
       }

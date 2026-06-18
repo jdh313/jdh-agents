@@ -195,6 +195,8 @@ def extract_session_and_transcript(payload: Dict[str, Any]) -> Tuple[Optional[st
     """
     Tries a few plausible field names; exact keys can vary across hook types/versions.
     Prefer structured values from stdin over heuristics.
+    Note: CLAUDE_CODE_SESSION_ID is not set as an env var in hook processes —
+    session_id is only available via the stdin JSON payload.
     """
     session_id = (
         payload.get("sessionId")
@@ -217,6 +219,22 @@ def extract_session_and_transcript(payload: Dict[str, Any]) -> Tuple[Optional[st
         transcript_path = None
 
     return session_id, transcript_path
+
+
+def extract_agent_context(payload: Dict[str, Any]) -> Dict[str, str]:
+    """
+    Extracts subagent context fields from the Stop hook payload.
+    agent_id and agent_type are present only when the hook fires inside a subagent.
+    parent_agent_id is not provided by the Stop hook payload.
+    """
+    ctx: Dict[str, str] = {}
+    agent_id = payload.get("agent_id")
+    if isinstance(agent_id, str) and agent_id:
+        ctx["agent_id"] = agent_id
+    agent_type = payload.get("agent_type")
+    if isinstance(agent_type, str) and agent_type:
+        ctx["agent_type"] = agent_type
+    return ctx
 
 # ----------------- Transcript parsing helpers -----------------
 def get_content(msg: Dict[str, Any]) -> Any:
@@ -591,6 +609,7 @@ def emit_turn(
     user_id: str,
     cwd_label: str,
     mode: str,
+    agent_context: Optional[Dict[str, str]] = None,
 ) -> None:
     user_text_raw = extract_text(get_content(turn.user_msg))
     user_text, user_text_meta = truncate_text(user_text_raw)
@@ -618,6 +637,16 @@ def emit_turn(
         tags=["claude-code", f"cwd:{cwd_label}", mode],
         user_id=user_id,
     ):
+        # Build trace metadata; include agent context fields when present (subagent hooks only)
+        trace_metadata: Dict[str, Any] = {
+            "source": "claude-code",
+            "turn_number": turn_num,
+            "transcript_path": str(transcript_path),
+            "assistant_message_count": len(turn.assistant_msgs),
+        }
+        if agent_context:
+            trace_metadata.update(agent_context)
+
         # Edit (b): use composed trace_name for the span name too
         trace_span = _start_backdated(
             langfuse,
@@ -625,13 +654,7 @@ def emit_turn(
             as_type="span",
             start_time=user_ts,
             input={"role": "user", "content": user_text},
-            # Edit (c): drop session_id and user_text keys from metadata
-            metadata={
-                "source": "claude-code",
-                "turn_number": turn_num,
-                "transcript_path": str(transcript_path),
-                "assistant_message_count": len(turn.assistant_msgs),
-            },
+            metadata=trace_metadata,
         )
         parent_otel_span = trace_span._otel_span
 
@@ -807,6 +830,7 @@ def main() -> int:
         (payload.get("cwd") if isinstance(payload, dict) else None) or os.getcwd()
     )
     mode = _detect_mode(payload)
+    agent_context = extract_agent_context(payload)
 
     langfuse = None
     try:
@@ -847,6 +871,7 @@ def main() -> int:
                     emit_turn(
                         langfuse, session_id, turn_num, t, transcript_path,
                         user_id=user_id, cwd_label=cwd_label, mode=mode,
+                        agent_context=agent_context,
                     )
                 except Exception as e:
                     # Log at INFO so SDK incompatibilities (and other emit failures)
@@ -860,6 +885,16 @@ def main() -> int:
 
         dur = time.time() - start
         info(f"Processed {emitted} turns in {dur:.2f}s (session={session_id})")
+
+        # Emit a bare BEL via terminalSequence so the terminal gives a subtle
+        # flush signal when traces land. Hooks run without a controlling tty so
+        # this must go through Claude Code's terminal write path rather than
+        # directly to /dev/tty.
+        try:
+            print(json.dumps({"terminalSequence": "\x07"}))
+        except Exception:
+            pass
+
         return 0
 
     except TimeoutError as e:
