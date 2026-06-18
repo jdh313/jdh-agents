@@ -81,6 +81,56 @@ Both fit Haiku's strengths and budget.
 No Opus. Defer until evidence emerges that specific operations need it
 — most likely candidate would be a high-stakes Decision-page writer.
 
+### Effort levels
+
+Each agent declares an `effort:` matching its model class and job:
+
+| Agent | Model | `effort` | Why |
+|---|---|---|---|
+| `vault-reader` | Sonnet | `medium` | Synthesis across pages, but bounded by a scoped question |
+| `vault-curator` | Sonnet | `high` | Judgment calls on merges/splits/orphans; the hardest reasoning |
+| `note-editor` | Haiku | `low` | Mechanical write of pre-drafted content |
+| `vault-inspector` | Haiku | `low` | Bulk rule-matching, no judgment |
+
+(`effort` overrides the session level while the agent is active; valid
+levels are `low`/`medium`/`high`/`xhigh`/`max`, model-dependent.)
+
+### Persistent vs one-shot dispatch
+
+Agents come in two engagement shapes:
+
+- **Persistent (re-engaged via `SendMessage`).** Stateful multi-turn
+  sessions dispatch the agent *once* and re-engage the same instance for
+  follow-up turns, so it retains loaded conventions, notes already read,
+  and accumulated session state (skip decisions, running tallies).
+  - `vault-curator` — the `note-cleanup` inspect→clean→re-inspect loop.
+    Re-forking per category would discard skip decisions and force full
+    re-detection. Contract: `agents/vault-curator.md`
+    (`## Persistent cleanup session`).
+  - `vault-reader` — multi-step reader sessions: `experiment-review`
+    (pull check-ins → follow-up reads), `wiki-refresh` (read → re-read
+    after write), `wiki-query` (several related questions). Contract:
+    `agents/vault-reader.md` (`## Re-engagement`).
+- **One-shot (cold `context: fork`).** A single finalized operation with
+  no state to carry stays on a fresh fork per call:
+  - `note-editor` writes (`note-capture`, `base-add`, and the terminal
+    write step of the reader/refresh skills) — one mechanical append.
+  - `vault-inspector` (`vault-inspect`) — one read-only diagnostic pass.
+
+The mechanism is `SendMessage` to a completed subagent's agent ID, which
+auto-resumes it with full prior context (requires agent teams enabled).
+There is no frontmatter "persistent" field — `context: fork` always
+spawns fresh, so the re-engagement instruction lives in the skill body
+and the agent's contract section.
+
+### Read-only skills deny writes
+
+`wiki-query` and `vault-inspect` declare `disallowed-tools: [Write, Edit]`
+in frontmatter. They are read paths — synthesis and diagnostics — and
+route any resulting write through a writing skill (`wiki-create` /
+`wiki-refresh`, owning `@note-editor`). The denial is defense-in-depth on
+top of the agents' own read-only `tools:` lists.
+
 ## Skill→agent contract
 
 The invocation payload is a structured Markdown block. Canonical spec

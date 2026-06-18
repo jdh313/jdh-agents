@@ -7,6 +7,7 @@ description: >
 model: haiku
 memory: project
 maxTurns: 15
+effort: low
 tools:
   - Bash(obsidian-cli *)
   - Edit

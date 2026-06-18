@@ -20,6 +20,12 @@ specified Obsidian Base. The slash command forks to `@note-editor`, which
 loads `${CLAUDE_PLUGIN_ROOT}/references/bases.md` for base schemas and
 filter conventions and executes the write.
 
+**One-shot by design.** A single Base entry is one finalized write with
+no carried state, so it stays on a cold `context: fork` dispatch — there
+is nothing to re-engage. Persistent re-engagement is reserved for
+stateful multi-turn sessions (the `note-cleanup` curator loop, multi-step
+reader sessions).
+
 ## Usage
 
 ```

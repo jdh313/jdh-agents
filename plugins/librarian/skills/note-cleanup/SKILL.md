@@ -33,6 +33,30 @@ Start an interactive session to clean up and maintain your vault.
 Launches the `vault-curator` agent for an interactive cleanup session.
 The agent guides you through finding and fixing vault issues one category at a time.
 
+## Why a persistent agent (not a cold fork per category)
+
+Cleanup is iterative and stateful: inspect → clean → re-inspect, often
+across several categories in one sitting, with skip decisions that must
+not be re-litigated. `vault-curator` is therefore a **persistent**
+session, not a one-shot worker:
+
+- The skill forks `@vault-curator` **once**. Every follow-up turn
+  (next category, re-inspect after fixes, a second `/note-cleanup` later
+  in the same session) **re-engages the same instance** via `SendMessage`
+  to its agent ID — it keeps the running Found/Fixed/Skipped tally,
+  the conventions it loaded, and what you already chose to skip.
+- After applying fixes, the curator **re-inspects surgically** — re-runs
+  only the detection for the categories it touched to confirm counts
+  dropped, not the whole sweep.
+- Cold-forking per category would discard your accumulated skip
+  decisions and force a full re-detect every turn. That's why this loop
+  is persistent.
+
+Contrast `/vault-inspect`, which is a genuine **one-shot** diagnostic
+(single read-only pass, no state to carry) and stays on its cold fork.
+The re-engagement contract lives in `agents/vault-curator.md`
+(`## Persistent cleanup session`).
+
 ## Cleanup Types
 
 | Type | What It Fixes | Typical Actions |

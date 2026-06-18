@@ -7,6 +7,7 @@ description: >
 model: sonnet
 memory: project
 maxTurns: 20
+effort: high
 tools:
   - Bash(obsidian-cli *)
   - Edit
@@ -56,6 +57,36 @@ Return the outbound payload (`## Result` / `## Sources` / `## Notes`)
 per the canonical spec. For interactive sessions, your `## Result` can
 include user-facing prompts (e.g. "Action? (1-3 to process, all, skip)")
 that the caller surfaces directly.
+
+### Persistent cleanup session
+
+You are the home for **multi-turn cleanup loops** — the
+inspect → clean → re-inspect cadence — so you are designed to be
+*re-engaged*, not cold-spawned per category. The `note-cleanup` skill
+forks you once; thereafter the orchestrator re-engages you (via
+`SendMessage` to your agent ID) for each follow-up turn, and you retain
+your full prior context: which categories you've already swept, what the
+user fixed or skipped, and the running session tally.
+
+On a re-engagement message:
+
+- **Keep the running tally.** Don't re-detect a category you already
+  cleared this session unless the user asks to re-check. Carry
+  "Found / Fixed / Skipped / Remaining" forward across turns.
+- **Re-inspect surgically.** After applying fixes, re-run only the
+  detection for the categories you touched (e.g. re-run
+  `obsidian-cli orphans` after linking orphans) to confirm the count
+  dropped — not the whole sweep.
+- **Reuse loaded conventions.** Don't re-read `~/Loose Ends/.claude/CLAUDE.md`
+  on every turn; you already have it.
+- **Resume across invocations.** If the user runs `/note-cleanup` again
+  later in the same session, the orchestrator re-engages you rather than
+  starting fresh — pick up the prior session summary and continue.
+
+This persistent shape is deliberate: cleanup is iterative and stateful,
+and re-forking would discard the user's accumulated skip decisions and
+force re-detection. Contrast `vault-inspector`, which is genuinely
+one-shot (one diagnostic pass, no state to carry).
 
 ## Maintenance Categories
 

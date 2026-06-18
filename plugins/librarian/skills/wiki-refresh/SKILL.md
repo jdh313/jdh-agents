@@ -22,6 +22,14 @@ stale content.
 This skill drafts updates interactively; `@vault-reader` reads the
 existing page and `@note-editor` executes the write.
 
+**Dispatch shape:** keep the `@vault-reader` from step 1 alive across the
+refresh. If step 6 surfaces related pages that also need refreshing, or
+you need to re-read the page after the write to confirm, re-engage the
+*same* reader instance (via `SendMessage` to its agent ID) rather than
+cold-spawning a new one — it still holds the page and drift report it
+already produced. The `@note-editor` write (step 5) stays **one-shot**:
+one finalized page write, no carried state.
+
 ## When to use
 
 - A wiki page exists but feels thin or outdated
