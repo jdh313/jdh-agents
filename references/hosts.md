@@ -62,6 +62,7 @@ No phrasing analysis at this stage — the identifier shape is the signal.
 | **`implement` — status** | n/a — no status | Before coding, set state to "In Progress" (fallback: first `started`-type state) via `save_issue` |
 | **`amend` — write** | `Edit` the file | Re-fetch current description; concurrent-edit guard (warn if changed); apply targeted change; `mcp__linear-server__save_issue`; post before/after comment via `save_comment` (comments are the changelog) |
 | **`close` — done-when check** | Walk bullets from file body | Walk bullets from ticket description |
+| **`close` — outcome summary** | n/a — file host has no shared visibility surface | Post compact outcome summary (what shipped, decisions, README) as a comment via `save_comment` (team visibility) |
 | **`close` — verification record** | n/a — verdict lives in conversation | Post the per-bullet contract-verifier verdict as a comment via `save_comment` before the state change |
 | **`close` — container action** | `mv` to `.docs/archive/`, flip frontmatter | Advance state to a review state (In Review / Code Review / …) via `save_issue`; never set a completed state. Body untouched |
 | **`close` — confirm wording** | "Contract archived at `.docs/archive/...`" | "Verification comment posted; moved to In Review; body intact. Set Done yourself at merge." |
