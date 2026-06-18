@@ -1,6 +1,7 @@
 ---
 name: improve-codebase-architecture
 description: Find deepening opportunities in a codebase, informed by the domain language in CONTEXT.md and the decisions surfaced via NDR atoms. Use when the user wants to improve architecture, find refactoring opportunities, consolidate tightly-coupled modules, or make a codebase more testable and AI-navigable. Adapted from mattpocock/skills (MIT, © 2026 Matt Pocock).
+effort: high
 upstream:
   repo: mattpocock/skills
   path: skills/engineering/improve-codebase-architecture
@@ -40,7 +41,7 @@ This skill is _informed_ by the project's domain model. The domain language give
 
 Invoke `/ground` to surface relevant NDR atoms in the area you're touching first. Read the project's domain glossary (CONTEXT.md) alongside the grounded decisions.
 
-Then use the Agent tool with `subagent_type=Explore` to walk the codebase. Don't follow rigid heuristics — explore organically and note where you experience friction:
+Then use the Agent tool with `subagent_type=Explore` and `name="arch-explorer"` to walk the codebase. Naming the agent keeps it addressable via SendMessage during the grilling loop if you need to ask it follow-up questions. Don't follow rigid heuristics — explore organically and note where you experience friction:
 
 - Where does understanding one concept require bouncing between many small modules?
 - Where are modules **shallow** — interface nearly as complex as the implementation?

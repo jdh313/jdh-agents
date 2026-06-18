@@ -10,3 +10,5 @@ All six diagnosis phases and the HITL loop script are kept verbatim. The only di
 |------|------|-----|
 | changed | Codebase-grounding step: upstream "check ADRs in the area you're touching" → "invoke `/ground` to surface relevant NDR atoms in the area" | NDR ledger replaces in-repo ADRs; same intent (surface prior decisions in the touched area), different tool. |
 | changed | Phase 6 post-mortem capture: added "or captured as an NDR atom via `/capture-decision`" alongside the upstream commit/PR-message path (additive — commit/PR path retained) | Routes the durable correct-hypothesis learning into the NDR ledger. |
+| added | `effort: high` frontmatter field | Six-phase diagnosis loops (feedback loop construction, bisection, instrumentation) are reasoning-intensive; high effort engages deeper model reasoning for the full skill duration. |
+| added | `/goal` tip below the opening paragraph | Documents user-invoked `/goal "<symptom resolved>"` as the idiomatic way to run multi-phase diagnosis with a clear exit condition. Prose note only — no auto-behavior change. |
