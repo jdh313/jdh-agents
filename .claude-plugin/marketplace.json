@@ -39,24 +39,6 @@
       ]
     },
     {
-      "name": "commits",
-      "source": "./plugins/commits",
-      "description": "Format-aware atomic commits for git and jj (Jujutsu). Auto-detects VCS and commit message style from repo context. Includes PreToolUse hook that blocks destructive working-copy operations.",
-      "version": "2.1.0",
-      "author": {
-        "name": "Jacob Hoehler"
-      },
-      "keywords": [
-        "git",
-        "jj",
-        "jujutsu",
-        "commits",
-        "atomic",
-        "conventional-commits",
-        "freeform"
-      ]
-    },
-    {
       "name": "compass",
       "source": "./plugins/compass",
       "description": "A suite of conversational thinking tools \u2014 reflect (Socratic mirror, never recommends, always saves) and mull (thinking partner, probes AND contributes opinions, saves substantive sessions only).",
@@ -119,62 +101,6 @@
       ]
     },
     {
-      "name": "doing",
-      "source": "./plugins/doing",
-      "description": "Time tracking with doing CLI. Start/stop tasks, backdate entries, query work history.",
-      "version": "0.2.1",
-      "author": {
-        "name": "Jacob Hoehler"
-      },
-      "keywords": [
-        "time-tracking",
-        "doing",
-        "timesheet",
-        "productivity"
-      ]
-    },
-    {
-      "name": "homelab-ops",
-      "source": "./plugins/homelab-ops",
-      "description": "Create, troubleshoot, and migrate Docker services in a Jinja2-templated homelab with Tailscale networking, Traefik routing, and 1Password secrets",
-      "version": "1.0.1",
-      "author": {
-        "name": "Jacob Hoehler"
-      },
-      "keywords": [
-        "homelab",
-        "docker",
-        "docker-compose",
-        "jinja2",
-        "tailscale",
-        "traefik",
-        "ansible",
-        "1password"
-      ]
-    },
-    {
-      "name": "job-search",
-      "source": "./plugins/job-search",
-      "description": "Job search toolkit for application tracking, work documentation, and interview preparation. Integrates with Obsidian vault and Todoist.",
-      "version": "0.8.1",
-      "author": {
-        "name": "Jacob Hoehler"
-      },
-      "keywords": [
-        "job-search",
-        "obsidian",
-        "todoist",
-        "career",
-        "career-themes",
-        "interview-prep",
-        "application-tracking",
-        "achievements",
-        "work-summary",
-        "linkedin"
-      ],
-      "homepage": "https://github.com/yourusername/cc-marketplace/tree/main/plugins/job-search"
-    },
-    {
       "name": "langfuse",
       "source": "./plugins/langfuse",
       "description": "The Langfuse x Claude Code Observability Plugin",
@@ -215,79 +141,6 @@
       ]
     },
     {
-      "name": "linear",
-      "source": "./plugins/linear",
-      "description": "Personal Linear workflow conventions for AI-assisted development. Owns ticket creation defaults, status flow semantics, label set, title shape, and MCP call patterns. Composes with spec-flow (which uses Linear as a contract host but defers to this plugin for the conventions).",
-      "version": "0.2.0",
-      "author": {
-        "name": "Jacob Hoehler"
-      },
-      "keywords": [
-        "linear",
-        "issue-tracking",
-        "workflow",
-        "conventions",
-        "tickets",
-        "mcp",
-        "spec-flow"
-      ]
-    },
-    {
-      "name": "ndr",
-      "source": "./plugins/ndr",
-      "description": "[DEPRECATED \u2014 moved to the ndr repo's own marketplace (~/Projects/ndr, ndr@ndr); this copy is unmaintained] Nested decision records \u2014 atomic markdown decision atoms in your Obsidian vault with supersession-aware reading.",
-      "version": "0.6.1",
-      "author": {
-        "name": "Jacob Hoehler"
-      },
-      "keywords": [
-        "decisions",
-        "adrs",
-        "obsidian",
-        "documentation",
-        "engineering",
-        "supersession",
-        "architecture",
-        "knowledge-management"
-      ]
-    },
-    {
-      "name": "permissions-manager",
-      "source": "./plugins/permissions-manager",
-      "description": "Manage Claude Code permissions and troubleshoot permission errors",
-      "version": "1.1.1",
-      "author": {
-        "name": "Jacob Hoehler"
-      },
-      "keywords": [
-        "permissions",
-        "claude-code",
-        "settings",
-        "allowlist",
-        "configuration",
-        "troubleshooting"
-      ]
-    },
-    {
-      "name": "pm",
-      "source": "./plugins/pm",
-      "description": "Self-PM helpers for CartaOS (Linear team CAR). Skills for the weekly grooming loop, single-issue triage, ticket authoring with NDR refs, and end-of-cycle retro notes. Composes with linear, ndr, and librarian plugins.",
-      "version": "0.4.0",
-      "author": {
-        "name": "Jacob Hoehler"
-      },
-      "keywords": [
-        "pm",
-        "project-management",
-        "linear",
-        "grooming",
-        "triage",
-        "cycle",
-        "retro",
-        "cartaos"
-      ]
-    },
-    {
       "name": "provenance",
       "source": "./plugins/provenance",
       "description": "Marketplace upkeep for borrowed work. Keeps adapted skills honest against their upstream sources: compares an adapted skill to its pinned upstream, flags behavioral drift and fabricated attributions, and refreshes the reviewed commit SHA. Houses upstream-review.",
@@ -302,26 +155,6 @@
         "drift",
         "maintenance",
         "attribution"
-      ]
-    },
-    {
-      "name": "python-dev",
-      "source": "./plugins/python-dev",
-      "description": "Comprehensive Python development skills: write Pythonic code, debug systematically, and fix failing tests",
-      "version": "1.1.1",
-      "author": {
-        "name": "Jacob Hoehler"
-      },
-      "keywords": [
-        "python",
-        "debugging",
-        "testing",
-        "pep8",
-        "pythonic",
-        "code-quality",
-        "pytest",
-        "type-hints",
-        "modern-python"
       ]
     },
     {
@@ -341,25 +174,6 @@
         "vibration",
         "belt-tension",
         "corexy"
-      ]
-    },
-    {
-      "name": "spec-flow",
-      "source": "./plugins/spec-flow",
-      "description": "Personal SDLC scaffolding for AI-assisted development. A lightweight, ephemeral 'contract' between user and AI drives each code change from idea to done; the durable layer (CLAUDE.md, ndr atoms, README) lives elsewhere.",
-      "version": "0.7.2",
-      "author": {
-        "name": "Jacob Hoehler"
-      },
-      "keywords": [
-        "sdlc",
-        "spec-driven-development",
-        "ai-assisted-dev",
-        "contract",
-        "change-scoped",
-        "ephemeral",
-        "ndr",
-        "librarian"
       ]
     },
     {
@@ -384,7 +198,7 @@
     "description": "Personal Claude Code plugin marketplace",
     "version": "1.0.0",
     "homepage": "https://github.com/jdh313/cc-marketplace",
-    "totalPlugins": 19,
+    "totalPlugins": 9,
     "lastUpdated": "2026-06-18"
   }
 }
