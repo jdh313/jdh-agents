@@ -142,6 +142,7 @@ If approved, execute each:
 
 - Invoke `/capture-decision` per proposed ndr atom (if any and if ndr plugin is available).
 - Apply README edits.
+- Commit the repo-facing changes this close touched (README edits and any other tracked files) in the repo's house style via `Skill(commit:commit)`. ndr atoms written by `/capture-decision` may already be committed by that skill — don't double-commit them; let `commit` pick up only what's still uncommitted. If the `commit` plugin isn't installed, commit directly following repo conventions.
 - If any migration fails, halt and report; do not proceed to archive.
 
 If the user wants to skip or modify any item, accommodate that.
@@ -157,7 +158,7 @@ mkdir -p .docs/archive
 mv .docs/<filename>.md .docs/archive/<filename>.md
 ```
 
-`.docs/` is gitignored by the scratch-artifact convention, so a plain `mv` is usually all that's needed. If the file *is* tracked: under jj (`.jj/` present) the move auto-tracks — still plain `mv`; on a pure-git repo use `git mv`.
+`.docs/` is gitignored by the scratch-artifact convention, so a plain `mv` is usually all that's needed. If the file *is* tracked: under jj (`.jj/` present) the move auto-tracks — still plain `mv`; on a pure-git repo use `git mv`. When the move is tracked, commit it via `Skill(commit:commit)` rather than leaving it as a loose working-copy change — fold it into the close commit from step 5 if that hasn't run yet, otherwise commit the move on its own.
 
 Update the file's frontmatter: flip `status: active` to `status: archived`. Placement in `.docs/archive/` is the canonical signal; the field is informational.
 
@@ -184,7 +185,15 @@ Then move the ticket to its review state — the change is done from your side a
 - Set it via `mcp__linear-server__save_issue`.
 - If none match, skip with a note — *"No review state on this team; leaving status unchanged."* Never fall through to a completed state: merge hasn't happened, so spec-flow does not set Done/Closed. That transition stays the human's at merge time.
 
-### 7. Confirm
+### 7. Verify a clean working tree
+
+Before confirming, check that nothing this change produced is left uncommitted — closing should leave the repo in a clean state. Detect the VCS (per step 2) and check: `git status` shows no tracked changes, or the jj working copy is empty (`jj st`).
+
+- **Leftovers belong to this change** (stray README edit, the archived contract move, a forgotten code tweak) — commit them via `Skill(commit:commit)` so the tree ends clean.
+- **Leftovers are unrelated** to the contract — do not sweep them into a close commit. Surface them to the user and let them decide; note in the confirm summary that the tree wasn't left fully clean.
+- If the `commit` plugin isn't installed, commit the in-scope leftovers directly in the repo's house style.
+
+### 8. Confirm
 
 Brief summary to the user, wording differs by host:
 
