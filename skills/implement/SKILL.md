@@ -108,6 +108,8 @@ Work according to the chosen cadence:
 - **All at once** — Implement the full change; surface the diff at the end.
 - **Check in after a piece** — Implement up to the agreed breakpoint; surface progress; await sanity-check; continue.
 
+**Commit atomically as you go.** Cadence governs when you *check in with the user*, not when you commit — commit each logical, self-contained slice as it lands in the repo's house style via `Skill(commit:commit)`, which detects git vs. jj and writes the message for you. This holds even for "all at once": land the change as a series of atomic commits rather than one end-of-run blob. At a "check in after a piece" breakpoint, commit the slice once the user has sanity-checked the diff. Never commit over a failing verify (step 7). If the `commit` plugin isn't installed, commit directly following the repo's conventions (CLAUDE.md / recent history).
+
 ### 6. Amend when reality diverges
 
 If implementation reveals the contract is becoming inaccurate (wrong approach, new constraint, scope shift, resolved open question), invoke `Skill(spec-flow:amend)` to propose an edit. Do NOT silently work outside the contract; do NOT silently edit it.
