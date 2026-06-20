@@ -21,10 +21,12 @@ Dispatcher for spec-flow's contract lifecycle. Parses the first argument as a su
 - **`draft <goal>`** — Open a contract for a new code change. Invokes `Skill(spec-flow:draft)` with the goal text.
 - **`implement [name]`** — Start (or resume) implementation against an existing contract. Invokes `Skill(spec-flow:implement)`. If `name` is omitted, infer from active contracts (`.docs/` plus Linear contract states when the MCP is connected).
 - **`close [name]`** — Close an active contract and migrate findings to the durable layer. Invokes `Skill(spec-flow:close)`. If `name` is omitted, infer from active contracts.
+- **`route <id>`** — Detect what phase a contract is in and hand off to the matching skill — for when you have a ticket but don't know (or care) where it sits in the lifecycle. Invokes `Skill(spec-flow:route)` with the identifier.
 
 ## Dispatch rules
 
-- **No subcommand given:** List active contracts — `.docs/` files (any `.md` not in `.docs/archive/`) plus, when the Linear MCP is connected, tickets in the contract lifecycle states (Contract Review / In Progress with a six-section description) — and ask the user which action and which contract.
-- **Unknown subcommand:** List the four valid subcommands and ask the user to retry.
+- **Bare ticket token as the first argument** (matches `^[A-Z]{2,5}-\d+$`, e.g. `/spec-flow TEAM-123`): shorthand for `route` — invoke `Skill(spec-flow:route)` with the token. The user is saying "figure out where this ticket is and continue."
+- **No subcommand given (and no bare ticket):** List active contracts — `.docs/` files (any `.md` not in `.docs/archive/`) plus, when the Linear MCP is connected, tickets in the contract lifecycle states (Contract Review / In Progress with a six-section description) — and ask the user which action and which contract.
+- **Unknown subcommand:** List the five valid subcommands and ask the user to retry.
 
 Arguments: $ARGUMENTS

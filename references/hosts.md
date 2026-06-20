@@ -46,6 +46,10 @@ The user passes an identifier (or it's inferred from active contracts). Detectio
 
 No phrasing analysis at this stage — the identifier shape is the signal.
 
+### At `route`
+
+Same identifier-shape detection as `implement`/`close` (ticket token → linear, anything else → file). Route adds a second read on top: it inspects the contract's **current phase** and dispatches to the matching skill. On the linear host the phase comes from the ticket's workflow state plus whether the description carries the six-section shape; on the file host it comes from `.docs/` placement + `status:` frontmatter. The phase→skill map is the inverse of the transitions in [What's *not* in spec-flow's job](#whats-not-in-spec-flows-job): Contract Review → `implement`, In Progress → `implement` (resume), a review state → already closed, Backlog/no-contract → `draft`. See `../skills/route/SKILL.md` for the full table.
+
 ## Per-host behavior
 
 | Step | File host | Linear host |

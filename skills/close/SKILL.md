@@ -200,6 +200,20 @@ Brief summary to the user, wording differs by host:
 - **File host:** *"Closed `<slug>`. 2 ndr atoms created, 1 README update applied. Contract archived at `.docs/archive/<filename>.md`."*
 - **Linear host:** *"Closed TEAM-123. Outcome summary + verification record posted as comments; 2 ndr atoms created, 1 README update applied. Moved to In Review; ticket body left intact. Set it Done yourself when the PR merges."*
 
+### 9. Recommend what's next (optional)
+
+After confirming, offer a lightweight pointer to the next ticket — answering "what now?" without making the user switch tools. Opt-in; ask once:
+
+> "Want a suggestion for what to pick up next?"
+
+If yes and the Linear MCP is connected:
+
+- `mcp__linear-server__list_issues` over the team's active cycle plus Backlog (team per the `linear` plugin's conventions).
+- Filter to **actionable** candidates: not blocked (no open `blocked-by` relations), assigned to the current user or unassigned, not already in a started/completed state.
+- Surface the top 1–3 by priority, and recommend one. Offer to route straight in: *"Pick up TEAM-128 next? I can `/spec-flow TEAM-128` to continue it."*
+
+Keep it shallow. This is a nudge, not a grooming pass — **defer real prioritization to `Skill(pm:groom)`** and say so if the user wants a fuller sweep: *"For a proper cycle groom, run `/pm:groom`."* If Linear isn't connected, or the `pm`/`linear` surfaces aren't available, skip this step silently — never block close on it.
+
 ## Notes
 
 - Migrations are *AI-assisted/auto* — AI proposes the diff, applies after user sign-off. No silent migration; no fully manual migration.
