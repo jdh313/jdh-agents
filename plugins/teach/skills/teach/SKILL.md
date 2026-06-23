@@ -191,6 +191,8 @@ Pick the lightest rung that still carries a real consequence:
 
 **Only escalate the rung when the topic is genuinely work-tied and the action won't derail other work.** For non-work topics (a language, an instrument, a pose), rungs 3 and 5 are usually the real-stakes path. Match the rung to the topic; don't force a work-tie where none exists.
 
+**Delivery — boxed task vs. teacher dialogue.** The rungs above choose *what* real-stakes action to pick; they don't dictate *how* the doing-gate is delivered. A common and often-better delivery — especially for learners who retain through pairing — is **in-chat dialogue**: the lesson closes with one or two free-response questions the learner answers *back to the teacher in the conversation*, and the teacher grades them and firms up gaps before the next lesson. This keeps the effortful-retrieval feedback loop tight while shedding the worksheet feel of a boxed assignment (which some learners simply skip — coverage is not retention). In-lesson multiple-choice quizzes still serve recognition; the closing dialogue serves recall. When a learner expresses this preference, record it in their `Mission.md` teaching preferences so every future lesson inherits it.
+
 ## Acquiring Wisdom
 
 Wisdom comes from true real-world interaction - testing your skills outside the learning environment. This matters doubly for this user, whose retention depends on real stakes — push them toward it.
