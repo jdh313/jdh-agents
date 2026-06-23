@@ -101,6 +101,30 @@ The HTML home of the "Citing a live codebase" rule (`SKILL.md`). Embed the snipp
 .snap pre { margin: 0; overflow-x: auto; font-family: var(--font-mono); }
 ```
 
+### Diagrams (Mermaid)
+
+For flows, handshakes, and state machines, a diagram beats prose. Mermaid is the lightest authoring format — but it is **not** bundled; load it from a pinned CDN and write diagrams as `<pre class="mermaid">` blocks:
+
+```html
+<pre class="mermaid">
+sequenceDiagram
+    actor U as Browser
+    participant S as App
+    U->>S: request a protected route
+    S->>U: respond
+</pre>
+<script type="module">
+  import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+  mermaid.initialize({ startOnLoad: true, theme: 'neutral' });
+</script>
+```
+
+**Self-containment caveat.** This is the one component that breaks the offline guarantee — the diagram needs a network connection to render. Note the dependency in the lesson's provenance footer. (If a Mermaid renderer like `mmdc` is available at authoring time, pre-render to inline SVG instead and the lesson stays fully self-contained — but that pulls a headless browser, so it's rarely worth it.)
+
+**Sequence-diagram syntax gotchas** — these silently break the parser:
+- No parentheses in `participant X as <label>` aliases — write `participant O as Okta`, not `Okta (auth server)`.
+- Keep message text plain — avoid `<br/>`, `;`, and `&`.
+
 ### Lesson footer — the standing reminders
 
 Every lesson ends with the two fixtures `SKILL.md` requires: the primary source and the ask-your-teacher nudge.
@@ -111,6 +135,19 @@ Every lesson ends with the two fixtures `SKILL.md` requires: the primary source 
   <p>Stuck or curious? <em>Ask me</em> — I'm your teacher for this, not just the author of the page.</p>
 </footer>
 ```
+
+### Provenance footer — for codebase-bound lessons
+
+When a lesson is tightly bound to live code (its snapshots and line references track a moving repo), stamp the lesson *as a whole* so a future reader knows how old it is and what to diff against. This complements the per-snapshot pins from "Citing a live codebase" in `SKILL.md` — the snapshot pins each citation; this dates the whole lesson.
+
+```html
+<p class="provenance">Lesson authored 2026-06-17 09:34 EDT · grounded against <a href="PERMALINK">repo@sha</a> (committed YYYY-MM-DD). Code citations are pinned snapshots — diff against current <code>HEAD</code> before trusting line numbers if you revisit this later.</p>
+```
+```css
+.provenance { font-family: var(--font-mono); font-size: 0.78rem; color: var(--ink-soft); margin-top: 1.2rem; padding-top: 0.6rem; border-top: 1px dotted var(--rule); }
+```
+
+Re-resolve the SHA (`git -C <repo> rev-parse --short HEAD`) and the timestamp at authoring time — don't copy a stale stamp from a prior lesson. If the lesson uses a CDN-rendered diagram (Mermaid above), note that network dependency in this same line.
 
 ## Reference-doc note
 
