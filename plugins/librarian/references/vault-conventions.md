@@ -183,10 +183,7 @@ obsidian-cli create path="Reference/Developer/New Pattern.md" content="$(cat <<'
 tags: []
 ---
 
-
-# Title
-
-Content...
+Content... (no top-of-note title header — the filename is the title; start sections at H2)
 
 EOF
 )"
