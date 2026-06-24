@@ -120,6 +120,73 @@ def _git(args: list[str], cwd: Path) -> str:
 
 
 # ---------------------------------------------------------------------------
+# Commit-message changelog
+# ---------------------------------------------------------------------------
+
+
+def _published_versions(manifest_path: Path) -> dict[str, str]:
+    """Map plugin name -> version from an existing public manifest (empty if none)."""
+    if not manifest_path.exists():
+        return {}
+    try:
+        with manifest_path.open(encoding="utf-8") as fh:
+            data = json.load(fh)
+        return {p["name"]: p.get("version") for p in data.get("plugins", [])}
+    except (json.JSONDecodeError, OSError, KeyError):
+        return {}
+
+
+def _changed_plugins(porcelain_status: str) -> set[str]:
+    """Plugin names whose files changed, parsed from `git status --porcelain`."""
+    names: set[str] = set()
+    for line in porcelain_status.splitlines():
+        path = line[3:] if len(line) > 3 else ""
+        if " -> " in path:  # rename: "old -> new"
+            path = path.split(" -> ", 1)[1]
+        parts = path.strip().strip('"').split("/")
+        if len(parts) >= 2 and parts[0] == "plugins":
+            names.add(parts[1])
+    return names
+
+
+def _export_commit_message(
+    old_versions: dict[str, str],
+    new_versions: dict[str, str],
+    changed: set[str],
+    today: str,
+) -> tuple[str, str]:
+    """Build (subject, body) summarizing version deltas + touched plugins."""
+    added = sorted(n for n in new_versions if n not in old_versions)
+    removed = sorted(n for n in old_versions if n not in new_versions)
+
+    bumped: list[str] = []
+    touched: list[str] = []
+    for name in sorted(changed):
+        if name in added or name in removed:
+            continue
+        ov, nv = old_versions.get(name), new_versions.get(name)
+        if ov != nv:
+            bumped.append(f"* {name} {ov} -> {nv}")
+        else:
+            touched.append(f"* {name} {nv} (files changed)")
+
+    lines: list[str] = []
+    lines += [f"+ {n} {new_versions[n]} (added)" for n in added]
+    lines += [f"- {n} (removed)" for n in removed]
+    lines += bumped
+    lines += touched
+
+    n = len(added) + len(removed) + len(bumped) + len(touched)
+    if n:
+        subject = f"export: sync {n} plugin(s) from cc-marketplace ({today})"
+        body = "\n".join(lines)
+    else:
+        subject = f"export: refresh manifest from cc-marketplace ({today})"
+        body = "Manifest/metadata refresh; no plugin file changes."
+    return subject, body
+
+
+# ---------------------------------------------------------------------------
 # Main entry point
 # ---------------------------------------------------------------------------
 
@@ -191,6 +258,10 @@ def run_export(
     public_manifest_dir.mkdir(parents=True, exist_ok=True)
     public_manifest_path = public_manifest_dir / "marketplace.json"
 
+    # Capture the previously-published versions BEFORE overwriting, so the
+    # commit message can summarize what changed in this export.
+    old_versions = _published_versions(public_manifest_path)
+
     manifest = build_public(config, plugins_dir, existing_output_path=public_manifest_path)
 
     # Validate against the public plugins dir (already copied)
@@ -203,6 +274,8 @@ def run_export(
         json.dump(manifest, fh, indent=2, ensure_ascii=True)
         fh.write("\n")
     print(f"  Wrote {public_manifest_path}")
+
+    new_versions = {p["name"]: p.get("version") for p in manifest["plugins"]}
 
     # --- 5. Dry-run or commit/push ---------------------------------------
     if dry_run:
@@ -228,11 +301,11 @@ def run_export(
         if not status:
             print("  No changes to export; nothing to commit.")
             return
-        today = date.today().isoformat()
-        _git(
-            ["commit", "-m", f"export: sync from cc-marketplace ({today})"],
-            public_root,
+        subject, body = _export_commit_message(
+            old_versions, new_versions, _changed_plugins(status), date.today().isoformat()
         )
+        print(f"  Commit: {subject}")
+        _git(["commit", "-m", subject, "-m", body], public_root)
 
     if push:
         _git(["push"], public_root)
