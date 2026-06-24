@@ -105,7 +105,7 @@ _Upstream: `<repo>` · `<path>` · ledger current as of `reviewed_sha: <sha>`_
 
 10. **Run the marketplace verify loop** if any file changed — bump the plugin's `plugin.json` version, then:
    ```bash
-   uv run python scripts/sync_marketplace.py && uv run python scripts/validate_schema.py && uv run python scripts/lint_plugins.py
+   uv run marketplace check
    ```
 
 ## Non-goals
