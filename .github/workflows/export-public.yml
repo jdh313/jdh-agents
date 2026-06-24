@@ -1,0 +1,48 @@
+name: Export Public Marketplace
+
+# One-way export of the allowlisted plugin subset (export/public.json) to the
+# public marketplace repo. The private repo is the source of truth; the public
+# repo is a derived artifact (append-only, never committed to directly).
+#
+# Requires repo secret EXPORT_TOKEN: a fine-grained PAT (or deploy token) with
+# contents:write on jdh313/shared-claude-plugins.
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'plugins/**'
+      - 'export/**'
+      - 'scripts/marketplace/**'
+
+jobs:
+  export:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout cc-marketplace (private source of truth)
+        uses: actions/checkout@v4
+
+      - name: Checkout public target (shared-claude-plugins)
+        uses: actions/checkout@v4
+        with:
+          repository: jdh313/shared-claude-plugins
+          token: ${{ secrets.EXPORT_TOKEN }}
+          path: _public
+          fetch-depth: 0
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          python-version: '3.13'
+
+      - name: Configure export commit identity
+        run: |
+          git -C _public config user.name "cc-marketplace-export[bot]"
+          git -C _public config user.email "export@users.noreply.github.com"
+          git -C _public config commit.gpgsign false
+
+      - name: Export allowlisted plugins (privacy gate + validate run in-job)
+        env:
+          PUBLIC_REPO_DIR: ${{ github.workspace }}/_public
+        run: uv run marketplace export --commit --push
