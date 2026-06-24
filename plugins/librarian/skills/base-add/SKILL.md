@@ -70,7 +70,7 @@ For the forked `@note-editor`:
 | Shortcut | Base | Location | Key properties |
 |----------|------|----------|----------------|
 | `ideas` | Ideas | `Inbox/` | status |
-| `software` | Software | `Reference/Tools/Software Catalog/` | category, solves, status, url |
+| `software` | Software V2 | `Reference/Tools/Software Catalog/` | stance, summary, categories, kind, homepage_url |
 | `prompts` | Prompts | `Reference/Tools/Prompts/` | description |
 | `adr` | ADRs | (legacy: `Prince/Decisions/`) | decision_date, status, area, context |
 | `repo` | Repos | (legacy: `Prince/Repos/`) | github-url, status |
@@ -87,16 +87,23 @@ For the forked `@note-editor`:
 status: proposed | in-progress | done | archived
 ```
 
-### Software
+### Software V2
 
 ```yaml
-category: developer-tools | infrastructure | productivity | ...
-solves: What problem this software solves
-status: considering | trialing | using | dropped
-url: Official URL
-alternatives: [] # Optional
-integrations: [] # Optional
+stance: lead | assess | trial | adopt | hold | dropped
+summary: Neutral 1-2 sentence "what it is"
+categories: ["[[<Category>]]"]   # one or more; places it on a comparison surface
+kind: component | resource | system
+homepage_url: Official URL        # required for component / resource
+best_for: ""                       # blank unless a current pick
+template: "[[Software Tool]]"
+template_version: "2.0"
 ```
+
+> `alternatives` are DERIVED from shared `categories` via Breadcrumbs —
+> never a hand-set field. For a full catalog entry (stance reasoning,
+> `## Stance` body, category-page creation), use `catalog-evaluate`;
+> `base-add software` only scaffolds a minimal V2-shaped entry.
 
 ### ADRs
 

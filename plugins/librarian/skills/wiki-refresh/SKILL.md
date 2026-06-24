@@ -35,8 +35,8 @@ one finalized page write, no carried state.
 - A wiki page exists but feels thin or outdated
 - User asks to update coverage on a topic
 - A `wiki-query` reveals gaps that should be filled
-- A Software Catalog entry has `lifecycle: assess` or a stale
-  `last_evaluated` date (for verdict changes, route to `catalog-evaluate`
+- A Software Catalog entry has `stance: assess` or a stale
+  `last_evaluated` date (for stance changes, route to `catalog-evaluate`
   instead)
 
 ## Vault tool usage

@@ -158,10 +158,14 @@ page needs one — Breadcrumbs hierarchy depends on it.
 **Don't flag**:
 - Top-level topic pages (e.g. `3D Printing`, `Job Search`) — intentionally
   omit both
-- Catalog gist hubs in `Reference/Tools/Software Catalog/` — `up:` is
+- Catalog tool entries in `Reference/Tools/Software Catalog/` — `up:` is
   optional per catalog.md; only flag if the page sits under a clear
-  broader topic and has no `up:`. Catalog gist hubs never declare
-  `expands:` (they're the top of any descent).
+  broader topic and has no `up:`. A catalog tool entry is a single
+  self-contained `concept` page; it never declares `expands:` (it's the
+  top of any descent — depth splits into `## Going Deeper` children that
+  expand IT).
+- Catalog category pages in `Reference/Tools/Categories/` — aggregation
+  surfaces; they omit both `up:` and `expands:`.
 
 - **Severity**: medium
 
@@ -221,13 +225,15 @@ doesn't match the observed skeleton.
 
 **Detection**:
 - Field absent → flag, suggest a type based on folder + structure
-  (Software Catalog top-level → `concept` gist hub; pages with numbered
+  (Software Catalog or Categories folder → `concept`; pages with numbered
   Procedure section → `how-to`; everything else → `concept`).
 - Field present but skeleton mismatched → flag. Examples:
   - `page_type: how-to` but no `## Procedure` heading
-  - `page_type: evaluation` but no `## Decision` section
-  - `page_type: concept` declared as a gist hub but missing the
-    `## Going deeper` Breadcrumbs codeblock
+  - `page_type: evaluation` but no `## Decision` section (standalone
+    evaluation pages only; the V2 catalog does not use `evaluation`)
+  - A catalog tool entry (in `Reference/Tools/Software Catalog/`) missing
+    the `## Stance` section or the derived `## Used in` / `## Alternatives`
+    Breadcrumbs/Dataview blocks
 
 - **Severity**: medium
 
@@ -256,55 +262,77 @@ their last-updated date and suggest `wiki-refresh`.
 
 - **Severity**: low (review recommended)
 
-### W-17: Software Catalog schema
-Applies only to pages in `Reference/Tools/Software Catalog/` and to pages
-with `page_type: evaluation`. See `~/Loose Ends/.claude/rules/catalog.md`
-for full schema.
+### W-17: Software Catalog schema (V2)
+Applies to tool entries in `Reference/Tools/Software Catalog/`. See
+`~/Loose Ends/.claude/rules/catalog.md` and
+`~/Loose Ends/Templates/Software Tool.md` for the full V2 schema. A
+catalog tool entry is a single self-contained `concept` page — there is
+no gist-hub + `<Tool> Decision` child split.
 
 **Flag each independently**:
 
-- Old schema fields present — `status:` (should be `lifecycle:`), `url:`
-  (should be `homepage_url:`), `last-evaluated:` (hyphen).
-- Catalog top-level page with `page_type: evaluation` — under the new
-  convention, the catalog top-level page is a `page_type: concept` gist
-  hub. Suggest splitting via `catalog-evaluate`.
-- Missing `kind` — catalog gist hubs require `kind: component | resource | system`.
-- Missing `lifecycle` — catalog gist hubs require a verdict.
-- Invalid `lifecycle` value — must be one of `adopt`, `trial`, `assess`,
-  `hold`, `dropped`.
-- Missing `homepage_url` — required when `kind: component` or `kind: resource`.
+- V1 schema fields present — `lifecycle:` or `status:` (should be
+  `stance:`), `solves:` (split into `categories` + `summary`), `url:`
+  (should be `homepage_url:`), `last-evaluated:` (hyphen, should be
+  `last_evaluated`).
+- Missing `template_version: "2.0"` — un-migrated entry. Surface for a
+  migration pass via `catalog-evaluate`.
+- Missing `stance` — every entry requires one.
+- Invalid `stance` value — must be one of `lead`, `assess`, `trial`,
+  `adopt`, `hold`, `dropped`.
+- Missing `kind` — entries require `kind: component | resource | system`.
+- Missing `summary` — entries require a neutral 1-2 sentence what-it-is.
+- Missing `categories` — a tool with no `categories` appears on no
+  comparison surface. Warn (a raw `stance: lead` may legitimately defer
+  categorization until promotion).
+- `best_for` set on a non-pick entry — `best_for` should be blank unless
+  the tool is a current pick (`adopt`, or a `trial` being routed to). A
+  `lead` / `assess` / `hold` / `dropped` entry with a non-empty
+  `best_for` is suspect.
+- Hand-listed `alternatives` in frontmatter — `alternatives` are DERIVED
+  from shared `categories` via Breadcrumbs. A literal `alternatives:`
+  field is a V1 leftover; reclassify genuine supersession as `replaces` /
+  `replaced_by`, otherwise drop it (membership in the shared category
+  produces the edge).
+- Missing `homepage_url` — required when `kind: component` or
+  `kind: resource`.
 - `replaced_by` set on non-dropped entry — only makes sense when
-  `lifecycle: dropped`.
+  `stance: dropped`.
 - Dead relation links — wikilinks in `replaces`, `replaced_by`,
-  `alternatives`, or `depends_on` pointing to non-existent pages.
-- Adopted/trial gist hub without a Decision child — `lifecycle: adopt`
-  or `lifecycle: trial` should have a `<Tool> Decision` page
-  (`page_type: evaluation`, `expands: [[<Tool>]]`). Warn if missing;
-  suggest `catalog-evaluate`. (`assess` / `dropped` may legitimately
-  defer the Decision child.)
-- Catalog frontmatter on a Decision child — `lifecycle`, `kind`,
-  `last_evaluated`, `homepage_url` belong on the gist hub only. Flag
-  duplicates.
+  `depends_on`, or `categories` pointing to non-existent pages. A dead
+  `categories` link means the category page hasn't been created.
 
-- **Fix**: don't auto-migrate; route through `catalog-evaluate` or
-  `wiki-create` (stub mode) for relation targets.
+- **Fix**: don't auto-migrate; route through `catalog-evaluate` (entry
+  rewrite / category-page creation) or `wiki-create` (stub mode) for
+  relation targets.
 - **Severity**: medium
 
-### W-18: `page_type: evaluation` without `expands:`
-Eval pages are Decision children of gist hubs. Any `page_type: evaluation`
-without `expands: [[<some page>]]` is misshapen — either an old single-page
-catalog entry (route to `catalog-evaluate` to split) or a missing
-hierarchy field.
+### W-18: Un-collapsed V1 catalog split
+A leftover from the V1 gist-hub + `<Tool> Decision` child split that the
+V2 single-entry schema replaced. Two shapes to flag:
 
+- A `<Tool> Decision` page (`page_type: evaluation`) that `expands:` a
+  catalog tool entry — the eval prose should be collapsed back into the
+  single entry's `## Stance` section (or kept as a `## Going Deeper`
+  child ONLY if it carries real depth, in which case it must NOT carry
+  catalog frontmatter).
+- Catalog frontmatter (`stance`, `summary`, `categories`, `kind`,
+  `best_for`, `last_evaluated`) on a `page_type: evaluation` page or any
+  `expands:` child — those fields belong on the single tool entry only.
+
+- **Fix**: route through `catalog-evaluate` (migrate-v1 mode).
 - **Severity**: medium
 
-### W-19: First-person section headings on eval pages
-Decision children using older first-person framings instead of the
-neutral ones in wiki.md / catalog.md:
+### W-19: First-person or V1 section headings on catalog entries
+Catalog tool entries (or standalone evaluation pages) using older
+first-person framings instead of the neutral V2 ones in wiki.md /
+catalog.md / `Templates/Software Tool.md`:
 
-- `## Why I looked at it` → suggest `## Why considered`
-- `## What I liked` → suggest `## Advantages`
-- `## What didn't work` → suggest `## Tradeoffs`
+- `## Why I'm on it` / `## Why I looked at it` → suggest `## Stance`
+- `## What I liked` → fold into the `## Stance` `**Advantages**` bullets
+- `## What didn't work` → fold into the `## Stance` `**Caveats**` bullets
+- A literal `## Decision` heading on a catalog entry → the verdict lives
+  in `## Stance` now (no separate Decision section on the single entry).
 
 Surface as migration suggestions; don't bulk-rewrite (per wiki.md note).
 The user migrates each page when next touching it.
@@ -320,6 +348,34 @@ visible from a hub.
   check for a `depth:` line.
 - **Fix**: report; user keeps or drops case-by-case.
 - **Severity**: low
+
+### W-21: Software Category page schema (V2)
+Applies to category pages in `Reference/Tools/Categories/`. See
+`~/Loose Ends/.claude/rules/catalog.md` and
+`~/Loose Ends/Templates/Software Category.md`. A category page is an
+ordinary `type: wiki`, `page_type: concept` page that aggregates tools
+into one comparison surface.
+
+**Flag each independently**:
+
+- Missing `template_version: "2.0"` (with `template: "[[Software Category]]"`)
+  — un-migrated or hand-built category page.
+- Missing `## Candidates` Dataview block — the auto comparison table is
+  the page's reason to exist. The block filters
+  `contains(categories, this.file.link)`; nothing in it is hand-typed.
+- Hand-typed candidate rows / a manual "reach for X when Y" routing list
+  under `## Candidates` — routing is data (`best_for` on each tool); the
+  table assembles it. Flag any prose comparison table.
+- Missing `## Changelog` — the one hand-kept, event-shaped section
+  (dated lines, newest first).
+- No tool joins it — a category page that no tool lists in its
+  `categories:` is an empty surface. Warn (may be newly established).
+- A `category-hub` page_type or separate category base block — V2
+  category pages are plain `concept` pages, not a distinct type.
+
+- **Fix**: route through `catalog-evaluate` (which owns category-page
+  creation when a tool joins a missing category).
+- **Severity**: medium
 
 ## Event rules (W-EVENT-*)
 

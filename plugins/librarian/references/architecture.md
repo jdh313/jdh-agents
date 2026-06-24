@@ -7,8 +7,8 @@ wide shot; this file is the descent.
 ## Design principles
 
 1. **Workflow-first organization.** Skills map to lifecycle stages, not to data types. The matrix in the README is the load-bearing visual.
-2. **Gist hub + `expands:` children for substantial knowledge.** Catalog top-level pages are the model: thin definition + auto-rendered Breadcrumbs "Going deeper" and "Related topics", with depth accumulating in child pages that declare `expands: [[Parent]]`. Same pattern applies to entity pages with event children.
-3. **Template as forcing function.** Tight skeletons with no prose-friendly body slots prevent bloat at creation. The catalog gist holds shape because it has nowhere for new material to land except a child page.
+2. **Gist hub + `expands:` children for substantial knowledge.** A thin definition page auto-renders Breadcrumbs "Going Deeper" / "Related topics", with depth accumulating in child pages that declare `expands: [[Parent]]`. Non-catalog concept gist hubs and entity pages with event children follow this. Catalog tool entries are single self-contained pages (no gist + Decision split) but graduate genuine depth the same way — into a `## Going Deeper` child that expands the entry.
+3. **Template as forcing function.** Tight skeletons with no prose-friendly body slots prevent bloat at creation. A catalog entry holds shape because new material has nowhere to land except a `## Going Deeper` child page.
 4. **No skill touches vault files directly.** All vault reads and writes flow through agents. The main session holds intent and structured summaries, never raw file contents.
 5. **Skills draft, user approves, agents execute.** Skills generate finalized content in the main session (where the user sees, corrects, and approves). Agents then execute the mechanical write + cascade work. `@note-editor` is a Haiku-class executor rather than a Sonnet-class writer.
 6. **Template inventory stays small; `wiki-graduate` is the escape valve.** New templates earn their place only when three or more pages would clearly fit the shape. Everything else uses the generic gist hub skeleton; depth splits off via `wiki-graduate` when accumulation happens.
@@ -25,7 +25,7 @@ Bring new information into the vault.
 - `experiment-start` — scaffold a hypothesis + protocol + review_date
 - `note-capture` — one-liner to today's daily note (slash command)
 - `note-suggester` — passive ambient suggestions during coding (no I/O at trigger; batches at session end)
-- `catalog-evaluate` (new entry path) — gist hub + Decision child with lifecycle verdict
+- `catalog-evaluate` (new entry path) — single self-contained tool entry with a `stance`
 
 ### Process
 
@@ -35,7 +35,7 @@ Transform captured material into a more durable shape.
 - `wiki-refresh` — pull current information from external sources, integrate, flag drift
 - `wiki-graduate` — split a fat gist into an `expands:` child cleanly
 - `meeting-restructure` — redistribute durable facts from a meeting note into canonical pages; leave a slim log with outbound links + provenance footnotes
-- `catalog-evaluate` (re-eval path) — lifecycle transition, refresh `last_evaluated`
+- `catalog-evaluate` (re-eval path) — `stance` transition, refresh `last_evaluated`
 
 ### Retrieve
 
@@ -79,7 +79,8 @@ mechanical pattern application; rule-checking is bulk pattern matching.
 Both fit Haiku's strengths and budget.
 
 No Opus. Defer until evidence emerges that specific operations need it
-— most likely candidate would be a high-stakes Decision-page writer.
+— most likely candidate would be a high-stakes catalog-entry evaluation
+writer.
 
 ### Effort levels
 
@@ -205,7 +206,7 @@ cleanup / inspect) and adding a fifth introduces coordination cost.
 Acceptable triggers:
 
 - A new verb that doesn't fit (e.g., a "diff two vaults" agent for backup verification — but does that belong in this plugin at all?)
-- Evidence that one of the existing agents is overloaded at its model class and splitting helps (e.g., `@note-editor` quality suffering on Decision-page writes — split into `@note-editor` Haiku + `@decision-editor` Sonnet)
+- Evidence that one of the existing agents is overloaded at its model class and splitting helps (e.g., `@note-editor` quality suffering on high-stakes catalog-entry writes — split into `@note-editor` Haiku + a Sonnet-class evaluation writer)
 
 ### A new `page_type`
 

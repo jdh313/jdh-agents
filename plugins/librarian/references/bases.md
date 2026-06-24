@@ -66,7 +66,7 @@ Map current work context to relevant bases:
 | Making architecture decision | ADRs | Check prior decisions |
 | Debugging/fixing | Jira Tickets | Related tasks, history |
 | Meeting notes | Meetings | Find related meetings |
-| New tool/library | Software | Check if already tracked |
+| New tool/library | Software V2 | Check if already tracked |
 | New technique/pattern | Ideas | Capture for later |
 | Created useful prompt | Prompts | Add to prompt library |
 | Hobby project | Hobbies, Hobby Reviews | Track hobby work |
@@ -168,10 +168,16 @@ When user discovers something worth capturing:
 - Properties: description
 - Use: Useful prompts library
 
-**Software** (`Bases/Software.base`)
-- Filter: Software Catalog folder OR AWS service notes
-- Properties: category, solves, status, alternatives, url, integrations
-- Use: Software/tool catalog
+**Software V2** (`Bases/Software V2.base`)
+- Filter: tool entries in `Reference/Tools/Software Catalog/` (scoped by folder)
+- Properties: stance, summary, best_for, categories, kind, homepage_url, last_evaluated
+- Use: Software/tool catalog (V2 — single self-contained tool entries)
+- Named views: Adopted (`stance: adopt`), Evaluating (`stance` in trial/assess), Settled-no (`stance: hold`), Lead pool (`stance: lead`), Un-migrated (missing `template_version: "2.0"`), By Kind
+- Note: `alternatives` are DERIVED via Breadcrumbs shared-category siblings — not a base column. The old `Bases/Software.base` is retired.
+
+**Software Categories V2** (`Bases/Software Categories V2.base`)
+- Filter: category pages in `Reference/Tools/Categories/`
+- Use: index of catalog category pages (each aggregates its tools via a `## Candidates` Dataview)
 
 ### Personal Bases
 
