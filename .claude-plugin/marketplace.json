@@ -39,6 +39,26 @@
       ]
     },
     {
+      "name": "commit",
+      "source": "./plugins/commit",
+      "description": "Format-aware atomic commits for git and jj (Jujutsu). One skill covering commit, split, message review, and retrofitting edits into earlier commits (jj absorb / git fixup). Auto-detects VCS and commit message style from repo context. Includes PreToolUse hook that blocks destructive working-copy operations.",
+      "version": "3.1.0",
+      "author": {
+        "name": "Jacob Hoehler"
+      },
+      "keywords": [
+        "git",
+        "jj",
+        "jujutsu",
+        "commits",
+        "atomic",
+        "absorb",
+        "fixup",
+        "conventional-commits",
+        "freeform"
+      ]
+    },
+    {
       "name": "compass",
       "source": "./plugins/compass",
       "description": "A suite of conversational thinking tools \u2014 reflect (Socratic mirror, never recommends, always saves) and mull (thinking partner, probes AND contributes opinions, saves substantive sessions only).",
@@ -107,6 +127,23 @@
       ]
     },
     {
+      "name": "feedback",
+      "source": "./plugins/feedback",
+      "description": "A two-sided loop for improving Claude Code plugins from test sessions. The 'session' skill (tester side) turns the current transcript into a copy-pasteable report grading the plugins exercised; the 'triage' skill (author side) aggregates many reports into a prioritized action plan, routing each finding to a concrete fix. Both share one report-format contract.",
+      "version": "0.3.0",
+      "author": {
+        "name": "Jacob Hoehler"
+      },
+      "keywords": [
+        "feedback",
+        "testing",
+        "dogfooding",
+        "session-review",
+        "triage",
+        "plugins"
+      ]
+    },
+    {
       "name": "langfuse",
       "source": "./plugins/langfuse",
       "description": "The Langfuse x Claude Code Observability Plugin",
@@ -147,6 +184,42 @@
       ]
     },
     {
+      "name": "linear",
+      "source": "./plugins/linear",
+      "description": "Linear workflow conventions for a small two-person team. Owns ticket creation defaults (including assignee), status flow semantics, label set, title shape, collaboration conventions, and MCP call patterns. Composes with spec-flow (which uses Linear as a contract host but defers to this plugin for the conventions). Includes a doctor skill for workspace setup validation.",
+      "version": "0.4.0",
+      "author": {
+        "name": "Jacob Hoehler"
+      },
+      "keywords": [
+        "linear",
+        "issue-tracking",
+        "workflow",
+        "conventions",
+        "tickets",
+        "mcp",
+        "spec-flow"
+      ]
+    },
+    {
+      "name": "pm",
+      "source": "./plugins/pm",
+      "description": "PM helpers for team Linear workflows. Skills for the weekly grooming loop (per-person WIP), plan-to-tickets breakdown (assignee-aware), and end-of-cycle retro notes (attribution + Linear-first output). Composes with the linear plugin; ndr and librarian integrations are optional externals.",
+      "version": "0.3.0",
+      "author": {
+        "name": "Jacob Hoehler"
+      },
+      "keywords": [
+        "pm",
+        "project-management",
+        "linear",
+        "grooming",
+        "breakdown",
+        "cycle",
+        "retro"
+      ]
+    },
+    {
       "name": "provenance",
       "source": "./plugins/provenance",
       "description": "Marketplace upkeep for borrowed work. Keeps adapted skills honest against their upstream sources: compares an adapted skill to its pinned upstream, flags behavioral drift and fabricated attributions, and refreshes the reviewed commit SHA. Houses upstream-review.",
@@ -183,6 +256,26 @@
       ]
     },
     {
+      "name": "spec-flow",
+      "source": "./plugins/spec-flow",
+      "description": "Personal SDLC scaffolding for AI-assisted development. A lightweight, ephemeral 'contract' between user and AI drives each code change from captured idea to verified done; the durable layer (CLAUDE.md, ndr atoms, README) lives elsewhere. Lifecycle: capture -> draft -> implement -> close.",
+      "version": "0.11.0",
+      "author": {
+        "name": "Jacob Hoehler"
+      },
+      "keywords": [
+        "sdlc",
+        "spec-driven-development",
+        "ai-assisted-dev",
+        "contract",
+        "capture",
+        "change-scoped",
+        "ephemeral",
+        "ndr",
+        "librarian"
+      ]
+    },
+    {
       "name": "teach",
       "source": "./plugins/teach",
       "description": "A stateful, multi-session teaching workspace routed into the Obsidian vault. The /teach skill grounds learning in the user's documented learning style and high-trust sources, builds a mission, resources, glossary, and learning records as vault notes under the topic's best-fit context, and keeps lessons + cheat sheets as self-contained HTML. Grounds in owned textbooks via DEVONthink when available and pins live-code citations to immutable refs. Requires an Obsidian vault (obsidian-cli); optionally surfaces owned textbooks from DEVONthink. Adapted from mattpocock/skills (MIT, \u00a9 2026 Matt Pocock).",
@@ -204,7 +297,7 @@
     "description": "Personal Claude Code plugin marketplace",
     "version": "1.0.0",
     "homepage": "https://github.com/jdh313/cc-marketplace",
-    "totalPlugins": 9,
-    "lastUpdated": "2026-06-23"
+    "totalPlugins": 14,
+    "lastUpdated": "2026-06-24"
   }
 }
