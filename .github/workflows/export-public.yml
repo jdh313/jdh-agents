@@ -4,17 +4,19 @@ name: Export Public Marketplace
 # public marketplace repo. The private repo is the source of truth; the public
 # repo is a derived artifact (append-only, never committed to directly).
 #
-# Requires repo secret EXPORT_TOKEN: a fine-grained PAT (or deploy token) with
-# contents:write on jdh313/shared-claude-plugins.
+# Requires repo secret EXPORT_DEPLOY_KEY: the PRIVATE half of an SSH deploy key
+# whose PUBLIC half is installed with write access on jdh313/shared-claude-plugins.
 
 on:
   workflow_dispatch:
-  push:
-    branches: [main]
-    paths:
-      - 'plugins/**'
-      - 'export/**'
-      - 'scripts/marketplace/**'
+  # Auto-export on push is intentionally disabled until the first export is
+  # validated. To enable automation, uncomment the push trigger below.
+  # push:
+  #   branches: [main]
+  #   paths:
+  #     - 'plugins/**'
+  #     - 'export/**'
+  #     - 'scripts/marketplace/**'
 
 jobs:
   export:
@@ -27,7 +29,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: jdh313/shared-claude-plugins
-          token: ${{ secrets.EXPORT_TOKEN }}
+          ssh-key: ${{ secrets.EXPORT_DEPLOY_KEY }}
           path: _public
           fetch-depth: 0
 
