@@ -26,7 +26,7 @@ Schema and skeletons live in the vault Templates folder:
 - `~/Loose Ends/Templates/Wiki Concept - Gist Hub (Non-Catalog).md`
 - `~/Loose Ends/Templates/Wiki How-to.md`
 - `~/Loose Ends/Templates/Wiki Evaluation.md`
-- `~/Loose Ends/Templates/Software.md` (catalog gist hub)
+- `~/Loose Ends/Templates/Software Tool.md` (catalog tool entry — a single self-contained page; graduate depth into a `## Going Deeper` `expands:` child)
 
 Hierarchy mechanics (`expands:` vs `up:`) live in
 `~/Loose Ends/.claude/rules/wiki.md`.

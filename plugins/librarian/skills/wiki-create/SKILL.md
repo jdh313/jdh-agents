@@ -131,7 +131,7 @@ Summary:
 
 | Topic | Page type | Notes |
 |---|---|---|
-| Tool / service / system with a formed opinion | catalog gist hub | Route to `catalog-evaluate` instead |
+| Tool / service / system with a formed opinion | catalog tool entry (`concept`) | Route to `catalog-evaluate` instead |
 | Tool encountered casually | `page_type: concept` outside catalog | |
 | Procedure with one canonical path | `page_type: how-to` | |
 | Definition / pattern / landing page | `page_type: concept` | Default |
