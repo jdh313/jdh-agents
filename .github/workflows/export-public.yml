@@ -9,14 +9,12 @@ name: Export Public Marketplace
 
 on:
   workflow_dispatch:
-  # Auto-export on push is intentionally disabled until the first export is
-  # validated. To enable automation, uncomment the push trigger below.
-  # push:
-  #   branches: [main]
-  #   paths:
-  #     - 'plugins/**'
-  #     - 'export/**'
-  #     - 'scripts/marketplace/**'
+  push:
+    branches: [main]
+    paths:
+      - 'plugins/**'
+      - 'export/**'
+      - 'scripts/marketplace/**'
 
 jobs:
   export:
