@@ -1,0 +1,18 @@
+{
+  "name": "linear",
+  "version": "0.4.0",
+  "description": "Linear workflow conventions for a small two-person team. Owns ticket creation defaults (including assignee), status flow semantics, label set, title shape, collaboration conventions, and MCP call patterns. Composes with spec-flow (which uses Linear as a contract host but defers to this plugin for the conventions). Includes a doctor skill for workspace setup validation.",
+  "author": {
+    "name": "Jacob Hoehler"
+  },
+  "keywords": [
+    "linear",
+    "issue-tracking",
+    "workflow",
+    "conventions",
+    "tickets",
+    "mcp",
+    "spec-flow"
+  ],
+  "license": "Apache-2.0"
+}

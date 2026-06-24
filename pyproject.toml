@@ -1,0 +1,29 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "cc-marketplace-tools"
+version = "0.1.0"
+description = "CLI tooling for the cc-marketplace plugin registry"
+requires-python = ">=3.13"
+dependencies = []
+
+[project.scripts]
+marketplace = "marketplace.__main__:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["scripts/marketplace"]
+
+[dependency-groups]
+dev = ["pytest>=8.0"]
+
+[tool.pytest.ini_options]
+pythonpath = ["scripts"]
+testpaths = ["scripts/tests"]
+
+[tool.ruff]
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP"]

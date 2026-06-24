@@ -12,10 +12,10 @@ cc-marketplace/
 │   └── [plugin-name]/
 │       ├── plugin.json       # Plugin metadata
 │       └── ...               # Plugin files (commands, agents, skills, etc.)
-├── scripts/                  # Automation scripts
-│   ├── validate_schema.py    # Schema validator
-│   ├── lint_plugins.py       # Plugin linter
-│   └── sync_marketplace.py   # Auto-sync marketplace.json
+├── scripts/                  # Automation tooling
+│   └── marketplace/          # `marketplace` CLI: sync, validate, lint, export, check
+├── export/                   # Public export config
+│   └── public.json           # Allowlist + public ("jdh") marketplace identity
 └── .github/workflows/        # CI/CD automation
     └── validate.yml          # GitHub Actions workflow
 ```
@@ -56,49 +56,63 @@ Add this marketplace to Claude Code:
 
 4. Sync marketplace:
    ```bash
-   python scripts/sync_marketplace.py
+   uv run marketplace sync
    ```
 
-5. Validate:
+5. Validate everything (sync drift + schema + lint):
    ```bash
-   python scripts/validate_schema.py
-   python scripts/lint_plugins.py
+   uv run marketplace check
    ```
 
-## Automation Scripts
+## Marketplace CLI
 
-### Schema Validation
+A single tool (`scripts/marketplace/`) drives the registry. Run via `uv run marketplace <command>`:
 
-Validates `marketplace.json` structure:
+### Sync
+
+Regenerates `marketplace.json` from the `plugins/` directory:
 
 ```bash
-python scripts/validate_schema.py
+uv run marketplace sync          # use --check to fail on drift without writing
 ```
 
-### Plugin Linting
+### Validate
+
+Schema-validates `marketplace.json`:
+
+```bash
+uv run marketplace validate
+```
+
+### Lint
 
 Checks plugin files for correctness:
 
 ```bash
-python scripts/lint_plugins.py
+uv run marketplace lint
 ```
 
-### Auto-Sync
+### Check (merge gate)
 
-Automatically updates `marketplace.json` from `plugins/` directory:
+Runs sync-drift + validate + lint together — the CI entrypoint:
 
 ```bash
-python scripts/sync_marketplace.py
+uv run marketplace check
+```
+
+### Export
+
+Copies the allowlisted subset (`export/public.json`) to the public marketplace repo:
+
+```bash
+uv run marketplace export --dry-run        # then --commit --push for the real export
 ```
 
 ## CI/CD
 
-GitHub Actions automatically:
-- Validates marketplace schema
-- Lints all plugin files
-- Checks marketplace.json is in sync
-
-Runs on every push and pull request.
+GitHub Actions runs on every push and pull request:
+- `uv run marketplace check` (sync drift + schema + lint)
+- `uv run pytest`
 
 ## Plugin Structure
 
