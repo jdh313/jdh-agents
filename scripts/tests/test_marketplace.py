@@ -11,7 +11,11 @@ from pathlib import Path
 
 import pytest
 from marketplace.discovery import discover_plugins
-from marketplace.export import _privacy_gate  # noqa: PLC2701
+from marketplace.export import (  # noqa: PLC2701
+    _changed_plugins,
+    _export_commit_message,
+    _privacy_gate,
+)
 from marketplace.manifest import build_public
 from marketplace.validate import validate_manifest
 
@@ -288,3 +292,46 @@ def test_privacy_gate_passes_clean_plugin(tmp_path: Path) -> None:
 
     # Should not raise
     _privacy_gate(private_root, ["clean"])
+
+
+# ---------------------------------------------------------------------------
+# Enriched export commit message
+# ---------------------------------------------------------------------------
+
+
+def test_changed_plugins_parses_porcelain():
+    status = (
+        " M plugins/spec-flow/skills/draft/SKILL.md\n"
+        "A  plugins/newone/.claude-plugin/plugin.json\n"
+        " M .claude-plugin/marketplace.json\n"
+        'R  plugins/old/x.md -> plugins/pm/x.md'
+    )
+    assert _changed_plugins(status) == {"spec-flow", "newone", "pm"}
+
+
+def test_commit_message_bump_add_remove():
+    old = {"commit": "3.1.0", "spec-flow": "0.11.0", "gone": "1.0.0"}
+    new = {"commit": "3.1.0", "spec-flow": "0.12.0", "newp": "1.0.0"}
+    changed = {"spec-flow", "newp", "gone"}
+    subject, body = _export_commit_message(old, new, changed, "2026-06-24")
+    assert subject == "export: sync 3 plugin(s) from cc-marketplace (2026-06-24)"
+    assert "+ newp 1.0.0 (added)" in body
+    assert "- gone (removed)" in body
+    assert "* spec-flow 0.11.0 -> 0.12.0" in body
+    assert "commit" not in body  # unchanged + untouched -> omitted
+
+
+def test_commit_message_files_changed_no_bump():
+    old = {"pm": "0.3.0"}
+    new = {"pm": "0.3.0"}
+    subject, body = _export_commit_message(old, new, {"pm"}, "2026-06-24")
+    assert "1 plugin(s)" in subject
+    assert "* pm 0.3.0 (files changed)" in body
+
+
+def test_commit_message_manifest_only_refresh():
+    old = {"pm": "0.3.0"}
+    new = {"pm": "0.3.0"}
+    subject, body = _export_commit_message(old, new, set(), "2026-06-24")
+    assert subject == "export: refresh manifest from cc-marketplace (2026-06-24)"
+    assert "no plugin file changes" in body
