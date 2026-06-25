@@ -41,22 +41,6 @@ Do not run `claude mcp add` or suggest a paste-and-go connect command. Wait for 
 
 Full detection table and rationale: `../../references/hosts.md`.
 
-### 1.5. Contract lifecycle state preflight (Linear host only)
-
-When host = linear or linear-new and the MCP is connected, run a read-only check that the required lifecycle states exist on the team before doing any writing:
-
-- Fetch the team's workflow states via `mcp__linear-server__list_issue_statuses`.
-- Confirm each of the following state names exists (case-insensitive):
-  - `"Contract Review"` — used at draft to signal ready-for-review
-  - `"In Progress"` — used at implement to signal coding started
-  - At least one of: `"In Review"` / `"Code Review"` / `"Ready for Review"` / `"Review"` — used at close
-
-If any required state is missing, warn with the specific state name:
-
-> "The team's Linear workflow is missing the `Contract Review` state — spec-flow uses this state at draft. Continuing without it means the draft step won't be able to signal ready-for-review. Proceed anyway, or check your Linear team setup?"
-
-Do not block — warn and wait for the user's call. This is a preflight hint, not a hard gate. If the MCP isn't connected, skip this step silently (the graceful-fallback path handles that at step 6).
-
 ### 2. Detect other active contracts
 
 List file-host contracts in `.docs/` excluding `archive/` (skip `status: captured` stubs — captures aren't contracts):
@@ -65,7 +49,7 @@ List file-host contracts in `.docs/` excluding `archive/` (skip `status: capture
 ls .docs/*.md 2>/dev/null || true
 ```
 
-If the Linear MCP is connected, also enumerate Linear-host contracts: `mcp__linear-server__list_issues` filtered to the contract lifecycle states — "Contract Review" and "In Progress" (team per the linear plugin's conventions; **no assignee filter** — show all team contracts regardless of owner). A ticket counts as a contract when its description carries the six-section shape (`## What we're doing` heading is the cheap test); "In Progress" tickets without it are ordinary work, not contracts. Display the assignee for each contract so ownership is visible.
+If the Linear MCP is connected, also enumerate Linear-host contracts: `mcp__linear-server__list_issues` filtered to the `contracted` label (team per the linear plugin's conventions; **no assignee filter** — show all team contracts regardless of owner). The label is the canonical "this is a contract" signal — more robust than sniffing the description for the six-section shape, and independent of whatever workflow state the ticket sits in. Match the label name case-insensitively. If the team has no `contracted` label yet, there are no Linear-host contracts to surface. Display the assignee for each contract so ownership is visible.
 
 If any exist (either host), surface them to the user:
 
@@ -101,6 +85,8 @@ If the *how* is non-obvious enough to warrant real deliberation, suggest forking
 
 If contested or fuzzy vocabulary surfaces during the conversation — terms used inconsistently, ambiguous nouns, drift between code naming and how the user is talking about the change — and the `craft` plugin is installed, suggest invoking `/grill-with-docs` to lock the terms down in the repo's `CONTEXT.md` glossary before drafting. Soft composition: spec-flow:draft works fine without craft installed; the suggestion simply doesn't fire if the skill isn't available.
 
+If the change **designs or extends a model that spans dimensions** — adding a second/orthogonal axis, a new role/tier, or a new principal type to an authz scheme, permission table, state machine, data model, or tenancy model — and the `craft` plugin is installed, suggest invoking `/interrogate-model` to check the extended model's representability *before* drafting the Approach. This is the design-time catch for emergent cross-axis conflations (decisions made weeks apart fusing at the seam). Same soft composition as above — the suggestion simply doesn't fire if craft isn't installed.
+
 ### 5. Draft the contract
 
 Use `../../references/contract-template.md` as the literal scaffold. Six sections:
@@ -119,7 +105,7 @@ The shape is identical for both hosts.
 Approval is host-dependent:
 
 - **File host** — present the drafted contract in chat and ask the user to read and approve. Iterate inline before finalizing. (A `.docs/` file has no review surface of its own, so chat is where review happens.)
-- **Linear hosts (existing or new)** — write immediately, **no in-chat approval gate**. The ticket lands in Contract Review and the user reviews it there; that state exists precisely for this. Don't paste the full contract into chat — report the ticket ID and a one-line summary. If the user wants changes after reading it in Linear, they say so and the description gets updated (no `amend` ceremony before implementation starts).
+- **Linear hosts (existing or new)** — write immediately, **no in-chat approval gate**. The contract body lands in the ticket description and the user reviews it in Linear. Don't paste the full contract into chat — report the ticket ID and a one-line summary. If the user wants changes after reading it in Linear, they say so and the description gets updated (no `amend` ceremony before implementation starts).
 
 Write to the chosen host:
 
@@ -143,7 +129,7 @@ If the draft upgrades a `status: captured` stub: rewrite that file in place (kee
 
 1. Derive a title from the goal per the linear plugin's title conventions (noun-phrase). No confirmation — the user reviews title and body together in Linear and can rename there.
 2. Create the ticket via `mcp__linear-server__save_issue` with the six-section contract as the description, `assignee="me"` (self-assign per linear plugin conventions), deferring all other fields (team, project, labels, priority) to the `linear` skill's conventions.
-3. Report the new ticket ID, then continue with the Contract Review transition below as if it were an existing-ticket host.
+3. Report the new ticket ID, then continue with the `contracted` label application below as if it were an existing-ticket host.
 
 **Linear host (existing ticket):**
 
@@ -159,19 +145,18 @@ Exception — only when the user explicitly asked to preserve the existing text 
 
 No frontmatter in Linear-hosted contracts. The ticket's own metadata (state, assignee, labels) is the workflow signal; the contract body holds only the 6 sections.
 
-**Linear host — move to Contract Review.** Once the contract body is written, the contract is ready to be reviewed. Transition the ticket's state:
+**Linear host — apply the `contracted` label.** Once the contract body is written, mark that the artifact exists by applying a label. This is orthogonal to workflow state — **do NOT change the issue's state.** Leave it wherever it is (a Todo ticket stays Todo; it just gains the label).
 
-- Fetch the team's workflow states via `mcp__linear-server__list_issue_statuses` (the team comes from the issue read in step 3).
-- Find the state named "Contract Review" (case-insensitive match).
-- Set it via `mcp__linear-server__save_issue` (state field).
-- If no such state exists on the team, tell the user once — *"No 'Contract Review' state on this team; leaving status unchanged."* — and skip. Do not guess a different state.
+- List the team's labels via `mcp__linear-server__list_issue_labels` (the team comes from the issue read in step 3). Find one named `contracted` (case-insensitive match).
+- If no such label exists, create it once via `mcp__linear-server__create_issue_label` with name `contracted` and description "Has a spec-flow contract in the description; ready for /spec-flow implement". If creation isn't possible (e.g. permissions), tell the user once — *"No `contracted` label on this team and I couldn't create one; skipping the label step. Create a `contracted` label to enable contract detection."* — and skip the rest of this step.
+- Apply the label **append-only** — never drop the issue's existing labels. `save_issue`'s `labels` field replaces the full label set (it is not additive and there is no remove-labels parameter), so set the union: take the issue's current labels (from the step-3 `get_issue` read), add `contracted` if absent, and pass the combined list to `mcp__linear-server__save_issue` (`labels` field). If the issue already carries `contracted`, this is a no-op.
 
 ### 7. End
 
 Do NOT proceed to implementation. Tell the user:
 
 - **File host:** *"Contract drafted at `.docs/YYYY-MM-DD-<slug>.md`. Run `/spec-flow implement` when ready to start coding."*
-- **Linear host:** *"Contract written to TEAM-123 and moved to Contract Review — review it in Linear. Run `/spec-flow implement TEAM-123` when it reads right."*
+- **Linear host:** *"Contract written to TEAM-123 and the `contracted` label applied (state left as-is) — review it in Linear. Run `/spec-flow implement TEAM-123` when it reads right."*
 
 ## Notes
 
@@ -179,4 +164,4 @@ Do NOT proceed to implementation. Tell the user:
 - The contract is an agreement, not a delivery — its purpose is shared model, not enumerated work.
 - `.docs/` is gitignored by the user's scratch-artifact convention.
 - Host is not persisted. `implement`, `amend`, and `close` re-detect host from the identifier each time.
-- spec-flow does not own Linear-side conventions (title patterns, labels, the team's status taxonomy). It writes the contract body and drives the lifecycle state transitions — → Contract Review at `draft`, → In Progress at `implement`, → a review state at `close` (never Done — that's the user's at merge). Broader Linear workflow lives outside spec-flow.
+- spec-flow does not own Linear-side conventions (title patterns, general labels, the team's status taxonomy). It writes the contract body, applies the `contracted` label at `draft`, and drives the lifecycle state transitions — → In Progress at `implement`, → a review state at `close` (never Done — that's the user's at merge). `draft` does **not** transition state on Linear hosts; "a contract exists" is the `contracted` label, orthogonal to workflow state. Broader Linear workflow lives outside spec-flow.
