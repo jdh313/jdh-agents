@@ -144,6 +144,26 @@
       ]
     },
     {
+      "name": "introspect",
+      "source": "./plugins/introspect",
+      "description": "Introspection tooling for Claude Code itself. usage-report: reconstruct how a person works with Claude Code in a repo (skills, slash commands, subagents, MCP tools, task-kickoff style, activity over time) from their local session transcripts, via a stdlib-only read-only parser. Privacy-safe by default \u2014 names and counts only, no prompt text leaves the machine.",
+      "version": "0.5.0",
+      "author": {
+        "name": "Jacob Hoehler"
+      },
+      "keywords": [
+        "claude-code",
+        "introspection",
+        "usage",
+        "analytics",
+        "transcripts",
+        "workflow",
+        "skills",
+        "onboarding",
+        "self-analysis"
+      ]
+    },
+    {
       "name": "langfuse",
       "source": "./plugins/langfuse",
       "description": "The Langfuse x Claude Code Observability Plugin",
@@ -297,7 +317,7 @@
     "description": "Personal Claude Code plugin marketplace",
     "version": "1.0.0",
     "homepage": "https://github.com/jdh313/cc-marketplace",
-    "totalPlugins": 14,
+    "totalPlugins": 15,
     "lastUpdated": "2026-06-25"
   }
 }
