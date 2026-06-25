@@ -26,7 +26,7 @@ Dispatcher for spec-flow's contract lifecycle. Parses the first argument as a su
 ## Dispatch rules
 
 - **Bare ticket token as the first argument** (matches `^[A-Z]{2,5}-\d+$`, e.g. `/spec-flow TEAM-123`): shorthand for `route` — invoke `Skill(spec-flow:route)` with the token. The user is saying "figure out where this ticket is and continue."
-- **No subcommand given (and no bare ticket):** List active contracts — `.docs/` files (any `.md` not in `.docs/archive/`) plus, when the Linear MCP is connected, tickets in the contract lifecycle states (Contract Review / In Progress with a six-section description) — and ask the user which action and which contract.
+- **No subcommand given (and no bare ticket):** List active contracts — `.docs/` files (any `.md` not in `.docs/archive/`) plus, when the Linear MCP is connected, tickets carrying the `contracted` label (case-insensitive, any workflow state) — and ask the user which action and which contract.
 - **Unknown subcommand:** List the five valid subcommands and ask the user to retry.
 
 Arguments: $ARGUMENTS

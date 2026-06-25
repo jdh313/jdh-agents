@@ -48,19 +48,19 @@ No phrasing analysis at this stage — the identifier shape is the signal.
 
 ### At `route`
 
-Same identifier-shape detection as `implement`/`close` (ticket token → linear, anything else → file). Route adds a second read on top: it inspects the contract's **current phase** and dispatches to the matching skill. On the linear host the phase comes from the ticket's workflow state plus whether the description carries the six-section shape; on the file host it comes from `.docs/` placement + `status:` frontmatter. The phase→skill map is the inverse of the transitions in [What's *not* in spec-flow's job](#whats-not-in-spec-flows-job): Contract Review → `implement`, In Progress → `implement` (resume), a review state → already closed, Backlog/no-contract → `draft`. See `../skills/route/SKILL.md` for the full table.
+Same identifier-shape detection as `implement`/`close` (ticket token → linear, anything else → file). Route adds a second read on top: it inspects the contract's **current phase** and dispatches to the matching skill. On the linear host the phase comes from the `contracted` label plus the ticket's workflow state; on the file host it comes from `.docs/` placement + `status:` frontmatter. The phase→skill map: a `contracted` ticket not yet started → `implement` (ready to start), a started one → `implement` (resume), a review state → already closed, an unlabeled / no-contract ticket → `draft`. See `../skills/route/SKILL.md` for the full table.
 
 ## Per-host behavior
 
 | Step | File host | Linear host |
 |---|---|---|
 | **`capture` — write** | Stub at `.docs/YYYY-MM-DD-<slug>.md` with `status: captured` | New Backlog ticket, lightweight Goal/Context body, fields per linear plugin conventions |
-| **`draft` — locate** | Scan `.docs/*.md` for active contracts (skip `status: captured`) | `list_issues` on "Contract Review" + "In Progress" states; no assignee filter; display assignee per contract; six-section description = contract |
+| **`draft` — locate** | Scan `.docs/*.md` for active contracts (skip `status: captured`) | `list_issues` filtered to the `contracted` label (case-insensitive), no assignee filter; the label = contract, independent of state; display assignee per contract |
 | **`draft` — draft body** | Compose 6-section contract | Compose 6-section contract |
-| **`draft` — approval** | Present in chat; user approves before the file is written | None in chat — write immediately; the Contract Review state is the review surface |
+| **`draft` — approval** | Present in chat; user approves before the file is written | None in chat — write immediately; the user reviews the contract in Linear |
 | **`draft` — write container** | `Write` to `.docs/YYYY-MM-DD-<slug>.md`; captured stubs upgraded in place | `mcp__linear-server__save_issue` against the ticket ID (linear-new: `save_issue` with no ID creates ticket, `assignee="me"`) |
 | **`draft` — existing body** | Captured stub's Goal/Context is drafting input | Overwrite by default. Concurrent-edit guard: if description changed since last read, warn and offer merge/overwrite/abort. Prepend only if user explicitly asked to preserve the existing text |
-| **`draft` — status** | n/a — no status | After writing the body, set state to "Contract Review" via `list_issue_statuses` + `save_issue`; skip with a note if no such state |
+| **`draft` — contract marker** | n/a — no status | After writing the body, apply the `contracted` label (append-only, via `list_issue_labels` + `save_issue`; create it once if absent). **State is left untouched** — the label is orthogonal to workflow state |
 | **`implement` — read** | `Read` the file | `mcp__linear-server__get_issue`, parse description |
 | **`implement` — claiming** | n/a — no assignee | After reading, check assignee: if owned by someone else, warn and ask to implement as-is or reassign to self |
 | **`implement` — status** | n/a — no status | Before coding, set state to "In Progress" (fallback: first `started`-type state) via `save_issue` |
@@ -68,7 +68,7 @@ Same identifier-shape detection as `implement`/`close` (ticket token → linear,
 | **`close` — done-when check** | Walk bullets from file body | Walk bullets from ticket description |
 | **`close` — outcome summary** | n/a — file host has no shared visibility surface | Post compact outcome summary (what shipped, decisions, README) as a comment via `save_comment` (team visibility) |
 | **`close` — verification record** | n/a — verdict lives in conversation | Post the per-bullet contract-verifier verdict as a comment via `save_comment` before the state change |
-| **`close` — container action** | `mv` to `.docs/archive/`, flip frontmatter | Advance state to a review state (In Review / Code Review / …) via `save_issue`; never set a completed state. Body untouched |
+| **`close` — container action** | `mv` to `.docs/archive/`, flip frontmatter | Advance state to a review state (In Review / Code Review / …) via `save_issue`; never set a completed state. Remove the `contracted` label (set current labels minus `contracted`; an empty array is honored, so clearing the last label works). Body untouched |
 | **`close` — confirm wording** | "Contract archived at `.docs/archive/...`" | "Verification comment posted; moved to In Review; body intact. Set Done yourself at merge." |
 
 ## Linear MCP availability
@@ -91,7 +91,9 @@ spec-flow owns the contract lifecycle. It does **not** own:
 - PR-to-ticket linking expectations
 - The decision of *when* to open a Linear ticket vs. a `.docs/` file
 
-spec-flow *does* drive the contract-lifecycle state transitions: → **Contract Review** when the contract body is written at `draft`, → **In Progress** when `implement` begins coding, and → a **review state** when `close` finishes. All resolve the target by name via `list_issue_statuses` (never hardcoded) and skip gracefully if the team has no matching state. It never sets a **completed** state (Done/Closed) — merge happens outside the lifecycle, so that flip stays the human's.
+spec-flow *does* drive the contract-lifecycle state transitions: → **In Progress** when `implement` begins coding, and → a **review state** when `close` finishes. Both resolve the target by name via `list_issue_statuses` (never hardcoded) and skip gracefully if the team has no matching state. It never sets a **completed** state (Done/Closed) — merge happens outside the lifecycle, so that flip stays the human's.
+
+`draft` does **not** transition state. Instead it applies the `contracted` label — the canonical "a contract exists in this description" signal, orthogonal to workflow state (a Todo ticket stays Todo and just gains the label; the user moves it to a started state independently when actively designing). `close` removes the label as the contract migrates to the durable layer. "Is this a contract?" is answered by the label everywhere — enumeration at `draft` / `implement` / `close` filters on `contracted`, not on a workflow state.
 
 Those concerns belong to the user's broader Linear workflow, owned by the sibling `linear` plugin in this marketplace. spec-flow assumes the user has a Linear ticket already (or knows how to create one — by deferring to the `linear` plugin's conventions); spec-flow only writes the contract body and reads it back.
 
@@ -103,7 +105,7 @@ Those concerns belong to the user's broader Linear workflow, owned by the siblin
 2. Same context-gathering and drafting as the other hosts
 3. Derive the **title** from the goal per the linear plugin's title conventions — no confirmation; the user reviews title and body together in Linear
 4. `save_issue` with no ID to create, six-section contract as the body; **all other fields** (team, project, labels, priority) follow the `linear` skill's conventions — spec-flow never hardcodes them
-5. Return the new ticket ID; proceed with the Contract Review transition as if the ticket had pre-existed
+5. Return the new ticket ID; proceed with the `contracted` label application as if the ticket had pre-existed (no state transition)
 
 The original deferral reason — team/status discovery and Linear-side defaults — is resolved: the sibling `linear` plugin owns those conventions, and spec-flow defers to it.
 
