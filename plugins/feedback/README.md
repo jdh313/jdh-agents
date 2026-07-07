@@ -51,7 +51,7 @@ severity × corroboration; and routes each cluster to a concrete actuator:
 | `defaults` | a specific body edit |
 | `friction` | fewer questions / better defaults in the body |
 | `docs` | `description:` / README / `argument-hint` edit |
-| `missing` | a new skill via `skill-creator`, or a feature |
+| `missing` | a new skill via `plugin-dev:create-plugin`, or a feature |
 
 It **proposes** the plan and offers handoffs (run skill-improver, draft the
 edits, write the hook, open tickets) — it never applies fixes on its own.
