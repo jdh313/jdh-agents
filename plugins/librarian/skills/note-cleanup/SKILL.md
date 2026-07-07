@@ -4,13 +4,6 @@ description: Start an interactive vault cleanup session
 disable-model-invocation: true
 context: fork
 agent: vault-curator
-allowed-tools:
-  - Read
-  - Write
-  - Edit
-  - Glob
-  - Grep
-  - Bash(obsidian-cli *)
 ---
 
 # Vault Cleanup Session

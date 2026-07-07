@@ -5,7 +5,6 @@ description: >
   restructuring content, adding comprehensive links, updating to new templates,
   and enriching sparse notes with detail.
 model: haiku
-memory: project
 maxTurns: 15
 effort: low
 tools:

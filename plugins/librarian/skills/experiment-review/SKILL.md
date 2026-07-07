@@ -28,7 +28,7 @@ already loaded, so follow-ups are cheap and consistent. The
 `@note-editor` write (step 6) stays **one-shot** — it's a single
 finalized append with no state to carry.
 
-Schema lives in `~/dotfiles/claude/rules/11-knowledge-wiki.md` →
+Schema lives in `~/Loose Ends/.claude/rules/wiki.md` →
 **Experiments**.
 
 ## When to use
