@@ -7,6 +7,12 @@ upstream:
   reviewed_sha: e3b90b5238f3
   reviewed: 2026-06-11
   status: reviewed
+allowed-tools:
+  - Read
+  - Grep
+  - Glob
+  - Write
+  - Edit
 ---
 
 Interview the user about every aspect of this plan until reaching a shared understanding. Walk down each branch of the design tree, resolving dependencies between decisions one-by-one. For each question, propose a recommended answer.
@@ -23,7 +29,7 @@ CONTEXT.md lives at the **repo root**. Always. Works the same for personal and w
 
 Create lazily — only when the first term is resolved in conversation. Don't pre-create empty files.
 
-A repo earns a CONTEXT.md when it has internal vocabulary not covered by external sources (vault wiki pages for personal repos; internal Work docs for work repos). One-off scratch repos and pure-config repos often don't earn one.
+A repo earns a CONTEXT.md when it has internal vocabulary not covered by external sources (vault wiki pages for personal repos; internal docs for work repos). One-off scratch repos and pure-config repos often don't earn one.
 
 ## What CONTEXT.md is and isn't
 
@@ -90,7 +96,7 @@ Two link conventions, both pragmatic — they work fully when the reader is in t
 - **`_See_: [[Wiki Page]]`** — pointer to a vault wiki page that holds deeper context. Renders as a live link in Obsidian; legible-as-text in code editors and agent context.
 - **`_See_: ndr:area/topic/NNNN-slug`** — pointer to an NDR atom that holds the decision rationale. Resolved via `/decisions` or `@ndr-reader`.
 
-Do **not** mix vault wikilinks into CONTEXT.md for **Work repos** — Work code is proprietary; the vault is personal. Work cross-repo terms get an internal Work authority (a `CONTEXT-MAP.md` in a shared internal docs repo) when/if that's worth setting up. Personal repos can link to the personal vault freely.
+Do **not** mix vault wikilinks into CONTEXT.md for **work repos** — work code is proprietary; the vault is personal. Cross-repo work terms get an internal work authority (a `CONTEXT-MAP.md` in a shared internal docs repo) when/if that's worth setting up. Personal repos can link to the personal vault freely.
 
 ## Offering NDR atoms
 
@@ -106,7 +112,7 @@ Skip if any is missing. If offering, route through `/capture-decision` — don't
 
 ## Composition with other plugins
 
-- **`spec-flow:start`** may invoke this skill when contested vocabulary surfaces during contract drafting. Soft composition only — both plugins work standalone.
+- **`spec-flow:draft`** may invoke this skill when contested vocabulary surfaces during contract drafting. Soft composition only — both plugins work standalone.
 - **`/capture-decision`** (ndr plugin) is the canonical route for converting a resolved-but-rationale-bearing decision into a durable NDR atom. Don't write atom files directly.
 - **`/drift-check`** (ndr plugin) can be extended to flag drift between CONTEXT.md term definitions and code naming. Out of scope for this skill — flag candidates for follow-up rather than fixing inline.
 

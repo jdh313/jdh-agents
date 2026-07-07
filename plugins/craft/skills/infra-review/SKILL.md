@@ -3,7 +3,13 @@ name: infra-review
 description: Reviews an AWS Terraform pull request whose plans are produced by Atlantis, from a local checkout. This skill should be used when the user runs `/infra-review <pr-number-or-url>`, says "review this terraform PR", "infra review", "review the atlantis plan", "review this infrastructure change", or asks for an architecture/security review of a Terraform/Atlantis PR. Treats the Atlantis-posted plan as the review artifact, reconstructs before/after topology, and stays read-only against AWS and the PR until an explicit human-approved posting gate. NOT for application-code review (use `/code-review` or `/review`), non-Terraform IaC (CloudFormation, Pulumi, CDK), or repos that do not post Atlantis plans.
 argument-hint: "<pr-number-or-url>"
 allowed-tools:
-  - Bash            # gh CLI, scanners (tflint/checkov/trivy/infracost), ndr CLI
+  - Bash(gh *)        # PR metadata/diff/checkout, Atlantis comments, posting gate
+  - Bash(tflint *)    # mechanical scanner
+  - Bash(checkov *)   # mechanical scanner
+  - Bash(trivy *)     # mechanical scanner
+  - Bash(infracost *) # cost delta (optional)
+  - Bash(ndr *)       # decision grounding
+  - Bash(command -v *) # scanner-detection loop (read-only introspection)
   - Read            # HCL files, .ndr.toml, scanner JSON
   - Glob            # locate changed *.tf / .ndr.toml
   - Grep            # search HCL for resource addresses, secrets, wildcards

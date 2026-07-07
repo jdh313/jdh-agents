@@ -8,6 +8,12 @@ upstream:
   reviewed_sha: 7afa86d3a5dd
   reviewed: 2026-06-11
   status: reviewed
+allowed-tools:
+  - Read
+  - Grep
+  - Glob
+  - Write
+  - Edit
 ---
 
 # Test-Driven Development
