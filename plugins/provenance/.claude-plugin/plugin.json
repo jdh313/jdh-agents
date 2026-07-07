@@ -1,6 +1,6 @@
 {
   "name": "provenance",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "defaultEnabled": false,
   "description": "Marketplace upkeep for borrowed work. Keeps adapted skills honest against their upstream sources: compares an adapted skill to its pinned upstream, flags behavioral drift and fabricated attributions, and refreshes the reviewed commit SHA. Houses upstream-review.",
   "author": {

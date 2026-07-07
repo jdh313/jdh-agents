@@ -19,4 +19,4 @@ upstream:
   status: reviewed | baseline   # `baseline` = pinned without a behavioral review (still owes a first review)
 ```
 
-Drift = a newer commit has touched `path` since `reviewed_sha`. A `baseline` pin only catches *future* upstream commits — it does not certify that the current adaptation matches the pinned SHA, so baseline skills still owe a full `upstream-review`. A future scheduled job (GitHub Action) can walk every `upstream:` block and open an issue for skills that have fallen behind; `upstream-review` does the per-skill reconciliation on demand.
+Drift = a newer commit has touched `path` since `reviewed_sha`. A `baseline` pin only catches *future* upstream commits — it does not certify that the current adaptation matches the pinned SHA, so baseline skills still owe a full `upstream-review`. A future scheduled job (GitHub Action, or a Claude Code scheduled agent / cron routine) can walk every `upstream:` block and open an issue for skills that have fallen behind; `upstream-review` does the per-skill reconciliation on demand.

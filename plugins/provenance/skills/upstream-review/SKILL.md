@@ -4,6 +4,12 @@ description: Review an adapted/borrowed skill against its upstream source — co
 effort: high
 disallowed-tools:
   - WebFetch
+allowed-tools:
+  - Bash(gh api *)
+  - Bash(base64 *)
+  - Read
+  - Grep
+  - Glob
 ---
 
 Keep adapted skills honest against the source they came from. An adaptation is allowed to diverge — that is the point — but every divergence should be **deliberate and documented**, and no claim about what upstream "does" or "asked for" should be made unless upstream actually does it.

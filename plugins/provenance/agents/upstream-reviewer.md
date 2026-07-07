@@ -13,7 +13,6 @@ tools:
   - Glob
   - Bash(gh api *)
   - Bash(base64 *)
-  - WebSearch
 ---
 
 # upstream-reviewer
