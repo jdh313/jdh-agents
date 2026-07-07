@@ -1,11 +1,13 @@
 ---
-name: coach:plan-week
+name: plan-week
 description: >-
+  Forward-looking week scheduling with a 3-priority constraint that maps tasks
+  across days without overloading -- complements /weekly (which reviews) by
+  scheduling ahead.
+when_to_use: >-
   This skill should be used when the user says "/plan-week", "plan my week",
   "schedule my week", "what's my week look like", "week ahead", "weekly
-  schedule", "set up my week", or "next week". Forward-looking week scheduling with a
-  3-priority constraint that maps tasks across days without overloading --
-  complements /weekly (which reviews) by scheduling ahead.
+  schedule", "set up my week", or "next week".
 allowed-tools:
   # Todoist — week tasks, reschedule
   - mcp__claude_ai_Todoist__find-tasks-by-date
@@ -80,6 +82,8 @@ Consider:
 But follow the user's lead on their own energy patterns if they share them.
 
 ### Step 4: Write Week Plan (With Permission)
+
+Honor the vault conventions in ~/Loose Ends/.claude/CLAUDE.md (frontmatter shape, naming, wikilink style) — read it before the first vault write of a session.
 
 Once the plan is agreed, ask before writing:
 

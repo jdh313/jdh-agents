@@ -1,12 +1,14 @@
 ---
-name: coach:breakdown
+name: breakdown
 description: >-
+  Conversational project decomposition into ADHD-friendly, sequenced Linear
+  issues. Auto-detects whether to decompose from scratch or recompose drifted
+  existing tasks.
+when_to_use: >-
   This skill should be used when the user says "/breakdown", "break this down",
   "decompose [project]", "what are the tasks for [project]", "help me plan
   [project]", "this project feels overwhelming", "I don't know where to start",
-  "task list for [project]", or "reconcile tasks on [project]". Conversational
-  project decomposition into ADHD-friendly, sequenced Linear issues. Auto-detects
-  whether to decompose from scratch or recompose drifted existing tasks.
+  "task list for [project]", or "reconcile tasks on [project]".
 allowed-tools:
   # Linear — find project, read/create/update issues
   - mcp__linear-server__list_projects
@@ -24,6 +26,8 @@ allowed-tools:
 # /breakdown -- Project Task Decomposition
 
 Conversational decomposition of a project into workable tasks. Takes a project -- new or in-flight -- and produces a sequenced, ADHD-friendly task list in Linear through coached dialogue. Auto-detects two modes: **decompose** (no tasks yet, break down from scratch) or **recompose** (existing Linear issues that have drifted, reconcile and reorder).
+
+**Sibling-name note:** `pm:breakdown` (pm plugin) slices a plan or spec into team Linear tickets; this skill decomposes an intaken personal project into actionable tasks. Different lanes — this one is coaching-scoped.
 
 ## Flow
 
@@ -102,6 +106,8 @@ Does this look right, or want to adjust anything?
 ```
 
 ### Step 4: Write (With Permission)
+
+Honor the vault conventions in ~/Loose Ends/.claude/CLAUDE.md (frontmatter shape, naming, wikilink style) — read it before the first vault write of a session.
 
 Once the user approves the task list, ask before writing:
 

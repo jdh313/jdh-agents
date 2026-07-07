@@ -1,5 +1,5 @@
 ---
-name: coach:review
+name: review
 description: >-
   This skill should be used when the user says "/review", "monthly review",
   "quarterly review", "life review", "big picture check-in", "theme setting",
@@ -96,6 +96,8 @@ Once a theme is chosen:
 Frame it: "Your theme is [X]. These 1-2 projects serve it. Everything else is parked — not abandoned, just not now."
 
 ### Step 5: Write Review Note (With Permission)
+
+Honor the vault conventions in ~/Loose Ends/.claude/CLAUDE.md (frontmatter shape, naming, wikilink style) — read it before the first vault write of a session.
 
 Once the review is complete, ask before writing:
 

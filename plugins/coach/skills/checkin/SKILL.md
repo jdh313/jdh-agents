@@ -1,11 +1,13 @@
 ---
-name: coach:checkin
+name: checkin
 description: >-
+  Provides a quick end-of-day pulse that reads the morning's priorities,
+  captures what actually happened, and writes a brief end-of-day section to
+  the daily note.
+when_to_use: >-
   This skill should be used when the user says "/checkin", "end of day",
   "how did today go", "daily reflection", "what did I get done", "wrap up
-  my day", or "day's over". Provides a quick end-of-day pulse that reads
-  the morning's priorities, captures what actually happened, and writes a
-  brief end-of-day section to the daily note.
+  my day", or "day's over".
 effort: low
 allowed-tools:
   # Todoist — completed tasks today
@@ -69,6 +71,8 @@ This is the only question you ask. Adapt based on what you found:
 Accept the answer. Do not push back, probe deeper, or coach. One question, one answer. If the user's response is emotional (frustration, guilt, excitement), respond with brief warmth per `coach-tone` low-energy patterns -- then move on. Do not extend the conversation.
 
 ### Step 3: Write End-of-Day (With Permission)
+
+Honor the vault conventions in ~/Loose Ends/.claude/CLAUDE.md (frontmatter shape, naming, wikilink style) — read it before the first vault write of a session.
 
 Once you have the user's response, ask before writing:
 

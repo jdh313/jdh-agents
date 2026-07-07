@@ -1,5 +1,5 @@
 ---
-name: coach:spark
+name: spark
 description: >-
   This skill should be used when the user says "/spark", "I had an idea", "I
   want to try", "what if I", "this looks cool", "new interest", "capture this
@@ -55,6 +55,8 @@ Auto-suggest the best match: "I'd tag this as `[category]`. Sound right?"
 Accept custom tags. Don't debate categories -- whatever the user picks is fine.
 
 ### Step 3: Write (With Permission)
+
+Honor the vault conventions in ~/Loose Ends/.claude/CLAUDE.md (frontmatter shape, naming, wikilink style) — read it before the first vault write of a session.
 
 Ask before writing:
 

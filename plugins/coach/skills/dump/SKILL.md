@@ -1,5 +1,5 @@
 ---
-name: coach:dump
+name: dump
 description: >-
   This skill should be used when the user says "/dump", "brain dump", "I need to
   get everything out of my head", "what's on my mind", "mental clutter", "dump

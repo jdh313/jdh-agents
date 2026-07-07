@@ -10,7 +10,7 @@
       "name": "coach",
       "source": "./plugins/coach",
       "description": "ADHD-friendly productivity coaching: daily planning (/today, /energy), end-of-day capture (/checkin), weekly scheduling (/plan-week) and review (/weekly), life-direction reviews (/review), goal-to-project alignment (/align), project lifecycle (/intake, /breakdown, /reentry, /sunset), idea capture (/spark), brain dump (/dump), task triage (/triage), decision journaling (/decide), and pattern analysis (momentum, overdue-rescue) with adaptive tone calibration",
-      "version": "0.10.0",
+      "version": "0.10.1",
       "author": {
         "name": "Jacob Hoehler"
       },
