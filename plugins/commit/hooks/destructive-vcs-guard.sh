@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# PreToolUse/Bash hook for the commits plugin.
+# PreToolUse/Bash hook for the commit plugin.
 # Blocks destructive VCS commands that would discard uncommitted changes.
 # Exits 0 to allow, exits 2 to block (Claude sees stderr and must reconsider).
 
@@ -21,7 +21,7 @@ block() {
   local reason="$1"
   local alternative="$2"
   cat >&2 <<EOF
-[commits plugin] Blocked destructive VCS command.
+[commit plugin] Blocked destructive VCS command.
 
 Command: $trimmed
 
