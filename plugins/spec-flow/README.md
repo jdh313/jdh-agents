@@ -56,5 +56,5 @@ See `references/contract-template.md` for the literal scaffold and conventions. 
 
 - Not a roadmap tool. Single-change-scoped only; no multi-feature planning.
 - Not a system-spec maintainer. Durable knowledge lives in README + ndr atoms + code.
-- Not a team tool. Solo workflow; no PR gates, no reviewer briefing.
+- Not a process-enforcement tool. Works solo or small-team (assignee claiming, outcome summaries, opt-in reviewer routing), but imposes no PR gates and no mandatory review flow.
 - Not a replacement for `CLAUDE.md` or plan mode. spec-flow's contract layer composes with both.

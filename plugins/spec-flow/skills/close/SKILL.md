@@ -1,6 +1,15 @@
 ---
 name: close
 description: This skill should be used when the user runs `/spec-flow close [name]` or otherwise signals that an active contract's work is done and ready to migrate. Trigger phrases include "spec-flow close", "this change is done", "archive the X contract", "wrap up the X change", "close out the okta-auth work". Accepts either a file slug or a Linear ticket ID. Reviews the change against the contract, proposes migrations to the durable layer — ndr atoms via `/capture-decision`, README updates via librarian — applies them after user sign-off. For file-host contracts, moves the file to `.docs/archive/`. For Linear-host contracts, advances the ticket to a review state but never sets a completed state — Done stays the user's call at merge.
+argument-hint: "[contract slug or TEAM-N; omit to infer]"
+allowed-tools:
+  - mcp__linear-server__get_issue
+  - mcp__linear-server__list_issues
+  - mcp__linear-server__list_issue_statuses
+  - Read
+  - Glob
+  - Grep
+  - Bash(ls *)
 ---
 
 # spec-flow:close

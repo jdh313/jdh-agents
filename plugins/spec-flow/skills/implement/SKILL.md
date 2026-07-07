@@ -1,6 +1,15 @@
 ---
 name: implement
 description: This skill should be used when the user runs `/spec-flow implement [name]` or otherwise signals a transition from a drafted contract to actual coding work. Trigger phrases include "spec-flow implement", "let's start coding on the X contract", "pick up the X contract", "resume the X change", "continue the okta-auth work". Accepts either a file slug or a Linear ticket ID (e.g. `TEAM-123`). Covers both first-run implementation (negotiate handoff cadence, begin work) and resumption (restore context from contract, summarize where work last left off, continue). Same flow either way — read state, summarize, confirm cadence, execute. May invoke `spec-flow:amend` mid-implementation when reality diverges from the contract.
+argument-hint: "[contract slug or TEAM-N; omit to infer]"
+allowed-tools:
+  - mcp__linear-server__get_issue
+  - mcp__linear-server__list_issues
+  - mcp__linear-server__list_issue_statuses
+  - Read
+  - Glob
+  - Grep
+  - Bash(ls *)
 ---
 
 # spec-flow:implement
