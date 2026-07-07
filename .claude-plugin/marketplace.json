@@ -146,8 +146,8 @@
     {
       "name": "langfuse",
       "source": "./plugins/langfuse",
-      "description": "The Langfuse x Claude Code Observability Plugin",
-      "version": "1.3.0",
+      "description": "Sends Claude Code session traces to Langfuse via a Stop hook \u2014 per-turn traces with prompts, generations, tool observations, and backdated timestamps. Includes a SessionStart tripwire that marks programmatically-spawned sessions.",
+      "version": "1.3.1",
       "author": {
         "name": "Jacob Hoehler"
       },
