@@ -29,10 +29,16 @@ allowed-tools:
   - Read
   - Grep
   - Glob
-  - Bash
+  - Bash(ndr *)
   # Compose with ndr:ground, linear, spec-flow:draft
   - Skill
   - Agent
+upstream:
+  repo: mattpocock/skills
+  path: skills/engineering/to-issues
+  reviewed_sha: 0172e61e57c9
+  reviewed: 2026-07-06
+  status: baseline
 ---
 
 # breakdown

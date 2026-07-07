@@ -28,7 +28,7 @@ allowed-tools:
   # ndr atoms — find decisions captured during cycle window
   - Read
   - Grep
-  - Bash
+  - Bash(ndr *)
   # Compose with note-editor (vault write) and ndr:decisions
   - Skill
   - Agent
@@ -174,7 +174,7 @@ Links to session notes worth re-reading:
 
 Things flagged in chat or session notes that need an owner:
 
-- *Question / followup phrase* — proposed action (e.g. "open ticket via `pm:author`", "raise with stakeholder at next planning meeting")
+- *Question / followup phrase* — proposed action (e.g. "open ticket via `linear`", "raise with stakeholder at next planning meeting")
 
 ## Rules
 

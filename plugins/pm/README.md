@@ -1,10 +1,10 @@
 # pm
 
-Self-PM helpers for solo development on a Linear workspace. Skills for the weekly grooming loop, plan-to-tickets breakdown, and end-of-cycle retro notes.
+PM helpers for solo or small-team development on a Linear workspace. Skills for the weekly grooming loop, plan-to-tickets breakdown, and end-of-cycle retro notes.
 
 ## Premise
 
-Solo development means acting as your own project manager. The PM work splits into a few recurring shapes — weekly grooming, plan decomposition, end-of-cycle retro — each with its own cadence. This plugin gives each shape a skill so the routine is consistent and the proposals are auditable. All skills propose; transitions are applied manually via the `linear` plugin.
+On a solo or small-team project you act as your own project manager. The PM work splits into a few recurring shapes — weekly grooming, plan decomposition, end-of-cycle retro — each with its own cadence. This plugin gives each shape a skill so the routine is consistent and the proposals are auditable. All skills propose; transitions are applied manually via the `linear` plugin.
 
 ## Scope
 
@@ -15,7 +15,7 @@ Solo development means acting as your own project manager. The PM work splits in
 ## Skills
 
 - **`groom`** — Weekly backlog grooming sweep. Scans active cycle + backlog, optionally cross-refs ndr atoms and vault session notes, outputs a bucketed punch list and archives it to the cycle's recurring grooming child issue. Forward-looking.
-- **`retro`** — End-of-cycle retro note. Pulls the just-closed cycle, classifies tickets (shipped / carried / canceled / added-mid-cycle), surfaces patterns across recent cycles, and writes a durable retro note to the vault. Backward-looking. Pairs with `groom` on the same weekly cadence.
+- **`retro`** — End-of-cycle retro note. Pulls the just-closed cycle, classifies tickets (shipped / carried / canceled / added-mid-cycle), surfaces patterns across recent cycles, and writes a retro to a Linear document by default (shared visibility), with an optional personal vault copy. Backward-looking. Pairs with `groom` on the same weekly cadence.
 - **`breakdown`** — Decompose a goal / plan / spec into independently-grabbable Linear tickets using tracer-bullet vertical slices. Grounds against current ndr heads when the ndr plugin is present, publishes in dependency order with native Linear blocks/blocked-by relations, recommends a spec-flow contract for large slices. Parent-aware. Slices land in Backlog — cycle assignment is `groom`'s job.
 
 Planned for later versions:
@@ -32,7 +32,7 @@ Planned for later versions:
 
 - **[linear](../linear/README.md)** — `pm` skills propose; `linear` applies any approved transitions.
 - **ndr** (external — ships from its own separate marketplace) — `pm:groom` calls `ndr:decisions` for supersession checks on tickets that reference ndr atoms. Optional: without it, the NDR-moot bucket and grounding passes are skipped.
-- **librarian** (external — personal setup, not published) — `pm:retro` writes retro notes via librarian's `note-editor` agent when present; otherwise the retro draft stays in chat for you to file manually.
+- **librarian** (external — personal setup, not published) — `pm:retro`'s primary output is a Linear document; when librarian is present, an optional personal vault copy is written via its `note-editor` agent. Without librarian, that optional copy stays in chat for you to file manually.
 
 ## Assumptions
 
