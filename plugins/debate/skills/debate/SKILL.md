@@ -1,6 +1,11 @@
 ---
 name: debate
 description: This skill should be used when the user asks for an opinion on a decision, or when genuine decision/opinion questions are detected ("should I", "is it worth", "would you recommend", "X vs Y"). Spawns parallel advocate agents to research opposing perspectives, with optional fact-checking, devil's advocacy, and independent synthesis. Three modes (Quick/Standard/Deep) control pipeline depth. Not for factual questions, simple preferences, or single-answer lookups.
+allowed-tools:
+  - mcp__obsidian-mcp__search_notes
+  - mcp__obsidian-mcp__read_multiple_notes
+  - Read
+  - Write
 ---
 
 # Debate
@@ -74,8 +79,7 @@ Decompose the user's question into:
 Search for relevant personal context BEFORE dispatching agents. All agents must receive identical context.
 
 - Search Obsidian notes for relevant prior work, decisions, or situation details
-- Search OpenMemory for relevant cross-project patterns or past evaluations
-- Check `Journal/Decisions/` for prior decisions on related topics
+- Search the vault via `mcp__obsidian-mcp__search_notes` for prior decision records on related topics — no fixed folder; note any hits so Step 11 can offer them as the save-location default
 - Extract relevant details from the current conversation history
 - Compile into a brief context block (3-5 bullet points max)
 
@@ -281,9 +285,11 @@ For Deep mode, use the synthesizer's verdict as the primary verdict in the outpu
 
 After synthesis, ask: "Want me to save this as a decision record?"
 
-If the user agrees, write to Obsidian using MCP:
+If the user agrees, ask once where it should live — offer the folder found during Step 2's search (if any prior decision records turned up) as the suggested default, otherwise ask the user to name a folder. Then write to Obsidian using MCP.
 
-**Path:** `Journal/Decisions/YYYY-MM-DD [decision-slug].md`
+Honor the vault conventions in ~/Loose Ends/.claude/CLAUDE.md (frontmatter shape, naming, wikilink style) — read it before the first vault write of a session.
+
+**Path:** `<chosen folder>/YYYY-MM-DD [decision-slug].md`
 
 **Content:**
 ```markdown
@@ -388,7 +394,7 @@ Express confidence as a percentage (0-100%):
 
 - Maximum 5 advocate agents per round
 - **Per-role models (set in each agent's frontmatter — do not override per-dispatch):** `advocate` and `fact-checker` run as `sonnet`; `devils-advocate` and `synthesizer` run as `opus` with `effort: high` (the contrarian attack and the independent verdict are the reasoning-heaviest roles). The orchestrator stays in the main context.
-- Advocates and the fact-checker do **web research only** — their `tools:` is fenced to `WebSearch, WebFetch`, so they cannot read local files or the vault. The orchestrator handles all local/personal context gathering and passes it in the prompt. The synthesizer operates on **provided context only** (no tools).
+- Advocates and the fact-checker do **web research only** — their `tools:` is fenced to `WebSearch, WebFetch`, so they cannot read local files or the vault. The orchestrator handles all local/personal context gathering and passes it in the prompt. The synthesizer operates on **provided context only** (its `tools: Read` grant is a formality — see the agent's own notes; it has no need to invoke it).
 - All agents receive identical personal context (no asymmetry)
 - Sources must be real URLs from web search results, not hallucinated
 - If advocates return weak or conflicting evidence, say so — do not manufacture certainty

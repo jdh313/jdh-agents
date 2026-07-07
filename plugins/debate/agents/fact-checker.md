@@ -3,7 +3,6 @@ name: fact-checker
 description: Verification agent that checks advocate claims for accuracy, validates source quality ratings, and flags logical fallacies. Dispatched by the debate skill after advocate rounds. Uses web search to independently verify claims.
 model: sonnet
 color: yellow
-memory: project
 maxTurns: 10
 tools: WebSearch, WebFetch
 ---
