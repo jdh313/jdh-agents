@@ -10,7 +10,10 @@ description: >-
   questions, and emits a single copy-pasteable report block — grading each
   plugin surface that was exercised and citing concrete evidence for every
   claim — in the shared format that the `feedback:triage` skill can aggregate.
-argument-hint: ""
+argument-hint: "[--save]"
+allowed-tools:
+  - Bash(git rev-parse *)
+  - Bash(date *)
 ---
 
 # Session feedback
