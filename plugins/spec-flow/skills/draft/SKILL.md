@@ -108,7 +108,7 @@ Ask targeted questions where the path isn't clear. Do NOT ask open-ended *"what 
 
 If the *done* state isn't obvious from the goal — i.e. you can't list 2–3 observable outcomes confidently — surface a proposed *Done when* draft and ask the user to confirm/correct before writing the contract. The Done-when section is what the close skill reviews against; thin drafting here means a fuzzy close later.
 
-If the *how* is non-obvious enough to warrant real deliberation, suggest forking into the debate skill (advocate / devils-advocate / fact-checker / synthesizer). The debate's output — recommended approach plus draft ndr atoms — flows back into the contract's *Approach* section.
+If the *how* is non-obvious enough to warrant real deliberation, suggest forking into the debate skill (advocate / devils-advocate / fact-checker / synthesizer). The debate's output — recommended approach plus a saved decision record — flows back into the contract's *Approach* section.
 
 If contested or fuzzy vocabulary surfaces during the conversation — terms used inconsistently, ambiguous nouns, drift between code naming and how the user is talking about the change — and the `craft` plugin is installed, suggest invoking `/grill-with-docs` to lock the terms down in the repo's `CONTEXT.md` glossary before drafting. Soft composition: spec-flow:draft works fine without craft installed; the suggestion simply doesn't fire if the skill isn't available.
 
