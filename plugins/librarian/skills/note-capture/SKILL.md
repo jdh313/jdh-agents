@@ -4,13 +4,6 @@ description: Quickly capture a thought or note to today's daily note
 disable-model-invocation: true
 context: fork
 agent: note-editor
-allowed-tools:
-  - Read
-  - Write
-  - Edit
-  - Glob
-  - Grep
-  - Bash(obsidian-cli *)
 ---
 
 # Quick Capture

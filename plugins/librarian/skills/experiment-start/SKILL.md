@@ -14,7 +14,7 @@ allowed-tools:
 
 Scaffold a new experiment page under `Experiments/` or promote an
 existing `considering` entry to `running`. Schema and skeleton live in
-`~/dotfiles/claude/rules/11-knowledge-wiki.md` → **Experiments**.
+`~/Loose Ends/.claude/rules/wiki.md` → **Experiments**.
 
 This skill drafts interactively (hypothesis, criteria, protocol,
 commitment); `@vault-reader` reads existing pages when promoting; and
@@ -132,7 +132,7 @@ After drafting with the user, dispatch to `@note-editor`:
 ## Constraints
 - Mode 1 (create): write `Experiments/<slug>.md` with the drafted frontmatter + body
 - Mode 2 (promote): edit existing `Experiments/<slug>.md` — update frontmatter (status, start_date, review_date, date_updated) and refresh any sections whose content shifted during re-confirmation
-- Schema: per `~/dotfiles/claude/rules/11-knowledge-wiki.md` → Experiments
+- Schema: per `~/Loose Ends/.claude/rules/wiki.md` → Experiments
 
 ## Input
 <full drafted frontmatter + body>

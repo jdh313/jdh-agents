@@ -6,7 +6,6 @@ description: >
   scannable issue list to the caller. Read-only — flags issues but does
   not fix them. Invoked by `vault-inspect`.
 model: haiku
-memory: project
 maxTurns: 10
 effort: low
 tools:
