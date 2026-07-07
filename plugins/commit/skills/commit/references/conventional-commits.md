@@ -5,13 +5,14 @@ This reference documents the Angular/Conventional Commits format for writing cle
 ## Format Structure
 
 ```
-<type>: <summary>
+<type>[(scope)]: <summary>
 
 [optional body]
 ```
 
 **Key rules:**
-- Type is required, lowercase, no scope
+- Type is required, lowercase
+- Scope is optional — default is no scope; use one, matching the repo's delimiter style (`(scope)` or `[scope]`), when repo history consistently uses scopes (see `detection.md`)
 - Summary is required, lowercase, no period at end
 - Body is optional, maximum 5 lines, separated by blank line from summary
 - Summary should be imperative mood ("add feature" not "added feature")

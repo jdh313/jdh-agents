@@ -30,7 +30,7 @@ Use what's declared. Auto-detect anything not declared. If `CLAUDE.md` doesn't e
 ## Step 2 — Auto-detect VCS
 
 ```bash
-[ -d .jj ] && echo "jj" || echo "git"
+test -d .jj && echo "jj" || echo "git"
 ```
 
 `.jj/` is authoritative — both jj-native repos and jj-on-top-of-git colocated repos have it.
