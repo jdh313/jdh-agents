@@ -1,11 +1,12 @@
 ---
 name: axes-map-analyzer
 description: >-
-  Use this agent when the user asks "check my axes map", "verify accelerometer",
-  "axes map results", "axis mapping", or shares an axesmap PNG. Interprets
-  Klippain Shake Tune axes map calibration results -- validates accelerometer
-  placement, axis mapping, and measurement quality. Mostly a pass/fail check
-  before running other tests.
+  Axis-mapping validation agent for Klippain Shake Tune's setup check.
+  Dispatched by the shake-tune skill to interpret an axesmap PNG -- validates
+  accelerometer placement, axis mapping, and measurement quality. Mostly a
+  pass/fail check before running other tests. Not intended for organic
+  invocation; PNG path and printer-profile context arrive via the dispatch
+  prompt from the orchestrating skill.
 model: inherit
 effort: low
 color: cyan
@@ -17,7 +18,7 @@ tools:
 
 <example>
 user: "Can you check my axes map results? Just ran AXES_MAP_CALIBRATION."
-assistant: Reads the axesmap PNG using multimodal vision. Loads references/axes-map-patterns.md for interpretation. Checks axis mapping correctness (each printer axis maps to a unique accelerometer axis), gravity reading (~9.81 m/s²), tilt angle (<15°), and signal quality. Reports pass/fail assessment with specific issues if found.
+assistant: Reads the axesmap PNG using multimodal vision. Checks axis mapping correctness (each printer axis maps to a unique accelerometer axis), gravity reading (~9.81 m/s²), tilt angle (<15°), and signal quality. Reports pass/fail assessment with specific issues if found.
 </example>
 
 <example>
@@ -108,5 +109,3 @@ You analyze Klippain Shake Tune axes map calibration graphs (AXES_MAP_CALIBRATIO
 - Fix axis mapping in Klipper config (provides guidance for what to change)
 - Diagnose accelerometer hardware failures beyond basic checks
 - Replace physical verification of sensor mounting
-
-Reference `references/axes-map-patterns.md` for detailed pattern descriptions.
