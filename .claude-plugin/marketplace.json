@@ -62,7 +62,7 @@
       "name": "compass",
       "source": "./plugins/compass",
       "description": "A suite of conversational thinking tools \u2014 reflect (Socratic mirror, never recommends, always saves) and mull (thinking partner, probes AND contributes opinions, saves substantive sessions only).",
-      "version": "0.7.0",
+      "version": "0.7.1",
       "author": {
         "name": "Jacob Hoehler",
         "email": "jdhoehler@gmail.com"

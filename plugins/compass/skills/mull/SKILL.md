@@ -9,6 +9,12 @@ allowed-tools:
   - Edit
   - Bash(obsidian-cli *)
   - mcp__obsidian-mcp__search_notes
+disallowed-tools:
+  - WebSearch
+  - WebFetch
+  - Agent
+  - mcp__kagi__kagi_search_fetch
+  - mcp__kagi__kagi_extract
 ---
 
 # Mull
@@ -96,8 +102,8 @@ The core loop: probing question → reflective listening → optional take → n
 
 Both references live in the sibling `reflect` skill. `mull` reuses them.
 
-- **Question angles running dry** → load `skills/reflect/references/questions.md` (organized by purpose: definitional, comparative, tension, stakes, affective, origin, time horizon, identity, counterfactual, resource, permission, premortem, question-the-question, closing).
-- **Reasoning sounds rehearsed or affect doesn't match position** → load `skills/reflect/references/biases.md`. Use the neutral probes; **never label the user as biased**, even when offering a take. "Here's where I'd push" is contribution; "you're exhibiting sunk cost" is an accusation.
+- **Question angles running dry** → load `../reflect/references/questions.md` (organized by purpose: definitional, comparative, tension, stakes, affective, origin, time horizon, identity, counterfactual, resource, permission, premortem, question-the-question, closing).
+- **Reasoning sounds rehearsed or affect doesn't match position** → load `../reflect/references/biases.md`. Use the neutral probes; **never label the user as biased**, even when offering a take. "Here's where I'd push" is contribution; "you're exhibiting sunk cost" is an accusation.
 
 ### Step 4: Recognize endpoints
 
@@ -112,6 +118,8 @@ If you offered a take that the user disagreed with and the disagreement is unres
 Do not pretend a conclusion was reached when it wasn't.
 
 ### Step 5: Save (conditional)
+
+Honor the vault conventions in ~/Loose Ends/.claude/CLAUDE.md (frontmatter shape, naming, wikilink style) — read it before the first vault write of a session.
 
 Mull is not always worth a vault note. Decide first whether to save; if not, end the session cleanly without filing.
 
@@ -134,14 +142,11 @@ Then end. Do not nag, do not re-ask. The user's silence is acceptance.
 - `topic-slug` — kebab-case, short (2–4 words), e.g., `leaving-job`, `keyboard-pain`, `nix-migration`.
 - If a file with the same name already exists today, append `-2`, `-3`, etc.
 
-**Frontmatter:**
-- `status: concluded` or `status: open`
-- `topic: <slug>`
-- `tags:` — `type/mull` plus one `topic/<area>` tag if a clear area exists
-- `owner: jacob`
-- Do **not** set `date created` or `date_modified` — the Linter plugin manages those
+**Template:** Use `~/Loose Ends/Templates/Mull.md` as the structure source. The vault's Templater plugin handles `<% %>` syntax when notes are created via Obsidian; when writing the file directly from this skill, substitute the date manually.
 
-**Sections:**
+**Frontmatter:** Use the template's frontmatter shape. Do **not** set `date created` or `date_modified` — the Linter plugin manages those.
+
+**Sections:** Use the template as the structure source; this table shows what's required per outcome:
 
 | Section | Always | Concluded | Open |
 |---|---|---|---|
@@ -219,8 +224,8 @@ These are the failure modes most likely to undo the skill's value:
 
 ## References
 
-- `skills/reflect/references/questions.md` — Question library by purpose. Load when angles run dry.
-- `skills/reflect/references/biases.md` — Self-deception patterns and neutral probes. Load when reasoning sounds rehearsed or affect doesn't match.
+- `../reflect/references/questions.md` — Question library by purpose. Load when angles run dry.
+- `../reflect/references/biases.md` — Self-deception patterns and neutral probes. Load when reasoning sounds rehearsed or affect doesn't match.
 
 Both live in the sibling `reflect` skill within this plugin — `mull` reuses them.
 
