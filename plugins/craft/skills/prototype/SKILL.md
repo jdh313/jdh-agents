@@ -7,6 +7,12 @@ upstream:
   reviewed_sha: f304057d61d3
   reviewed: 2026-06-11
   status: reviewed
+allowed-tools:
+  - Read
+  - Grep
+  - Glob
+  - Write
+  - Edit
 ---
 
 # Prototype

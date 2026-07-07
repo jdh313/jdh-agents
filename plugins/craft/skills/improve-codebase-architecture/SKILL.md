@@ -8,6 +8,13 @@ upstream:
   reviewed_sha: a36584e09eae
   reviewed: 2026-06-11
   status: reviewed
+allowed-tools:
+  - Read
+  - Grep
+  - Glob
+  - Agent
+  - Write
+  - Edit
 ---
 
 # Improve Codebase Architecture

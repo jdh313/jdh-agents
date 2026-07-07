@@ -32,7 +32,7 @@ _See_: [[Vault Wiki Page]] OR ndr:area/topic/NNNN-slug
 
 Two link types, both pragmatic — they work fully when the reader is in the right tool, and read as legible text otherwise.
 
-- **`_See_: [[Wiki Page]]`** — pointer to a vault wiki page that holds deeper context. Renders as a live link in Obsidian; legible-as-text elsewhere. Use for personal repos. **Do not use for Carta repos** — Carta code is proprietary, the vault is personal.
+- **`_See_: [[Wiki Page]]`** — pointer to a vault wiki page that holds deeper context. Renders as a live link in Obsidian; legible-as-text elsewhere. Use for personal repos. **Do not use for work repos** — work code is proprietary, the vault is personal.
 - **`_See_: ndr:area/topic/NNNN-slug`** — pointer to an NDR atom that holds the decision rationale. Resolved via `/decisions` or `@ndr-reader`.
 
 Both link types are optional. Most entries don't need them.
@@ -41,7 +41,7 @@ Both link types are optional. Most entries don't need them.
 
 One `CONTEXT.md` at the repo root. This covers nearly every case.
 
-## Multi-context (Carta only, future)
+## Multi-context (work repos only, future)
 
 If a proprietary monorepo grows multiple bounded contexts (Ordering, Billing, Fulfillment, etc.), a `CONTEXT-MAP.md` at the repo root catalogs them and points to per-context glossaries:
 
