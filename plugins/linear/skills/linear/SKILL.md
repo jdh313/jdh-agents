@@ -1,6 +1,14 @@
 ---
 name: linear
 description: This skill should be used when creating, updating, transitioning, reading, or querying Linear tickets in your Linear workspace. Trigger phrases include "open a linear ticket", "create a TEAM ticket", "add to linear", "add to backlog", "log this in linear", "move TEAM-N to", "transition TEAM-N", "promote to todo", "back to backlog", "mark TEAM-N done", "what state is TEAM-N", "set TEAM-N priority", "what's in todo", "show my linear tickets", "show unassigned tickets", "show team backlog", "assign to me", "assign to the other person", "accept this ticket", "who should own this". Supplies ticket creation defaults (team, labels, priority, assignee, milestone), status flow semantics, title and description conventions, collaboration conventions, and MCP call patterns. Does NOT cover the spec-flow contract lifecycle (use spec-flow plugin) or the decision of whether to open a ticket at all (project CLAUDE.md owns the floor rule).
+allowed-tools:
+  - mcp__linear-server__get_issue
+  - mcp__linear-server__list_issues
+  - mcp__linear-server__list_projects
+  - mcp__linear-server__list_milestones
+  - mcp__linear-server__list_cycles
+  - mcp__linear-server__list_issue_labels
+  - mcp__linear-server__list_comments
 ---
 
 # linear
