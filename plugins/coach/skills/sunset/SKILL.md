@@ -1,5 +1,5 @@
 ---
-name: coach:sunset
+name: sunset
 description: >-
   This skill should be used when the user says "/sunset", "close this project",
   "archive [project]", "I'm done with [project]", "sunset [project]",
@@ -72,6 +72,8 @@ This captures restart context -- the most valuable part of the closure note. Pro
 If no open items, skip this exchange.
 
 ### Step 4: Write Closure Note (With Permission)
+
+Honor the vault conventions in ~/Loose Ends/.claude/CLAUDE.md (frontmatter shape, naming, wikilink style) — read it before the first vault write of a session.
 
 Once the conversation is complete, ask before writing:
 

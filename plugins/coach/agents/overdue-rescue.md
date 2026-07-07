@@ -11,10 +11,8 @@ effort: high
 color: orange
 tools:
   - mcp__claude_ai_Todoist__find-tasks-by-date
-  - mcp__claude_ai_Todoist__find-tasks
   - mcp__claude_ai_Todoist__find-completed-tasks
   - mcp__claude_ai_Todoist__find-activity
-  - mcp__claude_ai_Todoist__user-info
 ---
 
 <example>

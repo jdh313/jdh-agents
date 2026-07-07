@@ -1,5 +1,5 @@
 ---
-name: coach:intake
+name: intake
 description: >-
   This skill should be used when the user says "/intake", "new project", "start
   a project", "I want to build", "project kickoff", "add a project", or "I have
@@ -64,6 +64,8 @@ Quick gut check on size:
 Accept the answer. This sets expectations without requiring detailed planning. Use the answer to calibrate the project note structure.
 
 ### Step 4: Write Project Note (With Permission)
+
+Honor the vault conventions in ~/Loose Ends/.claude/CLAUDE.md (frontmatter shape, naming, wikilink style) — read it before the first vault write of a session.
 
 Once the conversation is complete, ask before writing:
 

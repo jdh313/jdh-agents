@@ -1,5 +1,5 @@
 ---
-name: coach:triage
+name: triage
 description: >-
   This skill should be used when the user says "/triage", "overdue tasks",
   "clean up my tasks", "task backlog", "reschedule overdue", "my tasks are a
@@ -17,6 +17,8 @@ allowed-tools:
 # /triage -- Overdue Task Rescue
 
 Guilt-free batch processing of overdue tasks. Groups by project, flags chronic reschedulers, and offers four actions: reschedule, do today, drop, or delegate. Batch decisions reduce decision fatigue -- don't ask about each task individually unless the user wants to.
+
+**Sibling-name note:** `feedback:triage` (feedback plugin) aggregates plugin-test reports; this skill triages overdue tasks. Unrelated domains sharing a name.
 
 ## Flow
 

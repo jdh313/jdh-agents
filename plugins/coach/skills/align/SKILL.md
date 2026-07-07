@@ -1,5 +1,5 @@
 ---
-name: coach:align
+name: align
 description: >-
   This skill should be used when the user says "/align", "which projects
   serve my goals", "what should I focus on to learn [X]", "align my

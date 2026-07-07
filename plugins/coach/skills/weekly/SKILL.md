@@ -1,5 +1,5 @@
 ---
-name: coach:weekly
+name: weekly
 description: >-
   This skill should be used when the user says "/weekly", "weekly review",
   "review my week", "week in review", "what should I focus on this week",
@@ -79,6 +79,8 @@ Once focus is agreed, confirm the selection:
 Frame parked projects neutrally: "Parked" means intentional, not neglected.
 
 ### Step 5: Write Weekly Note (With Permission)
+
+Honor the vault conventions in ~/Loose Ends/.claude/CLAUDE.md (frontmatter shape, naming, wikilink style) — read it before the first vault write of a session.
 
 Once the review is complete, ask before writing:
 

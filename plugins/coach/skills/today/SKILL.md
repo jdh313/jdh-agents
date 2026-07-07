@@ -1,5 +1,5 @@
 ---
-name: coach:today
+name: today
 description: >-
   This skill should be used when the user says "/today", "plan my day",
   "what should I focus on today", "morning planning", "daily priorities",
@@ -106,6 +106,8 @@ Based on the user's response, push back calibrated to their energy level:
 Converge on approximately 3 priorities. The exact number can flex (2-4), but resist more than 4.
 
 ### Step 5: Write Morning Snapshot (With Permission)
+
+Honor the vault conventions in ~/Loose Ends/.claude/CLAUDE.md (frontmatter shape, naming, wikilink style) — read it before the first vault write of a session.
 
 Once priorities are agreed, ask before writing anything:
 

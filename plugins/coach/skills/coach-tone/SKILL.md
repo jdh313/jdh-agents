@@ -1,11 +1,12 @@
 ---
-name: coach:coach-tone
+name: coach-tone
 description: >-
+  Provides personality guidelines, tone calibration by energy level, and
+  response patterns for ADHD-friendly productivity coaching.
+when_to_use: >-
   This skill should be used when the user asks coaching questions like
   "what should I do next", "I'm stuck", "I can't focus", "I got distracted",
   "how's my day going", or when the /today skill activates coaching mode.
-  Provides personality guidelines, tone calibration by energy level, and
-  response patterns for ADHD-friendly productivity coaching.
 ---
 
 # Coach Tone

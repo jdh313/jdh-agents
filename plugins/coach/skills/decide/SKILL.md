@@ -1,5 +1,5 @@
 ---
-name: coach:decide
+name: decide
 description: >-
   This skill should be used when the user says "/decide", "decision journal",
   "log a decision", "I need to decide", "record this decision", "why did I
@@ -27,6 +27,8 @@ disallowed-tools:
 # /decide -- Decision Journal
 
 A structured decision capture tool. Records what was decided, why, what alternatives were considered, and when to revisit. Primarily capture, not coaching -- the goal is to prevent future re-litigation by making the decision's rationale findable. Accepts "gut feel" as valid rationale.
+
+**Boundary:** /decide records and briefly coaches a decision that is already made or nearly made. For *reaching* a decision, use the `debate` plugin (structured adversarial analysis) or `compass:mull` / `compass:reflect` (thinking partner / Socratic mirror).
 
 ## Flow
 
@@ -95,6 +97,8 @@ Ask one question to define when this decision should be reconsidered:
 - Accept "it's final" -- not every decision needs a revisit clause
 
 ### Step 5: Write Record (With Permission)
+
+Honor the vault conventions in ~/Loose Ends/.claude/CLAUDE.md (frontmatter shape, naming, wikilink style) — read it before the first vault write of a session.
 
 Once the decision is captured, ask before writing:
 

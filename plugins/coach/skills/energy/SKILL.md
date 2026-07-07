@@ -1,5 +1,5 @@
 ---
-name: coach:energy
+name: energy
 description: >-
   This skill should be used when the user says "/energy", "I'm tired", "low
   energy", "what should I work on", "I can't focus", "energy check", "match
