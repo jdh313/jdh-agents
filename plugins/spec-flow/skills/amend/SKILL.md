@@ -1,6 +1,9 @@
 ---
 name: amend
 description: This skill should be used when the AI realizes during implementation that the contract is becoming inaccurate — wrong approach, new constraint, scope shift, or a deferred open question now needing a decision. Typically invoked from within `spec-flow:implement` rather than directly by the user. Works for both file-hosted (`.docs/`) and Linear-hosted contracts. Surfaces a proposed contract edit to the user, waits for sign-off, then applies the edit to the right host (Edit for files, save_issue for Linear). Never edits the contract silently. The contract is an agreement; both parties must agree to changes.
+allowed-tools:
+  - mcp__linear-server__get_issue
+  - Read
 ---
 
 # spec-flow:amend

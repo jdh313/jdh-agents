@@ -1,6 +1,12 @@
 ---
 name: route
 description: This skill should be used when the user hands spec-flow a ticket without saying which phase it's in and wants spec-flow to figure out where the change stands and continue. Trigger phrases include "/spec-flow route TEAM-123", "/spec-flow TEAM-123" (bare ticket), "where is TEAM-123", "what phase is TEAM-123 in", "continue TEAM-123", "pick up where TEAM-123 left off", "what's next on this ticket". Reads the contract's current state, maps it to the lifecycle phase (draft / implement / close / done), and hands off to the matching skill. Does NOT itself draft, implement, or close — it only detects the phase and dispatches.
+argument-hint: "<TEAM-N or contract slug>"
+allowed-tools:
+  - mcp__linear-server__get_issue
+  - mcp__linear-server__list_issue_statuses
+  - Read
+  - Glob
 ---
 
 # spec-flow:route

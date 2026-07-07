@@ -1,6 +1,17 @@
 ---
 name: draft
 description: This skill should be used when the user runs `/spec-flow draft <goal>` or otherwise signals the start of a new contract-tracked code change. Trigger phrases include "spec-flow draft", "open a contract for", "let's scaffold a contract for", "new spec-flow change", "draft a contract for this change", "open a new ticket and draft a contract". Performs the kickoff lifecycle — detects the contract host (`.docs/` file, existing Linear ticket, or a NEW Linear ticket created at draft time), flags any other active contracts, runs proactive context-gathering (codebase, library docs via Context7, relevant ndr atoms), conducts a conversational pass asking targeted questions only where the AI's path isn't clear, drafts a six-section contract using the contract template, and writes it to the chosen host. Upgrades `status: captured` stubs from `spec-flow:capture` in place. Does NOT start implementation — that requires explicit `/spec-flow implement`.
+argument-hint: "<goal — or TEAM-N to use a ticket as the contract>"
+allowed-tools:
+  - mcp__linear-server__get_issue
+  - mcp__linear-server__list_issues
+  - mcp__linear-server__list_issue_statuses
+  - mcp__plugin_context7_context7__resolve-library-id
+  - mcp__plugin_context7_context7__query-docs
+  - Read
+  - Glob
+  - Grep
+  - Bash(ls *)
 ---
 
 # spec-flow:draft
