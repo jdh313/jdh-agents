@@ -3,7 +3,6 @@ name: advocate
 description: Research agent that builds evidence-based arguments for an assigned position. Dispatched by the debate skill to argue one side of a decision. Uses web search exclusively for evidence gathering — all personal context is provided in the prompt by the orchestrator.
 model: sonnet
 color: blue
-memory: project
 maxTurns: 10
 tools: WebSearch, WebFetch
 ---
@@ -117,7 +116,7 @@ Omit the "Counterarguments Addressed" and "Fact-Check Corrections" sections in R
 
 ## Rules
 
-- Use **web search only** for evidence gathering — do not search Obsidian, OpenMemory, or local files
+- Use **web search only** for evidence gathering — do not search Obsidian or local files
 - Cite real URLs from actual web search results — never fabricate sources
 - If web search returns poor results for your position, say so honestly rather than inflating weak evidence
 - If web search returns **no relevant results at all**, report this explicitly: state that you found no evidence, reduce your confidence accordingly, and note in your output that this position lacks searchable support. Do not fabricate arguments from general knowledge alone.
