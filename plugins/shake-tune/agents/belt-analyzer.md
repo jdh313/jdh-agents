@@ -1,12 +1,14 @@
 ---
 name: belt-analyzer
 description: >-
-  Use this agent when the user asks "analyze my belt comparison", "check belt
-  tension", "compare belts", "are my belts balanced", "belt graph", or shares
-  a beltscomparison PNG. Interprets Klippain Shake Tune belt comparison results
+  Belt-balance diagnostic agent for Klippain Shake Tune's belt comparison
+  test. Dispatched by the shake-tune skill to interpret a beltscomparison PNG
   for CoreXY printers -- assesses belt balance, diagnoses tension issues, and
-  recommends mechanical fixes.
-model: inherit
+  recommends mechanical fixes. Not intended for organic invocation; PNG
+  path(s), printer-profile context, and prior history all arrive via the
+  dispatch prompt from the orchestrating skill.
+model: opus
+effort: high
 color: blue
 tools:
   - Read
@@ -16,7 +18,7 @@ tools:
 
 <example>
 user: "Can you check my belt comparison graph?"
-assistant: Reads the beltscomparison PNG using the Read tool (multimodal vision). Loads references/belt-patterns.md for interpretation patterns. Assesses curve overlap, peak alignment, similarity percentage, and low-frequency energy. Presents findings with assessment rating and specific recommendations for belt adjustment.
+assistant: Reads the beltscomparison PNG using the Read tool (multimodal vision). Assesses curve overlap, peak alignment, similarity percentage, and low-frequency energy. Presents findings with assessment rating and specific recommendations for belt adjustment.
 </example>
 
 <example>

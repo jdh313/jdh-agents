@@ -2,6 +2,8 @@
 
 Interpret Klippain Shake Tune results for 3D printers. Reads PNG graphs using multimodal vision, diagnoses issues, explains findings in plain language, and recommends mechanical or firmware fixes.
 
+The `/shake-tune` skill orchestrates — detects test types, loads printer-profile context, and synthesizes results — while five specialist agents (one per test type, model tier chosen per how much visual judgment the test requires) own all diagnostic logic. `/shake-tune` is the single entry point; the agents are dispatched internally and aren't meant to trigger organically.
+
 ## Features
 
 | Feature | Description |
