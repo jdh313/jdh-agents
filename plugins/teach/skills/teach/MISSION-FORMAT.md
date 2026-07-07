@@ -38,7 +38,7 @@ tags: [learning, topic/{x}, context/{y}]
 - {Time, budget, prior commitments, learning preferences, anything that bounds the approach}
 
 ## Stack lens
-- {OPTIONAL. The specific technologies/patterns this concept is being learned *through* — the productive constraint. e.g. "Auth taught through Okta/OIDC + RBAC + FastAPI/Dishka, as Wayfinder uses it."}
+- {OPTIONAL. The specific technologies/patterns this concept is being learned *through* — the productive constraint. e.g. "Auth taught through Okta/OIDC + RBAC + FastAPI/Dishka, as Meridian uses it."}
 - {What this implies is *off-stack* and therefore not taught: e.g. "not SAML, not session cookies, not ABAC." Lessons bind to concept + this lens, never to exact code wiring (file/line/provider).}
 
 ## Out of scope

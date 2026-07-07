@@ -91,7 +91,7 @@ The HTML home of the "Citing a live codebase" rule (`SKILL.md`). Embed the snipp
 
 ```html
 <figure class="snap">
-  <figcaption><code>services/auth/guard.ts</code> · <a href="PERMALINK">cartaos@a1b2c3d (2026-06-15)</a></figcaption>
+  <figcaption><code>services/auth/guard.ts</code> · <a href="PERMALINK">atlas-app@a1b2c3d (2026-06-15)</a></figcaption>
   <pre><code>export function requireRole(r) { /* … */ }</code></pre>
 </figure>
 ```
