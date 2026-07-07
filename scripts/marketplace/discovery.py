@@ -15,7 +15,8 @@ def discover_plugins(
     """Return a sorted list of plugin registry entries from *plugins_dir*.
 
     Each entry matches the marketplace.json plugin shape:
-        name, source, description, version, author, [keywords], [homepage], [repository]
+        name, source, description, version, author,
+        [keywords], [homepage], [repository], [defaultEnabled]
 
     If *allowlist* is given, only plugins whose name appears in the list are
     included.  Missing allowlisted names are NOT warned here — callers that need
@@ -63,7 +64,7 @@ def discover_plugins(
             "version": data.get("version", "1.0.0"),
             "author": data.get("author", {"name": "Unknown"}),
         }
-        for optional_field in ("keywords", "homepage", "repository"):
+        for optional_field in ("keywords", "homepage", "repository", "defaultEnabled"):
             if optional_field in data:
                 entry[optional_field] = data[optional_field]
 

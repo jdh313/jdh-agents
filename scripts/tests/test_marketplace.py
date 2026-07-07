@@ -25,7 +25,11 @@ from marketplace.validate import validate_manifest
 
 
 def _make_plugin(
-    plugins_dir: Path, name: str, version: str = "1.0.0", description: str = "A plugin"
+    plugins_dir: Path,
+    name: str,
+    version: str = "1.0.0",
+    description: str = "A plugin",
+    default_enabled: bool | None = None,
 ) -> Path:
     """Create a minimal valid plugin tree under *plugins_dir*/<name>/."""
     plugin_dir = plugins_dir / name
@@ -34,17 +38,17 @@ def _make_plugin(
     skill_dir = plugin_dir / "skills" / "hello"
     skill_dir.mkdir(parents=True)
     (skill_dir / "SKILL.md").write_text("# Hello\n\nThis skill does something useful.\n" * 3)
+    plugin_data = {
+        "name": name,
+        "version": version,
+        "description": description,
+        "author": {"name": "Tester"},
+        "keywords": ["test"],
+    }
+    if default_enabled is not None:
+        plugin_data["defaultEnabled"] = default_enabled
     plugin_json = meta_dir / "plugin.json"
-    plugin_json.write_text(
-        json.dumps({
-            "name": name,
-            "version": version,
-            "description": description,
-            "author": {"name": "Tester"},
-            "keywords": ["test"],
-        }),
-        encoding="utf-8",
-    )
+    plugin_json.write_text(json.dumps(plugin_data), encoding="utf-8")
     return plugin_dir
 
 
@@ -115,6 +119,33 @@ def test_discover_plugins_skips_invalid_json(tmp_path: Path, capsys) -> None:
     assert found == []
     captured = capsys.readouterr()
     assert "Warning" in captured.err
+
+
+# ---------------------------------------------------------------------------
+# (a2) defaultEnabled propagation
+# ---------------------------------------------------------------------------
+
+
+def test_discover_plugins_propagates_default_enabled(tmp_path: Path) -> None:
+    plugins_dir = tmp_path / "plugins"
+    plugins_dir.mkdir()
+    _make_plugin(plugins_dir, "disabled-by-default", default_enabled=False)
+
+    found = discover_plugins(plugins_dir)
+
+    assert len(found) == 1
+    assert found[0]["defaultEnabled"] is False
+
+
+def test_discover_plugins_omits_default_enabled_when_unset(tmp_path: Path) -> None:
+    plugins_dir = tmp_path / "plugins"
+    plugins_dir.mkdir()
+    _make_plugin(plugins_dir, "no-opinion")
+
+    found = discover_plugins(plugins_dir)
+
+    assert len(found) == 1
+    assert "defaultEnabled" not in found[0]
 
 
 # ---------------------------------------------------------------------------
