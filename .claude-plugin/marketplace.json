@@ -42,7 +42,7 @@
       "name": "commit",
       "source": "./plugins/commit",
       "description": "Format-aware atomic commits for git and jj (Jujutsu). One skill covering commit, split, message review, and retrofitting edits into earlier commits (jj absorb / git fixup). Auto-detects VCS and commit message style from repo context. Includes PreToolUse hook that blocks destructive working-copy operations.",
-      "version": "3.2.0",
+      "version": "3.2.1",
       "author": {
         "name": "Jacob Hoehler"
       },
