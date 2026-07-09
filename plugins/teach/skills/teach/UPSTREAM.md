@@ -1,6 +1,6 @@
 # Upstream divergences — teach
 
-_Upstream: `mattpocock/skills` · `skills/productivity/teach` · ledger current as of `reviewed_sha: 694fa30311e0`_
+_Upstream: `mattpocock/skills` · `skills/productivity/teach` · ledger current as of `reviewed_sha: aa024cb1954f`_
 
 Intentional divergences from upstream. Reviewed via `provenance:upstream-review` intake (2026-06-12); adapted for Obsidian-vault routing the same day. Do not re-flag these as findings. Read by `upstream-review` only; never referenced from `SKILL.md`.
 
@@ -34,3 +34,6 @@ Lesson philosophy and beauty bar; fluency-vs-storage-strength; zone of proximal 
 | added | `disallowed-tools: Edit, Bash(rm *), Bash(trash *), Bash(git push *), Bash(jj abandon *), Bash(jj restore *)` — fences vault-write-unsafe tools that have no role in a teaching session. | Teaching sessions should never need `Edit` (vault writes go through `obsidian-cli`/`patch_note`/`Write`), nor destructive shell or VCS operations. Conservative: denies only tools verifiably unused by this skill. |
 | deferred | `defaultEnabled: false` — not a supported SKILL.md frontmatter field as of 2026-06-18. The docs use `skillOverrides` in settings.json for this purpose. | Users wishing to opt in explicitly can set `skillOverrides: { "teach:teach": "off" }` in their settings.json. Consider revisiting if upstream agentskills.io standard adds the field. |
 | deferred | Nested-skill namespacing (e.g. `teach:teach`) — roadmap only. Currently the skill is accessed as `/teach` from the plugin. | If the skill set grows, namespace it as `plugins/teach/skills/teach/SKILL.md` → `/teach:teach` using the plugin-root path convention. No change needed today. |
+| changed | Upstream added a reuse-first `./assets/` model since our pin: lessons are built from linked, cross-lesson-shared components — a shared stylesheet ("the first component every workspace earns") and shared quiz/simulator JS. We keep copy-in-only: each lesson stays independently self-contained per `LESSON-DESIGN-SYSTEM.md`'s "Self-contained, always" rule — no shared external stylesheet or JS. | Each lesson must be independently portable; linking to shared workspace assets breaks that guarantee the moment a lesson is copied or shared standalone. The JS-component reuse exception (shared quiz-grading JS) was considered and **deferred**, not adopted. |
+
+**Note (2026-07-09):** Upstream's new `./assets/` section nudges toward a de-facto per-workspace design system (a shared stylesheet as "the first component every workspace earns"). The row 29 claim "Upstream gives no styling/interactivity scaffolding" is trending toward stale — upstream is visibly moving in that direction — though it remains technically true as of this review, since upstream's scaffolding is link-out/shared rather than the copy-in composable system `LESSON-DESIGN-SYSTEM.md` defines.

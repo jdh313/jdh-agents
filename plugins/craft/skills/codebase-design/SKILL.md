@@ -1,12 +1,28 @@
-# Language
+---
+name: codebase-design
+description: Shared vocabulary for designing deep modules. Use when the user wants to design or improve a module's interface, find deepening opportunities, decide where a seam goes, make code more testable or AI-navigable, or when another craft skill needs the deep-module vocabulary. Adapted from mattpocock/skills (MIT, © 2026 Matt Pocock).
+upstream:
+  repo: mattpocock/skills
+  path: skills/engineering/codebase-design
+  reviewed_sha: ee8bae40062c
+  reviewed: 2026-07-09
+  status: reviewed
+allowed-tools:
+  - Read
+  - Grep
+  - Glob
+  - Agent
+---
 
-Shared vocabulary for the `craft` plugin's architectural skills. Use these terms exactly — don't substitute "component," "service," "API," or "boundary." Consistent language is the whole point.
+# Codebase Design
 
-Referenced by `craft:tdd` and `craft:improve-codebase-architecture`. Both skills should treat this file as the canonical glossary; if a skill introduces a new term, add it here rather than defining it locally.
+Design **deep modules**: a lot of behaviour behind a small interface, placed at a clean seam, testable through that interface. Use this language and these principles wherever code is being designed or restructured. The aim is leverage for callers, locality for maintainers, and testability for everyone.
 
-Adapted from mattpocock/skills (MIT, © 2026 Matt Pocock).
+This is the shared architecture vocabulary for the `craft` plugin. `craft:tdd`, `craft:improve-codebase-architecture`, and `craft:grill-with-docs` all name things with these terms — use them exactly, don't substitute "component," "service," "API," or "boundary." If a skill needs a new architectural term, add it here rather than defining it locally.
 
-## Terms
+## Glossary
+
+Use these terms exactly. Consistent language is the whole point.
 
 **Module**
 Anything with an interface and an implementation. Deliberately scale-agnostic — applies equally to a function, class, package, or tier-spanning slice.
@@ -35,12 +51,72 @@ What callers get from depth. More capability per unit of interface they have to 
 **Locality**
 What maintainers get from depth. Change, bugs, knowledge, and verification concentrate at one place rather than spreading across callers. Fix once, fixed everywhere.
 
+## Deep vs shallow
+
+**Deep module** = small interface + lots of implementation:
+
+```
+┌─────────────────────┐
+│   Small Interface   │  ← Few methods, simple params
+├─────────────────────┤
+│                     │
+│  Deep Implementation│  ← Complex logic hidden
+│                     │
+└─────────────────────┘
+```
+
+**Shallow module** = large interface + little implementation (avoid):
+
+```
+┌─────────────────────────────────┐
+│       Large Interface           │  ← Many methods, complex params
+├─────────────────────────────────┤
+│  Thin Implementation            │  ← Just passes through
+└─────────────────────────────────┘
+```
+
+When designing an interface, ask:
+
+- Can I reduce the number of methods?
+- Can I simplify the parameters?
+- Can I hide more complexity inside?
+
 ## Principles
 
 - **Depth is a property of the interface, not the implementation.** A deep module can be internally composed of small, mockable, swappable parts — they just aren't part of the interface. A module can have **internal seams** (private to its implementation, used by its own tests) as well as the **external seam** at its interface.
 - **The deletion test.** Imagine deleting the module. If complexity vanishes, the module wasn't hiding anything (it was a pass-through). If complexity reappears across N callers, the module was earning its keep.
 - **The interface is the test surface.** Callers and tests cross the same seam. If you want to test *past* the interface, the module is probably the wrong shape.
 - **One adapter means a hypothetical seam. Two adapters means a real one.** Don't introduce a seam unless something actually varies across it.
+
+## Designing for testability
+
+Good interfaces make testing natural:
+
+1. **Accept dependencies, don't create them.**
+
+   ```typescript
+   // Testable
+   function processOrder(order, paymentGateway) {}
+
+   // Hard to test
+   function processOrder(order) {
+     const gateway = new StripeGateway();
+   }
+   ```
+
+2. **Return results, don't produce side effects.**
+
+   ```typescript
+   // Testable
+   function calculateDiscount(cart): Discount {}
+
+   // Hard to test
+   function applyDiscount(cart): void {
+     cart.total -= discount;
+   }
+   ```
+
+3. **Small surface area.** Fewer methods = fewer tests needed. Fewer params = simpler test setup.
 
 ## Relationships
 
@@ -55,3 +131,8 @@ What maintainers get from depth. Change, bugs, knowledge, and verification conce
 - **Depth as ratio of implementation-lines to interface-lines** (Ousterhout): rewards padding the implementation. We use depth-as-leverage instead.
 - **"Interface" as the TypeScript `interface` keyword or a class's public methods**: too narrow — interface here includes every fact a caller must know.
 - **"Boundary"**: overloaded with DDD's bounded context. Say **seam** or **interface**.
+
+## Going deeper
+
+- **Deepening a cluster given its dependencies** — see [DEEPENING.md](DEEPENING.md): dependency categories, seam discipline, and replace-don't-layer testing.
+- **Exploring alternative interfaces** — see [DESIGN-IT-TWICE.md](DESIGN-IT-TWICE.md): spin up parallel sub-agents to design the interface several radically different ways, then compare on depth, locality, and seam placement.

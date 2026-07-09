@@ -28,7 +28,7 @@ Optional: `derived_from: "[[0003-some-record]]"` (which session or record produc
 ```md
 # {Short title of what is now understood}
 
-{1-3 sentences: the mental model, contract, or invariant — and why it matters for navigating or changing this code. Use the project's CONTEXT.md vocabulary and the module/seam/depth language from craft's LANGUAGE.md.}
+{1-3 sentences: the mental model, contract, or invariant — and why it matters for navigating or changing this code. Use the project's CONTEXT.md vocabulary and the module/seam/depth language from the codebase-design skill (`craft:codebase-design`).}
 ```
 
 That is the whole format. A record can be a single paragraph. The value is recording _that_ this is now understood and _why_ it changes what to explain next — not in filling out sections.

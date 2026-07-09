@@ -35,10 +35,10 @@ allowed-tools:
   - Agent
 upstream:
   repo: mattpocock/skills
-  path: skills/engineering/to-issues
-  reviewed_sha: 0172e61e57c9
-  reviewed: 2026-07-06
-  status: baseline
+  path: skills/engineering/to-tickets
+  reviewed_sha: d29732e49f60
+  reviewed: 2026-07-09
+  status: reviewed
 ---
 
 # breakdown
@@ -71,13 +71,14 @@ This is the multi-ticket-from-a-plan skill. For one-shot single-ticket drafting,
    - Avoid duplicating settled choices
    - Recognize when a slice IS a decision point (gets the `Decision` type label)
 
-3. **Explore codebase (optional).** If implementing in a tracked area and unfamiliar with the current state, dispatch the `Explore` agent with a tightly-scoped question. Skip when the source already grounds you sufficiently.
+3. **Explore codebase (optional).** If implementing in a tracked area and unfamiliar with the current state, dispatch the `Explore` agent with a tightly-scoped question. Skip when the source already grounds you sufficiently. Look for opportunities to prefactor the code to make the implementation easier. "Make the change easy, then make the easy change."
 
 4. **Draft vertical slices.** Follow these rules:
 
    - Each slice delivers a **narrow but COMPLETE path** through every layer the change touches (schema → API → UI → tests, or whichever subset applies).
    - A completed slice is **demoable or verifiable on its own**.
    - **Many thin slices > few thick ones.** When in doubt, split.
+   - **Wide refactors are the exception to vertical slicing.** A **wide refactor** is one mechanical change — a column rename, a retyped shared symbol — whose blast radius fans across the whole codebase, so a single edit breaks call sites everywhere at once and no vertical slice can land green. Don't force it into a tracer bullet; sequence it as **expand -> migrate -> contract**: an **expand** slice adds the new form beside the old so nothing breaks yet; one or more **migrate** slices move call sites over in batches sized by blast radius (per package, per directory), each batch its own slice blocked by the expand slice via Linear's native blocks/blocked-by relation, keeping CI green batch to batch because the old form still exists; a final **contract** slice deletes the old form once no caller remains, blocked by every migrate batch. If even the batches can't stay green alone, keep the sequence but give the migrate/contract slices a shared integration branch, with all of them blocking a final integrate-and-verify slice — green is promised only there.
    - **Decision-shaped slices count as a slice.** If the breakdown requires choosing between options before implementation can proceed, that's its own slice with `Decision` type label and `Done when: decision captured (as an ndr atom if you use ndr) and linked here`.
    - **Cross-cutting concerns** (auth, observability, schema migrations) often belong inside a slice, not as separate horizontal slices.
 
