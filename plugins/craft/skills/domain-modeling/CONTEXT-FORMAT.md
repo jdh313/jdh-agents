@@ -1,6 +1,6 @@
 # CONTEXT.md Format
 
-The per-repo glossary that this skill maintains. Lives at the repo root. AI-maintained, definitions only, no prose, no rationale.
+The per-repo glossary this skill maintains. Lives at the repo root. AI-maintained, definitions only, no prose, no rationale.
 
 ## Structure
 

@@ -4,9 +4,9 @@ description: Disciplined diagnosis loop for hard bugs and performance regression
 effort: high
 upstream:
   repo: mattpocock/skills
-  path: skills/engineering/diagnose
-  reviewed_sha: 7afa86d3a5dd
-  reviewed: 2026-06-11
+  path: skills/engineering/diagnosing-bugs
+  reviewed_sha: ee8bae40062c
+  reviewed: 2026-07-09
   status: reviewed
 allowed-tools:
   - Read
@@ -22,7 +22,7 @@ A discipline for hard bugs. Skip phases only when explicitly justified.
 
 > **Tip:** For multi-phase investigations, run this skill under `/goal "<symptom resolved>"` so progress through phases is tracked and the loop ends when the bug is confirmed fixed.
 
-When exploring the codebase, use the project's domain glossary to get a clear mental model of the relevant modules, and invoke `/ground` to surface relevant NDR atoms in the area you're touching.
+When exploring the codebase, read `CONTEXT.md` (if it exists) to get a clear mental model of the relevant modules, and invoke `/ground` to surface relevant NDR atoms in the area you're touching.
 
 ## Phase 1 — Build a feedback loop
 
@@ -63,9 +63,18 @@ The goal is not a clean repro but a **higher reproduction rate**. Loop the trigg
 
 Stop and say so explicitly. List what you tried. Ask the user for: (a) access to whatever environment reproduces it, (b) a captured artifact (HAR file, log dump, core dump, screen recording with timestamps), or (c) permission to add temporary production instrumentation. Do **not** proceed to hypothesise without a loop.
 
-Do not proceed to Phase 2 until you have a loop you believe in.
+### Completion criterion — a tight loop that goes red
 
-## Phase 2 — Reproduce
+Phase 1 is done when the loop is **tight** and **red-capable**: you can name **one command** — a script path, a test invocation, a curl — that you have **already run at least once** (paste the invocation and its output), and that is:
+
+- [ ] **Red-capable** — it drives the actual bug code path and asserts the **user's exact symptom**, so it can go red on this bug and green once fixed. Not "runs without erroring" — it must be able to _catch this specific bug_.
+- [ ] **Deterministic** — same verdict every run (flaky bugs: a pinned, high reproduction rate, per above).
+- [ ] **Fast** — seconds, not minutes.
+- [ ] **Agent-runnable** — you can run it unattended; a human in the loop only via `scripts/hitl-loop.template.sh`.
+
+If you catch yourself reading code to build a theory before this command exists, **stop — jumping straight to a hypothesis is the exact failure this skill prevents.** No red-capable command, no Phase 2.
+
+## Phase 2 — Reproduce + minimise
 
 Run the loop. Watch the bug appear.
 
@@ -75,7 +84,15 @@ Confirm:
 - [ ] The failure is reproducible across multiple runs (or, for non-deterministic bugs, reproducible at a high enough rate to debug against).
 - [ ] You have captured the exact symptom (error message, wrong output, slow timing) so later phases can verify the fix actually addresses it.
 
-Do not proceed until you reproduce the bug.
+### Minimise
+
+Once it's reproducing, shrink the repro to the **smallest scenario that still reproduces**. Cut inputs, callers, config, data, and steps **one at a time**, re-running the loop after each cut — keep only what's load-bearing for the failure.
+
+Why bother: a minimal repro shrinks the hypothesis space in Phase 3 (fewer moving parts left to suspect) and becomes the clean regression test in Phase 5.
+
+Done when **every remaining element is load-bearing** — removing any one of them makes the loop pass again.
+
+Do not proceed until you have reproduced **and** minimised.
 
 ## Phase 3 — Hypothesise
 

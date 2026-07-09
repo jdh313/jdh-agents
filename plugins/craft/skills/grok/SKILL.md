@@ -38,7 +38,7 @@ You do not know this codebase. Treat the code and its durable layer as the only 
 3. **The code**, via a named `Explore` agent (`subagent_type=Explore`, `name="grok-explorer"`) for fan-out reads — keep it addressable so you can ask follow-ups during a walk. Use `Grep`/`Glob`/`Read` directly for narrow checks.
 4. **Git history** — `git log`, `git show`, `git blame` to learn _why_ code is shaped the way it is and who to ask. History is a primary source for a "why," not a footnote.
 
-Use craft's shared vocabulary — **module, interface, implementation, depth, seam, adapter, leverage, locality** (see [LANGUAGE.md](../../references/LANGUAGE.md)) — so explanations stay consistent with `improve-codebase-architecture` and `zoom-out`.
+Use craft's shared vocabulary — **module, interface, implementation, depth, seam, adapter, leverage, locality** — from the `codebase-design` skill (`craft:codebase-design`) — so explanations stay consistent with `improve-codebase-architecture` and `zoom-out`.
 
 ## The workspace (in the vault)
 
