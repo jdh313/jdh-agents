@@ -52,7 +52,7 @@ Do not run `claude mcp add` or suggest a paste-and-go connect command.
 - **File host** — `Read` the contract file.
 - **Linear host** — Fetch description via `mcp__linear-server__get_issue`.
 - **Detect the VCS first** — if `.jj/` exists at the repo root, use `jj log` / `jj diff`; otherwise `git log` / `git diff`. Survey what actually shipped since the contract was created.
-- Compare: what was in *Approach* vs. what's in the code now.
+- Compare: what was in *Approach / wiring* (or *Approach* on a pre-v2.1 contract) vs. what's in the code now.
 
 ### 2.5. Done-when check (first gate)
 
@@ -69,7 +69,7 @@ Prefer behavioral confirmation over diff-reading. If `implement`'s verify step r
 
 If any bullet is **not met**, halt and ask: continue closing anyway (treat as a known gap, note it in the summary), amend the contract via `spec-flow:amend` to reflect a narrower done, or pause closing until the gap ships? Do not silently archive an unmet contract. Do not reach for `reconcile` here — a not-met bullet is a real gap, not a wording drift.
 
-If the contract has no *Done when* section (older format), surface that and either ask the user to draft one inline before review, or fall back to comparing against *Approach*. Note the absence in the close summary so future contracts don't repeat the gap.
+If the contract has no *Done when* section (older format), surface that and either ask the user to draft one inline before review, or fall back to comparing against *Approach / wiring* (or *Approach* on a pre-v2.1 contract). Note the absence in the close summary so future contracts don't repeat the gap.
 
 ### 2a. Offer a drift check (optional)
 
@@ -135,6 +135,7 @@ Surface a structured proposal:
 **ndr atoms to capture:**
 
 - The **`[resolved]` Decision-log rows are the candidate set** — this is where the change's real forks were logged during implement. Each row already carries the atom's live-only fields (`fork → call · because · alt · revisit-if`); drafting an atom is **copy-plus-fill**: copy those, fill the derivable remainder (Scope, Commitments; `/capture-decision` mints the id). Include any rows spawned by a `reconcile` in the done-when gate.
+- **Pre-v2.1 fallback (no Decision log).** A contract drafted before the worksheet shape has no Decision log — its architectural decisions live in *Approach*. If the contract has no `## Decision log` section, harvest the candidate set the old way: for each real choice in *Approach* (library, pattern, structural decision), draft an atom. Do not let *Approach* evaporate un-harvested here — that path only applies to the ephemeral *Approach / wiring* of a v2.1 contract, whose calls were already logged as rows.
 - **Do not pre-filter with a worksheet gate.** Hand the full `[resolved]` set to `/capture-decision` and let it apply the **canonical ndr worthiness rubric** — the contract's job is to surface candidates, not to adjudicate NDR-grade.
 - A `[resolved]` row that *reverses* an earlier one (carries `_supersedes:_ ^rN`) drafts as a **superseding** atom — resolve the predecessor's head and set `supersedes:` per the ndr plugin's conventions.
 - **`Approach / wiring` evaporates** — it is ephemeral integration mechanics, not a decision. Anything durable or user-facing in it reaches README via the README-update proposal below, not an atom.
