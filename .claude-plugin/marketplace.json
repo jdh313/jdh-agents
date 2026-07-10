@@ -205,7 +205,7 @@
       "name": "pm",
       "source": "./plugins/pm",
       "description": "PM helpers for team Linear workflows. Skills for the weekly grooming loop (per-person WIP), plan-to-tickets breakdown (assignee-aware), and end-of-cycle retro notes (attribution + Linear-first output). Composes with the linear plugin; ndr and librarian integrations are optional externals.",
-      "version": "0.4.0",
+      "version": "0.5.0",
       "author": {
         "name": "Jacob Hoehler"
       },
@@ -261,7 +261,7 @@
       "name": "spec-flow",
       "source": "./plugins/spec-flow",
       "description": "Personal SDLC scaffolding for AI-assisted development. A lightweight, ephemeral 'contract' between user and AI drives each code change from captured idea to verified done; the durable layer (CLAUDE.md, ndr atoms, README) lives elsewhere. Lifecycle: capture -> draft -> implement -> close.",
-      "version": "0.11.2",
+      "version": "0.12.0",
       "author": {
         "name": "Jacob Hoehler"
       },

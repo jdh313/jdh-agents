@@ -22,7 +22,21 @@ Propose a contract amendment mid-implementation. Sign-off required before any ed
 ## Do NOT invoke for
 
 - Trivial implementation details that don't change the contract's substance (variable names, internal helper choices, file organization).
+- **Appending a Decision-log row** — logging a fork's outcome (`[resolved]` / `[deferred]` / a new `[open]`) is `implement`'s routine `append`, not an amendment. It writes working-matter and logs a fact; it does not renegotiate the target, so it takes no sign-off.
+- **Reconciling a drifted *Done when* at close** — correcting a bullet's wording to match shipped reality is `spec-flow:close`'s `reconcile` op, which rides close's own sign-off. Amend is only for renegotiating the target *in flight*.
 - Final state at close — that is `spec-flow:close`'s migration step, not amendment.
+
+## Amend vs. append vs. reconcile
+
+Three ops touch the contract; only **amend** renegotiates the live agreement, so only amend gates on sign-off here:
+
+| Op | Touches | When | Renegotiates? | Owner |
+|----|---------|------|---------------|-------|
+| **append** | Decision log | in flight | no | `implement` (step 5) |
+| **amend** | front-matter | in flight | **yes** | this skill |
+| **reconcile** | front-matter | at close | no | `close` |
+
+**The concurrency guard follows the host, not the op.** On the **Linear host** every write is a whole-description overwrite, so *every* write — appends included — carries the concurrent-edit guard (re-fetch + compare; it only bites when a concurrent edit is actually detected). On the **file host**, append is append-only and needs no guard; only amends (front-matter edits) do. Step 4 below is the amend guard; the append guard lives in `implement`.
 
 ## Workflow
 
