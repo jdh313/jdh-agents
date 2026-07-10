@@ -60,11 +60,14 @@ Walk each *Done when* bullet against the actual change:
 
 - **Met** — outcome is observable in the diff / repo state.
 - **Not met** — outcome is missing or partial. Surface explicitly.
-- **Drifted** — outcome shipped, but the bullet no longer describes it well (rephrase candidate during close).
+- **Drifted** — outcome shipped, but the bullet no longer describes it well.
+- **Met-with-deferral** — a breakdown migrate slice whose bullet was *relative* ("call sites moved; end-to-end green promised at `<final slice>`"). Honor the deferral: this is met, **not** not-met, provided the named final slice exists (and, if already closed, verified). The cross-batch Done-when is owned by the integrate-and-verify slice, not this one.
 
 Prefer behavioral confirmation over diff-reading. If `implement`'s verify step ran this session, reuse its per-bullet result; otherwise dispatch the **`contract-verifier`** agent (Done-when bullets + diff scope + detected VCS) to run the checks now in isolated context — or fall back to running them inline (`/verify` if available). A bullet that only *looks* met in the diff is exactly the drift this gate exists to catch.
 
-If any bullet is **not met**, halt and ask: continue closing anyway (treat as a known gap, note it in the summary), amend the contract via `spec-flow:amend` to reflect a narrower done, or pause closing until the gap ships? Do not silently archive an unmet contract.
+**Reconcile a drifted bullet (`reconcile` op).** A `drifted` bullet is corrected to shipped reality — a front-matter edit that does *not* renegotiate the target (the thing shipped; only its wording was off), so it rides this close's sign-off rather than a separate `spec-flow:amend`. `reconcile` is legal ONLY on `drifted`, never on `not_met` (didn't ship → halt-and-ask below). Each reconcile **spawns a Decision-log row** capturing *why* the criterion drifted, so the insight harvests in step 4 instead of evaporating with the reworded bullet. Fold the reconciled wording and the spawned row into the sign-off proposal in step 4/5.
+
+If any bullet is **not met**, halt and ask: continue closing anyway (treat as a known gap, note it in the summary), amend the contract via `spec-flow:amend` to reflect a narrower done, or pause closing until the gap ships? Do not silently archive an unmet contract. Do not reach for `reconcile` here — a not-met bullet is a real gap, not a wording drift.
 
 If the contract has no *Done when* section (older format), surface that and either ask the user to draft one inline before review, or fall back to comparing against *Approach*. Note the absence in the close summary so future contracts don't repeat the gap.
 
@@ -75,6 +78,28 @@ If the `ndr` plugin is installed and has atoms scoped to this project/repo, prom
 > "Want to run a drift check against ndr atoms before archiving? (`Skill(ndr:drift-check)` scoped to the change since the contract was created — a jj revset or git range, per the VCS detected in step 2.)"
 
 If yes, dispatch the skill and weave its findings into the migration proposal in step 3 — e.g. an atom flagged with `recommendation: amend` becomes a candidate successor in the *ndr atoms to capture* list. Do not auto-invoke; this is opt-in per close.
+
+### 2b. Deferral materialization gate (second gate)
+
+The contract is ephemeral — its Decision log dies at archive. A `[deferred]` row tracked *only* in the dying worksheet is just forgetting with better manners, so close will not cleanly archive a contract holding an **un-materialized** deferral.
+
+Scan the Decision log for `[deferred]` rows. Each must carry a **materialized handle** — a link or id to a durable tracked artifact (`tracked in TEAM-456`, `tracked in .docs/…`, `tracked in ndr:…`). For any `[deferred]` row missing one, halt and offer:
+
+- **Spawn a follow-up (default):** invoke `Skill(spec-flow:capture)` to file a zero-ceremony Backlog ticket (linear host) or `status: captured` stub (file host) carrying the row's fork + why-not-now, then **backfill** the returned handle into the row.
+- **Link an existing artifact:** the user names the ticket/note that already tracks it; backfill that handle.
+- **Reclassify:** the row wasn't really a deliberate punt — downgrade it (`[open]` → flagged as a shipped hole, or `[resolved]` if it was actually decided). Only with the user's explicit call.
+
+Do not archive until every `[deferred]` row carries a handle. The three row states map one-to-one to three close fates: `[open]` flags, `[resolved]` harvests (step 4), `[deferred]` spawns — this gate owns the spawn.
+
+### 2c. Breakdown-parent gate (nested contracts)
+
+Detect whether this contract is a **breakdown parent** — its Decision log or body carries child-slice pointers (child `TEAM-N` relations on the linear host, or referenced child files). If it is:
+
+- **The parent closes last.** Every child slice must already be closed — child files in `.docs/archive/`, or child tickets in a review-or-later state. If any child is still open, halt and list them: the parent cannot close over open slices.
+- **Parent-close harvests the parent's own log.** Run the normal migration (steps 3–6) against the parent's front-matter + its **integration / whole-change** Decision-log rows — the cross-slice calls that never belonged to any single slice.
+- **Flag literal duplication.** If a decision appears verbatim in both the parent log and a (now-archived) slice log, surface it — a row belongs to exactly one log. This is a duplication flag, not a misplacement audit; correct placement was author judgment at implement time.
+
+A non-parent (single) contract skips this gate.
 
 ### 3. Post team-facing outcome summary (Linear host only)
 
@@ -109,8 +134,10 @@ Surface a structured proposal:
 
 **ndr atoms to capture:**
 
-- For each architectural decision (anything in *Approach* that constitutes a real choice — library, pattern, structural decision), draft an ndr atom for `/capture-decision`.
-- Follow existing supersession-aware conventions from the ndr plugin.
+- The **`[resolved]` Decision-log rows are the candidate set** — this is where the change's real forks were logged during implement. Each row already carries the atom's live-only fields (`fork → call · because · alt · revisit-if`); drafting an atom is **copy-plus-fill**: copy those, fill the derivable remainder (Scope, Commitments; `/capture-decision` mints the id). Include any rows spawned by a `reconcile` in the done-when gate.
+- **Do not pre-filter with a worksheet gate.** Hand the full `[resolved]` set to `/capture-decision` and let it apply the **canonical ndr worthiness rubric** — the contract's job is to surface candidates, not to adjudicate NDR-grade.
+- A `[resolved]` row that *reverses* an earlier one (carries `_supersedes:_ ^rN`) drafts as a **superseding** atom — resolve the predecessor's head and set `supersedes:` per the ndr plugin's conventions.
+- **`Approach / wiring` evaporates** — it is ephemeral integration mechanics, not a decision. Anything durable or user-facing in it reaches README via the README-update proposal below, not an atom.
 
 **README updates:**
 
@@ -126,7 +153,9 @@ Surface a structured proposal:
 **Not migrated:**
 
 - *Out of scope* items (by definition not part of this change).
-- *Open questions* that were resolved but produced no durable artifact.
+- Decision-log `[resolved]` rows that `/capture-decision` judged below NDR-grade (the rubric's call, not the worksheet's).
+- `[deferred]` rows — already materialized as their own tracked artifact by the deferral gate (step 2b); they don't also migrate here.
+- *Approach / wiring* — ephemeral by design; evaporates at archive.
 - Conversation history (lives in the contract file until archive).
 
 Present as a diff-style list:

@@ -87,7 +87,7 @@ Check whether implementation has already begun:
 Summarize back to the user in 2–3 lines:
 
 - **First run:** "Contract is `<slug>`. Goal: X. Approach: Y. No implementation work yet."
-- **Resumption:** "Contract is `<slug>`. Last session: A, B per git. Open questions remaining: ..."
+- **Resumption:** "Contract is `<slug>`. Last session: A, B per git. Open forks remaining: ..." (the `[open]` rows in the Decision log).
 
 ### 4. Negotiate cadence
 
@@ -117,11 +117,19 @@ Work according to the chosen cadence:
 - **All at once** — Implement the full change; surface the diff at the end.
 - **Check in after a piece** — Implement up to the agreed breakpoint; surface progress; await sanity-check; continue.
 
+**Append Decision-log rows as forks resolve.** The Decision log is working-matter you *write into* during implementation — this is the routine `append` op (no sign-off; it logs a fact, not a renegotiation). As each fork lands, append a row:
+
+- **[resolved]** — decided here: `<fork> → **<call>**, because <why>. _alt:_ <rejected + why-not>. _revisit if:_ <trigger>`. Reversing an earlier `[resolved]` row? Append a NEW row carrying `_supersedes:_ ^r<N>` and mint the `^r<N>` anchor on the original — never edit the original in place (its reasoning is the record).
+- **[deferred]** — punted to elsewhere: `<fork> → tracked in <handle>, because <why-not-now>`. The handle is backfilled at close if not known yet (close gates archive on it).
+- **[open]** — still unresolved: leave it, or add one if a new fork surfaces mid-flight. Close flags any `[open]` row that ships.
+
+Write rows to a **fresh-closer legibility standard** — the closer may not be you. When a *Done when* bullet turns out to have shipped differently than worded (drift, not a miss), append a `[resolved]` row capturing *why* it drifted; `close`'s `reconcile` op will pick it up. A bullet that genuinely didn't ship is not drift — surface it, don't paper it into a row. On the Linear host, every write is a whole-description overwrite, so appends carry the concurrent-edit guard (re-fetch + compare); on the file host, append is append-only, no guard.
+
 **Commit atomically as you go.** Cadence governs when you *check in with the user*, not when you commit — commit each logical, self-contained slice as it lands in the repo's house style via `Skill(commit:commit)`, which detects git vs. jj and writes the message for you. This holds even for "all at once": land the change as a series of atomic commits rather than one end-of-run blob. At a "check in after a piece" breakpoint, commit the slice once the user has sanity-checked the diff. Never commit over a failing verify (step 7). If the `commit` plugin isn't installed, commit directly following the repo's conventions (CLAUDE.md / recent history).
 
 ### 6. Amend when reality diverges
 
-If implementation reveals the contract is becoming inaccurate (wrong approach, new constraint, scope shift, resolved open question), invoke `Skill(spec-flow:amend)` to propose an edit. Do NOT silently work outside the contract; do NOT silently edit it.
+Distinguish the two working-matter writes from a front-matter amendment. Logging a fork's outcome to the **Decision log** is the routine `append` (step 5) — no sign-off. Invoke `Skill(spec-flow:amend)` only when the **front-matter** is becoming inaccurate — the *target itself* changes: wrong approach, a new constraint narrowing scope, an *Out of scope* item that now needs to be in scope, or a `[open]` Decision-log row whose resolution changes what *Done when* promises. Amending front-matter renegotiates the agreement, so it always takes sign-off. Do NOT silently work outside the contract; do NOT silently edit front-matter.
 
 ### 7. Verify against *Done when*
 

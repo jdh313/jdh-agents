@@ -114,16 +114,21 @@ If contested or fuzzy vocabulary surfaces during the conversation — terms used
 
 ### 5. Draft the contract
 
-Use `../../references/contract-template.md` as the literal scaffold. Six sections:
+Use `../../references/contract-template.md` as the literal scaffold. The contract is a **worksheet**, ordered by audience — cold-legible **front-matter** on top, the internal **working-matter** ledger below:
+
+**Front-matter (cold-legible, read at the gates):**
 
 - **What we're doing** — one or two bullets, plain language.
 - **Why** — one or two bullets, trigger or motivation.
-- **Approach** — bullets, larger strokes only. No task list, no enumeration.
-- **Out of scope** — explicit non-goals.
+- **Out of scope** — explicit non-goals. Fence only. Route by the test *"was this a live fork?"*: a never-considered non-goal belongs here; a considered-and-rejected option belongs in the Decision log as a `[resolved]` rejected-alt; a "not now, maybe later" belongs there as `[deferred]`.
 - **Done when** — 2–4 bullets describing observable outcomes (what's visibly different when the change ships). Bullets, not checkboxes. Load-bearing for the close skill's review.
-- **Open questions** — things deferred to during implementation; load-bearing because they shape the handoff cadence later.
 
-The shape is identical for both hosts.
+**Working-matter (internal ledger, cold-legible at close):**
+
+- **Approach / wiring** — larger strokes only, ephemeral integration mechanics. No task list, no enumeration; it evaporates at close. The *call* behind any wiring lives in the Decision log, not here.
+- **Decision log** — the accreting fork ledger. At draft, seed `[open]` rows for the forks deferred to implementation (leaning: `<default>`). These carry the cadence-shaping role the old *Open questions* section held — their presence/absence shapes the handoff conversation. `[resolved]` and `[deferred]` rows accrue during implement.
+
+The shape is **one shape, nested** — a lean single contract and a breakdown parent are the same six sections at different fill depths (`k7vepz`). Draft the lean fill; `/pm:breakdown` grows it into a parent later if scope outgrows a single contract. The shape is identical for both hosts.
 
 ### 6. Write to the host
 
