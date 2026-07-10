@@ -2,7 +2,7 @@
 
 _Upstream: `mattpocock/skills` · `skills/engineering/improve-codebase-architecture` · ledger current as of `reviewed_sha: 221ffca96736`_
 
-Intentional divergences from upstream. Reviewed via `provenance:upstream-review` (2026-07-09) — do not re-flag these as findings. Read by `upstream-review` only; never referenced from `SKILL.md`.
+Intentional divergences from upstream. Reviewed via `skillsmith:upstream-review` (2026-07-09) — do not re-flag these as findings. Read by `upstream-review` only; never referenced from `SKILL.md`.
 
 The grilling-loop structure is upstream behavior, kept. Upstream itself moved to a live-dispatch model in this revision — the architecture vocabulary and the domain-model side effects now route to the shared `codebase-design` / `domain-modeling` skills rather than living inline, matching upstream's own restructuring. No fabricated attributions, no silent drops.
 

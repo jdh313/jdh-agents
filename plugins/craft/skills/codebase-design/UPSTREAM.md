@@ -2,7 +2,7 @@
 
 _Upstream: `mattpocock/skills` · `skills/engineering/codebase-design` · ledger current as of `reviewed_sha: ee8bae40062c`_
 
-Intentional divergences from upstream. Reviewed via `provenance:upstream-review` (2026-07-09) — do not re-flag these as findings. Read by `upstream-review` only; never referenced from `SKILL.md`.
+Intentional divergences from upstream. Reviewed via `skillsmith:upstream-review` (2026-07-09) — do not re-flag these as findings. Read by `upstream-review` only; never referenced from `SKILL.md`.
 
 The glossary (Module / Interface / Implementation / Depth / Seam / Adapter / Leverage / Locality), the "Deep vs shallow" box diagrams + 3 design questions, the Principles, the "Designing for testability" TS snippets, Relationships, Rejected framings, and the "Going deeper" live-dispatch to `DEEPENING.md` / `DESIGN-IT-TWICE.md` are upstream content, kept. `DEEPENING.md` and `DESIGN-IT-TWICE.md` are byte-identical to upstream modulo link paths (see below).
 

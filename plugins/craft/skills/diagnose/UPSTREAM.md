@@ -2,7 +2,7 @@
 
 _Upstream: `mattpocock/skills` · `skills/engineering/diagnosing-bugs` (renamed from `diagnose`) · ledger current as of `reviewed_sha: ee8bae40062c`_
 
-Intentional divergences from upstream. Reviewed via `provenance:upstream-review` (2026-07-09) — do not re-flag these as findings. Read by `upstream-review` only; never referenced from `SKILL.md`.
+Intentional divergences from upstream. Reviewed via `skillsmith:upstream-review` (2026-07-09) — do not re-flag these as findings. Read by `upstream-review` only; never referenced from `SKILL.md`.
 
 All six diagnosis phases and the HITL loop script track upstream. The divergences are the decision-layer re-routes and wording adaptations below.
 

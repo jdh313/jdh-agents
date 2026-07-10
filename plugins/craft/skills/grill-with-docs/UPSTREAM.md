@@ -2,7 +2,7 @@
 
 _Upstream: `mattpocock/skills` · `skills/engineering/grill-with-docs` · ledger current as of `reviewed_sha: 658d53e6ded8`_
 
-Intentional divergences from upstream. Reviewed via `provenance:upstream-review` — do not re-flag these as findings. Read by `upstream-review` only; never referenced from `SKILL.md`.
+Intentional divergences from upstream. Reviewed via `skillsmith:upstream-review` — do not re-flag these as findings. Read by `upstream-review` only; never referenced from `SKILL.md`.
 
 Upstream's `grill-with-docs` collapsed to a thin dispatcher over `/grilling` + `/domain-modeling`. This review follows that shape: all CONTEXT.md maintenance, format, and decision-capture discipline now dispatches to `craft:domain-modeling`. The CONTEXT.md/ADR->NDR divergences this file used to document directly (decision-record rerouting, CONTEXT-MAP demotion, scenario-testing scoping, `_See_:` link conventions, the "Flag ambiguities explicitly" rule, the CONTEXT.md worthiness gate) are now owned and reviewed in `domain-modeling/UPSTREAM.md` — inherited here by dispatch, not re-documented.
 

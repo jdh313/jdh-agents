@@ -2,7 +2,7 @@
 
 _Upstream: `mattpocock/skills` · `skills/engineering/to-tickets` · ledger current as of `reviewed_sha: d29732e49f60`_
 
-Intentional divergences from upstream. Reviewed via `provenance:upstream-review` (2026-07-09) — do not re-flag these as findings. Read by `upstream-review` only; never referenced from `SKILL.md`. Upstream's `to-issues` skill (this port's original source) has since been merged with `to-plan` into `to-tickets`; this is the first formal reconciliation pass against the merged skill.
+Intentional divergences from upstream. Reviewed via `skillsmith:upstream-review` (2026-07-09) — do not re-flag these as findings. Read by `upstream-review` only; never referenced from `SKILL.md`. Upstream's `to-issues` skill (this port's original source) has since been merged with `to-plan` into `to-tickets`; this is the first formal reconciliation pass against the merged skill.
 
 | Kind | What | Why |
 |------|------|-----|

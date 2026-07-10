@@ -1,9 +1,10 @@
-# provenance
+# skillsmith
 
-Marketplace upkeep for borrowed work. Several skills in this marketplace are adapted from upstream sources (e.g. `mattpocock/skills`). Adaptation is fine — but every divergence should be deliberate, documented, and free of fabricated claims about what upstream actually does.
+Craft and upkeep of skills. Two jobs: **authoring** skills well, and keeping **borrowed** skills honest against their upstream sources. Several skills in this marketplace are adapted from upstream (e.g. `mattpocock/skills`) — adaptation is fine, but every divergence should be deliberate, documented, and free of fabricated claims about what upstream actually does.
 
 ## Skills
 
+- **writing-great-skills** — Reference for writing and editing skills well: the vocabulary (predictability, context vs cognitive load, information hierarchy, progressive disclosure, granularity, pruning) and principles that make a skill predictable. User-invoked (zero context load); full definitions disclosed to `GLOSSARY.md`. Adapted verbatim from upstream with a repo-specific bridge in `ADDENDA.md`.
 - **upstream-review** — Compare an adapted skill against its pinned upstream source. Classifies each behavioral unit as kept / diverged / dropped / added, hunts fabricated attributions (local claims about upstream that upstream doesn't support), proposes fixes for sign-off, and refreshes the reviewed commit SHA.
 
 ## Provenance convention

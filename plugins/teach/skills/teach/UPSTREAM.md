@@ -2,7 +2,7 @@
 
 _Upstream: `mattpocock/skills` · `skills/productivity/teach` · ledger current as of `reviewed_sha: aa024cb1954f`_
 
-Intentional divergences from upstream. Reviewed via `provenance:upstream-review` intake (2026-06-12); adapted for Obsidian-vault routing the same day. Do not re-flag these as findings. Read by `upstream-review` only; never referenced from `SKILL.md`.
+Intentional divergences from upstream. Reviewed via `skillsmith:upstream-review` intake (2026-06-12); adapted for Obsidian-vault routing the same day. Do not re-flag these as findings. Read by `upstream-review` only; never referenced from `SKILL.md`.
 
 This adaptation routes the skill's durable markdown artifacts into the Obsidian vault (`~/Loose Ends/`) as typed notes, while keeping lessons and HTML cheat sheets as self-contained files inside the workspace folder. Design spec: `.docs/2026-06-12-teach-vault-routing.md`.
 

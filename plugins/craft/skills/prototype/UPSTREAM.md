@@ -2,7 +2,7 @@
 
 _Upstream: `mattpocock/skills` · `skills/engineering/prototype` · ledger current as of `reviewed_sha: 850873cd73d5`_
 
-Intentional divergences from upstream. Reviewed via `provenance:upstream-review` (2026-06-11) — do not re-flag these as findings. Read by `upstream-review` only; never referenced from `SKILL.md`.
+Intentional divergences from upstream. Reviewed via `skillsmith:upstream-review` (2026-06-11) — do not re-flag these as findings. Read by `upstream-review` only; never referenced from `SKILL.md`.
 
 The LOGIC/UI branch routing, the six shared rules, `LOGIC.md`, and `UI.md` are kept verbatim (modulo the one capture line below). No fabricated attributions, no silent drops.
 
