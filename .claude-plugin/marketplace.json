@@ -220,24 +220,6 @@
       ]
     },
     {
-      "name": "provenance",
-      "source": "./plugins/provenance",
-      "description": "Marketplace upkeep for borrowed work. Keeps adapted skills honest against their upstream sources: compares an adapted skill to its pinned upstream, flags behavioral drift and fabricated attributions, and refreshes the reviewed commit SHA. Houses upstream-review.",
-      "version": "0.2.1",
-      "author": {
-        "name": "Jacob Hoehler"
-      },
-      "keywords": [
-        "provenance",
-        "upstream",
-        "adaptation",
-        "drift",
-        "maintenance",
-        "attribution"
-      ],
-      "defaultEnabled": false
-    },
-    {
       "name": "shake-tune",
       "source": "./plugins/shake-tune",
       "description": "Interpret Klippain Shake Tune results for 3D printers: diagnose issues from PNG graphs, explain findings, recommend fixes, and track results over time. Supports belt comparison, input shaper, vibration profile, axes map, and excitation tests.",
@@ -255,6 +237,25 @@
         "belt-tension",
         "corexy"
       ]
+    },
+    {
+      "name": "skillsmith",
+      "source": "./plugins/skillsmith",
+      "description": "Craft and upkeep of skills. Authoring reference (the vocabulary and principles that make a skill predictable) plus provenance tracking for borrowed work: compares an adapted skill to its pinned upstream, flags behavioral drift and fabricated attributions, and refreshes the reviewed commit SHA. Houses writing-great-skills and upstream-review.",
+      "version": "1.0.0",
+      "author": {
+        "name": "Jacob Hoehler"
+      },
+      "keywords": [
+        "skills",
+        "authoring",
+        "skill-craft",
+        "provenance",
+        "upstream",
+        "drift",
+        "attribution"
+      ],
+      "defaultEnabled": false
     },
     {
       "name": "spec-flow",
@@ -298,6 +299,6 @@
     "version": "1.0.0",
     "homepage": "https://github.com/jdh313/cc-marketplace",
     "totalPlugins": 14,
-    "lastUpdated": "2026-07-09"
+    "lastUpdated": "2026-07-10"
   }
 }

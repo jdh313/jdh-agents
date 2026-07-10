@@ -2,7 +2,7 @@
 
 _Upstream: `mattpocock/skills` · `skills/engineering/domain-modeling` · ledger current as of `reviewed_sha: ee8bae40062c`_
 
-Intentional divergences from upstream. Reviewed via `provenance:upstream-review` (2026-07-09) — do not re-flag these as findings. Read by `upstream-review` only; never referenced from `SKILL.md`.
+Intentional divergences from upstream. Reviewed via `skillsmith:upstream-review` (2026-07-09) — do not re-flag these as findings. Read by `upstream-review` only; never referenced from `SKILL.md`.
 
 The active-discipline framing, the four conversation moves (challenge against the glossary / sharpen fuzzy language / discuss concrete scenarios / cross-reference with code), the update-inline / don't-batch rule, the "CONTEXT.md is a glossary and nothing else" constraint, and the 3-part decision-worthiness gate (hard-to-reverse / surprising-without-context / real-trade-off) are upstream discipline, kept. Only the decision *destination* and the CONTEXT.md format details diverge.
 

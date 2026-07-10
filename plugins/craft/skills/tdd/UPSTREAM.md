@@ -2,7 +2,7 @@
 
 _Upstream: `mattpocock/skills` · `skills/engineering/tdd` · ledger current as of `reviewed_sha: bd453a6742fb`_
 
-Intentional divergences from upstream. Reviewed via `provenance:upstream-review` (2026-07-09) — do not re-flag these as findings. Read by `upstream-review` only; never referenced from `SKILL.md`.
+Intentional divergences from upstream. Reviewed via `skillsmith:upstream-review` (2026-07-09) — do not re-flag these as findings. Read by `upstream-review` only; never referenced from `SKILL.md`.
 
 The reference-only shape (what-a-good-test-is, seams, anti-patterns, rules-of-the-loop), the horizontal-slices anti-pattern, the tautological-test anti-pattern, and the `tests.md` / `mocking.md` siblings track upstream verbatim in intent. No fabricated attributions, no silent drops.
 
