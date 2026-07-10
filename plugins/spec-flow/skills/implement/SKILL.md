@@ -119,7 +119,7 @@ Work according to the chosen cadence:
 
 **Append Decision-log rows as forks resolve.** The Decision log is working-matter you *write into* during implementation — this is the routine `append` op (no sign-off; it logs a fact, not a renegotiation). As each fork lands, append a row:
 
-- **[resolved]** — decided here: `<fork> → **<call>**, because <why>. _alt:_ <rejected + why-not>. _revisit if:_ <trigger>`. Reversing an earlier `[resolved]` row? Append a NEW row carrying `_supersedes:_ ^r<N>` and mint the `^r<N>` anchor on the original — never edit the original in place (its reasoning is the record).
+- **[resolved]** — decided here: `<fork> → **<call>**, because <why>. _alt:_ <rejected + why-not>. _revisit if:_ <trigger>`. Reversing an earlier `[resolved]` row? Append a NEW row carrying `_supersedes:_ ^r<N>`, and add the `^r<N>` anchor to the original row so the pointer resolves (this anchor is the *only* touch the original takes). Never rewrite the original's call or reasoning — it stands as the record of why the first call was made.
 - **[deferred]** — punted to elsewhere: `<fork> → tracked in <handle>, because <why-not-now>`. The handle is backfilled at close if not known yet (close gates archive on it).
 - **[open]** — still unresolved: leave it, or add one if a new fork surfaces mid-flight. Close flags any `[open]` row that ships.
 

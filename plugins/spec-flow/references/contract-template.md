@@ -70,9 +70,13 @@ A resolved decision that REVERSES gets a NEW row pointing back via ^id.
 -->
 
 - **[open]** <fork, as a question> — leaning: <tentative default>
-- **[resolved]** <fork> → **<call>**, because <why>. _alt:_ <rejected + why-not>. _revisit if:_ <trigger>
-- **[resolved]** ^r2 <fork> → **<new call>**, because <why>. _supersedes:_ ^r1. _alt:_ <the old call + why-abandoned>.
+- **[resolved]** ^r1 <fork> → **<call>**, because <why>. _alt:_ <rejected + why-not>. _revisit if:_ <trigger>
+- **[resolved]** <fork> → **<new call>**, because <why>. _supersedes:_ ^r1. _alt:_ <the old call + why-abandoned>.
 - **[deferred]** <fork> → tracked in <handle / trigger>, because <why-not-now>.
+
+<!-- ^r1 is minted on the FIRST row only because the third row points back at it. The
+     third (reversing) row carries no anchor of its own — nothing points back at it yet. -->
+
 ```
 
 ## Conventions

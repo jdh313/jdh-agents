@@ -1,6 +1,6 @@
 ---
 name: amend
-description: This skill should be used when the AI realizes during implementation that the contract is becoming inaccurate — wrong approach, new constraint, scope shift, or a deferred open question now needing a decision. Typically invoked from within `spec-flow:implement` rather than directly by the user. Works for both file-hosted (`.docs/`) and Linear-hosted contracts. Surfaces a proposed contract edit to the user, waits for sign-off, then applies the edit to the right host (Edit for files, save_issue for Linear). Never edits the contract silently. The contract is an agreement; both parties must agree to changes.
+description: This skill should be used when the AI realizes during implementation that the contract's front-matter — the target it promises (What we're doing, Why, Out of scope, Done when) — is becoming inaccurate: a new constraint narrows scope, an Out-of-scope item must move in-scope, or a resolved fork changes what Done-when promises. Typically invoked from within `spec-flow:implement` rather than directly by the user. Works for both file-hosted (`.docs/`) and Linear-hosted contracts. Surfaces a proposed front-matter edit to the user, waits for sign-off, then applies it to the right host (Edit for files, save_issue for Linear). Never edits front-matter silently. Not for Decision-log rows (that is implement's no-sign-off append) or for rewriting Approach / wiring (free working-matter). The contract is an agreement; both parties must agree to changes to the target.
 allowed-tools:
   - mcp__linear-server__get_issue
   - Read
@@ -12,12 +12,13 @@ Propose a contract amendment mid-implementation. Sign-off required before any ed
 
 ## When to invoke
 
-- During `spec-flow:implement`, when the work reveals the contract no longer matches reality:
-  - Approach turned out wrong; switching to a different one.
-  - A new constraint surfaced (library limitation, existing pattern conflict, performance issue).
+- During `spec-flow:implement`, when the work reveals the contract's **front-matter — the target it promises** — no longer matches reality:
+  - A new constraint surfaced (library limitation, existing pattern conflict, performance issue) that **narrows or shifts what the contract can deliver** — i.e. it changes *Done when* or *What we're doing*, not just how.
   - An item in *Out of scope* now needs to be in scope (or vice versa).
-  - An *Open question* has been resolved through implementation and should be promoted to *Approach*.
+  - A resolved fork changes what *Done when* promises — the resolution isn't just logged, it moves the target.
 - User explicitly asks: "update the contract to reflect X".
+
+**Not an amend:** switching the *Approach / wiring* itself is a **free working-matter edit** — Approach is ephemeral mechanics that evaporate at close, so `implement` just rewrites it, no sign-off. The *decision* behind the switch (why this approach over the old one) is logged as a `[resolved]` Decision-log row (append). Amend fires only when the switch also moves the front-matter target.
 
 ## Do NOT invoke for
 
@@ -44,18 +45,18 @@ Three ops touch the contract; only **amend** renegotiates the live agreement, so
 
 In one short paragraph, tell the user what has drifted:
 
-> "While wiring up the middleware, I found the existing auth helper expects a different shape. The contract's *Approach* says to use `verify_token()` directly, but that won't work — we need to wrap it. Proposing a contract amendment."
+> "While wiring up the middleware, I found the upstream API can't issue refresh tokens on our current plan — so the contract's *Done when* bullet 'session survives a silent token refresh' can't ship in this change. Proposing an amendment to narrow the target." (Had this been a pure how-change — same target, different wiring — I'd just rewrite *Approach / wiring* and log the call as a `[resolved]` row, no amendment.)
 
 ### 2. Propose the specific edit
 
-Show before / after, scoped to the affected sections only:
+Show before / after, scoped to the affected **front-matter** section only:
 
 ```
-**Approach** (current):
-- Use `verify_token()` directly in the middleware.
+**Done when** (current):
+- Session survives a silent token refresh without re-login.
 
-**Approach** (proposed):
-- Wrap `verify_token()` in a `TokenVerifier` adapter (follows existing pattern in `auth/adapters.py`).
+**Done when** (proposed):
+- Session survives until access-token expiry; silent refresh deferred (logged as a [deferred] Decision-log row, tracked separately).
 ```
 
 ### 3. Wait for sign-off

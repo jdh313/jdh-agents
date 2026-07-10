@@ -156,7 +156,7 @@ Granularity right? Dependencies correct? Anything to merge or split? Anyone to p
 
 ## Rules
 
-- **Creating-only during the breakdown operation.** breakdown spawns child slices; it does not close, transition, or rewrite existing tickets as it runs. This is a rule about *this operation*, not a claim that the parent is a frozen artifact — see *The parent is a mutable contract* below.
+- **Creating-only during the breakdown operation.** breakdown spawns child slices; it does not close, transition, or rewrite existing tickets as it runs. This is a rule about *this operation*, not a claim that the parent is a frozen artifact — see *The parent is a mutable contract* above (just under the Overview).
 - **Never mutate existing tickets' content** — only create new ones and (when the source is a spec-flow parent) attach child relations. The breakdown pass itself writes no existing ticket body.
 - **Confirm before publishing.** Show the user the final ordered list once more before any ticket is created. Publishing is the only destructive step in this skill.
 - **Decision-type slices** get `Done when: decision captured and linked here`. After the call is made, recommend `Skill(ndr:capture-decision)` if the ndr plugin is present.
