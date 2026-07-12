@@ -1,17 +1,25 @@
 # cc-marketplace
 
-Personal Claude Code plugin marketplace with automated validation and synchronization.
+Personal plugin marketplace shared by Claude Code and Codex, with automated
+validation and synchronization. Claude supports the full catalog; private Codex
+support currently covers `commit`, `craft`, `linear`, and `spec-flow`.
+
+See [Dual-agent operating model](docs/dual-agent-operating-model.md) for
+ownership boundaries, runtime mappings, installation, and pilot acceptance.
 
 ## Directory Structure
 
 ```
 cc-marketplace/
 ├── .claude-plugin/
-│   └── marketplace.json      # Marketplace metadata and plugin index
+│   └── marketplace.json      # Claude marketplace index
+├── .agents/plugins/
+│   └── marketplace.json      # Codex pilot marketplace index
 ├── plugins/                  # Plugin files
 │   └── [plugin-name]/
-│       ├── plugin.json       # Plugin metadata
-│       └── ...               # Plugin files (commands, agents, skills, etc.)
+│       ├── .claude-plugin/plugin.json
+│       ├── .codex-plugin/plugin.json  # Codex-enabled plugins only
+│       └── ...               # Canonical shared bodies + thin adapters
 ├── scripts/                  # Automation tooling
 │   └── marketplace/          # `marketplace` CLI: sync, validate, lint, export, check
 ├── export/                   # Public export config
@@ -24,10 +32,20 @@ cc-marketplace/
 
 ### Installing the Marketplace
 
-Add this marketplace to Claude Code:
+Claude Code:
+
+```text
+/plugin marketplace add jdh313/cc-marketplace
+```
+
+Codex local marketplace and pilots:
 
 ```bash
-/plugin marketplace add <your-github-username>/cc-marketplace
+codex plugin marketplace add /Users/jacob/Projects/cc-marketplace
+codex plugin add commit@cc-marketplace
+codex plugin add craft@cc-marketplace
+codex plugin add linear@cc-marketplace
+codex plugin add spec-flow@cc-marketplace
 ```
 
 ### Adding a New Plugin
@@ -37,7 +55,7 @@ Add this marketplace to Claude Code:
    mkdir -p plugins/my-plugin
    ```
 
-2. Create `plugins/my-plugin/plugin.json`:
+2. Create `plugins/my-plugin/.claude-plugin/plugin.json`:
    ```json
    {
      "name": "my-plugin",
@@ -47,7 +65,6 @@ Add this marketplace to Claude Code:
        "name": "Your Name",
        "email": "you@example.com"
      },
-     "category": "productivity",
      "keywords": ["automation", "workflow"]
    }
    ```
@@ -59,7 +76,7 @@ Add this marketplace to Claude Code:
    uv run marketplace sync
    ```
 
-5. Validate everything (sync drift + schema + lint):
+5. Validate everything (sync drift + both schemas + lint):
    ```bash
    uv run marketplace check
    ```
@@ -78,10 +95,11 @@ uv run marketplace sync          # use --check to fail on drift without writing
 
 ### Validate
 
-Schema-validates `marketplace.json`:
+Schema-validates a marketplace:
 
 ```bash
-uv run marketplace validate
+uv run marketplace validate                 # Claude
+uv run marketplace validate --format codex  # Codex pilots
 ```
 
 ### Lint
@@ -94,7 +112,7 @@ uv run marketplace lint
 
 ### Check (merge gate)
 
-Runs sync-drift + validate + lint together — the CI entrypoint:
+Runs Claude sync drift, both validators, and lint together — the CI entrypoint:
 
 ```bash
 uv run marketplace check
@@ -111,7 +129,7 @@ uv run marketplace export --dry-run        # then --commit --push for the real e
 ## CI/CD
 
 GitHub Actions runs on every push and pull request:
-- `uv run marketplace check` (sync drift + schema + lint)
+- `uv run marketplace check` (Claude drift + Claude/Codex schemas + lint)
 - `uv run pytest`
 
 ## Plugin Structure
