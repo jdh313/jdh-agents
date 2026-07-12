@@ -108,10 +108,14 @@ The original four pilots passed fresh-task smoke tests:
   warnings.
 - `spec-flow`: routed an existing file-hosted contract without mutation.
 
-`librarian` adds the same static gates plus role-procedure mapping for four
-vault agents. Its acceptance requires a fresh task with approved access to the
-Obsidian vault: a read-only query, persistent-reader follow-up, read-only
-inspection, and an explicitly approved disposable write.
+- `librarian`: queried a known vault topic through the read-only reader role,
+  re-engaged the same reader identity for a follow-up, and ran a separate
+  read-only inspector against one note. With `obsidian-cli` unavailable, the
+  approved filesystem fallback preserved source citations and made no writes.
+
+Librarian write acceptance remains intentionally separate: any capture test
+requires explicit approval and a disposable target because the note-editor
+role writes outside the code workspace.
 
 Expand Codex support plugin by plugin. A plugin joins the Codex catalog only
 after its manifest validates, platform-specific primitives have native
