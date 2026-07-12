@@ -16,6 +16,8 @@ allowed-tools:
   - TodoWrite
 ---
 
+Apply the orchestration mappings in [`../../RUNTIME.md`](../../RUNTIME.md).
+
 # interrogate-model
 
 ## Overview
@@ -69,7 +71,7 @@ Surface each phase's finding as you go (list-first, terse). The phases build on 
 **Entry:** the model/area is identified.
 **Actions:**
 1. Invoke `/ground` on the area to surface governing NDR heads; read the project's `CONTEXT.md` glossary alongside them.
-2. Dispatch the Agent tool with `subagent_type=Explore`, `name="model-cartographer"` to read the implementing code + grounded atoms and reconstruct the model as an explicit **axes × value-sets** table — each axis, its values, and the code site that defines it. (Naming the agent keeps it addressable for follow-ups.)
+2. Spawn an isolated exploration subagent named `model-cartographer` to read the implementing code + grounded atoms and reconstruct the model as an explicit **axes × value-sets** table — each axis, its values, and the code site that defines it. Give it a bounded task, inputs, deliverable, and done criteria; keep it addressable for follow-ups.
 3. Have the cartographer flag **candidate latent axes**: concerns that look independently-variable but are currently fused into an axis (e.g. "system administration" riding inside a role tier).
 
 **Exit:** an axes table exists, with code locations and a list of candidate latent axes. This table is the artifact the ledger never produces — "here is the whole model."
@@ -80,7 +82,7 @@ Surface each phase's finding as you go (list-first, terse). The phases build on 
 **Actions:**
 1. List the legitimate **scenarios** the model must express. Seed from the axes (their value combinations are the candidate space), from code, and from atoms.
 2. For access models, frame each as **subject–action–object–scope**.
-3. Use `AskUserQuestion` to confirm and extend the list — the user knows scenarios not yet in the code (the missing-requirement case that no diff or test can surface). **Do not skip this** — an unrepresentable scenario is invisible until someone names it.
+3. Ask the user to confirm and extend the list using the runtime's user-input capability — the user knows scenarios not yet in the code (the missing-requirement case that no diff or test can surface). **Do not skip this** — an unrepresentable scenario is invisible until someone names it.
 
 **Exit:** a confirmed scenario list, including at least the personas/states the user expects the model to serve.
 

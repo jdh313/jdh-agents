@@ -15,6 +15,8 @@ allowed-tools:
   - AskUserQuestion
 ---
 
+Apply the user-input mapping in [`../../RUNTIME.md`](../../RUNTIME.md).
+
 # Quiz Me
 
 Active-recall comprehension check. A clean explanation delivers the scaffold;

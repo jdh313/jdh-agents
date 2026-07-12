@@ -17,6 +17,8 @@ allowed-tools:
   - TodoWrite
 ---
 
+Apply the orchestration mappings in [`../../RUNTIME.md`](../../RUNTIME.md).
+
 # design-by-stories
 
 ## Overview

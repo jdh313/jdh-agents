@@ -17,6 +17,8 @@ allowed-tools:
   - Skill
 ---
 
+Apply the skill-composition mapping in [`../../RUNTIME.md`](../../RUNTIME.md).
+
 # Test-Driven Development
 
 TDD is the red → green loop. This skill is the reference that makes that loop produce tests worth keeping: what a good test is, where tests go, the anti-patterns, and the rules of the loop. Every section applies on every cycle — consult them before and during the loop, not after.

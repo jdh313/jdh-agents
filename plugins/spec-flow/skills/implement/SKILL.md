@@ -52,7 +52,7 @@ If host = linear, check that `mcp__linear-server__*` tools are loaded. If not:
 
 > "Linear MCP server isn't connected — I can't read TEAM-123. Fall back to a `.docs/` file contract, or pause while you wire up the MCP yourself?"
 
-Do not run `claude mcp add` or suggest a paste-and-go connect command.
+Do not install or configure the integration without approval, and never ask the user to paste credentials into chat.
 
 ### 2. Read the contract
 
@@ -125,23 +125,23 @@ Work according to the chosen cadence:
 
 Write rows to a **fresh-closer legibility standard** — the closer may not be you. When a *Done when* bullet turns out to have shipped differently than worded (drift, not a miss), append a `[resolved]` row capturing *why* it drifted; `close`'s `reconcile` op will pick it up. A bullet that genuinely didn't ship is not drift — surface it, don't paper it into a row. On the Linear host, every write is a whole-description overwrite, so appends carry the concurrent-edit guard (re-fetch + compare); on the file host, append is append-only, no guard.
 
-**Commit atomically as you go.** Cadence governs when you *check in with the user*, not when you commit — commit each logical, self-contained slice as it lands in the repo's house style via `Skill(commit:commit)`, which detects git vs. jj and writes the message for you. This holds even for "all at once": land the change as a series of atomic commits rather than one end-of-run blob. At a "check in after a piece" breakpoint, commit the slice once the user has sanity-checked the diff. Never commit over a failing verify (step 7). If the `commit` plugin isn't installed, commit directly following the repo's conventions (CLAUDE.md / recent history).
+**Commit atomically as you go.** Cadence governs when you *check in with the user*, not when you commit — commit each logical, self-contained slice as it lands in the repo's house style via the installed `commit` skill, which detects git vs. jj and writes the message for you. This holds even for "all at once": land the change as a series of atomic commits rather than one end-of-run blob. At a "check in after a piece" breakpoint, commit the slice once the user has sanity-checked the diff. Never commit over a failing verify (step 7). If the `commit` plugin isn't installed, commit directly following applicable repository guidance and recent history.
 
 ### 6. Amend when reality diverges
 
-Distinguish the two working-matter writes from a front-matter amendment. Logging a fork's outcome to the **Decision log** is the routine `append` (step 5) — no sign-off. Invoke `Skill(spec-flow:amend)` only when the **front-matter** is becoming inaccurate — the *target itself* changes: wrong approach, a new constraint narrowing scope, an *Out of scope* item that now needs to be in scope, or a `[open]` Decision-log row whose resolution changes what *Done when* promises. Amending front-matter renegotiates the agreement, so it always takes sign-off. Do NOT silently work outside the contract; do NOT silently edit front-matter.
+Distinguish the two working-matter writes from a front-matter amendment. Logging a fork's outcome to the **Decision log** is the routine `append` (step 5) — no sign-off. Invoke the installed `spec-flow:amend` skill only when the **front-matter** is becoming inaccurate — the *target itself* changes: wrong approach, a new constraint narrowing scope, an *Out of scope* item that now needs to be in scope, or a `[open]` Decision-log row whose resolution changes what *Done when* promises. Amending front-matter renegotiates the agreement, so it always takes sign-off. Do NOT silently work outside the contract; do NOT silently edit front-matter.
 
 ### 7. Verify against *Done when*
 
 Before declaring the work done, verify each *Done when* bullet by **observing behavior**, not by reading the diff. Drift's signature is plausible code that looks right at a glance but doesn't do what the contract promised — reading the diff won't catch it; running the change will.
 
-Dispatch the **`contract-verifier`** agent (via the Agent tool) so the running and log-reading happen in isolated context and the judgment is independent of your view as the implementer. Pass it:
+Run the **`contract-verifier`** procedure in isolated subagent context so the running and log-reading are independent of your view as the implementer. Use the active runtime mapping in `../../references/hosts.md` and pass it:
 
 - The *Done when* bullets verbatim.
 - The change scope — `<base>..HEAD` (jj or git, per the VCS detected in step 3) or `"working tree"` if uncommitted.
 - The detected `vcs`, and a `repo_hint` if you already know the test command; otherwise let the agent discover it.
 
-It returns a per-bullet verdict (`met` / `not_met` / `drifted` / `unverifiable`, each with evidence). Surface the result to the user. If any bullet is **not met** (or unverifiable), do not paper over it — keep working, or (if the contract's notion of done genuinely changed) invoke `Skill(spec-flow:amend)`.
+It returns a per-bullet verdict (`met` / `not_met` / `drifted` / `unverifiable`, each with evidence). Surface the result to the user. If any bullet is **not met** (or unverifiable), do not paper over it — keep working, or (if the contract's notion of done genuinely changed) invoke the installed `spec-flow:amend` skill.
 
 If the `contract-verifier` agent is unavailable for any reason, fall back to running the checks inline (tests + driving each behavior, `/verify` if available).
 
