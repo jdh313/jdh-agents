@@ -2,6 +2,10 @@
 
 Personal Linear workflow conventions for AI-assisted development. Loads when an agent needs to create, transition, read, or update a Linear ticket — supplies the defaults so the agent doesn't have to guess.
 
+`TEAM` and `TEAM-N` in examples are placeholders for the team and issue key
+resolved from the connected workspace. They are never literal configuration;
+the same plugin is used across workspaces with different team names.
+
 ## Premise
 
 `spec-flow` uses Linear as a contract host. `ndr` uses Linear (via reference strings) to point at tickets. Both treat Linear as a tool they consume, not own. The conventions — what team, what labels, what status means what — belong somewhere stable that other plugins can defer to.

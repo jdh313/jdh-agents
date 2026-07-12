@@ -31,12 +31,15 @@ Call `mcp__linear-server__list_teams({})`. If it errors or times out → **FAIL:
 
 If it succeeds → **PASS**.
 
-### 2. Team exists
+### 2. Team resolves
 
-From the `list_teams` response, verify a team named `TEAM` (case-insensitive) is present.
+`TEAM` in this plugin is a placeholder, not a required team name. Resolve the
+team from the `list_teams` response:
 
-- **PASS** — team found; note the team ID for subsequent calls.
-- **FAIL** — no `TEAM` team found. List teams that *were* found and advise creating or renaming.
+- **PASS** — exactly one team found; select it and note its name, key, and ID for subsequent calls.
+- **PASS** — multiple teams found and applicable repository guidance or the current ticket context identifies one unambiguously; select it and note why.
+- **WARN** — multiple teams found with no unambiguous signal. List them and ask which team to validate; do not guess.
+- **FAIL** — no teams returned. The integration is reachable but exposes no team to validate.
 
 ### 3. Labels present
 
@@ -85,7 +88,7 @@ Call `mcp__linear-server__list_cycles({teamId: "<team-id>", type: "current"})`.
 ## linear:doctor
 
 **MCP reachable**     ✓ PASS
-**Team (TEAM)**       ✓ PASS
+**Team (<resolved>)** ✓ PASS  (name + key)
 **Labels**            ✓ PASS  (or ⚠ WARN — missing: Feature, Spike)
 **Workflow states**   ✓ PASS  (or ⚠ WARN — missing: In Review)
 **Team size**         ✓ PASS  (or ⚠ WARN — 1 active member; add collaborator)

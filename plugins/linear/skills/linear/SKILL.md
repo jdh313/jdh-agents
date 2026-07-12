@@ -40,7 +40,12 @@ tell the user the integration is unavailable.
 
 ### Team and project
 
-- **Team:** Always `TEAM`. One team only.
+- **Team:** Resolve from the connected workspace; `TEAM` and `TEAM-N` in this
+  plugin are placeholders, never literal configuration. If exactly one team is
+  visible, use it. With multiple teams, prefer a team identified by the ticket
+  key, applicable repository guidance, or the user's current context. If those
+  signals do not resolve one team, ask once before reading or writing tickets.
+  Reuse the resolved team for the rest of the workflow.
 - **Project:** Look up the active project via `mcp__linear-server__list_projects` and pick the non-completed active project. Projects are phase-scoped (one per 60-day phase) and rotate — don't hardcode the current name.
 
 ### Title
