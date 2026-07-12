@@ -1,10 +1,11 @@
 ---
 name: note-capture
-description: Quickly capture a thought or note to today's daily note
-disable-model-invocation: true
+description: Explicit invocation only. Quickly capture a thought or note to today's daily note. Never invoke implicitly.
 context: fork
 agent: note-editor
 ---
+
+Apply the runtime mappings in [`../../RUNTIME.md`](../../RUNTIME.md).
 
 # Quick Capture
 

@@ -1,0 +1,5 @@
+interface:
+  display_name: Note Cleanup
+  short_description: Start an interactive vault cleanup
+policy:
+  allow_implicit_invocation: false

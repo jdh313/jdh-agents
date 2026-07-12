@@ -1,10 +1,11 @@
 ---
 name: note-cleanup
-description: Start an interactive vault cleanup session
-disable-model-invocation: true
+description: Explicit invocation only. Start an interactive vault cleanup session. Never invoke implicitly.
 context: fork
 agent: vault-curator
 ---
+
+Apply the runtime mappings in [`../../RUNTIME.md`](../../RUNTIME.md).
 
 # Vault Cleanup Session
 

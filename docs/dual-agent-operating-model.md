@@ -2,10 +2,11 @@
 
 ## Status
 
-Codex support is private and limited to the pilot plugins `commit`, `craft`,
+Codex support is private and currently covers `commit`, `craft`, `librarian`,
 `linear`, and `spec-flow`. Claude Code remains the default surface for every
-other plugin. Public export policy is unchanged; exported pilot directories may
-contain Codex manifests, but the public registry remains Claude-native.
+other plugin. Public export policy is unchanged; exported Codex-enabled plugin
+directories may contain Codex manifests, but the public registry remains
+Claude-native.
 
 ## Ownership model
 
@@ -30,6 +31,8 @@ contain Codex manifests, but the public registry remains Claude-native.
 | User adjudication | `AskUserQuestion` | Structured user input when available; otherwise one concise question |
 | Workflow tracking | `TodoWrite` | Runtime plan/checklist tool |
 | Linear data/actions | `mcp__linear-server__*` | Connected Linear app or MCP operation with equivalent schema |
+| Obsidian vault roles | Registered `@vault-*` / `@note-editor` agents | Spawn bounded subagents from the shared role procedures; reuse persistent reader/curator identities |
+| Obsidian data/actions | `obsidian-cli` plus optional `mcp__obsidian-mcp__*` | `obsidian-cli` primary; equivalent connected Obsidian operation or approved file access when the role permits |
 
 Connected integrations own authentication and private data access. Skills own
 workflow conventions. Never replace a missing connector with web search or
@@ -43,8 +46,10 @@ model memory.
 
 Claude discovery reads only `.claude-plugin/plugin.json`, so colocated Codex
 manifests cannot duplicate Claude registry entries. Codex validation checks its
-four catalog entries, manifest metadata, strict semantic versions, path
+catalog entries, manifest metadata, strict semantic versions, path
 containment, Claude/Codex name and version parity, and skill YAML frontmatter.
+Explicit-only skills must also carry a Codex policy that disables implicit
+invocation.
 
 ## Install
 
@@ -60,6 +65,7 @@ Codex local development marketplace:
 codex plugin marketplace add /path/to/cc-marketplace
 codex plugin add commit@cc-marketplace
 codex plugin add craft@cc-marketplace
+codex plugin add librarian@cc-marketplace
 codex plugin add linear@cc-marketplace
 codex plugin add spec-flow@cc-marketplace
 ```
@@ -92,7 +98,7 @@ the Codex validator; CI does not depend on a user-installed Codex skill.
 
 ## Pilot acceptance
 
-The four pilots passed fresh-task smoke tests:
+The original four pilots passed fresh-task smoke tests:
 
 - `commit`: detected repository conventions and reviewed a message without
   committing.
@@ -101,6 +107,11 @@ The four pilots passed fresh-task smoke tests:
   resolved the workspace team dynamically; workspace differences remained
   warnings.
 - `spec-flow`: routed an existing file-hosted contract without mutation.
+
+`librarian` adds the same static gates plus role-procedure mapping for four
+vault agents. Its acceptance requires a fresh task with approved access to the
+Obsidian vault: a read-only query, persistent-reader follow-up, read-only
+inspection, and an explicitly approved disposable write.
 
 Expand Codex support plugin by plugin. A plugin joins the Codex catalog only
 after its manifest validates, platform-specific primitives have native

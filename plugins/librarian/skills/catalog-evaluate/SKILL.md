@@ -11,6 +11,8 @@ allowed-tools:
   - WebFetch
 ---
 
+Apply the runtime mappings in [`../../RUNTIME.md`](../../RUNTIME.md).
+
 # Catalog Evaluate
 
 Create or refresh a Software Catalog entry. The catalog is a decision

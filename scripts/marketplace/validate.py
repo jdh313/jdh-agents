@@ -264,8 +264,27 @@ def _validate_codex_skill_frontmatter(plugin_root: Path, prefix: str) -> list[st
             errors.append(f"{prefix}: skill frontmatter in {skill_path} must be an object")
             continue
         _require_non_empty_string(frontmatter, "name", str(skill_path), errors)
-        _require_non_empty_string(frontmatter, "description", str(skill_path), errors)
+        description = _require_non_empty_string(frontmatter, "description", str(skill_path), errors)
+        if description is not None and description.lower().startswith("explicit invocation only"):
+            errors.extend(_validate_explicit_skill_policy(skill_path.parent, prefix))
     return errors
+
+
+def _validate_explicit_skill_policy(skill_root: Path, prefix: str) -> list[str]:
+    policy_path = skill_root / "agents" / "openai.yaml"
+    try:
+        payload = yaml.safe_load(policy_path.read_text(encoding="utf-8"))
+    except FileNotFoundError:
+        return [f"{prefix}: explicit-only skill lacks Codex policy at {policy_path}"]
+    except yaml.YAMLError as exc:
+        return [f"{prefix}: invalid Codex skill policy in {policy_path}: {exc}"]
+
+    if not isinstance(payload, dict):
+        return [f"{prefix}: Codex skill policy in {policy_path} must be an object"]
+    policy = payload.get("policy")
+    if not isinstance(policy, dict) or policy.get("allow_implicit_invocation") is not False:
+        return [f"{prefix}: {policy_path} must set policy.allow_implicit_invocation to false"]
+    return []
 
 
 def _require_non_empty_string(

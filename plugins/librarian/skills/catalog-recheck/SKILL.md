@@ -10,6 +10,8 @@ allowed-tools:
   - WebSearch
 ---
 
+Apply the runtime mappings in [`../../RUNTIME.md`](../../RUNTIME.md).
+
 # Catalog Recheck
 
 Re-evaluate one existing Software Catalog entry against the world as it

@@ -11,6 +11,8 @@ allowed-tools:
   - WebFetch
 ---
 
+Apply the runtime mappings in [`../../RUNTIME.md`](../../RUNTIME.md).
+
 # Wiki Create
 
 Create or update a Knowledge Wiki page. Two modes, picked by the shape of

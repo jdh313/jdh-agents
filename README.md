@@ -2,7 +2,8 @@
 
 Personal plugin marketplace shared by Claude Code and Codex, with automated
 validation and synchronization. Claude supports the full catalog; private Codex
-support currently covers `commit`, `craft`, `linear`, and `spec-flow`.
+support currently covers `commit`, `craft`, `librarian`, `linear`, and
+`spec-flow`.
 
 See [Dual-agent operating model](docs/dual-agent-operating-model.md) for
 ownership boundaries, runtime mappings, installation, and pilot acceptance.
@@ -44,6 +45,7 @@ Codex local marketplace and pilots:
 codex plugin marketplace add /path/to/cc-marketplace
 codex plugin add commit@cc-marketplace
 codex plugin add craft@cc-marketplace
+codex plugin add librarian@cc-marketplace
 codex plugin add linear@cc-marketplace
 codex plugin add spec-flow@cc-marketplace
 ```

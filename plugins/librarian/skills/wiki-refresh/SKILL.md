@@ -12,6 +12,8 @@ allowed-tools:
   - WebSearch
 ---
 
+Apply the runtime mappings in [`../../RUNTIME.md`](../../RUNTIME.md).
+
 # Wiki Refresh
 
 Update an existing wiki page by going external for current information

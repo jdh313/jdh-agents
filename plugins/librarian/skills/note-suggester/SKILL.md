@@ -14,6 +14,8 @@ allowed-tools:
   - Bash(obsidian-cli *)
 ---
 
+Apply the runtime mappings in [`../../RUNTIME.md`](../../RUNTIME.md).
+
 # Note Suggester
 
 You help the user build their knowledge base by recognizing when something

@@ -10,6 +10,8 @@ allowed-tools:
   - Bash(obsidian-cli *)
 ---
 
+Apply the runtime mappings in [`../../RUNTIME.md`](../../RUNTIME.md).
+
 # Meeting Notes
 
 ## Overview
