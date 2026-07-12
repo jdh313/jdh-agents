@@ -244,6 +244,21 @@ def test_validate_codex_marketplace_rejects_invalid_skill_yaml(tmp_path: Path) -
     assert any("invalid skill frontmatter" in error for error in errors)
 
 
+def test_validate_codex_marketplace_requires_explicit_skill_policy(tmp_path: Path) -> None:
+    plugins_dir = tmp_path / "plugins"
+    plugins_dir.mkdir()
+    plugin_dir = _make_plugin(plugins_dir, "myplugin")
+    _add_codex_manifest(plugin_dir)
+    (plugin_dir / "skills" / "hello" / "SKILL.md").write_text(
+        "---\nname: hello\ndescription: Explicit invocation only. Test.\n---\nBody\n",
+        encoding="utf-8",
+    )
+
+    errors = validate_codex_marketplace(_codex_marketplace("myplugin"), tmp_path)
+
+    assert any("explicit-only skill lacks Codex policy" in error for error in errors)
+
+
 def test_discover_plugins_skips_invalid_json(tmp_path: Path, capsys) -> None:
     plugins_dir = tmp_path / "plugins"
     plugins_dir.mkdir()

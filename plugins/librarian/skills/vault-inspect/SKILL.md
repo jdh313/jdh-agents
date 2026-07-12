@@ -1,7 +1,6 @@
 ---
 name: vault-inspect
-description: Run a diagnostic sweep on the Obsidian vault. Reports structural issues (orphans, dead-ends, broken links, frontmatter, stale pages) and/or wiki-semantic issues (page_type validation, neutral-definition opening, source-link format, Software Catalog schema, anti-staleness). Use when user says "lint the wiki", "wiki health check", "check knowledge base", "vault health check", "note health", or invokes `/vault-inspect`. Merger of the former `note-health` and `wiki-lint` skills.
-disable-model-invocation: true
+description: Explicit invocation only. Run a diagnostic sweep on the Obsidian vault when the user asks to lint or inspect it. Reports structural and wiki-semantic issues without writing. Never invoke implicitly. Merger of the former `note-health` and `wiki-lint` skills.
 context: fork
 agent: vault-inspector
 allowed-tools:
@@ -13,6 +12,8 @@ disallowed-tools:
   - Write
   - Edit
 ---
+
+Apply the runtime mappings in [`../../RUNTIME.md`](../../RUNTIME.md).
 
 # Vault Inspect
 

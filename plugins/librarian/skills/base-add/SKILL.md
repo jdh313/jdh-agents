@@ -1,10 +1,11 @@
 ---
 name: base-add
-description: Create a new entry for a specific Obsidian Base with correct frontmatter
-disable-model-invocation: true
+description: Explicit invocation only. Create a new entry for a specific Obsidian Base with correct frontmatter. Never invoke implicitly.
 context: fork
 agent: note-editor
 ---
+
+Apply the runtime mappings in [`../../RUNTIME.md`](../../RUNTIME.md).
 
 # Add to Base
 

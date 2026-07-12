@@ -10,6 +10,8 @@ allowed-tools:
   - Bash(obsidian-cli *)
 ---
 
+Apply the runtime mappings in [`../../RUNTIME.md`](../../RUNTIME.md).
+
 # Wiki Graduate
 
 Split a fat gist hub into an `expands:` child page. The child takes

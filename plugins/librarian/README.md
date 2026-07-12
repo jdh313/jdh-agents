@@ -112,6 +112,21 @@ skills and agents as context.
 - `obsidian:obsidian-bases` — Bases integration
 - `obsidian:defuddle` — URL fetch/parse (optional; `wiki-create` ingest mode prefers WebFetch)
 
+## Codex runtime
+
+Codex uses the same skills and role procedures. Apply the mappings in
+[`RUNTIME.md`](RUNTIME.md): `@vault-reader`, `@note-editor`, `@vault-curator`,
+and `@vault-inspector` become runtime subagents, with the same read/write and
+approval boundaries. Persistent reader and curator sessions reuse the same
+subagent identity across follow-ups.
+
+`obsidian-cli` remains the primary vault interface. Connected Obsidian tools
+may replace Claude MCP calls by equivalent operation and schema. The vault is
+outside most code workspaces, so Codex must receive scoped filesystem approval
+before reading or writing it. Vault-local `.claude/` files are domain
+configuration and conventions, not a replacement for applicable `AGENTS.md`
+runtime guidance.
+
 ## See also
 
 - `references/architecture.md` — per-stage explanation, agent roles, intent payload contract, design principles, how to add a new skill or event_kind

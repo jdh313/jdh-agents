@@ -14,7 +14,7 @@ Do not rely solely on this CLAUDE.md or existing plugin examples — they may be
 
 ## Project Overview
 
-**cc-marketplace** is a personal plugin marketplace with automated validation and synchronization. Claude Code supports the full catalog; private Codex support currently covers the four pilots documented in `docs/dual-agent-operating-model.md`. It provides:
+**cc-marketplace** is a personal plugin marketplace with automated validation and synchronization. Claude Code supports the full catalog; private Codex support currently covers the plugins documented in `docs/dual-agent-operating-model.md`. It provides:
 - A centralized registry of Claude Code plugins (skills, agents, commands)
 - A Codex pilot registry with thin native manifests and runtime adapters over shared skill bodies
 - Automated marketplace discovery from the `plugins/` directory

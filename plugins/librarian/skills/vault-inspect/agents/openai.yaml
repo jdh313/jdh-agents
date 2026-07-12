@@ -1,0 +1,5 @@
+interface:
+  display_name: Vault Inspect
+  short_description: Run a read-only vault diagnostic
+policy:
+  allow_implicit_invocation: false

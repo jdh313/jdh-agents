@@ -1,0 +1,5 @@
+interface:
+  display_name: Add to Base
+  short_description: Add one approved Obsidian Base entry
+policy:
+  allow_implicit_invocation: false

@@ -1,0 +1,5 @@
+interface:
+  display_name: Note Capture
+  short_description: Capture one thought to today's note
+policy:
+  allow_implicit_invocation: false

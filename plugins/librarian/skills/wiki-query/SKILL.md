@@ -11,6 +11,8 @@ disallowed-tools:
   - Edit
 ---
 
+Apply the runtime mappings in [`../../RUNTIME.md`](../../RUNTIME.md).
+
 # Wiki Query
 
 Answer questions by searching the Knowledge Wiki. Wiki pages are
