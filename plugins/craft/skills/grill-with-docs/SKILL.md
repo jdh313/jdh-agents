@@ -16,6 +16,8 @@ allowed-tools:
   - Skill
 ---
 
+Apply the skill-composition mapping in [`../../RUNTIME.md`](../../RUNTIME.md).
+
 Interview the user about every aspect of this plan until reaching a shared understanding. Walk down each branch of the design tree, resolving dependencies between decisions one-by-one. For each question, propose a recommended answer.
 
 Ask one question at a time. Wait for the user's response before continuing.

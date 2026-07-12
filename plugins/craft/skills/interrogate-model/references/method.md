@@ -16,7 +16,7 @@ An **axis** is a dimension whose value *should* be settable without constraining
 The cross-product of axis values is the candidate scenario space, but most gaps are scenarios *outside* what the code anticipated. Two sources:
 
 1. **Mechanical:** walk the axis cross-product and keep the combinations a real subject would need.
-2. **Human (the load-bearing source):** ask the user for the personas/states they expect served. Use `AskUserQuestion`. A missing capability is invisible until its scenario is named — a scoped-owner persona, say, often surfaces only once someone says it aloud.
+2. **Human (the load-bearing source):** ask the user for the personas/states they expect served, using the active runtime's user-input capability. A missing capability is invisible until its scenario is named — a scoped-owner persona, say, often surfaces only once someone says it aloud.
 
 For access models, force every scenario into **subject–action–object–scope** so the required axis-values are explicit. For state machines / data models, a scenario is a required state-combination or configuration.
 

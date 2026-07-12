@@ -17,6 +17,8 @@ allowed-tools:
   - Skill
 ---
 
+Apply the orchestration mappings in [`../../RUNTIME.md`](../../RUNTIME.md).
+
 # Improve Codebase Architecture
 
 Surface architectural friction and propose **deepening opportunities** — refactors that turn shallow modules into deep ones. The aim is testability and AI-navigability.
@@ -33,7 +35,7 @@ This skill is _informed_ by the project's domain model. The domain language give
 
 Invoke `/ground` to surface relevant NDR atoms in the area you're touching first. Read the project's domain glossary (CONTEXT.md) alongside the grounded decisions.
 
-Then use the Agent tool with `subagent_type=Explore` and `name="arch-explorer"` to walk the codebase. Naming the agent keeps it addressable via SendMessage during the grilling loop if you need to ask it follow-up questions. Don't follow rigid heuristics — explore organically and note where you experience friction:
+Then spawn an isolated exploration subagent named `arch-explorer` to walk the codebase. Give it a bounded task, inputs, deliverable, and done criteria; keep it addressable during the grilling loop for follow-up questions. Don't follow rigid heuristics — explore organically and note where you experience friction:
 
 - Where does understanding one concept require bouncing between many small modules?
 - Where are modules **shallow** — interface nearly as complex as the implementation?

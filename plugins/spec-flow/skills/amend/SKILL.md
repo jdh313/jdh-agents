@@ -1,6 +1,18 @@
 ---
 name: amend
-description: This skill should be used when the AI realizes during implementation that the contract's front-matter — the target it promises (What we're doing, Why, Out of scope, Done when) — is becoming inaccurate: a new constraint narrows scope, an Out-of-scope item must move in-scope, or a resolved fork changes what Done-when promises. Typically invoked from within `spec-flow:implement` rather than directly by the user. Works for both file-hosted (`.docs/`) and Linear-hosted contracts. Surfaces a proposed front-matter edit to the user, waits for sign-off, then applies it to the right host (Edit for files, save_issue for Linear). Never edits front-matter silently. Not for Decision-log rows (that is implement's no-sign-off append) or for rewriting Approach / wiring (free working-matter). The contract is an agreement; both parties must agree to changes to the target.
+description: >-
+  This skill should be used when the AI realizes during implementation that the
+  contract's front-matter — the target it promises (What we're doing, Why, Out
+  of scope, Done when) — is becoming inaccurate: a new constraint narrows
+  scope, an Out-of-scope item must move in-scope, or a resolved fork changes
+  what Done-when promises. Typically invoked from within `spec-flow:implement`
+  rather than directly by the user. Works for both file-hosted (`.docs/`) and
+  Linear-hosted contracts. Surfaces a proposed front-matter edit to the user,
+  waits for sign-off, then applies it to the right host (Edit for files,
+  save_issue for Linear). Never edits front-matter silently. Not for
+  Decision-log rows (that is implement's no-sign-off append) or for rewriting
+  Approach / wiring (free working-matter). The contract is an agreement; both
+  parties must agree to changes to the target.
 allowed-tools:
   - mcp__linear-server__get_issue
   - Read
@@ -98,7 +110,7 @@ If the host is Linear and `mcp__linear-server__*` tools aren't loaded:
 
 > "Linear MCP server isn't connected — I can't write the amendment to TEAM-123. Pause while you wire up the MCP, or hold the amendment in conversation until you can?"
 
-Do not run `claude mcp add` or suggest a paste-and-go connect command.
+Do not install or configure the integration without approval, and never ask the user to paste credentials into chat.
 
 If the user provided a modified version, apply that, not the AI's original.
 

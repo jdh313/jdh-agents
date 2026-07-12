@@ -31,7 +31,7 @@ Given a ticket (or file slug) and nothing else, figure out where the change sits
 - Identifier matches `^[A-Z]{2,5}-\d+$` (e.g. `TEAM-123`) → **linear** host. State lives in Linear — this is the primary path.
 - Anything else (kebab slug, filename) → **file** host. Phase comes from `.docs/` placement + frontmatter (see step 4).
 
-If host = linear, check that `mcp__linear-server__*` tools are loaded. If not, use the standard fallback wording (`../../references/hosts.md` — *"Linear MCP server isn't connected …"*). Do not run `claude mcp add`.
+If host = linear, check that a connected Linear integration is available using the runtime mapping in `../../references/hosts.md`. If not, use the standard fallback wording there (*"Linear isn't connected …"*). Do not install or configure the integration without approval.
 
 ### 2. Read state (linear host)
 

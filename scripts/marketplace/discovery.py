@@ -29,7 +29,10 @@ def discover_plugins(
     if not plugins_dir.exists():
         return plugins
 
-    for plugin_json_path in plugins_dir.rglob("plugin.json"):
+    # Codex manifests can coexist under .codex-plugin/. Claude marketplace
+    # discovery remains anchored to its native manifest so entries are not
+    # duplicated and the public export model stays unchanged.
+    for plugin_json_path in plugins_dir.glob("*/.claude-plugin/plugin.json"):
         try:
             with plugin_json_path.open(encoding="utf-8") as fh:
                 data = json.load(fh)

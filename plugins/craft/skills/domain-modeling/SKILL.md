@@ -16,6 +16,8 @@ allowed-tools:
   - Skill
 ---
 
+Apply the skill-composition mapping in [`../../RUNTIME.md`](../../RUNTIME.md).
+
 # Domain Modeling
 
 Actively build and sharpen the project's domain model as you design. This is the *active* discipline — challenging terms, inventing edge-case scenarios, and writing the glossary down the moment it crystallises. (Merely *reading* `CONTEXT.md` for vocabulary is not this skill — that's a one-line habit any skill can do. This skill is for when you're changing the model, not just consuming it.)

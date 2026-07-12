@@ -14,6 +14,13 @@ allowed-tools:
 
 Read-only setup validator. Diagnoses what the linear plugin expects and reports a checklist. **Never mutates anything.**
 
+## Runtime adapter
+
+Use the active runtime's connected Linear integration. The
+`mcp__linear-server__*` names below are Claude Code spellings; in Codex, match
+each operation to the connected Linear app or MCP tool exposed in the current
+task. Do not use web search or model memory as a fallback for workspace data.
+
 ## Checks
 
 Run all checks, then emit a single report. Each check is independent — a failure in one does not abort the rest.

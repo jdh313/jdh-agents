@@ -9,14 +9,17 @@ Canonical detection algorithm for the commit skill. The SKILL.md points here ins
 3. **Co-Authored-By policy**: `keep` or `strip` (default `strip`)
 4. **Issue-ref placement**: `summary` or `pr` (default `pr`)
 
-All four can be declared in the repo's CLAUDE.md; otherwise auto-detect from repo state.
+All four can be declared in repository agent guidance; otherwise auto-detect from repo state.
 
-## Step 1 — Read CLAUDE.md for explicit config
+## Step 1 — Read agent guidance for explicit config
 
-Use the Grep tool against `CLAUDE.md` (if it exists):
+Read `AGENTS.md` files that apply to the working directory. If `CLAUDE.md`
+also exists, use its non-conflicting repository facts as supporting guidance.
+On Claude Code, where `CLAUDE.md` is the native instruction surface, read it
+directly. Search the applicable files for:
 
 - pattern: `^\s*-\s*(VCS|Commit style|Co-Authored-By|Issue refs)\s*:`
-- flags: `-i` (case-insensitive), `path: CLAUDE.md`
+- flags: `-i` (case-insensitive)
 
 Recognized lines:
 
@@ -25,7 +28,9 @@ Recognized lines:
 - `- Co-Authored-By: keep` or `- Co-Authored-By: strip`
 - `- Issue refs: summary` or `- Issue refs: pr`
 
-Use what's declared. Auto-detect anything not declared. If `CLAUDE.md` doesn't exist, skip to Step 2.
+Use what's declared. Auto-detect anything not declared. When files conflict,
+the active runtime's native repository guidance wins; nearer repository
+guidance wins over user-level guidance.
 
 ## Step 2 — Auto-detect VCS
 
@@ -64,7 +69,9 @@ Only for whatever Step 1 didn't declare. Sample the same recent commits (use ful
 - **Co-Authored-By:** if ≥60% of recent commit messages carry a `Co-Authored-By:` trailer → `keep`; otherwise → `strip`.
 - **Issue refs:** if ≥60% of recent subjects carry a ticket key (`(TEAM-123)`, `#123`) → `summary`; otherwise → `pr`.
 
-**Precedence: repo CLAUDE.md > user CLAUDE.md > history.** A user-level mandate to add `Co-Authored-By:` is honored unless the repo declares otherwise.
+**Precedence: applicable repository guidance > user guidance > history.** A
+user-level mandate to add `Co-Authored-By:` is honored unless the repo declares
+otherwise.
 
 ## Step 4 — Load matching references
 
@@ -80,8 +87,8 @@ Only for whatever Step 1 didn't declare. Sample the same recent commits (use ful
 
 ## House style (both VCSes, both message styles)
 
-- **`Co-Authored-By:` footers** follow the detected policy (Step 1, else Step 3b). Default `strip` — AI/tool-generated footers (e.g. `Co-Authored-By: Claude ...` or bot footers) are always stripped; the VCS records authorship separately. Honor `keep` (CLAUDE.md mandate or history) by preserving one `Co-Authored-By: Name <email>` per human co-author when two people genuinely paired on the commit. Default solo commit: no footer.
+- **`Co-Authored-By:` footers** follow the detected policy (Step 1, else Step 3b). Default `strip` — AI/tool-generated footers (e.g. `Co-Authored-By: Claude ...` or bot footers) are always stripped; the VCS records authorship separately. Honor `keep` (repository-guidance mandate or history) by preserving one `Co-Authored-By: Name <email>` per human co-author when two people genuinely paired on the commit. Default solo commit: no footer.
 - **No trailing period** on the summary line.
 - **Imperative mood** ("add" not "added" or "adds").
 - **Body ≤5 lines**, explains WHY (the diff shows WHAT).
-- **Issue numbers in the summary** follow the detected placement (Step 1, else Step 3b). Default `pr` — refs belong in the PR description, not the subject. Honor `summary` when CLAUDE.md declares it or history consistently uses it.
+- **Issue numbers in the summary** follow the detected placement (Step 1, else Step 3b). Default `pr` — refs belong in the PR description, not the subject. Honor `summary` when repository guidance declares it or history consistently uses it.

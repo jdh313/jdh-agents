@@ -1,13 +1,16 @@
 ---
 name: grok
-description: Build durable, supersession-aware understanding of a codebase over multiple sessions — both cold (a repo you're new to) and warm (a subsystem of a repo you already work in). Grounds in the repo's real sources (code, CONTEXT.md, NDR heads, git history) rather than parametric guesses, explains one subsystem at a time sized to what you already grasp, and persists confirmed understanding as records in the vault that graduate into CONTEXT.md and NDR atoms.
+description: Explicit invocation only. Build durable, supersession-aware understanding of a codebase over multiple sessions — both cold (a repo you're new to) and warm (a subsystem of a repo you already work in). Grounds in the repo's real sources (code, CONTEXT.md, NDR heads, git history) rather than parametric guesses, explains one subsystem at a time sized to what you already grasp, and persists confirmed understanding as records in the vault that graduate into CONTEXT.md and NDR atoms. Never invoke implicitly.
 when_to_use: Use when the user says "grok this repo", "help me understand the X subsystem", "get me up to speed on this code", or "/grok".
-disable-model-invocation: true
 effort: high
 argument-hint: "Which repo or subsystem do you want to understand?"
 allowed-tools: Bash(obsidian-cli *), Write, Read, Grep, Glob, Bash(git log *), Bash(git show *), Bash(git blame *)
 disallowed-tools: Edit, Bash(rm *), Bash(trash *), Bash(git push *), Bash(jj abandon *), Bash(jj restore *)
 ---
+
+Claude Code should invoke this skill only on the explicit trigger phrases in
+the description. Codex enforces the same behavior through
+[`agents/openai.yaml`](agents/openai.yaml).
 
 The user wants to understand a codebase. This is a **stateful** request — comprehension built over multiple sessions, not a one-shot explanation. (For a one-shot "zoom out and map this area," use the `zoom-out` skill instead; `/grok` is the layer that persists what `zoom-out` surfaces and tracks progress toward an understanding goal.)
 

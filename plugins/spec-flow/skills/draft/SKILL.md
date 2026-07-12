@@ -1,6 +1,19 @@
 ---
 name: draft
-description: This skill should be used when the user runs `/spec-flow draft <goal>` or otherwise signals the start of a new contract-tracked code change. Trigger phrases include "spec-flow draft", "open a contract for", "let's scaffold a contract for", "new spec-flow change", "draft a contract for this change", "open a new ticket and draft a contract". Performs the kickoff lifecycle — detects the contract host (`.docs/` file, existing Linear ticket, or a NEW Linear ticket created at draft time), flags any other active contracts, runs proactive context-gathering (codebase, library docs via Context7, relevant ndr atoms), conducts a conversational pass asking targeted questions only where the AI's path isn't clear, drafts a six-section contract using the contract template, and writes it to the chosen host. Upgrades `status: captured` stubs from `spec-flow:capture` in place. Does NOT start implementation — that requires explicit `/spec-flow implement`.
+description: >-
+  This skill should be used when the user runs `/spec-flow draft <goal>` or
+  otherwise signals the start of a new contract-tracked code change. Trigger
+  phrases include "spec-flow draft", "open a contract for", "let's scaffold a
+  contract for", "new spec-flow change", "draft a contract for this change",
+  "open a new ticket and draft a contract". Performs the kickoff lifecycle —
+  detects the contract host (`.docs/` file, existing Linear ticket, or a NEW
+  Linear ticket created at draft time), flags any other active contracts, runs
+  proactive context-gathering (codebase, library docs via Context7, relevant
+  ndr atoms), conducts a conversational pass asking targeted questions only
+  where the AI's path isn't clear, drafts a six-section contract using the
+  contract template, and writes it to the chosen host. Upgrades `status:
+  captured` stubs from `spec-flow:capture` in place. Does NOT start
+  implementation — that requires explicit `/spec-flow implement`.
 argument-hint: "<goal — or TEAM-N to use a ticket as the contract>"
 allowed-tools:
   - mcp__linear-server__get_issue
@@ -48,7 +61,7 @@ If host = linear or linear-new, check that `mcp__linear-server__*` tools are loa
 
 > "Linear MCP server isn't connected — I can't read or write the ticket. Fall back to a `.docs/` file contract, or pause while you wire up the MCP yourself?"
 
-Do not run `claude mcp add` or suggest a paste-and-go connect command. Wait for the user.
+Do not install or configure the integration without approval, and never ask the user to paste credentials into chat. Wait for the user.
 
 Full detection table and rationale: `../../references/hosts.md`.
 
@@ -88,7 +101,7 @@ Wait for confirmation. Do not block — this is a visibility flag, not a gate. I
 
 Before asking the user anything, do legwork:
 
-- **Codebase scan** — Read `CLAUDE.md`, search for patterns the change might touch (`rg` / `grep`), read the entry points relevant to the goal.
+- **Codebase scan** — Read applicable repository agent guidance (`AGENTS.md` in Codex; `CLAUDE.md` in Claude Code), search for patterns the change might touch (`rg` / `grep`), read the entry points relevant to the goal.
 - **Library docs** — If the goal mentions a library or framework, resolve and fetch docs via `mcp__plugin_context7_context7__resolve-library-id` then `query-docs`.
 - **Installed version** — If the goal names a specific dep, check the installed major version in the target repo (`bun info <pkg>`, `npm ls <pkg>`, `pip show <pkg>`, `cargo tree | grep <pkg>`, etc.) before drafting against the docs. Docs-vs-installed drift is a common amendment trigger.
 - **Relevant ndr atoms** — If the `ndr` plugin is installed, hand off to it to surface atoms scoped to this project/repo for the area or related concepts.

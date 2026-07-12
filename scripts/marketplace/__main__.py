@@ -11,7 +11,7 @@ from pathlib import Path
 from marketplace.export import run_export
 from marketplace.lint import lint_plugins
 from marketplace.manifest import build_private
-from marketplace.validate import validate_manifest
+from marketplace.validate import validate_codex_marketplace, validate_manifest
 
 # ---------------------------------------------------------------------------
 # Repo-root helper
@@ -25,6 +25,7 @@ _THIS_FILE = Path(__file__).resolve()
 _REPO_ROOT = _THIS_FILE.parents[2]
 _PLUGINS_ROOT = _REPO_ROOT / "plugins"
 _PRIVATE_MANIFEST = _REPO_ROOT / ".claude-plugin" / "marketplace.json"
+_CODEX_MANIFEST = _REPO_ROOT / ".agents" / "plugins" / "marketplace.json"
 _DEFAULT_EXPORT_CONFIG = _REPO_ROOT / "export" / "public.json"
 
 
@@ -96,7 +97,13 @@ def _cmd_sync(args: argparse.Namespace) -> int:
 
 
 def _cmd_validate(args: argparse.Namespace) -> int:
-    manifest_path = Path(args.manifest) if args.manifest else _PRIVATE_MANIFEST
+    manifest_format = getattr(args, "format", "claude")
+    if args.manifest:
+        manifest_path = Path(args.manifest)
+    elif manifest_format == "codex":
+        manifest_path = _CODEX_MANIFEST
+    else:
+        manifest_path = _PRIVATE_MANIFEST
     plugins_root = Path(args.plugins_root) if args.plugins_root else _PLUGINS_ROOT
 
     if not manifest_path.exists():
@@ -110,7 +117,10 @@ def _cmd_validate(args: argparse.Namespace) -> int:
         print(f"Error: Invalid JSON in {manifest_path}: {exc}", file=sys.stderr)
         return 1
 
-    errors = validate_manifest(manifest, plugins_root)
+    if manifest_format == "codex":
+        errors = validate_codex_marketplace(manifest, plugins_root.parent)
+    else:
+        errors = validate_manifest(manifest, plugins_root)
 
     if errors:
         print("Validation failed:", file=sys.stderr)
@@ -118,7 +128,10 @@ def _cmd_validate(args: argparse.Namespace) -> int:
             print(f"  - {e}", file=sys.stderr)
         return 1
 
-    print(f"Validation passed ({len(manifest.get('plugins', []))} plugins).")
+    print(
+        f"{manifest_format.capitalize()} validation passed "
+        f"({len(manifest.get('plugins', []))} plugins)."
+    )
     return 0
 
 
@@ -140,11 +153,7 @@ def _cmd_lint(args: argparse.Namespace) -> int:
 
     n = 0
     if plugins_root.exists():
-        n = sum(
-            1
-            for p in plugins_root.rglob("*")
-            if p.is_file() and not p.name.startswith(".")
-        )
+        n = sum(1 for p in plugins_root.rglob("*") if p.is_file() and not p.name.startswith("."))
     print(f"Lint passed ({n} files checked, {len(warnings)} warning(s)).")
     return 0
 
@@ -191,12 +200,17 @@ def _cmd_check(args: argparse.Namespace) -> int:  # noqa: ARG001
     sync_ns = argparse.Namespace(check=True)
     rc |= _cmd_sync(sync_ns)
 
-    # 2. validate private manifest
-    print("\n=== validate ===")
-    validate_ns = argparse.Namespace(manifest=None, plugins_root=None)
+    # 2. validate private Claude manifest
+    print("\n=== validate: claude ===")
+    validate_ns = argparse.Namespace(manifest=None, plugins_root=None, format="claude")
     rc |= _cmd_validate(validate_ns)
 
-    # 3. lint
+    # 3. validate private Codex manifest and referenced pilot plugins
+    print("\n=== validate: codex ===")
+    validate_ns = argparse.Namespace(manifest=None, plugins_root=None, format="codex")
+    rc |= _cmd_validate(validate_ns)
+
+    # 4. lint
     print("\n=== lint ===")
     lint_ns = argparse.Namespace(plugins_root=None)
     rc |= _cmd_lint(lint_ns)
@@ -230,9 +244,15 @@ def _build_parser() -> argparse.ArgumentParser:
     )
 
     # validate
-    val_p = sub.add_parser("validate", help="Validate marketplace.json schema")
+    val_p = sub.add_parser("validate", help="Validate a marketplace.json schema")
     val_p.add_argument("--manifest", metavar="PATH", help="Path to manifest (default: private)")
     val_p.add_argument("--plugins-root", metavar="PATH", help="Path to plugins/ dir")
+    val_p.add_argument(
+        "--format",
+        choices=("claude", "codex"),
+        default="claude",
+        help="Marketplace schema to validate (default: claude)",
+    )
 
     # lint
     lint_p = sub.add_parser("lint", help="Lint plugin files")
@@ -255,7 +275,10 @@ def _build_parser() -> argparse.ArgumentParser:
     exp_p.add_argument("--push", action="store_true", help="Push after commit")
 
     # check (CI entrypoint)
-    sub.add_parser("check", help="Run sync --check + validate + lint (CI entrypoint)")
+    sub.add_parser(
+        "check",
+        help="Run sync drift, Claude/Codex validation, and lint (CI entrypoint)",
+    )
 
     return parser
 

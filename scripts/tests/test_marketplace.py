@@ -17,7 +17,7 @@ from marketplace.export import (  # noqa: PLC2701
     _privacy_gate,
 )
 from marketplace.manifest import build_public
-from marketplace.validate import validate_manifest
+from marketplace.validate import validate_codex_marketplace, validate_manifest
 
 # ---------------------------------------------------------------------------
 # Helpers
@@ -37,7 +37,10 @@ def _make_plugin(
     meta_dir.mkdir(parents=True)
     skill_dir = plugin_dir / "skills" / "hello"
     skill_dir.mkdir(parents=True)
-    (skill_dir / "SKILL.md").write_text("# Hello\n\nThis skill does something useful.\n" * 3)
+    (skill_dir / "SKILL.md").write_text(
+        "---\nname: hello\ndescription: A useful test skill.\n---\n\n"
+        + "# Hello\n\nThis skill does something useful.\n" * 3
+    )
     plugin_data = {
         "name": name,
         "version": version,
@@ -63,6 +66,53 @@ def _minimal_config(allowlist: list[str], **overrides) -> dict:
     }
     base.update(overrides)
     return base
+
+
+def _add_codex_manifest(plugin_dir: Path, *, name: str | None = None) -> None:
+    claude_manifest = json.loads(
+        (plugin_dir / ".claude-plugin" / "plugin.json").read_text(encoding="utf-8")
+    )
+    plugin_name = name or claude_manifest["name"]
+    codex_dir = plugin_dir / ".codex-plugin"
+    codex_dir.mkdir()
+    (codex_dir / "plugin.json").write_text(
+        json.dumps(
+            {
+                "name": plugin_name,
+                "version": claude_manifest["version"],
+                "description": claude_manifest["description"],
+                "author": {"name": "Tester"},
+                "interface": {
+                    "displayName": plugin_name.title(),
+                    "shortDescription": "Short description",
+                    "longDescription": "Long description",
+                    "developerName": "Tester",
+                    "category": "Developer Tools",
+                    "capabilities": ["Read"],
+                    "defaultPrompt": ["Use the plugin."],
+                },
+            }
+        ),
+        encoding="utf-8",
+    )
+
+
+def _codex_marketplace(name: str) -> dict:
+    return {
+        "name": "test-marketplace",
+        "interface": {"displayName": "Test Marketplace"},
+        "plugins": [
+            {
+                "name": name,
+                "source": {"source": "local", "path": f"./plugins/{name}"},
+                "policy": {
+                    "installation": "AVAILABLE",
+                    "authentication": "ON_INSTALL",
+                },
+                "category": "Developer Tools",
+            }
+        ],
+    }
 
 
 # ---------------------------------------------------------------------------
@@ -105,6 +155,93 @@ def test_discover_plugins_source_path_format(tmp_path: Path) -> None:
     found = discover_plugins(plugins_dir)
 
     assert found[0]["source"] == "./plugins/myplugin"
+
+
+def test_discover_plugins_ignores_codex_manifest(tmp_path: Path) -> None:
+    plugins_dir = tmp_path / "plugins"
+    plugins_dir.mkdir()
+    plugin_dir = _make_plugin(plugins_dir, "myplugin")
+    codex_dir = plugin_dir / ".codex-plugin"
+    codex_dir.mkdir()
+    (codex_dir / "plugin.json").write_text(
+        json.dumps(
+            {
+                "name": "myplugin",
+                "version": "1.0.0",
+                "description": "Codex manifest",
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    found = discover_plugins(plugins_dir)
+
+    assert [plugin["name"] for plugin in found] == ["myplugin"]
+
+
+# ---------------------------------------------------------------------------
+# Codex marketplace validation
+# ---------------------------------------------------------------------------
+
+
+def test_validate_codex_marketplace_passes(tmp_path: Path) -> None:
+    plugins_dir = tmp_path / "plugins"
+    plugins_dir.mkdir()
+    plugin_dir = _make_plugin(plugins_dir, "myplugin")
+    _add_codex_manifest(plugin_dir)
+
+    errors = validate_codex_marketplace(_codex_marketplace("myplugin"), tmp_path)
+
+    assert errors == []
+
+
+def test_validate_codex_marketplace_rejects_policy(tmp_path: Path) -> None:
+    plugins_dir = tmp_path / "plugins"
+    plugins_dir.mkdir()
+    plugin_dir = _make_plugin(plugins_dir, "myplugin")
+    _add_codex_manifest(plugin_dir)
+    marketplace = _codex_marketplace("myplugin")
+    marketplace["plugins"][0]["policy"]["installation"] = "SOMETIMES"
+
+    errors = validate_codex_marketplace(marketplace, tmp_path)
+
+    assert any("invalid installation policy" in error for error in errors)
+
+
+def test_validate_codex_marketplace_rejects_path_escape(tmp_path: Path) -> None:
+    marketplace = _codex_marketplace("myplugin")
+    marketplace["plugins"][0]["source"]["path"] = "./../outside"
+
+    errors = validate_codex_marketplace(marketplace, tmp_path)
+
+    assert any("escapes the marketplace root" in error for error in errors)
+
+
+def test_validate_codex_marketplace_rejects_manifest_mismatch(tmp_path: Path) -> None:
+    plugins_dir = tmp_path / "plugins"
+    plugins_dir.mkdir()
+    plugin_dir = _make_plugin(plugins_dir, "myplugin")
+    _add_codex_manifest(plugin_dir, name="different-name")
+
+    errors = validate_codex_marketplace(_codex_marketplace("myplugin"), tmp_path)
+
+    assert any("marketplace name does not match" in error for error in errors)
+    assert any("Claude and Codex manifest names differ" in error for error in errors)
+
+
+def test_validate_codex_marketplace_rejects_invalid_skill_yaml(tmp_path: Path) -> None:
+    plugins_dir = tmp_path / "plugins"
+    plugins_dir.mkdir()
+    plugin_dir = _make_plugin(plugins_dir, "myplugin")
+    _add_codex_manifest(plugin_dir)
+    (plugin_dir / "skills" / "hello" / "SKILL.md").write_text(
+        "---\nname: hello\ndescription: invalid: yaml\n---\nBody\n",
+        encoding="utf-8",
+    )
+
+    errors = validate_codex_marketplace(_codex_marketplace("myplugin"), tmp_path)
+
+    assert any("invalid skill frontmatter" in error for error in errors)
 
 
 def test_discover_plugins_skips_invalid_json(tmp_path: Path, capsys) -> None:
@@ -335,7 +472,7 @@ def test_changed_plugins_parses_porcelain():
         " M plugins/spec-flow/skills/draft/SKILL.md\n"
         "A  plugins/newone/.claude-plugin/plugin.json\n"
         " M .claude-plugin/marketplace.json\n"
-        'R  plugins/old/x.md -> plugins/pm/x.md'
+        "R  plugins/old/x.md -> plugins/pm/x.md"
     )
     assert _changed_plugins(status) == {"spec-flow", "newone", "pm"}
 

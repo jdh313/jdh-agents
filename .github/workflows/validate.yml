@@ -19,7 +19,7 @@ jobs:
         with:
           python-version: '3.13'
 
-      - name: Check marketplace (sync drift + schema + lint)
+      - name: Check Claude and Codex marketplaces (sync drift + schemas + lint)
         run: uv run marketplace check
 
       - name: Unit tests

@@ -1,6 +1,6 @@
 ---
 name: linear
-description: This skill should be used when creating, updating, transitioning, reading, or querying Linear tickets in your Linear workspace. Trigger phrases include "open a linear ticket", "create a TEAM ticket", "add to linear", "add to backlog", "log this in linear", "move TEAM-N to", "transition TEAM-N", "promote to todo", "back to backlog", "mark TEAM-N done", "what state is TEAM-N", "set TEAM-N priority", "what's in todo", "show my linear tickets", "show unassigned tickets", "show team backlog", "assign to me", "assign to the other person", "accept this ticket", "who should own this". Supplies ticket creation defaults (team, labels, priority, assignee, milestone), status flow semantics, title and description conventions, collaboration conventions, and MCP call patterns. Does NOT cover the spec-flow contract lifecycle (use spec-flow plugin) or the decision of whether to open a ticket at all (project CLAUDE.md owns the floor rule).
+description: This skill should be used when creating, updating, transitioning, reading, or querying Linear tickets in your Linear workspace. Trigger phrases include "open a linear ticket", "create a TEAM ticket", "add to linear", "add to backlog", "log this in linear", "move TEAM-N to", "transition TEAM-N", "promote to todo", "back to backlog", "mark TEAM-N done", "what state is TEAM-N", "set TEAM-N priority", "what's in todo", "show my linear tickets", "show unassigned tickets", "show team backlog", "assign to me", "assign to the other person", "accept this ticket", "who should own this". Supplies ticket creation defaults (team, labels, priority, assignee, milestone), status flow semantics, title and description conventions, collaboration conventions, and Linear integration call patterns. Does NOT cover the spec-flow contract lifecycle (use spec-flow plugin) or the decision of whether to open a ticket at all (project agent guidance owns the floor rule).
 allowed-tools:
   - mcp__linear-server__get_issue
   - mcp__linear-server__list_issues
@@ -15,13 +15,26 @@ allowed-tools:
 
 Operational conventions for Linear work. Loads on any ticket create, transition, read, or update.
 
+## Runtime adapter
+
+Use the active runtime's connected Linear integration. Operation names in this
+skill (`get_issue`, `list_issues`, `save_issue`, and related calls) are semantic:
+
+- Claude Code: call the corresponding `mcp__linear-server__*` tool.
+- Codex: call the corresponding connected Linear app or MCP tool exposed in the
+  current task. Tool identifiers may differ; match by operation and schema.
+
+Never substitute web search or model memory for private Linear data. If no
+connected Linear capability is available, stop before the Linear action and
+tell the user the integration is unavailable.
+
 ## Scope
 
 - **Owns:** Ticket creation defaults, label set, status flow, title shape, description templates, status transitions, priority semantics.
 - **Does NOT own:**
-  - The decision of *whether* to open a ticket — that's the project CLAUDE.md floor rule.
+  - The decision of *whether* to open a ticket — that's the project agent-guidance floor rule.
   - The spec-flow contract lifecycle — that's the spec-flow plugin. When a contract is hosted in Linear, spec-flow writes the contract body; this skill governs the ticket's other fields.
-- **Currently scoped to:** one Linear team, two collaborators. Each person runs their own Claude with their own Linear auth, so `assignee="me"` resolves per-person automatically.
+- **Currently scoped to:** one Linear team, two collaborators. Each person uses their own agent runtime with their own Linear auth, so `assignee="me"` resolves per-person automatically.
 
 ## Conventions
 
@@ -264,7 +277,7 @@ mcp__linear-server__save_issue(id="TEAM-N", assignee="me", state="Todo")
 
 - **spec-flow** — When a contract is hosted in Linear (e.g. `/spec-flow draft TEAM-123`), spec-flow writes the contract body to the ticket description using the full six-section template. This skill governs the surrounding ticket fields. spec-flow does not set labels, priority, or milestone — those follow the conventions here. `spec-flow:capture` and Linear-new `spec-flow:draft` also *create* tickets — title shape, team, labels, priority, and state defaults all come from this skill.
 - **ndr** — Tickets carrying the `Decision` label correspond to ndr atoms. The ticket tracks the work of making the decision; the atom holds the captured decision content. Reference atoms from ticket descriptions via `ndr:<atom-id>` or `ndr:<area>/<topic>`.
-- **Project CLAUDE.md** — Owns the floor rule: "can't do now, or has dependencies to sequence" → open a ticket. This skill takes over once the decision to open has been made.
+- **Project agent guidance** — Owns the floor rule: "can't do now, or has dependencies to sequence" → open a ticket. This skill takes over once the decision to open has been made.
 
 ## Not covered (deferred)
 

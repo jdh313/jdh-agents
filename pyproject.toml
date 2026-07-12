@@ -7,7 +7,7 @@ name = "cc-marketplace-tools"
 version = "0.1.0"
 description = "CLI tooling for the cc-marketplace plugin registry"
 requires-python = ">=3.13"
-dependencies = []
+dependencies = ["pyyaml>=6.0"]
 
 [project.scripts]
 marketplace = "marketplace.__main__:main"

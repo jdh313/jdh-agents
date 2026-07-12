@@ -17,6 +17,8 @@ allowed-tools:
   - TodoWrite       # track the 7-phase pipeline
 ---
 
+Apply the orchestration mappings in [`../../RUNTIME.md`](../../RUNTIME.md).
+
 # Infra Review (v0 — local-first)
 
 Review an AWS Terraform PR whose plans are produced by **Atlantis**, run from a
@@ -66,7 +68,7 @@ safety or fit.
 
 ## Workflow
 
-Pipeline of 7 phases. **At the start, TodoWrite the 7 phases** as the tracker,
+Pipeline of 7 phases. **At the start, create a runtime plan with the 7 phases** as the tracker,
 then mark each `in_progress`/`completed` as you go. Phases 2 and 7 are **gates** —
 the pipeline halts there until a condition is met (2) or the user approves (7).
 
@@ -152,7 +154,7 @@ mechanical issues, each with confidence.
 ### Phase 7 — Selective posting GATE (two confirmations, unskippable)
 **Entry:** Phase 6 report presented.
 **Actions:**
-1. **GATE 1 — select.** Use `AskUserQuestion` (multiSelect) listing each finding
+1. **GATE 1 — select.** Use the runtime's structured user-input capability (multi-select when available) listing each finding
    as an option, plus "post nothing". The user chooses which findings to post.
    Default is **post nothing**.
 2. If the user selects none (or "post nothing"): stop here. Report nothing was posted.

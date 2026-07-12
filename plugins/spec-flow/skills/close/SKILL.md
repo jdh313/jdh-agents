@@ -45,7 +45,7 @@ If host = linear, check that `mcp__linear-server__*` tools are loaded. If not:
 
 > "Linear MCP server isn't connected — I can't read TEAM-123's description. Pause while you wire up the MCP, or close the migration steps using context held in conversation only?"
 
-Do not run `claude mcp add` or suggest a paste-and-go connect command.
+Do not install or configure the integration without approval, and never ask the user to paste credentials into chat.
 
 ### 2. Read the contract and the actual change
 
@@ -63,7 +63,7 @@ Walk each *Done when* bullet against the actual change:
 - **Drifted** — outcome shipped, but the bullet no longer describes it well.
 - **Met-with-deferral** — a breakdown migrate slice whose bullet was *relative* ("call sites moved; end-to-end green promised at `<final slice>`"). Honor the deferral: this is met, **not** not-met, provided the named final slice exists (and, if already closed, verified). The cross-batch Done-when is owned by the integrate-and-verify slice, not this one.
 
-Prefer behavioral confirmation over diff-reading. If `implement`'s verify step ran this session, reuse its per-bullet result; otherwise dispatch the **`contract-verifier`** agent (Done-when bullets + diff scope + detected VCS) to run the checks now in isolated context — or fall back to running them inline (`/verify` if available). A bullet that only *looks* met in the diff is exactly the drift this gate exists to catch.
+Prefer behavioral confirmation over diff-reading. If `implement`'s verify step ran this session, reuse its per-bullet result; otherwise run the **`contract-verifier`** procedure (Done-when bullets + diff scope + detected VCS) in isolated subagent context using the runtime mapping in `../../references/hosts.md` — or fall back to running the checks inline (`/verify` if available). A bullet that only *looks* met in the diff is exactly the drift this gate exists to catch.
 
 **Reconcile a drifted bullet (`reconcile` op).** A `drifted` bullet is corrected to shipped reality — a front-matter edit that does *not* renegotiate the target (the thing shipped; only its wording was off), so it rides this close's sign-off rather than a separate `spec-flow:amend`. `reconcile` is legal ONLY on `drifted`, never on `not_met` (didn't ship → halt-and-ask below). Each reconcile **spawns a Decision-log row** capturing *why* the criterion drifted, so the insight harvests in step 4 instead of evaporating with the reworded bullet. Fold the reconciled wording and the spawned row into the sign-off proposal in step 4/5.
 
