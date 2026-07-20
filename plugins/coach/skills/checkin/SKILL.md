@@ -1,5 +1,5 @@
 ---
-name: coach:checkin
+name: checkin
 description: >-
   This skill should be used when the user says "/checkin", "end of day",
   "how did today go", "daily reflection", "what did I get done", "wrap up

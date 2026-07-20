@@ -1,5 +1,5 @@
 ---
-name: coach:reentry
+name: reentry
 description: >-
   This skill should be used when the user says "/reentry", "help me get
   back into [project]", "where did I leave off", "catch me up on [project]",

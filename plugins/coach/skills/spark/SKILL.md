@@ -1,5 +1,5 @@
 ---
-name: coach:spark
+name: spark
 description: >-
   This skill should be used when the user says "/spark", "I had an idea", "I
   want to try", "what if I", "this looks cool", "new interest", "capture this

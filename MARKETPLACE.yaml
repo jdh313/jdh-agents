@@ -1,0 +1,29 @@
+schema: agentforge.marketplace/v1
+id: cc-marketplace
+defaults:
+  name: cc-marketplace
+  description: Personal dual-runtime plugin marketplace
+  owner:
+    name: Jacob Hoehler
+    email: jacob@example.com
+packages:
+  - plugins/*/PACKAGE.yaml
+publications:
+  - id: claude
+    target: claude
+    destination: .claude-plugin/marketplace.json
+    enrollment:
+      mode: all-compatible
+    native:
+      metadata:
+        description: Personal Claude Code plugin marketplace
+        version: 1.0.0
+  - id: codex
+    target: codex
+    destination: .agents/plugins/marketplace.json
+    enrollment:
+      mode: include
+      packages: [commit, craft, librarian, linear, spec-flow]
+    native:
+      interface:
+        displayName: CC Marketplace

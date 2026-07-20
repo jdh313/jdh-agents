@@ -1,5 +1,5 @@
 ---
-name: coach:plan-week
+name: plan-week
 description: >-
   This skill should be used when the user says "/plan-week", "plan my week",
   "schedule my week", "what's my week look like", "week ahead", "weekly

@@ -1,5 +1,5 @@
 ---
-name: coach:review
+name: review
 description: >-
   This skill should be used when the user says "/review", "monthly review",
   "quarterly review", "life review", "big picture check-in", "theme setting",

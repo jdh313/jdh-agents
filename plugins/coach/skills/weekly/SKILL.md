@@ -1,5 +1,5 @@
 ---
-name: coach:weekly
+name: weekly
 description: >-
   This skill should be used when the user says "/weekly", "weekly review",
   "review my week", "week in review", "what should I focus on this week",

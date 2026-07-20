@@ -1,0 +1,22 @@
+schema: agentforge.package/v1
+id: spec-flow
+defaults: {"name":"spec-flow","version":"0.12.1","description":"Personal SDLC scaffolding for AI-assisted development. A lightweight, ephemeral 'contract' between user and AI drives each code change from captured idea to verified done; the durable layer (CLAUDE.md, ndr atoms, README) lives elsewhere. Lifecycle: capture -> draft -> implement -> close.","author":{"name":"Jacob Hoehler"},"license":"Apache-2.0","keywords":["sdlc","spec-driven-development","ai-assisted-dev","contract","capture","change-scoped","ephemeral","ndr","librarian"]}
+artifacts:
+  - {type: skill, pattern: 'skills/*/SKILL.md'}
+  - {type: agent, pattern: 'agents/*.md'}
+  - {type: command, pattern: 'commands/*.md'}
+payloads:
+  include:
+    - {source: references/}
+targets:
+  claude: {}
+  codex:
+    native:
+      interface:
+        displayName: Spec Flow
+        shortDescription: Drive contract-based code changes
+        longDescription: Contract-driven capture, drafting, implementation, verification, and close workflows.
+        developerName: Jacob Hoehler
+        category: Developer Tools
+        capabilities: [Read, Write, Interactive]
+        defaultPrompt: [Draft a contract for this change.]

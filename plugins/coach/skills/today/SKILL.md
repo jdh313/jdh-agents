@@ -1,5 +1,5 @@
 ---
-name: coach:today
+name: today
 description: >-
   This skill should be used when the user says "/today", "plan my day",
   "what should I focus on today", "morning planning", "daily priorities",
