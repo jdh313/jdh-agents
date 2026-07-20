@@ -1,5 +1,5 @@
 ---
-name: coach:sunset
+name: sunset
 description: >-
   This skill should be used when the user says "/sunset", "close this project",
   "archive [project]", "I'm done with [project]", "sunset [project]",

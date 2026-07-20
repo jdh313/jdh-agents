@@ -1,5 +1,5 @@
 ---
-name: coach:breakdown
+name: breakdown
 description: >-
   This skill should be used when the user says "/breakdown", "break this down",
   "decompose [project]", "what are the tasks for [project]", "help me plan

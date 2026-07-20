@@ -1,5 +1,5 @@
 ---
-name: coach:triage
+name: triage
 description: >-
   This skill should be used when the user says "/triage", "overdue tasks",
   "clean up my tasks", "task backlog", "reschedule overdue", "my tasks are a

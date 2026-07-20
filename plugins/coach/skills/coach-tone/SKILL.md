@@ -1,5 +1,5 @@
 ---
-name: coach:coach-tone
+name: coach-tone
 description: >-
   This skill should be used when the user asks coaching questions like
   "what should I do next", "I'm stuck", "I can't focus", "I got distracted",

@@ -1,5 +1,5 @@
 ---
-name: linear:doctor
+name: doctor
 description: Read-only setup validator for the linear plugin. Diagnoses the workspace and reports a pass/warn/fail checklist with specific fixes. Trigger phrases include "check my linear setup", "is linear configured right", "linear doctor", "validate linear workspace", "diagnose linear", "is linear working", "linear health check", "check linear configuration".
 allowed-tools:
   - mcp__linear-server__list_teams

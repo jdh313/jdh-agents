@@ -1,16 +1,22 @@
 # cc-marketplace
 
-Personal Claude Code plugin marketplace with automated validation and synchronization.
+Personal Claude Code and Codex plugin marketplace with canonical AgentForge
+definitions, native runtime manifests, and automated validation.
 
 ## Directory Structure
 
 ```
 cc-marketplace/
+├── MARKETPLACE.yaml              # Canonical AgentForge collection definition
 ├── .claude-plugin/
-│   └── marketplace.json      # Marketplace metadata and plugin index
+│   └── marketplace.json      # Generated Claude registry
+├── .agents/plugins/
+│   └── marketplace.json      # Curated Codex pilot registry
 ├── plugins/                  # Plugin files
 │   └── [plugin-name]/
-│       ├── plugin.json       # Plugin metadata
+│       ├── PACKAGE.yaml      # Canonical AgentForge package definition
+│       ├── .claude-plugin/   # Claude-native manifest
+│       ├── .codex-plugin/    # Codex-native manifest for accepted pilots
 │       └── ...               # Plugin files (commands, agents, skills, etc.)
 ├── scripts/                  # Automation tooling
 │   └── marketplace/          # `marketplace` CLI: sync, validate, lint, export, check
@@ -37,7 +43,7 @@ Add this marketplace to Claude Code:
    mkdir -p plugins/my-plugin
    ```
 
-2. Create `plugins/my-plugin/plugin.json`:
+2. Create `plugins/my-plugin/.claude-plugin/plugin.json`:
    ```json
    {
      "name": "my-plugin",
@@ -52,7 +58,8 @@ Add this marketplace to Claude Code:
    }
    ```
 
-3. Add plugin files (commands, agents, skills, etc.)
+3. Add plugin files and a canonical `plugins/my-plugin/PACKAGE.yaml`. Declare
+   only the runtimes whose native mappings have been validated.
 
 4. Sync marketplace:
    ```bash
@@ -63,6 +70,17 @@ Add this marketplace to Claude Code:
    ```bash
    uv run marketplace check
    ```
+
+6. Validate and compile the canonical AgentForge collection in an isolated
+   output root:
+   ```bash
+   agentforge compile MARKETPLACE.yaml --out /tmp/cc-marketplace-agentforge
+   agentforge check MARKETPLACE.yaml --out /tmp/cc-marketplace-agentforge
+   ```
+
+See [`docs/agentforge-compatibility.md`](docs/agentforge-compatibility.md) for
+the current target matrix, payload dispositions, and reviewed compatibility
+limitations.
 
 ## Marketplace CLI
 

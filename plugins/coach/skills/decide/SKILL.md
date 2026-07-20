@@ -1,5 +1,5 @@
 ---
-name: coach:decide
+name: decide
 description: >-
   This skill should be used when the user says "/decide", "decision journal",
   "log a decision", "I need to decide", "record this decision", "why did I

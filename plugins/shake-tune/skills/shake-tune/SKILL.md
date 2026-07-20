@@ -1,5 +1,5 @@
 ---
-name: shake-tune:shake-tune
+name: shake-tune
 description: >-
   Use when the user says "/shake-tune", "analyze shake tune", "interpret my
   shake tune results", "read my shaper graphs", "check my belt comparison",

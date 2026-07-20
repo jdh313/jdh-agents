@@ -1,5 +1,5 @@
 ---
-name: coach:intake
+name: intake
 description: >-
   This skill should be used when the user says "/intake", "new project", "start
   a project", "I want to build", "project kickoff", "add a project", or "I have
