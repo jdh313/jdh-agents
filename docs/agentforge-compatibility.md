@@ -5,8 +5,48 @@ AgentForge collection definitions. Native Claude and Codex manifests remain in
 the repository during enrollment; SC-35 does not cut consumers over to compiled
 output or remove those manifests.
 
-The compiler baseline for this enrollment is AgentForge commit `75f9fea`
+The compiler baseline for this enrollment is AgentForge commit `7568c45`
 (`agentforge` 0.0.1).
+
+## Acceptance-suite ownership
+
+cc-marketplace owns full-corpus acceptance and drift detection against its real
+canonical `MARKETPLACE.yaml`. AgentForge retains its focused five-package
+compiler fixture as compiler-level coverage; that fixture is not a substitute
+for validating all fifteen packages in this repository.
+
+The cc-marketplace suite runs the pinned compiler twice in separate temporary
+output roots and compares paths, file types, bytes, and normalized permissions.
+It then runs AgentForge's read-only `check` command and exercises drift in five
+dimensions: changed content, a missing file, an extra file, changed registry
+metadata, and changed permissions. Every drift case fingerprints the generated
+tree before and after the check to prove that checking does not repair or
+rewrite output.
+
+The merge gate also applies the runtime-native checks that are available:
+
+- `claude plugin validate --strict` validates the complete generated Claude
+  publication.
+- `uv run marketplace validate --format codex` validates the generated Codex
+  marketplace and only its five declared packages. It checks local source
+  resolution, manifest identity and semantic versions, required skill metadata,
+  explicit-only sidecars, and exact agreement between declared and materialized
+  package directories. Codex currently provides marketplace management but no
+  non-interactive `plugin validate` command, so this is cc-marketplace's native
+  Codex validation boundary.
+
+All generated roots are disposable and live outside the source repository.
+The acceptance suite never updates checked-in native manifests or generated
+output.
+
+AgentForge owns explicit-only skill translation. When a canonical Claude skill
+declares `disable-model-invocation: true`, the Codex projection generates a
+skill-local `agents/openai.yaml` containing
+`policy.allow_implicit_invocation: false`. Supplied sidecars remain subject to
+AgentForge's normal collision policy and cannot silently replace generated
+policy. cc-marketplace owns verifying those compiler results across the real
+15-package corpus and validating the five declared Codex packages; it does not
+duplicate the translation in repository tooling.
 
 ## Target enrollment
 
@@ -71,3 +111,32 @@ validator. Compilation diagnostics are reviewed limitations, not parity claims:
 Schema validation and deterministic compilation establish collection integrity,
 not behavioral equivalence. Generated-output cutover requires fresh-runtime
 smoke tests and explicit review of these limitations.
+
+## Reproducing the gate
+
+Use a checkout at the recorded compiler baseline:
+
+```bash
+export AGENTFORGE_PROJECT=/path/to/agentforge-at-7568c45
+uv run marketplace check
+uv run pytest -q
+
+generated_root=/tmp/cc-marketplace-agentforge
+bun run "$AGENTFORGE_PROJECT/src/cli.ts" compile MARKETPLACE.yaml --out "$generated_root"
+bun run "$AGENTFORGE_PROJECT/src/cli.ts" check \
+  MARKETPLACE.yaml --out "$generated_root" --claude-native
+uv run marketplace validate \
+  --format codex \
+  --manifest "$generated_root/codex/.agents/plugins/marketplace.json" \
+  --plugins-root "$generated_root/codex/plugins"
+```
+
+CI checks out `jdh313/agentforge` at full commit
+`7568c45df856a7e6447ab9f1491e826591018f1b`. Since that repository is private,
+the workflow requires the `AGENTFORGE_DEPLOY_KEY` repository secret with read
+access and fails closed when it is not configured. The runner toolchain pins
+Bun `1.3.14` and Claude Code `2.1.216`, the versions used for the local
+acceptance run.
+
+Runtime references: [Claude plugin validation](https://code.claude.com/docs/en/plugin-marketplaces#validation-and-testing)
+and [Codex plugin and marketplace structure](https://developers.openai.com/codex/plugins/build/).
