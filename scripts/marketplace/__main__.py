@@ -8,6 +8,7 @@ import os
 import sys
 from pathlib import Path
 
+from marketplace.codex_validate import validate_codex_marketplace
 from marketplace.export import run_export
 from marketplace.lint import lint_plugins
 from marketplace.manifest import build_private
