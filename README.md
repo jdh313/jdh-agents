@@ -80,16 +80,22 @@ codex plugin add spec-flow@cc-marketplace
    uv run marketplace sync
    ```
 
-5. Validate everything (sync drift + both schemas + lint):
+5. Validate repository-native files (sync drift + both schemas + lint):
    ```bash
    uv run marketplace check
    ```
 
-6. Validate and compile the canonical AgentForge collection in an isolated
-   output root:
+6. Run the full-corpus acceptance suite against the pinned compatible
+   AgentForge checkout and compile into an isolated output root:
    ```bash
+   export AGENTFORGE_PROJECT=/path/to/agentforge-at-7568c45
+   uv run pytest -q
    agentforge compile MARKETPLACE.yaml --out /tmp/cc-marketplace-agentforge
-   agentforge check MARKETPLACE.yaml --out /tmp/cc-marketplace-agentforge
+   agentforge check MARKETPLACE.yaml --out /tmp/cc-marketplace-agentforge --claude-native
+   uv run marketplace validate \
+     --format codex \
+     --manifest /tmp/cc-marketplace-agentforge/codex/.agents/plugins/marketplace.json \
+     --plugins-root /tmp/cc-marketplace-agentforge/codex/plugins
    ```
 
 See [`docs/agentforge-compatibility.md`](docs/agentforge-compatibility.md) for
@@ -115,7 +121,20 @@ Schema-validates a marketplace:
 ```bash
 uv run marketplace validate                 # Claude
 uv run marketplace validate --format codex  # Codex pilots
+uv run marketplace validate --format codex --manifest PATH --plugins-root PATH  # generated publication
 ```
+
+The Codex form validates the generated marketplace, each declared local plugin
+manifest, skill metadata and explicit-only sidecars, and rejects missing or
+undeclared materialized packages. Codex does not currently expose a native
+non-interactive `plugin validate` command, so this repository-owned validator
+is the native merge gate for the declared Codex publication.
+
+AgentForge owns the cross-runtime translation from Claude
+`disable-model-invocation: true` metadata to Codex
+`policy.allow_implicit_invocation: false` skill sidecars. cc-marketplace's
+full-corpus suite verifies that translation against the real canonical corpus;
+it does not reimplement the compiler rule.
 
 ### Lint
 
@@ -145,7 +164,16 @@ uv run marketplace export --dry-run        # then --commit --push for the real e
 
 GitHub Actions runs on every push and pull request:
 - `uv run marketplace check` (Claude drift + Claude/Codex schemas + lint)
-- `uv run pytest`
+- `uv run pytest` with AgentForge pinned to commit `7568c45`
+- deterministic full-corpus compilation and read-only drift checks
+- `claude plugin validate --strict` for the generated Claude publication,
+  using Claude Code `2.1.216`
+- `uv run marketplace validate --format codex` for the generated Codex publication
+
+Because AgentForge is private, the workflow requires an
+`AGENTFORGE_DEPLOY_KEY` repository secret with read access to
+`jdh313/agentforge`. The job fails explicitly if that credential is absent; it
+does not skip the acceptance gate.
 
 ## Plugin Structure
 
