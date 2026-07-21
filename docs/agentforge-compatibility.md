@@ -58,12 +58,10 @@ validator. Compilation diagnostics are reviewed limitations, not parity claims:
 
 - `commit`: `allowed-tools` is stripped. The Claude hook and executable guard
   are unsupported and absent from Codex output.
-- `craft`: `$ARGUMENTS` remains uninterpreted in `design-by-stories` and
-  `interrogate-model`; Claude-only invocation and tool-policy fields are
-  stripped where reported.
-- `librarian`: `$N`/`$ARGUMENTS` interpolation is not implemented where
-  reported; Claude-only policy fields are stripped. Four Claude agents become
-  reusable Codex role procedures without Claude model, turn, or tool
+- `craft`: Claude-only invocation and tool-policy fields are stripped where
+  reported.
+- `librarian`: Claude-only policy fields are stripped. Four Claude agents
+  become reusable Codex role procedures without Claude model, turn, or tool
   enforcement.
 - `linear`: the doctor skill's `allowed-tools` field is stripped.
 - `spec-flow`: the verifier becomes a reusable role procedure and the command

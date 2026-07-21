@@ -83,7 +83,7 @@
       "name": "craft",
       "source": "./plugins/craft",
       "description": "Software craftsmanship discipline skills: grill-with-docs (vocabulary grilling against per-repo CONTEXT.md glossaries), diagnose, prototype, tdd, improve-codebase-architecture, grok (stateful multi-session codebase comprehension with supersession-aware understanding records), zoom-out (adapted in part from mattpocock/skills, MIT), infra-review (architecture/security review of Terraform+Atlantis PRs), quiz-me (opt-in active-recall comprehension check after a code explanation), interrogate-model (holistic representability review of a domain model \u2014 the legitimate scenarios and personas it cannot express), and design-by-stories (design an artifact's shape \u2014 schema, template, data model, config \u2014 by modeling its actors and user stories first, then deriving the shape from the stories). Composes with spec-flow and ndr plugins.",
-      "version": "0.7.0",
+      "version": "0.7.1",
       "author": {
         "name": "Jacob Hoehler"
       },
@@ -183,7 +183,7 @@
       "name": "librarian",
       "source": "./plugins/librarian",
       "description": "Curates, catalogs, retrieves, and maintains your library of notes and knowledge in an Obsidian vault. Workflow-shaped (Capture / Process / Retrieve / Maintain) and agent-mediated (skills draft, agents execute). 16 skills + 4 agents + 5 references, coupled to the vault conventions in ~/Loose Ends/.claude/rules/{wiki.md,catalog.md} and the Templater templates in ~/Loose Ends/Templates/.",
-      "version": "0.16.1",
+      "version": "0.16.2",
       "author": {
         "name": "Jacob Hoehler"
       },
