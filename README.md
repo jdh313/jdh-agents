@@ -1,8 +1,9 @@
 # cc-marketplace
 
-Personal plugin marketplace shared by Claude Code and Codex, with automated
-validation and synchronization. Claude supports the full catalog; private Codex
-support currently covers `commit`, `craft`, `linear`, and `spec-flow`.
+Personal plugin marketplace shared by Claude Code and Codex, with canonical
+AgentForge definitions, native runtime manifests, and automated validation.
+Claude supports the full catalog; private Codex support currently covers
+`commit`, `craft`, `linear`, and `spec-flow`.
 
 See [Dual-agent operating model](docs/dual-agent-operating-model.md) for
 ownership boundaries, runtime mappings, installation, and pilot acceptance.
@@ -11,14 +12,16 @@ ownership boundaries, runtime mappings, installation, and pilot acceptance.
 
 ```
 cc-marketplace/
+├── MARKETPLACE.yaml              # Canonical AgentForge collection definition
 ├── .claude-plugin/
-│   └── marketplace.json      # Claude marketplace index
+│   └── marketplace.json      # Generated Claude registry
 ├── .agents/plugins/
-│   └── marketplace.json      # Codex pilot marketplace index
+│   └── marketplace.json      # Curated Codex pilot registry
 ├── plugins/                  # Plugin files
 │   └── [plugin-name]/
-│       ├── .claude-plugin/plugin.json
-│       ├── .codex-plugin/plugin.json  # Codex-enabled plugins only
+│       ├── PACKAGE.yaml      # Canonical AgentForge package definition
+│       ├── .claude-plugin/   # Claude-native manifest
+│       ├── .codex-plugin/    # Codex-native manifest for accepted pilots
 │       └── ...               # Canonical shared bodies + thin adapters
 ├── scripts/                  # Automation tooling
 │   └── marketplace/          # `marketplace` CLI: sync, validate, lint, export, check
@@ -69,7 +72,8 @@ codex plugin add spec-flow@cc-marketplace
    }
    ```
 
-3. Add plugin files (commands, agents, skills, etc.)
+3. Add plugin files and a canonical `plugins/my-plugin/PACKAGE.yaml`. Declare
+   only the runtimes whose native mappings have been validated.
 
 4. Sync marketplace:
    ```bash
@@ -80,6 +84,17 @@ codex plugin add spec-flow@cc-marketplace
    ```bash
    uv run marketplace check
    ```
+
+6. Validate and compile the canonical AgentForge collection in an isolated
+   output root:
+   ```bash
+   agentforge compile MARKETPLACE.yaml --out /tmp/cc-marketplace-agentforge
+   agentforge check MARKETPLACE.yaml --out /tmp/cc-marketplace-agentforge
+   ```
+
+See [`docs/agentforge-compatibility.md`](docs/agentforge-compatibility.md) for
+the current target matrix, payload dispositions, and reviewed compatibility
+limitations.
 
 ## Marketplace CLI
 

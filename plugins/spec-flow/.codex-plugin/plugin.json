@@ -1,6 +1,6 @@
 {
   "name": "spec-flow",
-  "version": "0.12.2",
+  "version": "0.13.0",
   "description": "Contract-driven scaffolding for AI-assisted software changes.",
   "author": {
     "name": "Jacob Hoehler"

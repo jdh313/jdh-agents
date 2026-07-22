@@ -1,0 +1,10 @@
+schema: agentforge.package/v1
+id: skillsmith
+defaults: {"name":"skillsmith","version":"1.0.0","description":"Craft and upkeep of skills. Authoring reference (the vocabulary and principles that make a skill predictable) plus provenance tracking for borrowed work: compares an adapted skill to its pinned upstream, flags behavioral drift and fabricated attributions, and refreshes the reviewed commit SHA. Houses writing-great-skills and upstream-review.","author":{"name":"Jacob Hoehler"},"license":"Apache-2.0","keywords":["skills","authoring","skill-craft","provenance","upstream","drift","attribution"]}
+artifacts:
+  - {type: skill, pattern: 'skills/*/SKILL.md'}
+  - {type: agent, pattern: 'agents/*.md'}
+targets:
+  claude:
+    native:
+      defaultEnabled: false

@@ -36,7 +36,7 @@ Close an active contract. Migrate durable findings to ndr atoms and README; arch
 
 ### 1. Identify the target contract and detect host
 
-Same logic as `spec-flow:implement` step 1: explicit name, or enumerate active contracts across both hosts (`.docs/` scan plus, when the Linear MCP is connected, tickets in Contract Review / In Progress with a six-section description), then prompt match or ask. Host detection:
+Same logic as `spec-flow:implement` step 1: explicit name, or enumerate active contracts across both hosts (`.docs/` scan plus, when the Linear MCP is connected, tickets carrying the `contracted` label — matched case-insensitively — regardless of workflow state), then prompt match or ask. Host detection:
 
 - Identifier matches `^[A-Z]{2,5}-\d+$` → **linear** host.
 - Anything else → **file** host.
@@ -224,6 +224,8 @@ Then move the ticket to its review state — the change is done from your side a
 - Set it via `mcp__linear-server__save_issue`.
 - If none match, skip with a note — *"No review state on this team; leaving status unchanged."* Never fall through to a completed state: merge hasn't happened, so spec-flow does not set Done/Closed. That transition stays the human's at merge time.
 
+Then strip the `contracted` label — the contract is migrating to the durable layer, so "ready for `/spec-flow implement`" is now stale. `save_issue`'s `labels` field replaces the full label set (there is no remove-labels parameter), so set the issue's current labels **minus** `contracted`: take the labels from the step-2 `get_issue` read, drop any matching `contracted` case-insensitively, and pass the remaining list to `mcp__linear-server__save_issue` (`labels` field). An empty array is honored — if `contracted` was the only label, passing `labels: []` clears it. This is a label removal only — it does not touch state. If the issue didn't carry `contracted`, this is a no-op.
+
 ### 7. Verify a clean working tree
 
 Before confirming, check that nothing this change produced is left uncommitted — closing should leave the repo in a clean state. Detect the VCS (per step 2) and check: `git status` shows no tracked changes, or the jj working copy is empty (`jj st`).
@@ -237,7 +239,7 @@ Before confirming, check that nothing this change produced is left uncommitted �
 Brief summary to the user, wording differs by host:
 
 - **File host:** *"Closed `<slug>`. 2 ndr atoms created, 1 README update applied. Contract archived at `.docs/archive/<filename>.md`."*
-- **Linear host:** *"Closed TEAM-123. Outcome summary + verification record posted as comments; 2 ndr atoms created, 1 README update applied. Moved to In Review; ticket body left intact. Set it Done yourself when the PR merges."*
+- **Linear host:** *"Closed TEAM-123. Outcome summary + verification record posted as comments; 2 ndr atoms created, 1 README update applied. Moved to In Review; `contracted` label removed; ticket body left intact. Set it Done yourself when the PR merges."*
 
 ### 9. Recommend what's next (optional)
 
@@ -257,5 +259,5 @@ Keep it shallow. This is a nudge, not a grooming pass — **defer real prioritiz
 
 - Migrations are *AI-assisted/auto* — AI proposes the diff, applies after user sign-off. No silent migration; no fully manual migration.
 - Closing is non-destructive in both hosts. File host: the contract file is archived, not deleted. Linear host: the ticket body is untouched and the contract remains in its description for retrospective; only the state advances to a review state.
-- spec-flow advances Linear state through the contract lifecycle (`draft` → Contract Review, `implement` → In Progress, `close` → a review state) but never sets a completed state (Done/Closed). Merge happens outside the lifecycle, so that final flip stays the user's call.
+- spec-flow advances Linear state through the contract lifecycle (`implement` → In Progress, `close` → a review state) but never sets a completed state (Done/Closed). Merge happens outside the lifecycle, so that final flip stays the user's call. `draft` does not transition state — it applies the `contracted` label; `close` removes that label as the contract migrates to the durable layer.
 - If the contract had frequent amendments, surface that observation — it can signal the original drafting was thin and worth thinking about for next time.

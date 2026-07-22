@@ -31,7 +31,7 @@ reader sessions).
 
 For the forked `@note-editor`:
 
-1. **Identify the target base** from the first argument (`$1`).
+1. **Identify the target base** from the first user-supplied argument (the shortcut or base name).
 2. **Query the base** to see structure and required properties:
 
    ```bash

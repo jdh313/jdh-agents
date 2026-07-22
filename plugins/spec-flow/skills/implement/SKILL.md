@@ -40,7 +40,7 @@ If a name was given as argument:
 If no name was given, enumerate active contracts across both hosts:
 
 - **File host** — scan `.docs/` (excluding `archive/` and `status: captured` stubs).
-- **Linear host** (when the MCP is connected) — `mcp__linear-server__list_issues` filtered to "Contract Review" and "In Progress" states (team per the linear plugin's conventions; **no assignee filter** — list all team contracts), keeping only tickets whose description carries the six-section shape (`## What we're doing` heading is the cheap test). Display the assignee per contract so ownership is visible when listing.
+- **Linear host** (when the MCP is connected) — `mcp__linear-server__list_issues` filtered to the `contracted` label (team per the linear plugin's conventions; **no assignee filter** — list all team contracts; match the label name case-insensitively). The label is the canonical "this is a contract" signal, independent of workflow state. An issue carrying `contracted` (or, failing that, one whose description carries the six-section shape — `## What we're doing` is the cheap test) is ready to implement; it does not need to be in any particular state. Display the assignee per contract so ownership is visible when listing.
 
 Then:
 

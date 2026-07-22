@@ -66,4 +66,4 @@ For the forked `@note-editor`:
 
 ## Arguments
 
-`$ARGUMENTS` — the text to capture (everything after the slash command).
+Use the user's invocation input as the text to capture (everything after the slash command).
