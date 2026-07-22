@@ -26,7 +26,7 @@ CLAUDE_PACKAGE_IDS = frozenset(
         "librarian",
         "linear",
         "pm",
-        "provenance",
+        "skillsmith",
         "shake-tune",
         "spec-flow",
         "teach",
