@@ -12,9 +12,9 @@ allowed-tools:
   - Read
   - Glob
   - Grep
-  - Bash
   - Write
   - AskUserQuestion
+  - Agent
 ---
 
 # /shake-tune — Interpret Shake Tune Results
@@ -78,20 +78,29 @@ If user declines, proceed without profile. Analysis still works — recommendati
 
 ### Step 4: Select Scope
 
-Based on what was detected, ask the user what they want to analyze:
+**If single PNG:** Skip this step — analyze the one file.
 
-**If single session with multiple tests:**
-> Want me to analyze all tests from this session, or focus on a specific one?
+Otherwise, this is a genuine multiple-choice moment — use the **AskUserQuestion** tool rather than a free-text prompt:
 
-**If multiple sessions:**
-> Want me to analyze the latest session, compare sessions, or look at a specific test?
+**If single session with multiple tests**, ask what to analyze, offering: analyze all tests from this session, or focus on a specific one (list the detected test types as the specific-test options).
 
-**If single PNG:**
-Skip this step — analyze the one file.
+**If multiple sessions**, ask what to analyze, offering: analyze the latest session, compare sessions, or look at a specific test.
+
+The user's selection determines which agents get dispatched in Step 5.
 
 ### Step 5: Analyze Tests
 
-For each selected test, use the Read tool to view the PNG and apply the interpretation framework from the corresponding agent's reference file.
+For each selected test, dispatch the matching specialist agent via the **Agent** tool. Each agent is the sole owner of its diagnostic logic (thresholds, pattern catalogs, presentation format) — this skill's job is routing, context assembly, and cross-agent synthesis, not diagnosis.
+
+**Test type → agent:**
+
+| Test type | Agent |
+|-----------|-------|
+| Belt comparison | `belt-analyzer` |
+| Input shaper (X and Y together, one dispatch) | `shaper-analyzer` |
+| Vibration profile | `vibration-analyzer` |
+| Axes map | `axes-map-analyzer` |
+| Excitation | `excitate-analyzer` |
 
 **Analysis order** (when multiple tests selected):
 1. Axes map (if present) — validates accelerometer setup
@@ -100,34 +109,14 @@ For each selected test, use the Read tool to view the PNG and apply the interpre
 4. Vibration profile (if present) — validates speed ranges
 5. Excitation (if present) — targeted investigation
 
-**For each test:**
+**For each test, dispatch its agent with:**
 
-1. **Read the PNG** using the Read tool (multimodal vision)
-2. **Load the reference patterns** from the corresponding file in `references/`:
-   - Belt: `references/belt-patterns.md`
-   - Shaper: `references/shaper-patterns.md`
-   - Vibration: `references/vibration-patterns.md`
-   - Axes map: `references/axes-map-patterns.md`
-3. **Apply printer profile context** if available (see `references/printer-profiles.md` § How Profiles Influence Analysis)
-4. **Present findings** using this structure:
+- **PNG path(s)** — both X and Y paths in one dispatch for the shaper agent; a single path for the others; multiple paths when the user asked to compare before/after.
+- **Printer-profile summary** (from Step 3) — the loaded/created profile, or a note that none exists.
+- **Relevant prior history** — check `.shake-tune-history/` (if it exists) for previous summary entries mentioning this test type; pass along a brief note of what changed since then, if anything.
+- **User-stated symptoms** — anything the user has already said about what prompted this analysis (rattling at a speed, ringing on prints, etc.).
 
-```
-### [Test Name]
-
-**Reading:** [1-2 sentences describing what the graph shows]
-
-**Assessment:** [Good / Acceptable / Needs attention / Problem detected]
-
-**Key observations:**
-- [Observation 1]
-- [Observation 2]
-
-**Recommendations:**
-- [Action 1 — specific and actionable]
-- [Action 2]
-```
-
-If the assessment is "Good", keep recommendations brief or skip them: "No action needed — this looks solid."
+The agent reads the PNG(s) itself and returns its diagnosis in its own presentation format — do not re-derive the diagnosis or re-apply thresholds yourself; relay what each agent returns into Step 6's synthesis.
 
 ### Step 6: Synthesize Combined Assessment
 
@@ -203,7 +192,7 @@ Summary format:
 | Single PNG provided directly | Skip Steps 1-4. Detect test type from filename, analyze immediately. |
 | Corrupted or unreadable PNG | "I can't read this graph clearly. It may be corrupted — try regenerating it from the raw data." |
 | Multiple sessions, same day | Differentiate by time: "Session 1 (09:30) vs Session 2 (14:15)" |
-| User asks about a specific test type | Skip to that test's analysis. Read the relevant agent reference for interpretation. |
+| User asks about a specific test type | Skip to that test's analysis. Dispatch the matching agent directly per Step 5. |
 | Profile says cartesian, belt comparison found | Note the inconsistency: "Belt comparison is typically for CoreXY printers. Your profile says cartesian — is the kinematics type correct?" |
 | Results directory is remote (SSH path) | "I can only read local files. Copy the results to a local directory first, or paste the specific PNGs." |
 

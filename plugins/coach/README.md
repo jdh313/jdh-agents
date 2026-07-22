@@ -1,6 +1,6 @@
 # Coach
 
-ADHD-friendly productivity coaching for Claude Code. Thirteen coaching commands -- `/today`, `/checkin`, `/weekly`, `/plan-week`, `/reentry`, `/review`, `/align`, `/sunset`, `/decide`, `/triage`, `/intake`, `/spark`, `/dump`, `/energy` -- plus adaptive tone calibration, a project health scanner, an overdue pattern analyzer, and a historical pattern analysis engine.
+ADHD-friendly productivity coaching for Claude Code. Fifteen coaching commands -- `/today`, `/checkin`, `/weekly`, `/plan-week`, `/reentry`, `/review`, `/align`, `/sunset`, `/decide`, `/triage`, `/intake`, `/spark`, `/dump`, `/breakdown`, `/energy` -- plus adaptive tone calibration, a project health scanner, an overdue pattern analyzer, and a historical pattern analysis engine.
 
 ## Skills
 
@@ -125,6 +125,18 @@ Structured onboarding for new projects with WIP awareness:
 
 The opposite of `/sunset` -- one opens projects, the other closes them. Impulse control without gatekeeping.
 
+### `/breakdown` -- Project Task Decomposition
+
+Conversational decomposition of a project into sequenced, ADHD-friendly Linear issues:
+
+1. **Gather context** -- identify the project, check Linear for existing issues, read Obsidian notes
+2. **Orient** -- present what you found, detect decompose vs. recompose mode
+3. **Breakdown** -- work through the project conversationally to produce a task list
+4. **Write** -- create Linear issues or display for manual entry
+5. **Update project note** -- optionally patches Obsidian with the breakdown
+
+Auto-detects two modes: **decompose** (no tasks yet, break down from scratch) or **recompose** (existing Linear issues that have drifted, reconcile and reorder). Graduates from `/spark` → `/intake` → `/breakdown` through the project lifecycle.
+
 ### `/spark` -- Interest/Idea Capture
 
 Low-friction idea parking lot in under 60 seconds:
@@ -223,7 +235,7 @@ Read-only -- reports patterns, doesn't modify tasks. Complements `momentum` (Obs
 | Source | Used By | Provides | If Unavailable |
 |--------|---------|----------|----------------|
 | Todoist MCP | `/today`, `/checkin`, `/triage`, `/plan-week`, `/energy`, `overdue-rescue` | Tasks, completed items, activity history | Skip |
-| Linear MCP | `/today`, `/weekly`, `/reentry`, `/review`, `/align`, `/sunset`, `/intake`, `project-pulse` | Projects, issues, initiatives | Skip |
+| Linear MCP | `/today`, `/weekly`, `/reentry`, `/review`, `/align`, `/sunset`, `/intake`, `/breakdown`, `project-pulse` | Projects, issues, initiatives | Skip |
 | Obsidian MCP | All skills + `momentum` | Daily notes, project notes, weekly/review/sunset/decision/sparks history | Skip |
 | None | All | Pure conversation -- asks what you know | Works fine |
 
@@ -252,6 +264,9 @@ PROJECT LIFECYCLE:
 /intake --creates--> project note + optional Linear/Todoist
   +--checks WIP via--> project-pulse pattern
   +--graduates from--> /spark
+/breakdown --decomposes--> Linear issues (sequenced task list)
+  +--graduates from--> /intake
+  +--feeds into--> /today, /plan-week, /reentry
 /align --reads--> Linear projects + Obsidian projects/hobbies
   +--maps goal to--> existing projects (focus order)
   +--operationalizes--> /review theme

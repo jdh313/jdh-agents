@@ -29,10 +29,16 @@ allowed-tools:
   - Read
   - Grep
   - Glob
-  - Bash
+  - Bash(ndr *)
   # Compose with ndr:ground, linear, spec-flow:draft
   - Skill
   - Agent
+upstream:
+  repo: mattpocock/skills
+  path: skills/engineering/to-tickets
+  reviewed_sha: d29732e49f60
+  reviewed: 2026-07-09
+  status: reviewed
 ---
 
 # breakdown
@@ -42,6 +48,15 @@ allowed-tools:
 Decompose a goal / plan / spec / vault note into independently-grabbable Linear tickets using **vertical slices** — tracer bullets that cut through every layer end-to-end, not horizontal slices of one layer. Optionally grounds the breakdown against current ndr heads first so slices don't conflict with settled architecture. Publishes in dependency order via the linear plugin with native Linear blocks/blocked-by relations.
 
 This is the multi-ticket-from-a-plan skill. For one-shot single-ticket drafting, use `pm:author` (when it ships).
+
+## The parent is a mutable contract (spec-flow interop)
+
+When the source is a spec-flow contract, breakdown grows it into a **nested contract tree** — one shape, nested (ndr `k7vepz`). The parent is a **normal contract at change altitude** (full front-matter + working-matter), **not** a read-only front-matter-only spec:
+
+- **Transition (single → breakdown).** When a lean contract outgrows single scope, running `/pm:breakdown` on it makes the contract *become* the parent — it keeps its front-matter and its change-altitude Decision log; breakdown only spawns the slices. No worksheet is shed, no host teardown. Each substantial slice is its own contract with a pointer back to the parent.
+- **Decision altitude (duplication rule).** Whole-change and cross-slice decisions live in the **parent's** Decision log; slice-local decisions live in the **slice's**. A decision belongs to exactly one log — placement is author judgment as slices are drafted; `spec-flow:close` flags only literal cross-log duplication at parent-close.
+- **Parent stays live.** The parent has its own amend discipline (a breakdown's whole-change *Done when* can legitimately change mid-flight) and is **closed last** — after every child slice — so `spec-flow:close` can harvest its integration / whole-change decisions. breakdown itself does not close or transition it; it just publishes the children and (for a `TEAM-N` source) wires the parent relations.
+- **Host follows fill.** The parent may **stay a Linear issue with child issues** (a Linear Document is an optional static-home preference, not required), or be a `.docs/` parent file with Linear child issues. **Boundary:** an all-`.docs` breakdown (file parent + file children) has no skill — breakdown always publishes **Linear** children. A `.docs/` parent is fine; its slices land as Linear tickets.
 
 ## Inputs
 
@@ -65,13 +80,14 @@ This is the multi-ticket-from-a-plan skill. For one-shot single-ticket drafting,
    - Avoid duplicating settled choices
    - Recognize when a slice IS a decision point (gets the `Decision` type label)
 
-3. **Explore codebase (optional).** If implementing in a tracked area and unfamiliar with the current state, dispatch the `Explore` agent with a tightly-scoped question. Skip when the source already grounds you sufficiently.
+3. **Explore codebase (optional).** If implementing in a tracked area and unfamiliar with the current state, dispatch the `Explore` agent with a tightly-scoped question. Skip when the source already grounds you sufficiently. Look for opportunities to prefactor the code to make the implementation easier. "Make the change easy, then make the easy change."
 
 4. **Draft vertical slices.** Follow these rules:
 
    - Each slice delivers a **narrow but COMPLETE path** through every layer the change touches (schema → API → UI → tests, or whichever subset applies).
    - A completed slice is **demoable or verifiable on its own**.
    - **Many thin slices > few thick ones.** When in doubt, split.
+   - **Wide refactors are the exception to vertical slicing.** A **wide refactor** is one mechanical change — a column rename, a retyped shared symbol — whose blast radius fans across the whole codebase, so a single edit breaks call sites everywhere at once and no vertical slice can land green. Don't force it into a tracer bullet; sequence it as **expand -> migrate -> contract**: an **expand** slice adds the new form beside the old so nothing breaks yet; one or more **migrate** slices move call sites over in batches sized by blast radius (per package, per directory), each batch its own slice blocked by the expand slice via Linear's native blocks/blocked-by relation, keeping CI green batch to batch because the old form still exists; a final **contract** slice deletes the old form once no caller remains, blocked by every migrate batch. If even the batches can't stay green alone, keep the sequence but give the migrate/contract slices a shared integration branch, with all of them blocking a final integrate-and-verify slice — green is promised only there. Each such migrate slice carries a **relative *Done when***: "call sites moved; end-to-end green promised at `<final slice>`". `spec-flow:close` honors this as **met-with-deferral**, not not-met; the final integrate-and-verify slice owns the cross-batch *Done when* and the integration Decision log.
    - **Decision-shaped slices count as a slice.** If the breakdown requires choosing between options before implementation can proceed, that's its own slice with `Decision` type label and `Done when: decision captured (as an ndr atom if you use ndr) and linked here`.
    - **Cross-cutting concerns** (auth, observability, schema migrations) often belong inside a slice, not as separate horizontal slices.
 
@@ -140,8 +156,8 @@ Granularity right? Dependencies correct? Anything to merge or split? Anyone to p
 
 ## Rules
 
-- **Never close, modify, or transition the parent ticket.** Read-only on the source.
-- **Never mutate existing tickets** — only create new ones. The skill is creating-only.
+- **Creating-only during the breakdown operation.** breakdown spawns child slices; it does not close, transition, or rewrite existing tickets as it runs. This is a rule about *this operation*, not a claim that the parent is a frozen artifact — see *The parent is a mutable contract* above (just under the Overview).
+- **Never mutate existing tickets' content** — only create new ones and (when the source is a spec-flow parent) attach child relations. The breakdown pass itself writes no existing ticket body.
 - **Confirm before publishing.** Show the user the final ordered list once more before any ticket is created. Publishing is the only destructive step in this skill.
 - **Decision-type slices** get `Done when: decision captured and linked here`. After the call is made, recommend `Skill(ndr:capture-decision)` if the ndr plugin is present.
 - **Cycle assignment is not breakdown's job.** Slices land in Backlog. `pm:groom` pulls them into a cycle later.

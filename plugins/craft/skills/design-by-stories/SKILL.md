@@ -1,6 +1,7 @@
 ---
 name: design-by-stories
-description: Design or redesign an artifact's shape — a schema, template, data model, config format, note type, or API surface — by modeling its actors and user stories first, then deriving the shape from the stories. Use when the user says "let's design X", "redesign this template/schema", "rework this note type", "design it like software", "model the actors for X", "what should the shape of X be", or starts an open-ended, iterative design of an artifact's structure. One fork at a time, human adjudicates every fork. Distinct from interrogate-model (critiques an existing model for what it can't express), first-principles (elicits needs for a purchase/problem), and spec-flow:draft (contracts a code change for implementation).
+description: Design or redesign an artifact's shape — a schema, template, data model, config format, note type, or API surface — by modeling its actors and user stories first, then deriving the shape from the stories. One fork at a time, human adjudicates every fork. Distinct from interrogate-model (critiques an existing model for what it can't express), first-principles (elicits needs for a purchase/problem), and spec-flow:draft (contracts a code change for implementation).
+when_to_use: Use when the user says "let's design X", "redesign this template/schema", "rework this note type", "design it like software", "model the actors for X", "what should the shape of X be", or starts an open-ended, iterative design of an artifact's structure.
 argument-hint: "[artifact or model to design]"
 effort: high
 allowed-tools:
@@ -15,6 +16,8 @@ allowed-tools:
   - TodoRead
   - TodoWrite
 ---
+
+Apply the orchestration mappings in [`../../RUNTIME.md`](../../RUNTIME.md).
 
 # design-by-stories
 

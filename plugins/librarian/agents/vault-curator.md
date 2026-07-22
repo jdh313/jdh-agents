@@ -26,6 +26,8 @@ duplicate to keep, decide whether an orphan should be linked or deleted.
 Interactive cleanup sessions are your home; rule-mechanical detection is
 not.
 
+Note: declaring `memory:` implicitly grants Read/Write/Edit beyond the tools list above — acceptable here because this agent legitimately edits vault notes, but be aware the grant is not scoped to the memory directory.
+
 ## Tool usage
 
 Prefer `obsidian-cli property:set` for frontmatter mutations. Prefer `mcp__obsidian-mcp__patch_note` for surgical in-body string replacement. Reserve Edit tool only for cases where patch_note can't anchor (ambiguous string, multi-region changes).

@@ -36,7 +36,7 @@ Repo name, date, and a compact legend: plain box = module, dashed line = seam, `
 
 ## Candidate section
 
-The diagrams carry the weight. Prose is sparse, plain, and uses the glossary terms ([LANGUAGE.md](../../references/LANGUAGE.md)) without ceremony.
+The diagrams carry the weight. Prose is sparse, plain, and uses the glossary terms (`Skill(craft:codebase-design)`) without ceremony.
 
 Each candidate is one `### Candidate N: <title>` section containing:
 
@@ -135,7 +135,7 @@ One `## Top Recommendation` section at the end. Candidate name, one sentence on 
 
 ## Tone
 
-Plain English, concise — but the architectural nouns and verbs come straight from [LANGUAGE.md](../../references/LANGUAGE.md). Concision is not an excuse to drift.
+Plain English, concise — but the architectural nouns and verbs come straight from `Skill(craft:codebase-design)`. Concision is not an excuse to drift.
 
 **Use exactly:** module, interface, implementation, depth, deep, shallow, seam, adapter, leverage, locality.
 
@@ -150,4 +150,4 @@ Plain English, concise — but the architectural nouns and verbs come straight f
 
 **Wins bullets** name the gain in glossary terms: *"locality: bugs concentrate in one module"*, *"leverage: one interface, N call sites"*, *"interface shrinks; implementation absorbs the wrappers"*. Don't write *"easier to maintain"* or *"cleaner code"* — those terms aren't in the glossary and don't earn their place.
 
-No hedging, no throat-clearing, no "it's worth noting that…". If a sentence could be a bullet, make it a bullet. If a bullet could be cut, cut it. If a term isn't in [LANGUAGE.md](../../references/LANGUAGE.md), reach for one that is before inventing a new one.
+No hedging, no throat-clearing, no "it's worth noting that…". If a sentence could be a bullet, make it a bullet. If a bullet could be cut, cut it. If a term isn't in `Skill(craft:codebase-design)`'s glossary, reach for one that is before inventing a new one.

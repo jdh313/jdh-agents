@@ -54,7 +54,7 @@ These are the parts `triage` reads mechanically. Keep them exact.
 
 - Skill or slash command → `feedback:session`, `pm:groom`
 - Subagent → `ndr:@ndr-reader` (the `@` marks an agent)
-- Hook → `commits:hook/destructive-vcs-guard`
+- Hook → `commit:hook/destructive-vcs-guard`
 
 Always wrap the id in backticks, both in the table and as the `[...]` tag on
 each finding. If the plugin a surface belongs to genuinely can't be determined,

@@ -7,7 +7,6 @@ description: >
   `meeting-followup`, `experiment-review`, and `event-capture` (entity
   lookup).
 model: sonnet
-memory: project
 maxTurns: 10
 effort: medium
 tools:

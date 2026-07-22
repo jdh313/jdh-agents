@@ -1,6 +1,30 @@
 ---
 name: draft
-description: "This skill should be used when the user runs `/spec-flow draft <goal>` or otherwise signals the start of a new contract-tracked code change. Trigger phrases include \"spec-flow draft\", \"open a contract for\", \"let's scaffold a contract for\", \"new spec-flow change\", \"draft a contract for this change\", \"open a new ticket and draft a contract\". Performs the kickoff lifecycle \u2014 detects the contract host (`.docs/` file, existing Linear ticket, or a NEW Linear ticket created at draft time), flags any other active contracts, runs proactive context-gathering (codebase, library docs via Context7, relevant ndr atoms), conducts a conversational pass asking targeted questions only where the AI's path isn't clear, drafts a six-section contract using the contract template, and writes it to the chosen host. Upgrades `status: captured` stubs from `spec-flow:capture` in place. Does NOT start implementation \u2014 that requires explicit `/spec-flow implement`."
+description: >-
+  This skill should be used when the user runs `/spec-flow draft <goal>` or
+  otherwise signals the start of a new contract-tracked code change. Trigger
+  phrases include "spec-flow draft", "open a contract for", "let's scaffold a
+  contract for", "new spec-flow change", "draft a contract for this change",
+  "open a new ticket and draft a contract". Performs the kickoff lifecycle —
+  detects the contract host (`.docs/` file, existing Linear ticket, or a NEW
+  Linear ticket created at draft time), flags any other active contracts, runs
+  proactive context-gathering (codebase, library docs via Context7, relevant
+  ndr atoms), conducts a conversational pass asking targeted questions only
+  where the AI's path isn't clear, drafts a six-section contract using the
+  contract template, and writes it to the chosen host. Upgrades `status:
+  captured` stubs from `spec-flow:capture` in place. Does NOT start
+  implementation — that requires explicit `/spec-flow implement`.
+argument-hint: "<goal — or TEAM-N to use a ticket as the contract>"
+allowed-tools:
+  - mcp__linear-server__get_issue
+  - mcp__linear-server__list_issues
+  - mcp__linear-server__list_issue_statuses
+  - mcp__plugin_context7_context7__resolve-library-id
+  - mcp__plugin_context7_context7__query-docs
+  - Read
+  - Glob
+  - Grep
+  - Bash(ls *)
 ---
 
 # spec-flow:draft
@@ -37,7 +61,7 @@ If host = linear or linear-new, check that `mcp__linear-server__*` tools are loa
 
 > "Linear MCP server isn't connected — I can't read or write the ticket. Fall back to a `.docs/` file contract, or pause while you wire up the MCP yourself?"
 
-Do not run `claude mcp add` or suggest a paste-and-go connect command. Wait for the user.
+Do not install or configure the integration without approval, and never ask the user to paste credentials into chat. Wait for the user.
 
 Full detection table and rationale: `../../references/hosts.md`.
 
@@ -61,7 +85,7 @@ Wait for confirmation. Do not block — this is a visibility flag, not a gate. I
 
 Before asking the user anything, do legwork:
 
-- **Codebase scan** — Read `CLAUDE.md`, search for patterns the change might touch (`rg` / `grep`), read the entry points relevant to the goal.
+- **Codebase scan** — Read applicable repository agent guidance (`AGENTS.md` in Codex; `CLAUDE.md` in Claude Code), search for patterns the change might touch (`rg` / `grep`), read the entry points relevant to the goal.
 - **Library docs** — If the goal mentions a library or framework, resolve and fetch docs via `mcp__plugin_context7_context7__resolve-library-id` then `query-docs`.
 - **Installed version** — If the goal names a specific dep, check the installed major version in the target repo (`bun info <pkg>`, `npm ls <pkg>`, `pip show <pkg>`, `cargo tree | grep <pkg>`, etc.) before drafting against the docs. Docs-vs-installed drift is a common amendment trigger.
 - **Relevant ndr atoms** — If the `ndr` plugin is installed, hand off to it to surface atoms scoped to this project/repo for the area or related concepts.
@@ -81,7 +105,7 @@ Ask targeted questions where the path isn't clear. Do NOT ask open-ended *"what 
 
 If the *done* state isn't obvious from the goal — i.e. you can't list 2–3 observable outcomes confidently — surface a proposed *Done when* draft and ask the user to confirm/correct before writing the contract. The Done-when section is what the close skill reviews against; thin drafting here means a fuzzy close later.
 
-If the *how* is non-obvious enough to warrant real deliberation, suggest forking into the debate skill (advocate / devils-advocate / fact-checker / synthesizer). The debate's output — recommended approach plus draft ndr atoms — flows back into the contract's *Approach* section.
+If the *how* is non-obvious enough to warrant real deliberation, suggest forking into the debate skill (advocate / devils-advocate / fact-checker / synthesizer). The debate's output — recommended approach plus a saved decision record — flows back into the contract's *Approach* section.
 
 If contested or fuzzy vocabulary surfaces during the conversation — terms used inconsistently, ambiguous nouns, drift between code naming and how the user is talking about the change — and the `craft` plugin is installed, suggest invoking `/grill-with-docs` to lock the terms down in the repo's `CONTEXT.md` glossary before drafting. Soft composition: spec-flow:draft works fine without craft installed; the suggestion simply doesn't fire if the skill isn't available.
 
@@ -89,16 +113,21 @@ If the change **designs or extends a model that spans dimensions** — adding a 
 
 ### 5. Draft the contract
 
-Use `../../references/contract-template.md` as the literal scaffold. Six sections:
+Use `../../references/contract-template.md` as the literal scaffold. The contract is a **worksheet**, ordered by audience — cold-legible **front-matter** on top, the internal **working-matter** ledger below:
+
+**Front-matter (cold-legible, read at the gates):**
 
 - **What we're doing** — one or two bullets, plain language.
 - **Why** — one or two bullets, trigger or motivation.
-- **Approach** — bullets, larger strokes only. No task list, no enumeration.
-- **Out of scope** — explicit non-goals.
+- **Out of scope** — explicit non-goals. Fence only. Route by the test *"was this a live fork?"*: a never-considered non-goal belongs here; a considered-and-rejected option belongs in the Decision log as a `[resolved]` rejected-alt; a "not now, maybe later" belongs there as `[deferred]`.
 - **Done when** — 2–4 bullets describing observable outcomes (what's visibly different when the change ships). Bullets, not checkboxes. Load-bearing for the close skill's review.
-- **Open questions** — things deferred to during implementation; load-bearing because they shape the handoff cadence later.
 
-The shape is identical for both hosts.
+**Working-matter (internal ledger, cold-legible at close):**
+
+- **Approach / wiring** — larger strokes only, ephemeral integration mechanics. No task list, no enumeration; it evaporates at close. The *call* behind any wiring lives in the Decision log, not here.
+- **Decision log** — the accreting fork ledger. At draft, seed `[open]` rows for the forks deferred to implementation (leaning: `<default>`). These carry the cadence-shaping role the old *Open questions* section held — their presence/absence shapes the handoff conversation. `[resolved]` and `[deferred]` rows accrue during implement.
+
+The shape is **one shape, nested** — a lean single contract and a breakdown parent are the same six sections at different fill depths (`k7vepz`). Draft the lean fill; `/pm:breakdown` grows it into a parent later if scope outgrows a single contract. The shape is identical for both hosts.
 
 ### 6. Write to the host
 

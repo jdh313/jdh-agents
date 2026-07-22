@@ -1,12 +1,16 @@
 ---
 name: grok
-description: Build durable, supersession-aware understanding of a codebase over multiple sessions — both cold (a repo you're new to) and warm (a subsystem of a repo you already work in). Grounds in the repo's real sources (code, CONTEXT.md, NDR heads, git history) rather than parametric guesses, explains one subsystem at a time sized to what you already grasp, and persists confirmed understanding as records in the vault that graduate into CONTEXT.md and NDR atoms. Use when the user says "grok this repo", "help me understand the X subsystem", "get me up to speed on this code", or "/grok".
-disable-model-invocation: true
+description: Explicit invocation only. Build durable, supersession-aware understanding of a codebase over multiple sessions — both cold (a repo you're new to) and warm (a subsystem of a repo you already work in). Grounds in the repo's real sources (code, CONTEXT.md, NDR heads, git history) rather than parametric guesses, explains one subsystem at a time sized to what you already grasp, and persists confirmed understanding as records in the vault that graduate into CONTEXT.md and NDR atoms. Never invoke implicitly.
+when_to_use: Use when the user says "grok this repo", "help me understand the X subsystem", "get me up to speed on this code", or "/grok".
 effort: high
 argument-hint: "Which repo or subsystem do you want to understand?"
-allowed-tools: Bash(obsidian-cli *), Write, Read, Grep, Glob, Bash(git log *), Bash(git show *), Bash(git blame *), mcp__obsidian-mcp__patch_note
+allowed-tools: Bash(obsidian-cli *), Write, Read, Grep, Glob, Bash(git log *), Bash(git show *), Bash(git blame *)
 disallowed-tools: Edit, Bash(rm *), Bash(trash *), Bash(git push *), Bash(jj abandon *), Bash(jj restore *)
 ---
+
+Claude Code should invoke this skill only on the explicit trigger phrases in
+the description. Codex enforces the same behavior through
+[`agents/openai.yaml`](agents/openai.yaml).
 
 The user wants to understand a codebase. This is a **stateful** request — comprehension built over multiple sessions, not a one-shot explanation. (For a one-shot "zoom out and map this area," use the `zoom-out` skill instead; `/grok` is the layer that persists what `zoom-out` surfaces and tracks progress toward an understanding goal.)
 
@@ -37,9 +41,11 @@ You do not know this codebase. Treat the code and its durable layer as the only 
 3. **The code**, via a named `Explore` agent (`subagent_type=Explore`, `name="grok-explorer"`) for fan-out reads — keep it addressable so you can ask follow-ups during a walk. Use `Grep`/`Glob`/`Read` directly for narrow checks.
 4. **Git history** — `git log`, `git show`, `git blame` to learn _why_ code is shaped the way it is and who to ask. History is a primary source for a "why," not a footnote.
 
-Use craft's shared vocabulary — **module, interface, implementation, depth, seam, adapter, leverage, locality** (see [LANGUAGE.md](../../references/LANGUAGE.md)) — so explanations stay consistent with `improve-codebase-architecture` and `zoom-out`.
+Use craft's shared vocabulary — **module, interface, implementation, depth, seam, adapter, leverage, locality** — from the `codebase-design` skill (`craft:codebase-design`) — so explanations stay consistent with `improve-codebase-architecture` and `zoom-out`.
 
 ## The workspace (in the vault)
+
+Honor the vault conventions in ~/Loose Ends/.claude/CLAUDE.md (frontmatter shape, naming, wikilink style) — read it before the first vault write of a session.
 
 Each repo gets **one** workspace folder in the vault, placed under its best-fit context. Confirm the path with the user before creating anything (vault Location Decision Tree). Default for a dev repo:
 
@@ -53,9 +59,9 @@ Reference/Developer/{Repo Name}/
 - `Understanding.md` — **one workspace per repo** (not per goal). Holds a moving _current focus_ plus a growing _map_ of what's understood. Use the format in [UNDERSTANDING-FORMAT.md](./UNDERSTANDING-FORMAT.md).
 - `Records/*.md` — supersession-aware records of what you genuinely now understand, written on _evidence_ not coverage. Use the format in [UNDERSTANDING-RECORD-FORMAT.md](./UNDERSTANDING-RECORD-FORMAT.md).
 
-**Tooling:** `.md` notes are created and edited with `obsidian-cli` (`create`, `append`, `property:set`); surgical in-note edits use `mcp__obsidian-mcp__patch_note`; complex restructures go to `@note-editor`. The optional `.html` maps are written with `Write` and live inside the workspace folder so their relative anchor links resolve.
+**Tooling:** `.md` notes are created and edited with `obsidian-cli` (`create`, `append`, `property:set`) — including surgical in-note edits; complex restructures go to `@note-editor`. The optional `.html` maps are written with `Write` and live inside the workspace folder so their relative anchor links resolve.
 
-**Proprietary repos:** for work/Work repos, the personal vault still holds your personal understanding records, but durable _shared_ facts must **not** leak into the vault — graduate them to the repo's own `CONTEXT.md` or an internal authority, exactly as `grill-with-docs` does.
+**Proprietary repos:** for work repos, the personal vault still holds your personal understanding records, but durable _shared_ facts must **not** leak into the vault — graduate them to the repo's own `CONTEXT.md` or an internal authority, exactly as `grill-with-docs` does.
 
 ## The understanding goal
 

@@ -1,6 +1,11 @@
 # Linear MCP gotchas
 
-Silent-failure modes observed in the `mcp__linear-server__*` tool surface. Each is paired with the working shape and a one-line cause. **Read before calling Linear MCP from any skill** — these failures return success-shaped responses with empty or wrong data instead of erroring.
+Silent-failure modes observed in the Linear integration tool surface. Examples
+use Claude Code's `mcp__linear-server__*` identifiers; Codex should apply the
+same parameter and sequencing constraints to the corresponding connected
+Linear operations. Each issue is paired with the working shape and a one-line
+cause. **Read before calling Linear from any skill** — these failures return
+success-shaped responses with empty or wrong data instead of erroring.
 
 Universal — applies to `linear`, `spec-flow:*`, or any direct Linear MCP usage.
 

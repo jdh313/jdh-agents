@@ -1,12 +1,18 @@
 ---
 name: prototype
-description: Build a throwaway prototype to flesh out a design before committing to it. Routes between two branches — a runnable terminal app for state/business-logic questions, or several radically different UI variations toggleable from one route. Use when the user wants to prototype, sanity-check a data model or state machine, mock up a UI, explore design options, or says "prototype this", "let me play with it", "try a few designs". Adapted from mattpocock/skills (MIT, © 2026 Matt Pocock).
+description: Build a throwaway prototype to answer a design question. Use when the user wants to sanity-check whether a state model or logic feels right, or explore what a UI should look like. Adapted from mattpocock/skills (MIT, © 2026 Matt Pocock).
 upstream:
   repo: mattpocock/skills
   path: skills/engineering/prototype
-  reviewed_sha: f304057d61d3
-  reviewed: 2026-06-11
+  reviewed_sha: 850873cd73d5
+  reviewed: 2026-07-09
   status: reviewed
+allowed-tools:
+  - Read
+  - Grep
+  - Glob
+  - Write
+  - Edit
 ---
 
 # Prototype

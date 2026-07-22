@@ -15,6 +15,28 @@ The contract *shape* (the 6-section template in `contract-template.md`) is host-
 
 The host is **not persisted**. Each skill re-detects it from the identifier (or goal text, at `draft`). Same model as cadence — no per-contract flag.
 
+## Runtime adapter
+
+Treat platform-specific names in this plugin as semantic operations:
+
+- **Linear:** Claude Code uses `mcp__linear-server__*`; Codex uses the
+  corresponding connected Linear app or MCP operation exposed in the current
+  task. Match by operation and schema. Never substitute web search or model
+  memory for private Linear data.
+- **Skill handoff:** Claude Code's `Skill(plugin:skill)` means invoke that
+  installed skill. In Codex, invoke the installed namespaced skill or follow
+  its `SKILL.md` procedure directly when already in the same plugin workflow.
+- **Independent verifier:** Claude Code dispatches the registered
+  `contract-verifier` agent. Codex spawns an isolated subagent and passes the
+  procedure in `../agents/contract-verifier.md` with the same inputs and
+  read/execute-only constraints.
+- **User choice:** use the runtime's structured question tool when available;
+  otherwise ask one concise question and wait.
+
+Repository conventions come from the active runtime's native agent guidance.
+In Codex, applicable `AGENTS.md` files take precedence and non-conflicting
+`CLAUDE.md` facts are supporting documentation.
+
 ## Host detection
 
 ### At `draft`
@@ -71,13 +93,13 @@ Same identifier-shape detection as `implement`/`close` (ticket token → linear,
 | **`close` — container action** | `mv` to `.docs/archive/`, flip frontmatter | Advance state to a review state (In Review / Code Review / …) via `save_issue`; never set a completed state. Remove the `contracted` label (set current labels minus `contracted`; an empty array is honored, so clearing the last label works). Body untouched |
 | **`close` — confirm wording** | "Contract archived at `.docs/archive/...`" | "Verification comment posted; moved to In Review; body intact. Set Done yourself at merge." |
 
-## Linear MCP availability
+## Linear integration availability
 
-Linear-host actions require the `mcp__linear-server__*` tools to be loaded. If a Linear-host action is attempted without them:
+Linear-host actions require a connected Linear integration. If a Linear-host action is attempted without one:
 
-- Surface the fact: *"Linear MCP server isn't connected — I can't read or write TEAM-123."*
-- Offer the user a choice: *"Fall back to a `.docs/` file contract, or pause while you wire up the MCP yourself?"*
-- Never run `claude mcp add` or suggest a paste-and-go command. Connecting MCPs is a user decision.
+- Surface the fact: *"Linear isn't connected — I can't read or write TEAM-123."*
+- Offer the user a choice: *"Fall back to a `.docs/` file contract, or pause while you connect Linear yourself?"*
+- Never install or configure the integration without approval, and never ask the user to paste credentials into chat.
 
 Same wording across all four skills.
 

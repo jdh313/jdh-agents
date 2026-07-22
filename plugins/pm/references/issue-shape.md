@@ -1,6 +1,6 @@
 # Issue shape
 
-What a well-formed Linear ticket contains. Source of truth for the Missing-fields bucket in `pm:groom`, the proposal shape in `pm:triage`, and the template in `pm:author`. Defers to `linear` (linear plugin) for title, labels, priority, and status conventions — this file covers what goes **inside the description body** plus the required-field checklist.
+What a well-formed Linear ticket contains. Source of truth for the Missing-fields bucket in `pm:groom`, the proposal shape in `pm:triage` *(planned)*, and the template in `pm:author` *(planned)*. Defers to `linear` (linear plugin) for title, labels, priority, and status conventions — this file covers what goes **inside the description body** plus the required-field checklist.
 
 ## Required fields
 
@@ -79,8 +79,8 @@ Anything else: observations, risk flags, decisions deferred, links to related wo
 | Skill | Use |
 |---|---|
 | `pm:groom` | Missing-fields bucket checks #1–6 (description body checked against `## Done when:` requirement). NDR-moot bucket scans `## NDR references` section + inline `ndr:` mentions in prose. |
-| `pm:triage` | Proposes specific missing pieces with this file's criteria (e.g. "no `Done when:` — propose: `Done when: <verifiable signal>`"). |
-| `pm:author` | Uses the body structure as a template when drafting new tickets. |
+| `pm:triage` *(planned)* | Proposes specific missing pieces with this file's criteria (e.g. "no `Done when:` — propose: `Done when: <verifiable signal>`"). |
+| `pm:author` *(planned)* | Uses the body structure as a template when drafting new tickets. |
 
 ## See also
 

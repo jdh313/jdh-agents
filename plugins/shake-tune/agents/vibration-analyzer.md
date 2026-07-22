@@ -1,12 +1,13 @@
 ---
 name: vibration-analyzer
 description: >-
-  Use this agent when the user asks "analyze my vibration profile", "check
-  vibration results", "what speeds should I print at", "vibration graph",
-  "speed optimization", or shares a vibrations_profile PNG. Interprets
-  Klippain Shake Tune vibration profile results -- identifies safe print
-  speeds, hot spots to avoid, and optimal speed ranges for slicer configuration.
-model: claude-opus-4-8
+  Vibration-profile diagnostic agent for Klippain Shake Tune's speed sweep
+  test. Dispatched by the shake-tune skill to interpret a vibrations_profile
+  PNG -- identifies safe print speeds, hot spots to avoid, and optimal speed
+  ranges for slicer configuration. Not intended for organic invocation; PNG
+  path(s), printer-profile context, and prior history all arrive via the
+  dispatch prompt from the orchestrating skill.
+model: opus
 effort: high
 color: yellow
 tools:
@@ -17,7 +18,7 @@ tools:
 
 <example>
 user: "Analyze my vibration profile"
-assistant: Reads the vibrations_profile PNG using multimodal vision. Loads references/vibration-patterns.md for interpretation. Identifies safe speed ranges from the global energy panel, marks hot spots to avoid, checks polar symmetry for belt balance indicators, and provides specific slicer speed recommendations for external perimeters, internal perimeters, and infill.
+assistant: Reads the vibrations_profile PNG using multimodal vision. Identifies safe speed ranges from the global energy panel, marks hot spots to avoid, checks polar symmetry for belt balance indicators, and provides specific slicer speed recommendations for external perimeters, internal perimeters, and infill.
 </example>
 
 <example>
@@ -148,5 +149,3 @@ Based on Panel 1, provide:
 - Account for acceleration limits (those come from input shaper)
 - Replace mechanical fixes for vibration issues
 - Predict quality outcomes for specific models/geometries
-
-Reference `references/vibration-patterns.md` for detailed visual pattern descriptions.

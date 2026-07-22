@@ -5,35 +5,29 @@ effort: high
 upstream:
   repo: mattpocock/skills
   path: skills/engineering/improve-codebase-architecture
-  reviewed_sha: a36584e09eae
-  reviewed: 2026-06-11
+  reviewed_sha: 221ffca96736
+  reviewed: 2026-07-09
   status: reviewed
+allowed-tools:
+  - Read
+  - Grep
+  - Glob
+  - Agent
+  - Write
+  - Skill
 ---
+
+Apply the orchestration mappings in [`../../RUNTIME.md`](../../RUNTIME.md).
 
 # Improve Codebase Architecture
 
 Surface architectural friction and propose **deepening opportunities** — refactors that turn shallow modules into deep ones. The aim is testability and AI-navigability.
 
-## Glossary
+## Architecture vocabulary
 
-Use these terms exactly in every suggestion. Consistent language is the point — don't drift into "component," "service," "API," or "boundary." Full definitions in [LANGUAGE.md](../../references/LANGUAGE.md).
+Run `Skill(craft:codebase-design)` for the architecture vocabulary — **module**, **interface**, **depth**, **seam**, **adapter**, **leverage**, **locality** — and its principles: the deletion test, "the interface is the test surface," "one adapter = hypothetical seam, two = real." Use these terms exactly in every suggestion — don't drift into "component," "service," "API," or "boundary."
 
-- **Module** — anything with an interface and an implementation (function, class, package, slice).
-- **Interface** — everything a caller must know to use the module: types, invariants, error modes, ordering, config. Not just the type signature.
-- **Implementation** — the code inside.
-- **Depth** — leverage at the interface: a lot of behaviour behind a small interface. **Deep** = high leverage. **Shallow** = interface nearly as complex as the implementation.
-- **Seam** — where an interface lives; a place behaviour can be altered without editing in place. (Use this, not "boundary.")
-- **Adapter** — a concrete thing satisfying an interface at a seam.
-- **Leverage** — what callers get from depth.
-- **Locality** — what maintainers get from depth: change, bugs, knowledge concentrated in one place.
-
-Key principles (see [LANGUAGE.md](../../references/LANGUAGE.md) for the full list):
-
-- **Deletion test**: imagine deleting the module. If complexity vanishes, it was a pass-through. If complexity reappears across N callers, it was earning its keep.
-- **The interface is the test surface.**
-- **One adapter = hypothetical seam. Two adapters = real seam.**
-
-This skill is _informed_ by the project's domain model. The domain language gives names to good seams; NDR atoms record decisions the skill should not re-litigate.
+This skill is _informed_ by the project's domain model. The domain language gives names to good seams; NDR atoms record decisions this skill should not re-litigate.
 
 ## Process
 
@@ -41,7 +35,7 @@ This skill is _informed_ by the project's domain model. The domain language give
 
 Invoke `/ground` to surface relevant NDR atoms in the area you're touching first. Read the project's domain glossary (CONTEXT.md) alongside the grounded decisions.
 
-Then use the Agent tool with `subagent_type=Explore` and `name="arch-explorer"` to walk the codebase. Naming the agent keeps it addressable via SendMessage during the grilling loop if you need to ask it follow-up questions. Don't follow rigid heuristics — explore organically and note where you experience friction:
+Then spawn an isolated exploration subagent named `arch-explorer` to walk the codebase. Give it a bounded task, inputs, deliverable, and done criteria; keep it addressable during the grilling loop for follow-up questions. Don't follow rigid heuristics — explore organically and note where you experience friction:
 
 - Where does understanding one concept require bouncing between many small modules?
 - Where are modules **shallow** — interface nearly as complex as the implementation?
@@ -68,7 +62,7 @@ For each candidate, rendered as a markdown section (`### Candidate N: <title>`):
 
 End the report with a **Top recommendation** section: which candidate you'd tackle first and why.
 
-**Use CONTEXT.md vocabulary for the domain, and [LANGUAGE.md](../../references/LANGUAGE.md) vocabulary for the architecture.** If `CONTEXT.md` defines "Order," talk about "the Order intake module" — not "the FooBarHandler," and not "the Order service."
+**Use CONTEXT.md vocabulary for the domain, and the `codebase-design` skill's vocabulary for the architecture.** If `CONTEXT.md` defines "Order," talk about "the Order intake module" — not "the FooBarHandler," and not "the Order service."
 
 **NDR conflicts**: if a candidate contradicts an existing NDR atom, only surface it when the friction is real enough to warrant revisiting the decision. Mark it clearly in the candidate section (e.g. a note callout: _"contradicts ndr:area/topic/NNNN-slug — but worth reopening because…"_). Don't list every theoretical refactor a decision forbids.
 
@@ -82,7 +76,5 @@ Once the user picks a candidate, drop into a grilling conversation. Walk the des
 
 Side effects happen inline as decisions crystallize:
 
-- **Naming a deepened module after a concept not in `CONTEXT.md`?** Add the term to `CONTEXT.md` — same discipline as `/grill-with-docs` (see [CONTEXT-FORMAT.md](../grill-with-docs/CONTEXT-FORMAT.md)). Create the file lazily if it doesn't exist.
-- **Sharpening a fuzzy term during the conversation?** Update `CONTEXT.md` right there.
-- **User rejects the candidate with a load-bearing reason?** Offer to capture an NDR atom via `/capture-decision` (ndr plugin), framed as: _"Want me to record this as an NDR atom so future architecture reviews don't re-suggest it?"_ Only offer when the reason would actually be needed by a future explorer to avoid re-suggesting the same thing — skip ephemeral reasons ("not worth it right now") and self-evident ones. Route through `/capture-decision` to record the rationale.
-- **Want to explore alternative interfaces for the deepened module?** See [INTERFACE-DESIGN.md](INTERFACE-DESIGN.md).
+- **Domain model needs updating** — a deepened module named after a concept not in `CONTEXT.md`, a fuzzy term getting sharpened, or a rejected candidate carrying a load-bearing reason worth recording? Run `Skill(craft:domain-modeling)` to keep the domain model current. It already encodes the NDR capture-decision routing (hard-to-reverse / surprising-without-context / real-trade-off) — don't re-specify decision handling here.
+- **Want to explore alternative interfaces for the deepened module?** Run `Skill(craft:codebase-design)` and use its design-it-twice parallel sub-agent pattern.

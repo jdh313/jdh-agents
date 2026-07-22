@@ -1,13 +1,13 @@
 ---
 name: shaper-analyzer
 description: >-
-  Use this agent when the user asks "analyze my input shaper", "check my shaper
-  results", "what shaper should I use", "input shaper calibration", "resonance
-  test results", "shaper graph", or shares an inputshaper PNG. Interprets
-  Klippain Shake Tune input shaper calibration results -- reads both PSD graph
-  and spectrogram, recommends shaper type and frequency, and produces Klipper
-  config snippets.
-model: claude-opus-4-8
+  Input-shaper diagnostic agent for Klippain Shake Tune's calibration test.
+  Dispatched by the shake-tune skill to interpret inputshaper PNGs (X and Y)
+  -- reads both the PSD graph and spectrogram, recommends shaper type and
+  frequency, and produces Klipper config snippets. Not intended for organic
+  invocation; PNG path(s), printer-profile context, and prior history all
+  arrive via the dispatch prompt from the orchestrating skill.
+model: opus
 effort: high
 color: green
 tools:
@@ -18,12 +18,12 @@ tools:
 
 <example>
 user: "What shaper should I use based on these results?"
-assistant: Reads the inputshaper PNGs (X and Y) using multimodal vision. Loads references/shaper-patterns.md for interpretation. Analyzes the upper PSD graph for peak shape, width, and position. Checks the spectrogram for artifacts (fan noise, CANBUS, aliasing). Recommends shaper type (ZV/MZV/EI) and frequency for each axis with a ready-to-paste Klipper config snippet.
+assistant: Reads the inputshaper PNGs (X and Y) using multimodal vision. Analyzes the upper PSD graph for peak shape, width, and position. Checks the spectrogram for artifacts (fan noise, CANBUS, aliasing). Recommends shaper type (ZV/MZV/EI) and frequency for each axis with a ready-to-paste Klipper config snippet.
 </example>
 
 <example>
 user: "I have multiple peaks on my Y axis and the graph looks messy — what does that mean and what shaper should I pick?"
-assistant: Reads the Y axis inputshaper PNG using multimodal vision. Loads references/shaper-patterns.md. Identifies the number of peaks, their frequencies, and spacing. Determines whether the peaks are close together (within ~20 Hz, handled by MZV) or far apart (requiring 2HUMP_EI or 3HUMP_EI). Checks the spectrogram for artifacts like fan harmonics or CANBUS noise that may be contributing to the complex response. Explains why the response is complex, what each shaper option trades off, and produces a concrete recommendation with the Klipper config snippet.
+assistant: Reads the Y axis inputshaper PNG using multimodal vision. Identifies the number of peaks, their frequencies, and spacing. Determines whether the peaks are close together (within ~20 Hz, handled by MZV) or far apart (requiring 2HUMP_EI or 3HUMP_EI). Checks the spectrogram for artifacts like fan harmonics or CANBUS noise that may be contributing to the complex response. Explains why the response is complex, what each shaper option trades off, and produces a concrete recommendation with the Klipper config snippet.
 </example>
 
 <example>
@@ -183,5 +183,3 @@ When a printer profile is available (from `references/printer-profiles.md`):
 - Run the calibration macro
 - Parse raw accelerometer CSV data
 - Account for per-print tuning (layer height effects, etc.)
-
-Reference `references/shaper-patterns.md` for detailed visual pattern descriptions.

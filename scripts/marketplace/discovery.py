@@ -15,7 +15,8 @@ def discover_plugins(
     """Return a sorted list of plugin registry entries from *plugins_dir*.
 
     Each entry matches the marketplace.json plugin shape:
-        name, source, description, version, author, [keywords], [homepage], [repository]
+        name, source, description, version, author,
+        [keywords], [homepage], [repository], [defaultEnabled]
 
     If *allowlist* is given, only plugins whose name appears in the list are
     included.  Missing allowlisted names are NOT warned here — callers that need
@@ -28,7 +29,10 @@ def discover_plugins(
     if not plugins_dir.exists():
         return plugins
 
-    for plugin_json_path in plugins_dir.rglob("plugin.json"):
+    # Codex manifests can coexist under .codex-plugin/. Claude marketplace
+    # discovery remains anchored to its native manifest so entries are not
+    # duplicated and the public export model stays unchanged.
+    for plugin_json_path in plugins_dir.glob("*/.claude-plugin/plugin.json"):
         try:
             with plugin_json_path.open(encoding="utf-8") as fh:
                 data = json.load(fh)
@@ -63,7 +67,7 @@ def discover_plugins(
             "version": data.get("version", "1.0.0"),
             "author": data.get("author", {"name": "Unknown"}),
         }
-        for optional_field in ("keywords", "homepage", "repository"):
+        for optional_field in ("keywords", "homepage", "repository", "defaultEnabled"):
             if optional_field in data:
                 entry[optional_field] = data[optional_field]
 

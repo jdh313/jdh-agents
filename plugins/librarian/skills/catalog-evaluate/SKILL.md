@@ -37,6 +37,7 @@ and `~/Loose Ends/Templates/Software Category.md` — the agent loads them.
 | Promoting a `lead` to a full hand-written entry (on adoption) | `catalog-evaluate` |
 | Updating body content from new external info (no stance change) | `wiki-refresh` |
 | Answering a question using the catalog | `wiki-query` |
+| Re-evaluating an existing entry against its own revisit triggers | `catalog-recheck` |
 
 If a user says "refresh this entry" but means "I've changed my mind",
 route to `catalog-evaluate`.

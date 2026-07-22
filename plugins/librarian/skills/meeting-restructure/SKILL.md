@@ -277,8 +277,8 @@ Target vault: `~/Loose Ends/`.
 - **People notes:** `People/` (flat). Self-note is `People/Jacob Hoehler.md` with alias `Me`. Template: `Templates/Person Note.md`.
 - **Work project notes:** `${active_work_context}/Projects/`.
 - **Work meeting notes:** `${active_work_context}/Meetings/`. Template: `Templates/Meeting Note.md`.
-- **Wiki pages:** distributed; identified by `owner: ai` + `type: wiki`. See `~/dotfiles/claude/rules/11-knowledge-wiki.md`.
-- **Software Catalog:** `Reference/Tools/Software Catalog/`. See `~/dotfiles/claude/rules/12-software-catalog.md`.
+- **Wiki pages:** distributed; identified by `owner: ai` + `type: wiki`. See `~/Loose Ends/.claude/rules/wiki.md`.
+- **Software Catalog:** `Reference/Tools/Software Catalog/`. See `~/Loose Ends/.claude/rules/catalog.md`.
 
 Meeting note frontmatter: `type: meeting`, `participants:` (list of wikilinks), `date: YYYY-MM-DD`, `summary:` (string, wikilinks allowed).
 

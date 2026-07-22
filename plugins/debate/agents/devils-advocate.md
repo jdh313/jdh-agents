@@ -4,7 +4,6 @@ description: Contrarian agent that attacks the emerging consensus in a debate. D
 model: opus
 effort: high
 color: red
-memory: project
 maxTurns: 10
 tools: WebSearch, WebFetch
 ---

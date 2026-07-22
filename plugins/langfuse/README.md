@@ -1,6 +1,6 @@
 # langfuse
 
-Forked from [langfuse/Claude-Observability-Plugin](https://github.com/langfuse/Claude-Observability-Plugin) v1.0.0.
+Forked from [langfuse/Claude-Observability-Plugin](https://github.com/langfuse/Claude-Observability-Plugin) v1.0.0 (upstream HEAD ea5eca1dfa26 as of 2026-07-06).
 
 Sends Claude Code session traces to [Langfuse](https://langfuse.com) via a Stop hook. Each turn in a conversation becomes a Langfuse trace containing the user prompt, assistant generations, and tool observations with accurate backdated timestamps.
 

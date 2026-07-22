@@ -1,11 +1,13 @@
 ---
 name: excitate-analyzer
 description: >-
-  Use this agent when the user asks "analyze excitation test", "excitation
-  frequency", "static frequency test", "vibrate at frequency", or shares a
-  staticfreq PNG. Interprets Klippain Shake Tune excitation test results --
+  Targeted frequency-investigation agent for Klippain Shake Tune's excitation
+  test. Dispatched by the shake-tune skill to interpret a staticfreq PNG --
   helps identify vibration sources by exciting the printer at a specific
-  frequency and observing the response. Used for targeted diagnosis.
+  frequency and observing the response. Used for targeted diagnosis, not
+  routine tuning. Not intended for organic invocation; PNG path and
+  printer-profile context arrive via the dispatch prompt from the
+  orchestrating skill.
 model: inherit
 effort: low
 color: magenta

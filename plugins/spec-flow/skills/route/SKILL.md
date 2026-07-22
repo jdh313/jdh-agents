@@ -1,6 +1,12 @@
 ---
 name: route
 description: This skill should be used when the user hands spec-flow a ticket without saying which phase it's in and wants spec-flow to figure out where the change stands and continue. Trigger phrases include "/spec-flow route TEAM-123", "/spec-flow TEAM-123" (bare ticket), "where is TEAM-123", "what phase is TEAM-123 in", "continue TEAM-123", "pick up where TEAM-123 left off", "what's next on this ticket". Reads the contract's current state, maps it to the lifecycle phase (draft / implement / close / done), and hands off to the matching skill. Does NOT itself draft, implement, or close — it only detects the phase and dispatches.
+argument-hint: "<TEAM-N or contract slug>"
+allowed-tools:
+  - mcp__linear-server__get_issue
+  - mcp__linear-server__list_issue_statuses
+  - Read
+  - Glob
 ---
 
 # spec-flow:route
@@ -25,7 +31,7 @@ Given a ticket (or file slug) and nothing else, figure out where the change sits
 - Identifier matches `^[A-Z]{2,5}-\d+$` (e.g. `TEAM-123`) → **linear** host. State lives in Linear — this is the primary path.
 - Anything else (kebab slug, filename) → **file** host. Phase comes from `.docs/` placement + frontmatter (see step 4).
 
-If host = linear, check that `mcp__linear-server__*` tools are loaded. If not, use the standard fallback wording (`../../references/hosts.md` — *"Linear MCP server isn't connected …"*). Do not run `claude mcp add`.
+If host = linear, check that a connected Linear integration is available using the runtime mapping in `../../references/hosts.md`. If not, use the standard fallback wording there (*"Linear isn't connected …"*). Do not install or configure the integration without approval.
 
 ### 2. Read state (linear host)
 

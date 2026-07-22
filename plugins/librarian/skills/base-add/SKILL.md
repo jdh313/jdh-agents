@@ -4,13 +4,6 @@ description: Create a new entry for a specific Obsidian Base with correct frontm
 disable-model-invocation: true
 context: fork
 agent: note-editor
-allowed-tools:
-  - Read
-  - Write
-  - Edit
-  - Glob
-  - Grep
-  - Bash(obsidian-cli *)
 ---
 
 # Add to Base

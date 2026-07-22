@@ -12,7 +12,6 @@ color: cyan
 tools:
   - mcp__linear-server__list_projects
   - mcp__linear-server__list_issues
-  - mcp__linear-server__get_project
   - Bash(obsidian-cli *)
 ---
 

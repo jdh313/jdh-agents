@@ -354,13 +354,22 @@ class SessionState:
     offset: int = 0
     buffer: str = ""
     turn_count: int = 0
+    # Poison-turn guard: identifies the leading not-yet-committed turn by the
+    # offset it starts at, and how many consecutive emit failures it has hit.
+    # Single-slot is sufficient — offset is a strict linear cursor, so at most
+    # one turn can be "stuck" at the front at a time.
+    poison_offset: Optional[int] = None
+    poison_fail_count: int = 0
 
 def load_session_state(global_state: Dict[str, Any], key: str) -> SessionState:
     s = global_state.get(key, {})
+    poison_offset = s.get("poison_offset")
     return SessionState(
         offset=int(s.get("offset", 0)),
         buffer=str(s.get("buffer", "")),
         turn_count=int(s.get("turn_count", 0)),
+        poison_offset=poison_offset if isinstance(poison_offset, int) else None,
+        poison_fail_count=int(s.get("poison_fail_count", 0)),
     )
 
 def write_session_state(global_state: Dict[str, Any], key: str, ss: SessionState) -> None:
@@ -368,57 +377,79 @@ def write_session_state(global_state: Dict[str, Any], key: str, ss: SessionState
         "offset": ss.offset,
         "buffer": ss.buffer,
         "turn_count": ss.turn_count,
+        "poison_offset": ss.poison_offset,
+        "poison_fail_count": ss.poison_fail_count,
         "updated": datetime.now(timezone.utc).isoformat(),
     }
 
-def read_new_jsonl(transcript_path: Path, ss: SessionState) -> Tuple[List[Dict[str, Any]], SessionState]:
+def read_new_jsonl(
+    transcript_path: Path, ss: SessionState
+) -> Tuple[List[Tuple[Dict[str, Any], int]], str, int]:
     """
-    Reads only new bytes since ss.offset. Keeps ss.buffer for partial last line.
-    Returns parsed JSON lines (best-effort) and updated state.
+    Reads only new bytes since ss.offset. Does NOT mutate ss — the caller
+    decides how much of this read to actually commit, since a turn built from
+    these rows may fail to emit and need to be retried next invocation.
+
+    Returns:
+      - rows: (message, end_offset) pairs for each complete new line, where
+        end_offset is the absolute file offset immediately after that line —
+        i.e. where it's safe to resume reading from if this row's turn (and
+        everything before it) is committed.
+      - new_buffer: the leftover partial (unterminated) last line, valid only
+        if the caller commits all the way through to full_read_offset.
+      - full_read_offset: the absolute file offset after this entire read —
+        what ss.offset becomes if every row this round is committed.
     """
+    start_offset = ss.offset
+    buffer = ss.buffer
+
     if not transcript_path.exists():
-        return [], ss
+        return [], buffer, start_offset
 
     try:
         file_size = transcript_path.stat().st_size
-        if file_size < ss.offset:
+        if file_size < start_offset:
             # Transcript was rotated or truncated — restart from the beginning.
-            debug(f"transcript shrank ({file_size} < {ss.offset}); restarting")
-            ss.offset = 0
-            ss.buffer = ""
+            debug(f"transcript shrank ({file_size} < {start_offset}); restarting")
+            start_offset = 0
+            buffer = ""
         with open(transcript_path, "rb") as f:
-            f.seek(ss.offset)
+            f.seek(start_offset)
             chunk = f.read()
-            new_offset = f.tell()
+            full_read_offset = f.tell()
     except Exception as e:
         debug(f"read_new_jsonl failed: {e}")
-        return [], ss
+        return [], buffer, start_offset
 
     if not chunk:
-        return [], ss
+        return [], buffer, start_offset
 
     try:
         text = chunk.decode("utf-8", errors="replace")
     except Exception:
         text = chunk.decode(errors="replace")
 
-    combined = ss.buffer + text
-    lines = combined.split("\n")
-    # last element may be incomplete
-    ss.buffer = lines[-1]
-    ss.offset = new_offset
+    # buffer holds a fragment with no embedded newline (invariant maintained
+    # below), so splitting buffer+text has the same element count as
+    # splitting text alone — only the first element gains the buffer prefix.
+    text_lines = text.split("\n")
+    new_buffer = text_lines[-1]
 
-    msgs: List[Dict[str, Any]] = []
-    for line in lines[:-1]:
+    rows: List[Tuple[Dict[str, Any], int]] = []
+    cum = 0
+    for k in range(len(text_lines) - 1):
+        line = (buffer + text_lines[k]) if k == 0 else text_lines[k]
+        cum += len(text_lines[k].encode("utf-8", errors="replace")) + 1  # +1 for '\n'
+        end_offset = start_offset + cum
         line = line.strip()
         if not line:
             continue
         try:
-            msgs.append(json.loads(line))
+            rows.append((json.loads(line), end_offset))
         except Exception:
             continue
 
-    return msgs, ss
+    return rows, new_buffer, full_read_offset
 
 # ----------------- Turn assembly -----------------
 @dataclass
@@ -426,23 +457,32 @@ class Turn:
     user_msg: Dict[str, Any]
     assistant_msgs: List[Dict[str, Any]]
     tool_results_by_id: Dict[str, Any]
+    end_offset: int  # transcript offset immediately after this turn's last contributing row
 
-def build_turns(messages: List[Dict[str, Any]]) -> List[Turn]:
+def build_turns(rows: List[Tuple[Dict[str, Any], int]]) -> Tuple[List[Turn], Dict[str, int]]:
     """
     Groups incremental transcript rows into turns:
     user (non-tool-result) -> assistant messages -> (tool_result rows, possibly interleaved)
     Uses:
     - assistant message dedupe by message.id (latest row wins)
     - tool results dedupe by tool_use_id (latest wins)
+
+    Each row is (message, end_offset) — end_offset is threaded through so each
+    finalized Turn knows the transcript offset it's safe to commit through.
+
+    Returns (turns, unknown_row_type_counts) — the latter for observability
+    only; unknown rows never contribute to a turn or its end_offset.
     """
     turns: List[Turn] = []
     current_user: Optional[Dict[str, Any]] = None
+    current_end_offset: int = 0
 
     # assistant messages for current turn:
     assistant_order: List[str] = []             # message ids in order of first appearance (or synthetic)
     assistant_latest: Dict[str, Dict[str, Any]] = {}  # id -> latest msg
 
     tool_results_by_id: Dict[str, Any] = {}     # tool_use_id -> content
+    unknown_counts: Dict[str, int] = {}
 
     def flush_turn():
         nonlocal current_user, assistant_order, assistant_latest, tool_results_by_id, turns
@@ -451,9 +491,14 @@ def build_turns(messages: List[Dict[str, Any]]) -> List[Turn]:
         if not assistant_latest:
             return
         assistants = [assistant_latest[mid] for mid in assistant_order if mid in assistant_latest]
-        turns.append(Turn(user_msg=current_user, assistant_msgs=assistants, tool_results_by_id=dict(tool_results_by_id)))
+        turns.append(Turn(
+            user_msg=current_user,
+            assistant_msgs=assistants,
+            tool_results_by_id=dict(tool_results_by_id),
+            end_offset=current_end_offset,
+        ))
 
-    for msg in messages:
+    for msg, end_offset in rows:
         role = get_role(msg)
 
         # tool_result rows show up as role=user with content blocks of type tool_result
@@ -463,6 +508,8 @@ def build_turns(messages: List[Dict[str, Any]]) -> List[Turn]:
                 tid = tr.get("tool_use_id")
                 if tid:
                     tool_results_by_id[str(tid)] = {"content": tr.get("content"), "timestamp": row_ts}
+            if current_user is not None:
+                current_end_offset = end_offset
             continue
 
         if role == "user":
@@ -471,6 +518,7 @@ def build_turns(messages: List[Dict[str, Any]]) -> List[Turn]:
 
             # start a new turn
             current_user = msg
+            current_end_offset = end_offset
             assistant_order = []
             assistant_latest = {}
             tool_results_by_id = {}
@@ -485,13 +533,16 @@ def build_turns(messages: List[Dict[str, Any]]) -> List[Turn]:
             if mid not in assistant_latest:
                 assistant_order.append(mid)
             assistant_latest[mid] = msg
+            current_end_offset = end_offset
             continue
 
-        # ignore unknown rows
+        # unknown row type — never part of a turn, just tallied for visibility
+        row_type = msg.get("type") if isinstance(msg.get("type"), str) else "unknown"
+        unknown_counts[row_type] = unknown_counts.get(row_type, 0) + 1
 
     # flush last
     flush_turn()
-    return turns
+    return turns, unknown_counts
 
 # ----------------- Mode / name helpers (edits a, b) -----------------
 
@@ -835,10 +886,13 @@ def main() -> int:
     langfuse = None
     try:
         # Edit (f): pass release= to Langfuse constructor
+        # Bounded: a 5s timeout keeps a slow/unreachable host from stalling the
+        # Stop hook during client construction (SDK 4.x supports this kwarg).
         langfuse = Langfuse(
             public_key=public_key,
             secret_key=secret_key,
             host=host,
+            timeout=5,
             release=os.environ.get("LANGFUSE_RELEASE") or _get_claude_version(),
         )
     except Exception:
@@ -850,23 +904,49 @@ def main() -> int:
             key = state_key(session_id, str(transcript_path))
             ss = load_session_state(state, key)
 
-            msgs, ss = read_new_jsonl(transcript_path, ss)
-            if not msgs:
+            rows, new_buffer, full_read_offset = read_new_jsonl(transcript_path, ss)
+            if not rows:
+                # Nothing new (or only an incomplete trailing line) — nothing
+                # was attempted, so it's always safe to commit the full read.
+                ss.offset = full_read_offset
+                ss.buffer = new_buffer
                 write_session_state(state, key, ss)
                 save_state(state)
                 return 0
 
-            turns = build_turns(msgs)
+            turns, unknown_counts = build_turns(rows)
+            if unknown_counts:
+                n = sum(unknown_counts.values())
+                debug(f"skipped {n} unknown transcript rows: {sorted(unknown_counts)}")
+
             if not turns:
+                # Rows existed but none formed a complete turn (e.g. a dangling
+                # user message with no reply yet) — nothing was attempted here
+                # either, so the full read is still safe to commit.
+                ss.offset = full_read_offset
+                ss.buffer = new_buffer
                 write_session_state(state, key, ss)
                 save_state(state)
                 return 0
 
-            # emit turns
+            # Emit turns strictly in order, committing progress one turn at a
+            # time so a failure never drops turns that already succeeded, and
+            # never silently skips a turn that hasn't (the old bug: offset and
+            # turn_count both advanced past every turn in the batch regardless
+            # of whether emit_turn raised).
             emitted = 0
-            for t in turns:
-                emitted += 1
-                turn_num = ss.turn_count + emitted
+            committed_offset = ss.offset
+            stopped_early = False
+
+            for i, t in enumerate(turns):
+                turn_num = ss.turn_count + i + 1
+                # The offset this turn starts at is its identity across retries:
+                # whichever turn is currently "stuck" always starts at the same
+                # offset each time it's re-attempted, since offset never moves
+                # past a failing turn. This holds regardless of the turn's
+                # position within any one run's batch (i is just this run's
+                # local index, not a stable identity).
+                turn_start_offset = committed_offset
                 try:
                     emit_turn(
                         langfuse, session_id, turn_num, t, transcript_path,
@@ -875,16 +955,55 @@ def main() -> int:
                     )
                 except Exception as e:
                     # Log at INFO so SDK incompatibilities (and other emit failures)
-                    # are visible without needing CC_LANGFUSE_DEBUG=true.
-                    info(f"emit_turn failed: {type(e).__name__}: {e}")
-                    # continue emitting other turns
+                    # are visible without needing CC_LANGFUSE_DEBUG=true; the full
+                    # message (which may include payload fragments) stays at debug.
+                    info(f"emit_turn failed: {type(e).__name__}")
+                    debug(f"emit_turn failed: {type(e).__name__}: {e}")
+
+                    if ss.poison_offset == turn_start_offset:
+                        fail_count = ss.poison_fail_count + 1
+                    else:
+                        fail_count = 1
+
+                    if fail_count >= 3:
+                        # Poison-turn guard: this turn has now failed 3 times.
+                        # Force past it so the pipeline can't wedge permanently.
+                        info("skipping turn after 3 failed emits")
+                        emitted += 1
+                        committed_offset = t.end_offset
+                        ss.poison_offset = None
+                        ss.poison_fail_count = 0
+                        continue
+
+                    ss.poison_offset = turn_start_offset
+                    ss.poison_fail_count = fail_count
+                    stopped_early = True
+                    break
+                else:
+                    emitted += 1
+                    committed_offset = t.end_offset
+                    if ss.poison_offset == turn_start_offset:
+                        ss.poison_offset = None
+                        ss.poison_fail_count = 0
 
             ss.turn_count += emitted
+            if stopped_early:
+                # Leave offset/buffer at the last success — next Stop event
+                # naturally re-reads and retries the failed turn. The buffer
+                # is discarded rather than persisted: it describes bytes past
+                # committed_offset, which will be re-read from disk next time.
+                ss.offset = committed_offset
+                ss.buffer = ""
+            else:
+                ss.offset = full_read_offset
+                ss.buffer = new_buffer
             write_session_state(state, key, ss)
             save_state(state)
 
         dur = time.time() - start
-        info(f"Processed {emitted} turns in {dur:.2f}s (session={session_id})")
+        deferred = len(turns) - emitted
+        deferred_note = f", {deferred} turn(s) deferred for retry" if deferred else ""
+        info(f"Processed {emitted} turns in {dur:.2f}s (session={session_id}){deferred_note}")
 
         # Emit a bare BEL via terminalSequence so the terminal gives a subtle
         # flush signal when traces land. Hooks run without a controlling tty so
