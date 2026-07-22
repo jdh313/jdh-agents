@@ -83,7 +83,7 @@
       "name": "craft",
       "source": "./plugins/craft",
       "description": "Software craftsmanship discipline skills: grill-with-docs (vocabulary grilling against per-repo CONTEXT.md glossaries), diagnose, prototype, tdd, improve-codebase-architecture, grok (stateful multi-session codebase comprehension with supersession-aware understanding records), zoom-out (adapted in part from mattpocock/skills, MIT), infra-review (architecture/security review of Terraform+Atlantis PRs), quiz-me (opt-in active-recall comprehension check after a code explanation), interrogate-model (holistic representability review of a domain model \u2014 the legitimate scenarios and personas it cannot express), and design-by-stories (design an artifact's shape \u2014 schema, template, data model, config \u2014 by modeling its actors and user stories first, then deriving the shape from the stories). Composes with spec-flow and ndr plugins.",
-      "version": "0.8.0",
+      "version": "0.8.1",
       "author": {
         "name": "Jacob Hoehler"
       },
@@ -144,6 +144,26 @@
       ]
     },
     {
+      "name": "introspect",
+      "source": "./plugins/introspect",
+      "description": "Introspection tooling for Claude Code itself. usage-report: reconstruct how a person works with Claude Code in a repo (skills, slash commands, subagents, MCP tools, task-kickoff style, activity over time) from their local session transcripts, via a stdlib-only read-only parser. Privacy-safe by default \u2014 names and counts only, no prompt text leaves the machine.",
+      "version": "0.5.0",
+      "author": {
+        "name": "Jacob Hoehler"
+      },
+      "keywords": [
+        "claude-code",
+        "introspection",
+        "usage",
+        "analytics",
+        "transcripts",
+        "workflow",
+        "skills",
+        "onboarding",
+        "self-analysis"
+      ]
+    },
+    {
       "name": "langfuse",
       "source": "./plugins/langfuse",
       "description": "Sends Claude Code session traces to Langfuse via a Stop hook \u2014 per-turn traces with prompts, generations, tool observations, and backdated timestamps. Includes a SessionStart tripwire that marks programmatically-spawned sessions.",
@@ -163,7 +183,7 @@
       "name": "librarian",
       "source": "./plugins/librarian",
       "description": "Curates, catalogs, retrieves, and maintains your library of notes and knowledge in an Obsidian vault. Workflow-shaped (Capture / Process / Retrieve / Maintain) and agent-mediated (skills draft, agents execute). 17 skills + 4 agents + 6 references, coupled to the vault conventions in ~/Loose Ends/.claude/rules/{wiki.md,catalog.md} and the Templater templates in ~/Loose Ends/Templates/.",
-      "version": "0.17.0",
+      "version": "0.17.1",
       "author": {
         "name": "Jacob Hoehler"
       },
@@ -223,7 +243,7 @@
       "name": "shake-tune",
       "source": "./plugins/shake-tune",
       "description": "Interpret Klippain Shake Tune results for 3D printers: diagnose issues from PNG graphs, explain findings, recommend fixes, and track results over time. Supports belt comparison, input shaper, vibration profile, axes map, and excitation tests.",
-      "version": "0.3.0",
+      "version": "0.3.1",
       "author": {
         "name": "Jacob Hoehler"
       },
@@ -261,7 +281,7 @@
       "name": "spec-flow",
       "source": "./plugins/spec-flow",
       "description": "Personal SDLC scaffolding for AI-assisted development. A lightweight, ephemeral 'contract' between user and AI drives each code change from captured idea to verified done; the durable layer (CLAUDE.md, ndr atoms, README) lives elsewhere. Lifecycle: capture -> draft -> implement -> close.",
-      "version": "0.12.2",
+      "version": "0.13.0",
       "author": {
         "name": "Jacob Hoehler"
       },
@@ -298,7 +318,7 @@
     "description": "Personal Claude Code plugin marketplace",
     "version": "1.0.0",
     "homepage": "https://github.com/jdh313/cc-marketplace",
-    "totalPlugins": 14,
-    "lastUpdated": "2026-07-10"
+    "totalPlugins": 15,
+    "lastUpdated": "2026-07-22"
   }
 }

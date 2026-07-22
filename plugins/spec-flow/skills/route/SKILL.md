@@ -11,7 +11,7 @@ allowed-tools:
 
 # spec-flow:route
 
-Given a ticket (or file slug) and nothing else, figure out where the change sits in the lifecycle and hand off to the right skill. The phase→skill mapping is the inverse of the state transitions spec-flow drives (`../../references/hosts.md`): `draft` → Contract Review, `implement` → In Progress, `close` → a review state.
+Given a ticket (or file slug) and nothing else, figure out where the change sits in the lifecycle and hand off to the right skill. Phase is read from the `contracted` label plus workflow state (`../../references/hosts.md`): a labeled ticket that hasn't started yet → `implement` (ready to start), a started one → `implement` (resume), a review state → already closed, an unlabeled ticket → `draft`.
 
 ## When to invoke
 
@@ -37,7 +37,7 @@ If host = linear, check that a connected Linear integration is available using t
 
 - Fetch the ticket via `mcp__linear-server__get_issue`.
 - Determine two signals:
-  - **`has_contract`** — does the description carry the six-section shape? Cheap test: a `## What we're doing` heading is present.
+  - **`has_contract`** — does the ticket carry the `contracted` label (case-insensitive)? Fallback if the label is absent: the description carries the six-section shape (`## What we're doing` heading is the cheap test).
   - **state type + name** — read the ticket's workflow state (`get_issue` exposes it; `get_issue_status` for the type). Types are `triage | backlog | unstarted | started | completed | canceled`.
 
 ### 3. Map to a phase and hand off (linear host)
@@ -49,7 +49,7 @@ Evaluate top to bottom — first match wins:
 | state type `completed` or `canceled` | **done** | Report terminal; nothing to route. Don't reopen. |
 | state name matches a review state (In Review / Code Review / Ready for Review / Review) | **closed** | `close` already advanced it. Report done; offer to re-run `Skill(spec-flow:close)` only if the user wants to re-migrate findings. |
 | state type `started` (e.g. In Progress) | **implement** | Resume — invoke `Skill(spec-flow:implement)` with the ticket ID. If `has_contract` is false, flag the anomaly (started but no contract body) and offer `draft` instead. |
-| state name "Contract Review", or any `unstarted` state with `has_contract` true | **implement** | Ready to start — invoke `Skill(spec-flow:implement)`. |
+| `has_contract` true and a non-`started` state (Backlog / Triage / unstarted) | **implement** | Ready to start — invoke `Skill(spec-flow:implement)`. |
 | otherwise (Backlog / Triage / unstarted, `has_contract` false) | **draft** | It's a capture stub or raw ticket — invoke `Skill(spec-flow:draft)` with the ticket ID so `draft` upgrades it. |
 
 **Announce before handing off** — one line so the user sees the detection: *"TEAM-123 is In Progress with a contract — resuming implement."* / *"TEAM-123 is in Backlog with no contract body yet — drafting one."* Then invoke the mapped skill; do not do its work here.

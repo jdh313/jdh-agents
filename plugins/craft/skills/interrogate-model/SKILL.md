@@ -58,7 +58,7 @@ This skill operates on the terms defined in [`../../CONTEXT.md`](../../CONTEXT.m
 
 ## Inputs
 
-- `$ARGUMENTS` — the model or area to interrogate (e.g. "the authz model", a module path, "the order state machine"). If empty, infer the model from the current conversation / working area and confirm in one line before starting: `"Interrogating: <one-line model description>. Right model?"`
+- Use the user's invocation input as the model or area to interrogate (e.g. "the authz model", a module path, "the order state machine"). If no input was supplied, infer it from the conversation / working area and confirm in one line before starting: `"Interrogating: <one-line model description>. Right model?"`
 
 ## Method
 

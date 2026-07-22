@@ -75,7 +75,7 @@ No prompt about MCP wiring at capture time — fall back silently to the file ho
 - <only if an observable outcome is evident from the thought — otherwise omit the section entirely>
 ```
 
-A captured ticket is **not** a contract. Do not write the six-section template; do not set Contract Review.
+A captured ticket is **not** a contract. Do not write the six-section template; do not apply the `contracted` label.
 
 **File host** — write a capture stub the same way `draft` will later upgrade in place:
 

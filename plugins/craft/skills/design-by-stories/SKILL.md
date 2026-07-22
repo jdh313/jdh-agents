@@ -51,7 +51,7 @@ This is a **collaborative facilitation**, not an autonomous pass. Every fork is 
 
 ## Inputs
 
-- `$ARGUMENTS` — the artifact or model to design (e.g. "the software catalog template", "the event note schema", "the webhook config format"). If empty, infer it from the conversation / working area and confirm in one line before starting: `"Designing: <one-line artifact description>. Right thing?"`
+- Use the user's invocation input as the artifact or model to design (e.g. "the software catalog template", "the event note schema", "the webhook config format"). If no input was supplied, infer it from the conversation / working area and confirm in one line before starting: `"Designing: <one-line artifact description>. Right thing?"`
 
 ## Method
 

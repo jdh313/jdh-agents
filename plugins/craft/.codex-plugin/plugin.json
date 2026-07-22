@@ -1,6 +1,6 @@
 {
   "name": "craft",
-  "version": "0.8.0",
+  "version": "0.8.1",
   "description": "Reusable software craftsmanship and engineering workflows.",
   "author": {
     "name": "Jacob Hoehler"
