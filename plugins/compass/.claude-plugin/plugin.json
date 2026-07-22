@@ -6,6 +6,7 @@
     "name": "Jacob Hoehler",
     "email": "jdhoehler@gmail.com"
   },
+  "license": "Apache-2.0",
   "keywords": [
     "reflection",
     "socratic",
@@ -16,6 +17,5 @@
     "compass",
     "mull",
     "clarify"
-  ],
-  "license": "Apache-2.0"
+  ]
 }
