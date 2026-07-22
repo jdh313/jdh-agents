@@ -1,6 +1,6 @@
 schema: agentforge.package/v1
 id: langfuse
-defaults: {"name":"langfuse","version":"1.3.0","description":"The Langfuse x Claude Code Observability Plugin","author":{"name":"Jacob Hoehler"},"license":"Apache-2.0","keywords":["langfuse","observability","tracing","llm","monitoring"]}
+defaults: {"name": "langfuse", "version": "1.3.1", "description": "Sends Claude Code session traces to Langfuse via a Stop hook — per-turn traces with prompts, generations, tool observations, and backdated timestamps. Includes a SessionStart tripwire that marks programmatically-spawned sessions.", "author": {"name": "Jacob Hoehler"}, "license": "Apache-2.0", "keywords": ["langfuse", "observability", "tracing", "llm", "monitoring"]}
 artifacts:
   - {type: hook, pattern: hooks/hooks.json}
 targets:

@@ -1,6 +1,6 @@
 schema: agentforge.package/v1
 id: debate
-defaults: {"name":"debate","version":"0.2.0","description":"Dialectical decision analysis: dispatch parallel advocate agents to research opposing perspectives, optionally fact-check claims, challenge the consensus with devil's advocacy, and independently synthesize a verdict. Three modes (Quick/Standard/Deep) control pipeline depth. Not for factual lookups or simple preferences.","author":{"name":"Jacob Hoehler"},"license":"Apache-2.0","keywords":["debate","decision","advocate","fact-check","synthesis","dialectical","research","opinion","trade-offs","deliberation"]}
+defaults: {"name": "debate", "version": "0.2.1", "description": "Dialectical decision analysis: dispatch parallel advocate agents to research opposing perspectives, optionally fact-check claims, challenge the consensus with devil's advocacy, and independently synthesize a verdict. Three modes (Quick/Standard/Deep) control pipeline depth. Not for factual lookups or simple preferences.", "author": {"name": "Jacob Hoehler"}, "license": "Apache-2.0", "keywords": ["debate", "decision", "advocate", "fact-check", "synthesis", "dialectical", "research", "opinion", "trade-offs", "deliberation"]}
 artifacts:
   - {type: skill, pattern: 'skills/*/SKILL.md'}
   - {type: agent, pattern: 'agents/*.md'}
