@@ -87,6 +87,17 @@ def test_rejects_undeclared_materialized_package(tmp_path: Path) -> None:
     assert "Undeclared Codex plugin is materialized: extra" in errors
 
 
+def test_ignores_source_package_without_codex_manifest(tmp_path: Path) -> None:
+    manifest = _make_codex_publication(tmp_path)
+    (tmp_path / "plugins/claude-only/skills/hello").mkdir(parents=True)
+    (tmp_path / "plugins/claude-only/skills/hello/SKILL.md").write_text(
+        "---\nname: hello\ndescription: Claude only.\n---\n",
+        encoding="utf-8",
+    )
+
+    assert validate_codex_marketplace(manifest, tmp_path / "plugins") == []
+
+
 def test_rejects_missing_declared_package(tmp_path: Path) -> None:
     manifest = _make_codex_publication(tmp_path, ("alpha",))
     manifest["plugins"].append(

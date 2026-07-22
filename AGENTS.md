@@ -12,6 +12,27 @@ bd close <id>         # Complete work
 bd sync               # Sync with git
 ```
 
+## Marketplace metadata ownership
+
+`MARKETPLACE.yaml` and each `plugins/*/PACKAGE.yaml` are authoritative for
+marketplace and package metadata. The root Claude/Codex marketplace manifests
+and per-package `.claude-plugin/plugin.json` / `.codex-plugin/plugin.json`
+files are committed generated outputs; never hand-edit them.
+
+Regenerate only those native manifests with the pinned AgentForge checkout:
+
+```bash
+env AGENTFORGE_PROJECT=/path/to/agentforge-at-7568c45 \
+  uv run marketplace sync
+```
+
+`uv run marketplace check` recompiles to a temporary directory and detects
+root, package, missing, extra, and content drift without modifying the working
+tree. Skills, agents, commands, hooks, references, and other source content
+remain maintained in place. Codex enrollment remains limited to the five
+packages declared in `MARKETPLACE.yaml`; unsupported Codex hooks are not
+projected.
+
 ## Landing the Plane (Session Completion)
 
 **When ending a work session**, you MUST complete ALL steps below. Work is NOT complete until `git push` succeeds.
@@ -37,4 +58,3 @@ bd sync               # Sync with git
 - NEVER stop before pushing - that leaves work stranded locally
 - NEVER say "ready to push when you are" - YOU must push
 - If push fails, resolve and retry until it succeeds
-

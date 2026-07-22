@@ -5,6 +5,7 @@
   "author": {
     "name": "Jacob Hoehler"
   },
+  "license": "Apache-2.0",
   "keywords": [
     "git",
     "jj",
@@ -15,6 +16,5 @@
     "fixup",
     "conventional-commits",
     "freeform"
-  ],
-  "license": "Apache-2.0"
+  ]
 }

@@ -5,6 +5,7 @@
   "author": {
     "name": "Jacob Hoehler"
   },
+  "license": "Apache-2.0",
   "keywords": [
     "3d-printing",
     "klipper",
@@ -14,6 +15,5 @@
     "vibration",
     "belt-tension",
     "corexy"
-  ],
-  "license": "Apache-2.0"
+  ]
 }

@@ -376,6 +376,28 @@ def test_build_public_manifest_structure(tmp_path: Path) -> None:
     assert manifest["plugins"][0]["version"] == "1.2.3"
 
 
+def test_private_manifest_accepts_current_agentforge_metadata(tmp_path: Path) -> None:
+    plugins_dir = tmp_path / "plugins"
+    plugins_dir.mkdir()
+    _make_plugin(plugins_dir, "p1")
+    manifest = {
+        "name": "test-marketplace",
+        "owner": {"name": "Test User", "email": "test@example.com"},
+        "plugins": [
+            {
+                "name": "p1",
+                "source": "./plugins/p1",
+                "description": "A plugin",
+                "version": "1.0.0",
+                "author": {"name": "Tester"},
+            }
+        ],
+        "metadata": {"description": "Test marketplace", "version": "1.0.0"},
+    }
+
+    assert validate_manifest(manifest, plugins_dir) == []
+
+
 # ---------------------------------------------------------------------------
 # (e) Privacy gate
 # ---------------------------------------------------------------------------

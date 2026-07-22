@@ -5,6 +5,7 @@
   "author": {
     "name": "Jacob Hoehler"
   },
+  "license": "Apache-2.0",
   "keywords": [
     "obsidian",
     "knowledge-base",
@@ -19,6 +20,5 @@
     "lint",
     "curation",
     "personal-knowledge"
-  ],
-  "license": "Apache-2.0"
+  ]
 }
