@@ -5,12 +5,12 @@
   "author": {
     "name": "Jacob Hoehler"
   },
+  "license": "Apache-2.0",
   "keywords": [
     "teach",
     "learn",
     "education",
     "lessons",
     "productivity"
-  ],
-  "license": "Apache-2.0"
+  ]
 }

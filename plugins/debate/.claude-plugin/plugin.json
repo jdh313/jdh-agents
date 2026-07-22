@@ -5,6 +5,7 @@
   "author": {
     "name": "Jacob Hoehler"
   },
+  "license": "Apache-2.0",
   "keywords": [
     "debate",
     "decision",
@@ -16,6 +17,5 @@
     "opinion",
     "trade-offs",
     "deliberation"
-  ],
-  "license": "Apache-2.0"
+  ]
 }

@@ -5,6 +5,7 @@
   "author": {
     "name": "Jacob Hoehler"
   },
+  "license": "Apache-2.0",
   "keywords": [
     "sdlc",
     "spec-driven-development",
@@ -15,6 +16,5 @@
     "ephemeral",
     "ndr",
     "librarian"
-  ],
-  "license": "Apache-2.0"
+  ]
 }
