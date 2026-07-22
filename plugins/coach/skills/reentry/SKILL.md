@@ -1,11 +1,13 @@
 ---
 name: reentry
 description: >-
+  Gathers context from Linear and Obsidian to create a structured briefing
+  for returning to a paused or dormant project.
+when_to_use: >-
   This skill should be used when the user says "/reentry", "help me get
   back into [project]", "where did I leave off", "catch me up on [project]",
   "what was I doing on [project]", "resume [project]", or "context dump
-  for [project]". Gathers context from Linear and Obsidian to create a
-  structured briefing for returning to a paused or dormant project.
+  for [project]".
 allowed-tools:
   # Linear — project details and issues
   - mcp__linear-server__get_project

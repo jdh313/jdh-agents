@@ -80,6 +80,8 @@ Frame parked projects neutrally: "Parked" means intentional, not neglected.
 
 ### Step 5: Write Weekly Note (With Permission)
 
+Honor the vault conventions in ~/Loose Ends/.claude/CLAUDE.md (frontmatter shape, naming, wikilink style) — read it before the first vault write of a session.
+
 Once the review is complete, ask before writing:
 
 > Want me to save this as a weekly note?

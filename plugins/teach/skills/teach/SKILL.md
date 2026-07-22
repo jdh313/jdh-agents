@@ -5,12 +5,12 @@ disable-model-invocation: true
 effort: high
 argument-hint: "What would you like to learn about?"
 allowed-tools: Bash(obsidian-cli *), Write, Read, mcp__obsidian-mcp__patch_note, mcp__devonthink__search_records, mcp__devonthink__lookup_records, mcp__devonthink__get_databases, mcp__devonthink__get_record_properties, mcp__devonthink__get_record_text, mcp__devonthink__extract_record_content
-disallowed-tools: Edit, Bash(rm *), Bash(trash *), Bash(git push *), Bash(jj abandon *), Bash(jj restore *)
+disallowed-tools: Edit, Bash(rm *), Bash(trash *), Bash(git push *), Bash(jj abandon *), Bash(jj restore *), mcp__devonthink__create_record, mcp__devonthink__update_record, mcp__devonthink__update_record_content, mcp__devonthink__move_record, mcp__devonthink__trash_record, mcp__devonthink__set_record_tags, mcp__devonthink__set_record_custom_metadata, mcp__devonthink__set_record_annotation, mcp__devonthink__set_record_reminder, mcp__devonthink__duplicate_record, mcp__devonthink__replicate_record, mcp__devonthink__merge_records, mcp__devonthink__delete_media_file, mcp__devonthink__import_file
 upstream:
   repo: mattpocock/skills
   path: skills/productivity/teach
-  reviewed_sha: 694fa30311e0
-  reviewed: 2026-06-12
+  reviewed_sha: aa024cb1954f
+  reviewed: 2026-07-09
   status: reviewed
 ---
 
@@ -49,7 +49,7 @@ Infer the best-fit context from the topic using the vault's Location Decision Tr
 - Technical / programming topic → `Reference/Developer/<Topic>/`
 - DevOps / infrastructure topic → `Reference/Infrastructure/<Topic>/`
 - Hobby topic → `Hobbies/<Area>/<Topic>/`
-- Work-tied topic → `Carta/<…>/<Topic>/`
+- Work-tied topic → `Work/<…>/<Topic>/` (your employer/client context folder)
 - A standalone personal interest with no clean home (a language, an instrument) → propose your best guess and let the user redirect
 
 Topic folders use **Title Case with spaces** (`Postgres MVCC`). The user owns the namespace call — when in doubt, ask.
@@ -119,7 +119,7 @@ Missions may change as the user develops more skills and knowledge. This is norm
 
 When the topic serves a **real project the user already has** — a vault project page or a Linear project — tether the mission to it (the `project:` field in [MISSION-FORMAT.md](./MISSION-FORMAT.md)). This anchors the "why" in a concrete deliverable and lets a query answer "what am I learning for project X." But only link a project that genuinely exists — **never invent one just to have something to link.** A standalone personal interest needs no project, and a forced tie is worse than none.
 
-If the user is learning a concept *through a particular stack* (see [Altitude](#altitude-what-a-lesson-binds-to)) — "teach me auth the way Wayfinder does it" — record that choice in the mission's `stack_lens:` field. It names the technologies and patterns lessons should teach *through* (and, by implication, the off-stack alternatives that stay out of scope). Every lesson then stays grounded in the approach that fits the user's work, and a stack-lens change becomes the trigger for a freshness pass.
+If the user is learning a concept *through a particular stack* (see [Altitude](#altitude-what-a-lesson-binds-to)) — "teach me auth the way Meridian does it" — record that choice in the mission's `stack_lens:` field. It names the technologies and patterns lessons should teach *through* (and, by implication, the off-stack alternatives that stay out of scope). Every lesson then stays grounded in the approach that fits the user's work, and a stack-lens change becomes the trigger for a freshness pass.
 
 ## Zone Of Proximal Development
 
@@ -154,13 +154,13 @@ If no owned textbook covers the topic, say so and fall back to web sources via t
 
 ### Citing a live codebase
 
-When a lesson references a codebase the user works in (e.g. `cartaos`), treat it differently from an external article. An external article is stable; a live path is a **moving target** — the file gets renamed, the function gets refactored, the line numbers shift, and a lesson that was a perfect reference today rots into a stale one. A lesson is a durable artifact the user returns to; a bare `path/to/file.ts:42` citation breaks that promise.
+When a lesson references a codebase the user works in (e.g. `atlas-app`), treat it differently from an external article. An external article is stable; a live path is a **moving target** — the file gets renamed, the function gets refactored, the line numbers shift, and a lesson that was a perfect reference today rots into a stale one. A lesson is a durable artifact the user returns to; a bare `path/to/file.ts:42` citation breaks that promise.
 
 So when you cite live code, **snapshot and pin**:
 
 - **Snapshot inline.** Quote the relevant code directly in the lesson so it is self-contained. The embedded snippet — not the live file — is the reference. The user should never need to open the repo to understand the lesson.
 - **Pin to an immutable ref.** Cite a commit SHA or permalink, never a live path on the default branch. Resolve the current SHA at authoring time (e.g. `git -C <repo> rev-parse --short HEAD`).
-- **Stamp it as-of.** Label the snapshot with the repo, SHA, and date — e.g. `cartaos@a1b2c3d (2026-06-15)` — so a future reader knows it is a snapshot and can diff against current code if they need to.
+- **Stamp it as-of.** Label the snapshot with the repo, SHA, and date — e.g. `atlas-app@a1b2c3d (2026-06-15)` — so a future reader knows it is a snapshot and can diff against current code if they need to.
 
 The pinned link is provenance; the inline snapshot is what the lesson teaches from. This keeps the lesson valid even after the path moves. Code snapshots are **wiring-altitude** (see [Altitude](#altitude-what-a-lesson-binds-to)): they illustrate the concept, they are never the lesson's load-bearing claim.
 

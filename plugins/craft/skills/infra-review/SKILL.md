@@ -3,13 +3,21 @@ name: infra-review
 description: Reviews an AWS Terraform pull request whose plans are produced by Atlantis, from a local checkout. This skill should be used when the user runs `/infra-review <pr-number-or-url>`, says "review this terraform PR", "infra review", "review the atlantis plan", "review this infrastructure change", or asks for an architecture/security review of a Terraform/Atlantis PR. Treats the Atlantis-posted plan as the review artifact, reconstructs before/after topology, and stays read-only against AWS and the PR until an explicit human-approved posting gate. NOT for application-code review (use `/code-review` or `/review`), non-Terraform IaC (CloudFormation, Pulumi, CDK), or repos that do not post Atlantis plans.
 argument-hint: "<pr-number-or-url>"
 allowed-tools:
-  - Bash            # gh CLI, scanners (tflint/checkov/trivy/infracost), ndr CLI
+  - Bash(gh *)        # PR metadata/diff/checkout, Atlantis comments, posting gate
+  - Bash(tflint *)    # mechanical scanner
+  - Bash(checkov *)   # mechanical scanner
+  - Bash(trivy *)     # mechanical scanner
+  - Bash(infracost *) # cost delta (optional)
+  - Bash(ndr *)       # decision grounding
+  - Bash(command -v *) # scanner-detection loop (read-only introspection)
   - Read            # HCL files, .ndr.toml, scanner JSON
   - Glob            # locate changed *.tf / .ndr.toml
   - Grep            # search HCL for resource addresses, secrets, wildcards
   - AskUserQuestion # the posting gate (which findings to post)
   - TodoWrite       # track the 7-phase pipeline
 ---
+
+Apply the orchestration mappings in [`../../RUNTIME.md`](../../RUNTIME.md).
 
 # Infra Review (v0 — local-first)
 
@@ -60,7 +68,7 @@ safety or fit.
 
 ## Workflow
 
-Pipeline of 7 phases. **At the start, TodoWrite the 7 phases** as the tracker,
+Pipeline of 7 phases. **At the start, create a runtime plan with the 7 phases** as the tracker,
 then mark each `in_progress`/`completed` as you go. Phases 2 and 7 are **gates** —
 the pipeline halts there until a condition is met (2) or the user approves (7).
 
@@ -146,7 +154,7 @@ mechanical issues, each with confidence.
 ### Phase 7 — Selective posting GATE (two confirmations, unskippable)
 **Entry:** Phase 6 report presented.
 **Actions:**
-1. **GATE 1 — select.** Use `AskUserQuestion` (multiSelect) listing each finding
+1. **GATE 1 — select.** Use the runtime's structured user-input capability (multi-select when available) listing each finding
    as an option, plus "post nothing". The user chooses which findings to post.
    Default is **post nothing**.
 2. If the user selects none (or "post nothing"): stop here. Report nothing was posted.
@@ -204,4 +212,4 @@ v0 reads only what Atlantis already posted (plain-text plan comments). **Not
 built here:** the v1 S3 `$SHOWFILE` plan-JSON artifact path (enables structured
 `terraform show -json` parsing), Atlantis workflow/policy-check (Conftest/OPA)
 changes, CI promotion as a merge gate, and any companion subagent. See the
-design note `Carta/Infra Review Agent.md` (Rollout Plan) for the full arc.
+design note `Work/Infra Review Agent.md` (Rollout Plan) for the full arc.

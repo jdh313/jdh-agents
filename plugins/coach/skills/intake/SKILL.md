@@ -65,6 +65,8 @@ Accept the answer. This sets expectations without requiring detailed planning. U
 
 ### Step 4: Write Project Note (With Permission)
 
+Honor the vault conventions in ~/Loose Ends/.claude/CLAUDE.md (frontmatter shape, naming, wikilink style) — read it before the first vault write of a session.
+
 Once the conversation is complete, ask before writing:
 
 > Want me to create a project note?

@@ -1,18 +1,17 @@
 # Upstream divergences — grill-with-docs
 
-_Upstream: `mattpocock/skills` · `skills/engineering/grill-with-docs` · ledger current as of `reviewed_sha: e3b90b5238f3`_
+_Upstream: `mattpocock/skills` · `skills/engineering/grill-with-docs` · ledger current as of `reviewed_sha: 658d53e6ded8`_
 
-Intentional divergences from upstream. Reviewed via `provenance:upstream-review` — do not re-flag these as findings. Read by `upstream-review` only; never referenced from `SKILL.md`.
+Intentional divergences from upstream. Reviewed via `skillsmith:upstream-review` — do not re-flag these as findings. Read by `upstream-review` only; never referenced from `SKILL.md`.
+
+Upstream's `grill-with-docs` collapsed to a thin dispatcher over `/grilling` + `/domain-modeling`. This review follows that shape: all CONTEXT.md maintenance, format, and decision-capture discipline now dispatches to `craft:domain-modeling`. The CONTEXT.md/ADR->NDR divergences this file used to document directly (decision-record rerouting, CONTEXT-MAP demotion, scenario-testing scoping, `_See_:` link conventions, the "Flag ambiguities explicitly" rule, the CONTEXT.md worthiness gate) are now owned and reviewed in `domain-modeling/UPSTREAM.md` — inherited here by dispatch, not re-documented.
 
 | Kind | What | Why |
 |------|------|-----|
-| changed | Decision records re-routed from in-repo ADRs (`docs/adr/*.md` + `ADR-FORMAT.md`) to NDR atoms via `/capture-decision`; the skill never writes decision records directly | NDR is this ecosystem's durable decision layer. Same 3-part capture gate (hard-to-reverse / surprising / real-tradeoff) — only the destination and write-authority change. |
-| changed | Multi-context `CONTEXT-MAP.md` demoted from a first-class feature to "Carta-only, future"; personal repos use vault wiki pages as the cross-cutting authority instead | Personal repos aren't bounded-context monorepos; CONTEXT-MAP is overhead they don't earn. |
-| changed | Scenario-testing move scoped to terminology / concept-boundary finding rather than upstream's broader "domain relationships" | Keeps the move pointed at glossary governance, not a general test plan. (Was silently dropped in an earlier adaptation, re-added 2026-06-11.) |
-| added | `_See_:` link conventions — vault wikilinks (`[[Page]]`) and `ndr:area/topic/NNNN-slug` refs; vault wikilinks banned in Carta repos | Wires CONTEXT.md into the personal vault and NDR ledger; proprietary/personal split keeps Carta code clear of personal vault links. |
-| added | 5th CONTEXT.md rule "Flag ambiguities explicitly" + a `## Flagged ambiguities` section | Surfaces inconsistent codebase term usage instead of silently picking one reading. |
-| added | "A repo earns a CONTEXT.md" worthiness gate, plus composition notes with `spec-flow:start`, `/capture-decision`, `/drift-check` | Ecosystem integration; avoids spawning glossaries for repos already covered by external sources (vault wiki / Carta docs). |
+| changed | No standalone `grilling` skill extracted, unlike upstream's split into `/grilling` + `/domain-modeling` — the interview loop lives inline in this skill instead | The interview loop is grill-with-docs' only reason to exist as a distinct skill; extracting it would leave a skill that's nothing but a dispatch. Deliberate divergence, not an oversight. |
+| changed | CONTEXT.md maintenance, format, and decision-capture discipline dispatched to `craft:domain-modeling` mid-interview rather than implemented inline; `CONTEXT-FORMAT.md` sibling deleted, ownership moved to `domain-modeling/CONTEXT-FORMAT.md` | Matches upstream's own consolidation (upstream's `grill-with-docs` now just dispatches to `/domain-modeling`); keeps one owner for the glossary discipline instead of two copies drifting independently. See `domain-modeling/UPSTREAM.md` provenance note for the absorption history. |
+| added | Shared-understanding gate: "Do not enact the plan until the user confirms a shared understanding has been reached." | Ported from upstream's `grilling` skill — the skill upstream's own `grill-with-docs` now dispatches to. Closes a real gap: nothing previously stopped the agent from enacting a plan before the interview settled. |
 
-## Corrected this review
+## Corrected earlier review
 
-- Removed a **fabricated attribution**: the `## Explicit non-goals` entry claimed Matt's `CONTEXT-FORMAT.md` "asked for a conversation between a dev and a domain expert." The current upstream contains no such thing. Reworded to a positive rule ("Definitions only — no demonstrative dialogue") in both `SKILL.md` and `CONTEXT-FORMAT.md`.
+- Removed a **fabricated attribution**: an `## Explicit non-goals` entry (content now owned by `domain-modeling`) claimed Matt's `CONTEXT-FORMAT.md` "asked for a conversation between a dev and a domain expert." The current upstream contains no such thing. Reworded to a positive rule in the absorbed copy.

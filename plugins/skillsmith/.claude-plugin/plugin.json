@@ -1,0 +1,19 @@
+{
+  "name": "skillsmith",
+  "version": "1.0.0",
+  "defaultEnabled": false,
+  "description": "Craft and upkeep of skills. Authoring reference (the vocabulary and principles that make a skill predictable) plus provenance tracking for borrowed work: compares an adapted skill to its pinned upstream, flags behavioral drift and fabricated attributions, and refreshes the reviewed commit SHA. Houses writing-great-skills and upstream-review.",
+  "author": {
+    "name": "Jacob Hoehler"
+  },
+  "keywords": [
+    "skills",
+    "authoring",
+    "skill-craft",
+    "provenance",
+    "upstream",
+    "drift",
+    "attribution"
+  ],
+  "license": "Apache-2.0"
+}

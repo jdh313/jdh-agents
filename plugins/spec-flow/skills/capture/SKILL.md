@@ -1,6 +1,23 @@
 ---
 name: capture
-description: "This skill should be used when the user wants to capture a future change idea with zero ceremony \u2014 mid-session (\"ticket this and keep going\", \"capture this before I forget\"), during planning or mulling conversations (\"that should be a ticket\"), or explicitly via `/spec-flow capture <thought>`. Stage zero of the spec-flow lifecycle: takes a one-liner or rough paragraph and files a minimal, well-shaped artifact (Linear Backlog ticket by default; `.docs/` capture stub when Linear isn't connected) without asking questions or doing research. Does NOT draft a contract \u2014 that is `spec-flow:draft`, typically the second touch on the captured artifact. Also handles \"triage my captures\" \u2014 shaping raw Backlog tickets that were captured outside any session."
+description: >-
+  This skill should be used when the user wants to capture a future change idea
+  with zero ceremony — mid-session ("ticket this and keep going", "capture this
+  before I forget"), during planning or mulling conversations ("that should be
+  a ticket"), or explicitly via `/spec-flow capture <thought>`. Stage zero of
+  the spec-flow lifecycle: takes a one-liner or rough paragraph and files a
+  minimal, well-shaped artifact (Linear Backlog ticket by default; `.docs/`
+  capture stub when Linear isn't connected) without asking questions or doing
+  research. Does NOT draft a contract — that is `spec-flow:draft`, typically
+  the second touch on the captured artifact. Also handles "triage my captures"
+  — shaping raw Backlog tickets that were captured outside any session.
+argument-hint: "<thought>"
+allowed-tools:
+  - mcp__linear-server__list_issues
+  - mcp__linear-server__save_issue
+  - Read
+  - Glob
+  - Write
 ---
 
 # spec-flow:capture

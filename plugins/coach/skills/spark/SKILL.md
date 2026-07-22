@@ -56,6 +56,8 @@ Accept custom tags. Don't debate categories -- whatever the user picks is fine.
 
 ### Step 3: Write (With Permission)
 
+Honor the vault conventions in ~/Loose Ends/.claude/CLAUDE.md (frontmatter shape, naming, wikilink style) — read it before the first vault write of a session.
+
 Ask before writing:
 
 > "Want me to add this to your sparks log?"

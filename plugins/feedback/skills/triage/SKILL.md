@@ -73,7 +73,7 @@ them.
    | `defaults` | Propose a specific body edit changing the default. |
    | `friction` | Reduce questions / add a default in the skill body; cite the friction moment. |
    | `docs` | Edit the `description:` / README / `argument-hint` to match real behavior. |
-   | `missing` | Scope a new skill via `skill-creator`, or a feature in the existing surface. |
+   | `missing` | Scope a new skill via `plugin-dev:create-plugin`, or a feature in the existing surface. |
 
    Name the actual file when you can infer it (`plugins/<plugin>/skills/<skill>/SKILL.md`).
 

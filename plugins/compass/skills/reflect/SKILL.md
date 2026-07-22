@@ -167,6 +167,8 @@ Do not pretend a conclusion was reached when it wasn't. An open reflection is a 
 
 ### Step 5: Save
 
+Honor the vault conventions in ~/Loose Ends/.claude/CLAUDE.md (frontmatter shape, naming, wikilink style) — read it before the first vault write of a session.
+
 Always save a note, regardless of outcome.
 
 **Path:** `~/Loose Ends/Reflections/YYYY-MM-DD_<topic-slug>.md`

@@ -2,7 +2,7 @@
 
 A stateful, multi-session teaching workspace **routed into your Obsidian vault**. Each topic becomes a self-contained workspace folder under its best-fit context — its mission, resources, glossary, and learning records live as vault notes; its lessons and cheat sheets stay as self-contained HTML files.
 
-> Adapted from [mattpocock/skills](https://github.com/mattpocock/skills) (`skills/productivity/teach`), MIT © 2026 Matt Pocock. The original treats the current directory as the workspace; this fork routes durable artifacts into the vault. Upstream provenance is pinned in the skill's frontmatter; divergences are tracked in `skills/teach/UPSTREAM.md` via `provenance:upstream-review`. Design spec: `.docs/2026-06-12-teach-vault-routing.md`.
+> Adapted from [mattpocock/skills](https://github.com/mattpocock/skills) (`skills/productivity/teach`), MIT © 2026 Matt Pocock. The original treats the current directory as the workspace; this fork routes durable artifacts into the vault. Upstream provenance is pinned in the skill's frontmatter; divergences are tracked in `skills/teach/UPSTREAM.md` via `skillsmith:upstream-review`. Design spec: `.docs/2026-06-12-teach-vault-routing.md`.
 
 > **Requires** an Obsidian vault reachable via `obsidian-cli`.
 >

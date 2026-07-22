@@ -74,4 +74,4 @@ Reference/Developer/{Repo Name}/
   maps/0001-*.html        # optional set-piece walkthroughs
 ```
 
-Confirm the path with the user before creating anything (use the vault's Location Decision Tree). Work repos may belong under a `Carta/` context instead — and for proprietary repos, **do not** route durable shared facts into the personal vault; graduate those to the repo's own `CONTEXT.md` / an internal authority, exactly as `grill-with-docs` does.
+Confirm the path with the user before creating anything (use the vault's Location Decision Tree). Work repos may belong under a `Work/` context instead — and for proprietary repos, **do not** route durable shared facts into the personal vault; graduate those to the repo's own `CONTEXT.md` / an internal authority, exactly as `grill-with-docs` does.

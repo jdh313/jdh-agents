@@ -18,6 +18,8 @@ allowed-tools:
 
 Guilt-free batch processing of overdue tasks. Groups by project, flags chronic reschedulers, and offers four actions: reschedule, do today, drop, or delegate. Batch decisions reduce decision fatigue -- don't ask about each task individually unless the user wants to.
 
+**Sibling-name note:** `feedback:triage` (feedback plugin) aggregates plugin-test reports; this skill triages overdue tasks. Unrelated domains sharing a name.
+
 ## Flow
 
 Execute these steps in order. Use `coach-tone` with warmth bias throughout. Frame overdue tasks as renegotiations, not failures.

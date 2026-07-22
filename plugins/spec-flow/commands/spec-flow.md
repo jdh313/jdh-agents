@@ -2,10 +2,8 @@
 description: Drive a code change through spec-flow's contract lifecycle (capture, draft, implement, close)
 argument-hint: <subcommand> [args]
 allowed-tools:
-  - Bash
+  - Bash(ls *)
   - Read
-  - Write
-  - Edit
   - Glob
   - Grep
   - Skill

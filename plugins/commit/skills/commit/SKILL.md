@@ -1,6 +1,7 @@
 ---
 name: commit
-description: INVOKE BY DEFAULT for all commit-related requests. Automatically use this skill whenever the user asks to create commits, write commit messages, review/improve messages, split changes into atomic commits, or move an edit into an earlier commit. Handles single commits, atomic splitting, message review against the repo's style, and retrofitting working-copy edits into prior commits (jj absorb / git fixup). Works with both git and jj (Jujutsu). Required for "commit these changes," "write a commit message," "improve this message," "split these commits," "this belongs in the last commit," or any variation requesting commit operations.
+description: INVOKE BY DEFAULT for all commit-related requests. Handles single commits, atomic splitting, message review against the repo's style, and retrofitting working-copy edits into prior commits (jj absorb / git fixup). Works with both git and jj (Jujutsu).
+when_to_use: Automatically use this skill whenever the user asks to create commits, write commit messages, review/improve messages, split changes into atomic commits, or move an edit into an earlier commit. Required for "commit these changes," "write a commit message," "improve this message," "split these commits," "this belongs in the last commit," or any variation requesting commit operations.
 allowed-tools:
   - Bash(git:*)
   - Bash(jj:*)
@@ -24,7 +25,7 @@ The body below is VCS-agnostic. All concrete commands live in the per-VCS workfl
 
 **Before doing anything else, determine two things: which VCS and which commit message style.**
 
-Run the algorithm in `references/detection.md` — it reads CLAUDE.md for explicit declarations and auto-detects whatever isn't declared (CLAUDE.md always wins over inference). It also resolves the Co-Authored-By policy and issue-ref placement, and documents the rest of the house style (no trailing periods, imperative mood, body ≤5 lines).
+Run the algorithm in `references/detection.md` — it reads the active agent-guidance files for explicit declarations and auto-detects whatever isn't declared (repository guidance always wins over inference). It also resolves the Co-Authored-By policy and issue-ref placement, and documents the rest of the house style (no trailing periods, imperative mood, body ≤5 lines).
 
 After detection, load the matching workflow reference (`references/git-workflow.md` or `references/jj-workflow.md`) and style reference (`references/conventional-commits.md` or `references/freeform-commits.md`). Every "execute per your VCS recipe" instruction below refers to the loaded workflow reference.
 
@@ -156,9 +157,12 @@ The following discard uncommitted changes and **must NEVER be used** without exp
 |---------|------|------------------|
 | `jj restore` | Discards working-copy changes | `jj split` or `jj describe` |
 | `jj abandon` (on a non-empty change) | Discards the change's content | `jj describe` + `jj new`, or `jj squash` |
-| `git checkout -- <file>` | Discards working-tree changes | Stage/commit first, or `git stash` |
+| `git checkout <rev> -- <path>` / `git checkout -- <path>` | Discards working-tree changes for the listed paths | Stage/commit first, or `git stash` |
+| `git checkout .` | Discards ALL working-tree changes (bare `.` pathspec) | Stage/commit first, or `git stash` |
 | `git restore <file>` / `git restore .` | Discards working-tree changes | `git restore --staged` to unstage; stash to set aside |
-| `git reset --hard` | Discards all uncommitted changes | `git stash` or commit first |
+| `git restore --staged --worktree <file>` | `--worktree` discards working-tree changes even alongside `--staged` | `git restore --staged <file>` only (no `--worktree`) |
+| `git reset --hard` / `--merge` | Discards all uncommitted changes | `git stash` or commit first |
+| `git stash drop` / `git stash clear` | Destroys the stash's recoverable safety copies | `git stash list` to review; drop only with explicit user approval |
 
 ### Confirmation Required for Destructive Operations
 

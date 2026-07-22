@@ -97,6 +97,8 @@ Frame it: "Your theme is [X]. These 1-2 projects serve it. Everything else is pa
 
 ### Step 5: Write Review Note (With Permission)
 
+Honor the vault conventions in ~/Loose Ends/.claude/CLAUDE.md (frontmatter shape, naming, wikilink style) — read it before the first vault write of a session.
+
 Once the review is complete, ask before writing:
 
 > Want me to save this review?

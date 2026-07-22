@@ -9,7 +9,7 @@ Format-aware atomic commits for git and jj (Jujutsu).
 - **Atomic splitting**: Groups changes by logical coupling, not by file co-location — including two logical changes inside one file (edit-split-restore, no interactive staging)
 - **Retrofit lane**: "this belongs in an earlier commit" via `jj absorb` (hunk-precise, auto-targeted) or `git commit --fixup` + non-interactive autosquash
 - **Message review**: Checks a draft message against the repo's style AND against the actual diff (type match, scope honesty, hidden bundling)
-- **Safety-first**: A `PreToolUse` hook hard-blocks destructive operations (`git reset --hard`, `git restore` without `--staged`, `git checkout --`, `jj restore`, `jj abandon`) so changes aren't accidentally discarded
+- **Safety-first**: A `PreToolUse` hook hard-blocks destructive operations (`git reset --hard`/`--merge`, `git restore` without `--staged` or with `--worktree`, `git checkout <rev|.> -- <path>`/`git checkout .`, `git stash drop`/`clear`, `jj restore`, `jj abandon`) — including when global flags like `git -C <path>` or `jj -R <path>` sit between the binary and the subcommand — so changes aren't accidentally discarded
 - **jj-fluent**: Decision-card-style reference covers `jj commit`, `jj split` (with `-m` semantics explained), `jj squash --from/--into`, `jj absorb`, stacked-change hygiene, bookmarks, push, and recovery — agents shouldn't need to re-read `jj --help` mid-task
 
 ## One Skill
@@ -87,4 +87,4 @@ If unspecified, the plugin auto-detects all four from the repo state: it samples
 
 ## Safety Hook
 
-`plugins/commit/hooks/destructive-vcs-guard.sh` is a `PreToolUse`/`Bash` hook that blocks the commands listed under "Safety-first" above. The hook fires only when the plugin is enabled. Override by running the destructive command from your own terminal — Claude can't bypass it.
+`plugins/commit/hooks/destructive-vcs-guard.sh` is a `PreToolUse`/`Bash` hook that blocks the commands listed under "Safety-first" above, including when a recognized global flag (`git -C`/`-c`/`--git-dir`/`--work-tree`, `jj --repository`/`-R`) separates the binary from the subcommand. It fails open (allows) if the hook input isn't parseable JSON. The hook fires only when the plugin is enabled. Override by running the destructive command from your own terminal — Claude can't bypass it.

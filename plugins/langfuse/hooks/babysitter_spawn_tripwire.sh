@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
-# Detects when a Claude Code session was spawned by babysitter (programmatic
-# `claude --prompt ...` invocation) and emits a tagged marker trace to
-# Langfuse so post-June-15-2026 per-token-billable usage is observable.
+# Detects when a Claude Code session was spawned programmatically — either by
+# babysitter or by a generic `claude -p`/`--print`/`--prompt` invocation — and
+# emits a tagged marker trace to Langfuse so post-June-15-2026 per-token-billable
+# usage is observable.
 #
 # Bound to SessionStart in hooks.json. Fail-open: any error exits 0 with no
 # decision so the session is never blocked.
@@ -29,6 +30,12 @@ while [ "${pid:-0}" -gt 1 ] && [ "$hops" -lt 16 ]; do
 done
 
 [ -z "$ancestor" ] && emit_decision
+
+# Distinguish babysitter from a generic programmatic (-p/--print) invocation.
+kind="print-mode"
+case "$ancestor" in
+  *babysitter*) kind="babysitter" ;;
+esac
 
 # Credentials piggyback on the langfuse plugin's userConfig.
 PK=${CLAUDE_PLUGIN_OPTION_LANGFUSE_PUBLIC_KEY:-${LANGFUSE_PUBLIC_KEY:-${CC_LANGFUSE_PUBLIC_KEY:-}}}
@@ -69,6 +76,7 @@ body=$(jq -nc \
   --arg sid  "$sid" \
   --arg src  "$src" \
   --arg anc  "$ancestor" \
+  --arg kind "$kind" \
   --arg host "$(hostname 2>/dev/null || echo unknown)" \
   '{
     batch: [{
@@ -77,10 +85,10 @@ body=$(jq -nc \
       timestamp: $ts,
       body: {
         id: $tid,
-        name: "babysitter programmatic spawn",
+        name: ("programmatic claude spawn (" + $kind + ")"),
         sessionId: $sid,
         timestamp: $ts,
-        tags: ["programmatic-spawn", "babysitter"],
+        tags: ["programmatic-spawn", $kind],
         metadata: {
           ancestor: $anc,
           hook: "babysitter-spawn-tripwire",
@@ -93,7 +101,7 @@ body=$(jq -nc \
     metadata: {}
   }' 2>/dev/null) || emit_decision
 
-curl -fsS -m 5 -u "$PK:$SK" \
+printf 'user = "%s:%s"\n' "$PK" "$SK" | curl -fsS -m 5 -K - \
   -H 'Content-Type: application/json' \
   -X POST "$HOST/api/public/ingestion" \
   -d "$body" >/dev/null 2>&1 || true

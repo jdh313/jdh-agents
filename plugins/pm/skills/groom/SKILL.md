@@ -27,7 +27,7 @@ allowed-tools:
   # ndr atom files
   - Read
   - Grep
-  - Bash
+  - Bash(ndr *)
   # Compose with ndr:decisions and other skills
   - Skill
 ---
