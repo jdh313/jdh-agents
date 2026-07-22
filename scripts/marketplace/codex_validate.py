@@ -77,7 +77,11 @@ def validate_codex_marketplace(manifest: Any, plugins_root: Path) -> list[str]:
             _validate_plugin(plugin_dir, name, errors)
 
     if plugins_root.is_dir():
-        materialized_names = sorted(path.name for path in plugins_root.iterdir() if path.is_dir())
+        materialized_names = sorted(
+            path.name
+            for path in plugins_root.iterdir()
+            if path.is_dir() and (path / ".codex-plugin" / "plugin.json").is_file()
+        )
         declared_set = set(declared_names)
         for name in sorted(declared_set - set(materialized_names)):
             errors.append(f"Declared Codex plugin is not materialized: {name}")

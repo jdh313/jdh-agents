@@ -10,9 +10,14 @@ from pathlib import Path
 
 from marketplace.codex_validate import validate_codex_marketplace
 from marketplace.export import run_export
+from marketplace.generation import (
+    GenerationError,
+    compare_native_manifests,
+    compile_native_manifests,
+    materialize_native_manifests,
+)
 from marketplace.lint import lint_plugins
-from marketplace.manifest import build_private
-from marketplace.validate import validate_codex_marketplace, validate_manifest
+from marketplace.validate import validate_manifest
 
 # ---------------------------------------------------------------------------
 # Repo-root helper
@@ -27,18 +32,8 @@ _REPO_ROOT = _THIS_FILE.parents[2]
 _PLUGINS_ROOT = _REPO_ROOT / "plugins"
 _PRIVATE_MANIFEST = _REPO_ROOT / ".claude-plugin" / "marketplace.json"
 _CODEX_MANIFEST = _REPO_ROOT / ".agents" / "plugins" / "marketplace.json"
+_CANONICAL_MARKETPLACE = _REPO_ROOT / "MARKETPLACE.yaml"
 _DEFAULT_EXPORT_CONFIG = _REPO_ROOT / "export" / "public.json"
-
-
-# ---------------------------------------------------------------------------
-# JSON writer (matches existing format: indent=2, ensure_ascii=True, trailing \n)
-# ---------------------------------------------------------------------------
-
-
-def _write_manifest(path: Path, manifest: dict) -> None:
-    with path.open("w", encoding="utf-8") as fh:
-        json.dump(manifest, fh, indent=2, ensure_ascii=True)
-        fh.write("\n")
 
 
 # ---------------------------------------------------------------------------
@@ -47,64 +42,34 @@ def _write_manifest(path: Path, manifest: dict) -> None:
 
 
 def _cmd_sync(args: argparse.Namespace) -> int:
-    if not _PRIVATE_MANIFEST.exists():
-        print(f"Error: {_PRIVATE_MANIFEST} not found", file=sys.stderr)
+    try:
+        compilation = compile_native_manifests(_REPO_ROOT, _CANONICAL_MARKETPLACE)
+    except GenerationError as error:
+        print(f"Native manifest generation failed: {error}", file=sys.stderr)
         return 1
-
-    new_manifest = build_private(_PLUGINS_ROOT, _PRIVATE_MANIFEST)
+    _print_agentforge_output(compilation.stdout, compilation.stderr)
 
     if args.check:
-        # Read the on-disk manifest and compare
-        with _PRIVATE_MANIFEST.open(encoding="utf-8") as fh:
-            on_disk = json.load(fh)
-
-        on_disk_plugins = on_disk.get("plugins", [])
-        new_plugins = new_manifest.get("plugins", [])
-
-        if on_disk_plugins == new_plugins:
-            n = len(new_plugins)
-            print(f"marketplace.json is up-to-date ({n} plugins).")
-            return 0
-        else:
-            old_names = {p["name"] for p in on_disk_plugins}
-            new_names = {p["name"] for p in new_plugins}
-            added = sorted(new_names - old_names)
-            removed = sorted(old_names - new_names)
-            print("marketplace.json is OUT OF SYNC (drift detected):", file=sys.stderr)
-            if added:
-                print(f"  Added:   {', '.join(added)}", file=sys.stderr)
-            if removed:
-                print(f"  Removed: {', '.join(removed)}", file=sys.stderr)
-            # Check for version/description changes on common plugins
-            old_map = {p["name"]: p for p in on_disk_plugins}
-            new_map = {p["name"]: p for p in new_plugins}
-            for name in sorted(old_names & new_names):
-                if old_map[name] != new_map[name]:
-                    print(f"  Changed: {name}", file=sys.stderr)
+        issues = compare_native_manifests(_REPO_ROOT, compilation.manifests)
+        if not issues:
             print(
-                f"  On-disk: {len(on_disk_plugins)} plugins  |  "
-                f"Discovered: {len(new_plugins)} plugins",
-                file=sys.stderr,
+                f"Native manifests are up-to-date ({len(compilation.manifests)} files)."
             )
-            print("Run `marketplace sync` (without --check) to update.", file=sys.stderr)
-            return 1
+            return 0
+        print("Native manifests are OUT OF SYNC (drift detected):", file=sys.stderr)
+        for issue in issues:
+            print(f"  {issue.kind}: {issue.path.as_posix()}", file=sys.stderr)
+        print("Run `uv run marketplace sync` to regenerate.", file=sys.stderr)
+        return 1
 
-    # Write mode
-    _write_manifest(_PRIVATE_MANIFEST, new_manifest)
-    n = len(new_manifest["plugins"])
-    names = ", ".join(p["name"] for p in new_manifest["plugins"])
-    print(f"Synced {n} plugin(s) to marketplace.json: {names}")
+    materialize_native_manifests(_REPO_ROOT, compilation.manifests)
+    print(f"Synced {len(compilation.manifests)} generated native manifest(s).")
     return 0
 
 
 def _cmd_validate(args: argparse.Namespace) -> int:
-    manifest_format = getattr(args, "format", "claude")
-    if args.manifest:
-        manifest_path = Path(args.manifest)
-    elif manifest_format == "codex":
-        manifest_path = _CODEX_MANIFEST
-    else:
-        manifest_path = _PRIVATE_MANIFEST
+    default_manifest = _CODEX_MANIFEST if args.format == "codex" else _PRIVATE_MANIFEST
+    manifest_path = Path(args.manifest) if args.manifest else default_manifest
     plugins_root = Path(args.plugins_root) if args.plugins_root else _PLUGINS_ROOT
 
     if not manifest_path.exists():
@@ -118,8 +83,8 @@ def _cmd_validate(args: argparse.Namespace) -> int:
         print(f"Error: Invalid JSON in {manifest_path}: {exc}", file=sys.stderr)
         return 1
 
-    if manifest_format == "codex":
-        errors = validate_codex_marketplace(manifest, plugins_root.parent)
+    if args.format == "codex":
+        errors = validate_codex_marketplace(manifest, plugins_root)
     else:
         errors = validate_manifest(manifest, plugins_root)
 
@@ -130,7 +95,7 @@ def _cmd_validate(args: argparse.Namespace) -> int:
         return 1
 
     print(
-        f"{manifest_format.capitalize()} validation passed "
+        f"{args.format.capitalize()} validation passed "
         f"({len(manifest.get('plugins', []))} plugins)."
     )
     return 0
@@ -193,7 +158,7 @@ def _cmd_export(args: argparse.Namespace) -> int:
 
 
 def _cmd_check(args: argparse.Namespace) -> int:  # noqa: ARG001
-    """CI entrypoint: sync --check + validate + lint."""
+    """CI entrypoint: generated drift + native validation + lint."""
     rc = 0
 
     # 1. sync --check
@@ -201,15 +166,15 @@ def _cmd_check(args: argparse.Namespace) -> int:  # noqa: ARG001
     sync_ns = argparse.Namespace(check=True)
     rc |= _cmd_sync(sync_ns)
 
-    # 2. validate private Claude manifest
-    print("\n=== validate: claude ===")
+    # 2. validate committed Claude publication
+    print("\n=== validate Claude ===")
     validate_ns = argparse.Namespace(manifest=None, plugins_root=None, format="claude")
     rc |= _cmd_validate(validate_ns)
 
-    # 3. validate private Codex manifest and referenced pilot plugins
-    print("\n=== validate: codex ===")
-    validate_ns = argparse.Namespace(manifest=None, plugins_root=None, format="codex")
-    rc |= _cmd_validate(validate_ns)
+    # 3. validate committed Codex publication
+    print("\n=== validate Codex ===")
+    codex_validate_ns = argparse.Namespace(manifest=None, plugins_root=None, format="codex")
+    rc |= _cmd_validate(codex_validate_ns)
 
     # 4. lint
     print("\n=== lint ===")
@@ -237,23 +202,25 @@ def _build_parser() -> argparse.ArgumentParser:
     sub = parser.add_subparsers(dest="command", required=True)
 
     # sync
-    sync_p = sub.add_parser("sync", help="Regenerate marketplace.json from plugins/")
+    sync_p = sub.add_parser(
+        "sync", help="Regenerate committed native manifests from AgentForge definitions"
+    )
     sync_p.add_argument(
         "--check",
         action="store_true",
-        help="Exit 1 if marketplace.json is out of sync; do NOT write.",
+        help="Exit 1 if native manifests are out of sync; do NOT write.",
     )
 
     # validate
-    val_p = sub.add_parser("validate", help="Validate a marketplace.json schema")
-    val_p.add_argument("--manifest", metavar="PATH", help="Path to manifest (default: private)")
-    val_p.add_argument("--plugins-root", metavar="PATH", help="Path to plugins/ dir")
+    val_p = sub.add_parser("validate", help="Validate marketplace.json schema")
     val_p.add_argument(
         "--format",
         choices=("claude", "codex"),
         default="claude",
-        help="Marketplace schema to validate (default: claude)",
+        help="Native marketplace format to validate (default: claude)",
     )
+    val_p.add_argument("--manifest", metavar="PATH", help="Path to manifest (default: private)")
+    val_p.add_argument("--plugins-root", metavar="PATH", help="Path to plugins/ dir")
 
     # lint
     lint_p = sub.add_parser("lint", help="Lint plugin files")
@@ -277,8 +244,7 @@ def _build_parser() -> argparse.ArgumentParser:
 
     # check (CI entrypoint)
     sub.add_parser(
-        "check",
-        help="Run sync drift, Claude/Codex validation, and lint (CI entrypoint)",
+        "check", help="Run manifest drift checks + native validation + lint"
     )
 
     return parser
@@ -307,6 +273,17 @@ def main() -> int:
         return 1
 
     return handler(args)
+
+
+def _print_agentforge_output(stdout: str, stderr: str) -> None:
+    if stdout:
+        print(stdout, end="" if stdout.endswith("\n") else "\n")
+    if stderr:
+        print(
+            stderr,
+            end="" if stderr.endswith("\n") else "\n",
+            file=sys.stderr,
+        )
 
 
 if __name__ == "__main__":

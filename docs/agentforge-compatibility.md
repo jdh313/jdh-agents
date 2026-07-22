@@ -1,9 +1,9 @@
 # AgentForge compatibility
 
-`MARKETPLACE.yaml` and each plugin's `PACKAGE.yaml` are the canonical
-AgentForge collection definitions. Native Claude and Codex manifests remain in
-the repository during enrollment; SC-35 does not cut consumers over to compiled
-output or remove those manifests.
+`MARKETPLACE.yaml` and each plugin's `PACKAGE.yaml` are the authoritative
+AgentForge collection definitions. Native Claude and Codex manifests remain
+committed at the repository paths consumed by both runtimes, but they are now
+generated outputs rather than independently maintained metadata.
 
 The compiler baseline for this enrollment is AgentForge commit `7568c45`
 (`agentforge` 0.0.1).
@@ -35,9 +35,11 @@ The merge gate also applies the runtime-native checks that are available:
   non-interactive `plugin validate` command, so this is cc-marketplace's native
   Codex validation boundary.
 
-All generated roots are disposable and live outside the source repository.
-The acceptance suite never updates checked-in native manifests or generated
-output.
+Full generated publication roots are disposable and live outside the source
+repository. `uv run marketplace sync` projects only their native manifest files
+into the source tree: two root registries, fifteen Claude package manifests,
+and five Codex package manifests. The acceptance suite itself never updates
+checked-in output.
 
 AgentForge owns explicit-only skill translation. When a canonical Claude skill
 declares `disable-model-invocation: true`, the Codex projection generates a
@@ -109,8 +111,8 @@ validator. Compilation diagnostics are reviewed limitations, not parity claims:
   restrictions are retained as source evidence but are not enforced by Codex.
 
 Schema validation and deterministic compilation establish collection integrity,
-not behavioral equivalence. Generated-output cutover requires fresh-runtime
-smoke tests and explicit review of these limitations.
+not behavioral equivalence. The cutover does not change these reviewed
+limitations or claim unsupported Codex hooks.
 
 ## Reproducing the gate
 
@@ -118,6 +120,7 @@ Use a checkout at the recorded compiler baseline:
 
 ```bash
 export AGENTFORGE_PROJECT=/path/to/agentforge-at-7568c45
+uv run marketplace sync
 uv run marketplace check
 uv run pytest -q
 

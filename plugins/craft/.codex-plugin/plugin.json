@@ -1,15 +1,27 @@
 {
   "name": "craft",
-  "version": "0.8.1",
-  "description": "Reusable software craftsmanship and engineering workflows.",
+  "version": "0.7.1",
+  "description": "Software craftsmanship discipline skills: grill-with-docs (vocabulary grilling against per-repo CONTEXT.md glossaries), diagnose, prototype, tdd, improve-codebase-architecture, grok (stateful multi-session codebase comprehension with supersession-aware understanding records), zoom-out (adapted in part from mattpocock/skills, MIT), infra-review (architecture/security review of Terraform+Atlantis PRs), quiz-me (opt-in active-recall comprehension check after a code explanation), interrogate-model (holistic representability review of a domain model — the legitimate scenarios and personas it cannot express), and design-by-stories (design an artifact's shape — schema, template, data model, config — by modeling its actors and user stories first, then deriving the shape from the stories). Composes with spec-flow and ndr plugins.",
   "author": {
     "name": "Jacob Hoehler"
   },
   "license": "Apache-2.0",
   "keywords": [
     "engineering",
+    "craft",
+    "discipline",
+    "vocabulary",
+    "context",
+    "glossary",
+    "comprehension",
+    "onboarding",
+    "terraform",
+    "infrastructure",
+    "review",
+    "learning",
+    "comprehension",
     "design",
-    "review"
+    "modeling"
   ],
   "interface": {
     "displayName": "Craft",
@@ -23,8 +35,7 @@
       "Interactive"
     ],
     "defaultPrompt": [
-      "Diagnose this failure systematically.",
-      "Review this model for representability gaps."
+      "Diagnose this failure systematically."
     ]
   }
 }

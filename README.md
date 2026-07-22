@@ -14,15 +14,15 @@ ownership boundaries, runtime mappings, installation, and pilot acceptance.
 cc-marketplace/
 ├── MARKETPLACE.yaml              # Canonical AgentForge collection definition
 ├── .claude-plugin/
-│   └── marketplace.json      # Generated Claude registry
+│   └── marketplace.json      # Generated, committed Claude registry
 ├── .agents/plugins/
-│   └── marketplace.json      # Curated Codex pilot registry
+│   └── marketplace.json      # Generated, committed Codex pilot registry
 ├── plugins/                  # Plugin files
 │   └── [plugin-name]/
 │       ├── PACKAGE.yaml      # Canonical AgentForge package definition
-│       ├── .claude-plugin/   # Claude-native manifest
-│       ├── .codex-plugin/    # Codex-native manifest for accepted pilots
-│       └── ...               # Canonical shared bodies + thin adapters
+│       ├── .claude-plugin/   # Generated Claude-native manifest
+│       ├── .codex-plugin/    # Generated Codex-native manifest for pilots
+│       └── ...               # Plugin files (commands, agents, skills, etc.)
 ├── scripts/                  # Automation tooling
 │   └── marketplace/          # `marketplace` CLI: sync, validate, lint, export, check
 ├── export/                   # Public export config
@@ -58,34 +58,21 @@ codex plugin add spec-flow@cc-marketplace
    mkdir -p plugins/my-plugin
    ```
 
-2. Create `plugins/my-plugin/.claude-plugin/plugin.json`:
-   ```json
-   {
-     "name": "my-plugin",
-     "version": "1.0.0",
-     "description": "Plugin description",
-     "author": {
-       "name": "Your Name",
-       "email": "you@example.com"
-     },
-     "keywords": ["automation", "workflow"]
-   }
-   ```
-
-3. Add plugin files and a canonical `plugins/my-plugin/PACKAGE.yaml`. Declare
+2. Add plugin files and an authoritative `plugins/my-plugin/PACKAGE.yaml`. Declare
    only the runtimes whose native mappings have been validated.
 
-4. Sync marketplace:
+3. Regenerate the committed native manifests with the pinned compiler:
    ```bash
-   uv run marketplace sync
+   env AGENTFORGE_PROJECT=/path/to/agentforge-at-7568c45 \
+     uv run marketplace sync
    ```
 
-5. Validate repository-native files (sync drift + both schemas + lint):
+4. Validate repository-native files (read-only drift + schema + lint):
    ```bash
    uv run marketplace check
    ```
 
-6. Run the full-corpus acceptance suite against the pinned compatible
+5. Run the full-corpus acceptance suite against the pinned compatible
    AgentForge checkout and compile into an isolated output root:
    ```bash
    export AGENTFORGE_PROJECT=/path/to/agentforge-at-7568c45
@@ -108,10 +95,14 @@ A single tool (`scripts/marketplace/`) drives the registry. Run via `uv run mark
 
 ### Sync
 
-Regenerates `marketplace.json` from the `plugins/` directory:
+Compiles `MARKETPLACE.yaml` with AgentForge and materializes only the two root
+marketplace manifests, all 15 Claude package manifests, and the five declared
+Codex pilot manifests. It never replaces maintained skills, agents, commands,
+hooks, references, or other source content.
 
 ```bash
-uv run marketplace sync          # use --check to fail on drift without writing
+env AGENTFORGE_PROJECT=/path/to/agentforge-at-7568c45 uv run marketplace sync
+# use `sync --check` to fail on drift without writing
 ```
 
 ### Validate
@@ -146,7 +137,9 @@ uv run marketplace lint
 
 ### Check (merge gate)
 
-Runs Claude sync drift, both validators, and lint together — the CI entrypoint:
+Recompiles in a temporary directory, checks all committed generated manifests,
+validates both repository-native publications, and runs lint. This command is
+read-only and is the CI entrypoint:
 
 ```bash
 uv run marketplace check
@@ -175,53 +168,13 @@ Because AgentForge is private, the workflow requires an
 `jdh313/agentforge`. The job fails explicitly if that credential is absent; it
 does not skip the acceptance gate.
 
-## Plugin Structure
+## Metadata ownership
 
-### Minimal plugin.json
-
-```json
-{
-  "name": "plugin-name",
-  "version": "1.0.0",
-  "description": "What the plugin does",
-  "author": {
-    "name": "Your Name"
-  }
-}
-```
-
-### Full plugin.json
-
-```json
-{
-  "name": "plugin-name",
-  "version": "1.0.0",
-  "description": "What the plugin does",
-  "author": {
-    "name": "Your Name",
-    "email": "you@example.com",
-    "url": "https://github.com/yourusername"
-  },
-  "category": "productivity",
-  "keywords": ["automation", "workflow"],
-  "homepage": "https://your-plugin-site.com",
-  "repository": "https://github.com/user/plugin"
-}
-```
-
-## Categories
-
-Suggested categories:
-- productivity
-- devops
-- testing
-- security
-- ai-ml
-- api-development
-- database
-- performance
-- documentation
-- custom
+`MARKETPLACE.yaml` and `plugins/*/PACKAGE.yaml` are the only maintained sources
+of marketplace and package metadata. The JSON files under `.claude-plugin/`,
+`.agents/plugins/`, and package `.claude-plugin/` / `.codex-plugin/`
+directories are committed generated outputs. Edit the YAML and regenerate;
+never hand-edit those JSON manifests.
 
 ## License
 

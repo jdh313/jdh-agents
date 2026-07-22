@@ -5,6 +5,7 @@
   "author": {
     "name": "Jacob Hoehler"
   },
+  "license": "Apache-2.0",
   "keywords": [
     "engineering",
     "craft",
@@ -21,6 +22,5 @@
     "comprehension",
     "design",
     "modeling"
-  ],
-  "license": "Apache-2.0"
+  ]
 }
