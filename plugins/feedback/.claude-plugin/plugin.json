@@ -5,6 +5,7 @@
   "author": {
     "name": "Jacob Hoehler"
   },
+  "license": "Apache-2.0",
   "keywords": [
     "feedback",
     "testing",
@@ -12,6 +13,5 @@
     "session-review",
     "triage",
     "plugins"
-  ],
-  "license": "Apache-2.0"
+  ]
 }

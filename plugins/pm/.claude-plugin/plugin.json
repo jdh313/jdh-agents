@@ -5,6 +5,7 @@
   "author": {
     "name": "Jacob Hoehler"
   },
+  "license": "Apache-2.0",
   "keywords": [
     "pm",
     "project-management",
@@ -13,6 +14,5 @@
     "breakdown",
     "cycle",
     "retro"
-  ],
-  "license": "Apache-2.0"
+  ]
 }
