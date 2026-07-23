@@ -5,6 +5,7 @@
   "author": {
     "name": "Jacob Hoehler"
   },
+  "license": "Apache-2.0",
   "keywords": [
     "claude-code",
     "introspection",
@@ -15,6 +16,5 @@
     "skills",
     "onboarding",
     "self-analysis"
-  ],
-  "license": "Apache-2.0"
+  ]
 }

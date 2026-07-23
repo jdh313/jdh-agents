@@ -5,6 +5,7 @@
   "author": {
     "name": "Jacob Hoehler"
   },
+  "license": "Apache-2.0",
   "keywords": [
     "adhd",
     "productivity",
@@ -27,6 +28,5 @@
     "ideas",
     "tasks",
     "brain-dump"
-  ],
-  "license": "Apache-2.0"
+  ]
 }

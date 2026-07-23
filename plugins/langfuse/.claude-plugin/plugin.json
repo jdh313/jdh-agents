@@ -5,6 +5,7 @@
   "author": {
     "name": "Jacob Hoehler"
   },
+  "license": "Apache-2.0",
   "keywords": [
     "langfuse",
     "observability",
@@ -38,6 +39,5 @@
       "description": "Write verbose logs to ~/.claude/state/langfuse_hook.log",
       "default": false
     }
-  },
-  "license": "Apache-2.0"
+  }
 }
