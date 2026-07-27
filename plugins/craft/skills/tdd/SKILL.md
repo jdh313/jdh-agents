@@ -5,8 +5,8 @@ effort: high
 upstream:
   repo: mattpocock/skills
   path: skills/engineering/tdd
-  reviewed_sha: bd453a6742fb
-  reviewed: 2026-07-09
+  reviewed_sha: 697d4ce9742d
+  reviewed: 2026-07-27
   status: reviewed
 allowed-tools:
   - Read

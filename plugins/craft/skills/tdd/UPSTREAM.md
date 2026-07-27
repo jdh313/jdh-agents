@@ -1,6 +1,6 @@
 # Upstream divergences — tdd
 
-_Upstream: `mattpocock/skills` · `skills/engineering/tdd` · ledger current as of `reviewed_sha: bd453a6742fb`_
+_Upstream: `mattpocock/skills` · `skills/engineering/tdd` · ledger current as of `reviewed_sha: 697d4ce9742d`_
 
 Intentional divergences from upstream. Reviewed via `skillsmith:upstream-review` (2026-07-09) — do not re-flag these as findings. Read by `upstream-review` only; never referenced from `SKILL.md`.
 
@@ -18,3 +18,5 @@ The reference-only shape (what-a-good-test-is, seams, anti-patterns, rules-of-th
 | adopted (2026-07-09) | **Seam concept adopted** ("test only at pre-agreed seams, confirmed with the user before any test is written"). | Adopted upstream's seam framing for where tests go; vocabulary dispatched to `codebase-design` (see divergence row above). |
 | adopted (2026-07-09) | **Tautological-test anti-pattern added** in both `SKILL.md` (anti-patterns) and `tests.md` (BAD/GOOD pair). | Adopted upstream's addition — expected values must come from an independent source of truth, not a recomputation of the code. |
 | adopted (2026-07-09) | **`deep-modules.md` and `interface-design.md` retired** (`trash`), superseded by dispatch to the shared `craft:codebase-design` skill. | The shared skill now owns the deep-module / interface / seam / depth vocabulary; the tdd-local copies were duplication. |
+
+Pin advanced to `697d4ce9742d` on 2026-07-27 with no ledger change: the only upstream commit touching this path since the previous pin was `697d4ce` "add Codex `agents/openai.yaml` metadata to every skill", verified via `--name-only` to add nothing but that sidecar. No-op for this adaptation — Codex manifests here are generated from `PACKAGE.yaml`.

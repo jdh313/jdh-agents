@@ -1,6 +1,6 @@
 # Upstream divergences — diagnose
 
-_Upstream: `mattpocock/skills` · `skills/engineering/diagnosing-bugs` (renamed from `diagnose`) · ledger current as of `reviewed_sha: ee8bae40062c`_
+_Upstream: `mattpocock/skills` · `skills/engineering/diagnosing-bugs` (renamed from `diagnose`) · ledger current as of `reviewed_sha: 697d4ce9742d`_
 
 Intentional divergences from upstream. Reviewed via `skillsmith:upstream-review` (2026-07-09) — do not re-flag these as findings. Read by `upstream-review` only; never referenced from `SKILL.md`.
 
@@ -14,3 +14,5 @@ All six diagnosis phases and the HITL loop script track upstream. The divergence
 | added | Phase 2 renamed "Reproduce + minimise"; added "Minimise" subsection (shrink to smallest still-reproducing scenario, one cut at a time, load-bearing completion criterion) | Ported from upstream. Shrinks the Phase 3 hypothesis space and produces a cleaner Phase 5 regression-test seam. |
 | added | `effort: high` frontmatter field | Six-phase diagnosis loops (feedback loop construction, bisection, instrumentation) are reasoning-intensive; high effort engages deeper model reasoning for the full skill duration. |
 | added | `/goal` tip below the opening paragraph | Documents user-invoked `/goal "<symptom resolved>"` as the idiomatic way to run multi-phase diagnosis with a clear exit condition. Prose note only — no auto-behavior change. |
+
+Pin advanced to `697d4ce9742d` on 2026-07-27 with no ledger change: the only upstream commit touching this path since the previous pin was `697d4ce` "add Codex `agents/openai.yaml` metadata to every skill", verified via `--name-only` to add nothing but that sidecar. No-op for this adaptation — Codex manifests here are generated from `PACKAGE.yaml`.

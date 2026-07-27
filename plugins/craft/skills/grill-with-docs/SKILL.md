@@ -4,8 +4,8 @@ description: Grill a plan against this repo's CONTEXT.md glossary and NDR atoms,
 upstream:
   repo: mattpocock/skills
   path: skills/engineering/grill-with-docs
-  reviewed_sha: 658d53e6ded8
-  reviewed: 2026-07-09
+  reviewed_sha: 697d4ce9742d
+  reviewed: 2026-07-27
   status: reviewed
 allowed-tools:
   - Read

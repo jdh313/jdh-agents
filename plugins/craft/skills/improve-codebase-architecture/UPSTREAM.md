@@ -1,8 +1,8 @@
 # Upstream divergences — improve-codebase-architecture
 
-_Upstream: `mattpocock/skills` · `skills/engineering/improve-codebase-architecture` · ledger current as of `reviewed_sha: 221ffca96736`_
+_Upstream: `mattpocock/skills` · `skills/engineering/improve-codebase-architecture` · ledger current as of `reviewed_sha: 697d4ce9742d`_
 
-Intentional divergences from upstream. Reviewed via `skillsmith:upstream-review` (2026-07-09) — do not re-flag these as findings. Read by `upstream-review` only; never referenced from `SKILL.md`.
+Intentional divergences from upstream. Reviewed via `skillsmith:upstream-review` (2026-07-27) — do not re-flag these as findings. Read by `upstream-review` only; never referenced from `SKILL.md`.
 
 The grilling-loop structure is upstream behavior, kept. Upstream itself moved to a live-dispatch model in this revision — the architecture vocabulary and the domain-model side effects now route to the shared `codebase-design` / `domain-modeling` skills rather than living inline, matching upstream's own restructuring. No fabricated attributions, no silent drops.
 
@@ -17,3 +17,6 @@ The grilling-loop structure is upstream behavior, kept. Upstream itself moved to
 | added | `effort: high` frontmatter field | Codebase exploration + grilling loop are reasoning-intensive; high effort engages deeper model reasoning for the full skill duration. |
 | changed | Explore subagent dispatch: `subagent_type=Explore` → `subagent_type=Explore, name="arch-explorer"` | Names the agent so it stays addressable via SendMessage during the grilling loop; unnamed agents cannot be continued without full re-dispatch. |
 | not-added | `disallowed-tools:` for source-editing restriction | Considered but skipped: skill legitimately writes to gitignored `.docs/` (report). No tool-level carve-out available for "tracked source only." |
+| changed | Step 3 grilling loop: upstream's `run the /grilling skill` → inline "drop into a grilling conversation". (Backfilled 2026-07-27 — this divergence predates the ledger and was not previously recorded.) | Upstream's `grilling` skill was never ported to this marketplace; there is nothing to dispatch. The loop's substance is unchanged. |
+
+Adopted from upstream at `697d4ce9742d` (2026-07-27), now equivalent and needing no divergence row: the step-1 **YAGNI scoping gate** (`45afd80` — take the user's named direction, else find hot spots via `git log --oneline`), placed ahead of the `/ground` call since it determines the area to ground in; and the "design tree" → "decision tree" rename (`3bb587f`).
