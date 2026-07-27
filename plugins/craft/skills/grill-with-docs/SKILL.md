@@ -35,5 +35,5 @@ This skill is the plan-grilling application of that discipline: the interview lo
 ## Composition with other plugins
 
 - **`craft:domain-modeling`** is dispatched by this skill for all CONTEXT.md maintenance and NDR-capture discipline that surfaces mid-interview. See above.
-- **`spec-flow:draft`** may invoke this skill when contested vocabulary surfaces during contract drafting. Soft composition only — both plugins work standalone.
+- **`spec-flow:draft`** gates on this skill during contract drafting: when the repo has a `CONTEXT.md` and the goal's central nouns are missing from it or used inconsistently, draft invokes this skill before writing the contract. The gate is conditional, not universal — no `CONTEXT.md` (or no `craft` installed) means no gate, so both plugins still work standalone. Expect draft to arrive warm, having already scanned the codebase; scope the interview to the contested terms rather than the full design tree.
 - **`/drift-check`** (ndr plugin) can flag drift between CONTEXT.md term definitions and code naming. Out of scope for this skill — flag candidates for follow-up rather than fixing inline.
