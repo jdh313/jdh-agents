@@ -1,11 +1,12 @@
 # compass
 
-A suite of conversational thinking tools. The plugin name is the metaphor: it points, it doesn't command. Two skills today — one strictly neutral, one a thinking partner. `reflect` always saves; `mull` saves only substantive sessions.
+A suite of conversational thinking tools. The plugin name is the metaphor: it points, it doesn't command. Three skills, arranged along one axis — how much the agent commits. `reflect` always saves; `mull` saves only substantive sessions; `converge` picks its artifact by subject.
 
 | Skill | Stance | Use when |
 |---|---|---|
 | `/reflect` | Strict mirror — only questions, never opinions | You want to find your own answer without influence |
 | `/mull` | Thinking partner — questions plus honest takes, pushback, and feedback | You want a collaborator who'll probe AND weigh in |
+| `/converge` | Advisor — a recommendation with a confidence %, refined one question at a time | You want an actual answer, stress-tested against your context |
 
 ## /reflect — Socratic mirror
 
@@ -31,15 +32,35 @@ When the session is substantive — unresolved, has open threads, contributed a 
 /mull
 ```
 
-Natural language also works for both:
+## /converge — Recommendation, then interview
 
-> Help me figure out how I feel about switching from Brew to Nix. *(reflect)*
->
-> Mull this over with me — I'm not sure my current architecture is right. *(mull)*
+When you want a real answer, not clarity and not a take. `/converge` researches the question, commits to a recommendation on turn one with an explicit confidence percentage, then asks exactly one question per turn — chosen for its power to *change* the recommendation, not confirm it. The number moves both directions; a flip is announced loudly. When confidence plateaus, the skill volunteers that you've converged.
+
+Every turn has the same shape:
+
+```
+**Recommendation:** Use Postgres, not SQLite. **Confidence: 72%.**
+
+<2-3 sentences of why>
+
+**Question:** <one question, and why the answer moves the number>
+```
+
+The close is chosen by subject: throwaway questions print and end, durable ones file to `~/Loose Ends/Advice/YYYY-MM-DD_<topic>.md` with the full confidence trail and what got ruled out, and decisions that govern a repo hand off to `/capture-decision` instead.
+
+```
+/converge should I use Postgres or SQLite for this
+/converge best approach for batch-editing RAW photos
+/converge
+```
+
+## Explicit invocation only
+
+All three skills set `disable-model-invocation: true`. They never auto-trigger from natural language — you have to type `/reflect`, `/mull`, or `/converge`. This is deliberate: these are stances you choose, and an agent that decides *for* you that a question needs a Socratic mirror (or, worse, silently switches you into recommendation mode) defeats the point. The skills still hand off to each other mid-session, but only by offering the switch and waiting for you to take it.
 
 ## Output format
 
-Each session produces a note with:
+`reflect` and `mull` sessions produce a note with:
 
 - **Prompt** — the original question, in your words
 - **Conversation / Exploration** — condensed Q&A. `mull` notes use `> [!note] Take` callouts to mark agent contributions, including ones that didn't land.
@@ -48,11 +69,14 @@ Each session produces a note with:
 - **Continuation Prompt** — only on open sessions; paste-ready to resume later
 - **Related** — wikilinks to people, projects, or prior sessions surfaced
 
+`converge` sessions that file produce a different shape — Question, Recommendation, Confidence, Confidence Trail, Ruled Out, Evidence, Open, Related.
+
 ## Choosing between them
 
 - **Decision is yours alone, you just need clarity** → `/reflect`
 - **You want a sanity check or pushback** → `/mull`
+- **You want an actual recommendation, researched and stress-tested** → `/converge`
 - **You want adversarial argument with structured pro/con** → see the `debate` plugin
-- **You want a recommendation or external research** → not this plugin
+- **The decision is already made and just needs recording** → `coach:decide`, or `/capture-decision` for repo decisions
 
-The two skills share question and bias references — they're different stances on the same conversational craft.
+All three share question and bias references — they're different stances on the same conversational craft, ordered by how much the agent commits: `reflect` commits nothing, `mull` commits a take, `converge` commits an answer.

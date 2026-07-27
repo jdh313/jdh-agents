@@ -1,6 +1,6 @@
 schema: agentforge.package/v1
 id: compass
-defaults: {"name": "compass", "version": "0.7.1", "description": "A suite of conversational thinking tools — reflect (Socratic mirror, never recommends, always saves) and mull (thinking partner, probes AND contributes opinions, saves substantive sessions only).", "author": {"name": "Jacob Hoehler", "email": "jdhoehler@gmail.com"}, "license": "Apache-2.0", "keywords": ["reflection", "socratic", "decision", "journaling", "obsidian", "thinking-partner", "compass", "mull", "clarify"]}
+defaults: {"name": "compass", "version": "0.8.0", "description": "A suite of conversational thinking tools — reflect (Socratic mirror, never recommends, always saves), mull (thinking partner, probes AND contributes opinions, saves substantive sessions only), and converge (advisor, leads with a researched recommendation plus confidence % and refines it one question at a time).", "author": {"name": "Jacob Hoehler", "email": "jdhoehler@gmail.com"}, "license": "Apache-2.0", "keywords": ["reflection", "socratic", "decision", "journaling", "obsidian", "thinking-partner", "compass", "mull", "clarify", "converge", "recommendation", "advisor"]}
 artifacts:
   - {type: skill, pattern: 'skills/*/SKILL.md'}
 targets:

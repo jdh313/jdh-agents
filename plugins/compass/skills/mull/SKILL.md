@@ -1,7 +1,9 @@
 ---
 name: mull
-description: Thinking-partner skill — drills into the root of an issue while offering feedback and opinions where appropriate. This skill should be used when the user invokes `/mull`, says "mull this over with me", "help me think through X", "what do you actually think about X", "give me your honest read on X", "push back on this", or otherwise signals they want a collaborator who will both probe AND share views, not a neutral mirror. For pure clarification with no agent input, use `reflect` instead. Saves substantive sessions to `~/Loose Ends/Mulling/`; short or trivial sessions end without filing unless explicitly requested.
+description: >-
+  Thinking partner — the invited-opinion compass stance. Drills into the root of an issue while contributing honest takes, pushback, named patterns, and disagreement when invited or when silence would be evasive. Still question-led: a take is about how to think about the question, never the answer itself. Saves substantive sessions to `~/Loose Ends/Mulling/`; short or trivial ones end without filing unless explicitly requested. Explicit invocation only. Sibling stances: `reflect` is a strict mirror with no agent input; `converge` leads with a researched recommendation.
 argument-hint: "[topic or continuation]"
+disable-model-invocation: true
 effort: high
 allowed-tools:
   - Read
@@ -235,4 +237,6 @@ Both live in the sibling `reflect` skill within this plugin — `mull` reuses th
 - The user wants structured adversarial argument → use the `debate` plugin
 - The user is asking a factual question with a knowable answer
 - The user is venting and not looking to land anywhere
-- The user wants a recommendation or external research (a take is not a recommendation)
+- The user wants a recommendation or external research (a take is not a recommendation) → use `converge`
+
+**Handing off to `converge`.** If the user signals they've stopped exploring and want the answer — "just tell me what to do", "what would you pick?", "I don't want to think about it, I want a recommendation" — offer the switch: "Sounds like you want a call, not a take. `/converge` gives you a recommendation with a confidence number and refines it by interview — want to switch?" If they accept, save the current mull session as `open` first.
