@@ -390,6 +390,18 @@ Express confidence as a percentage (0-100%):
 - **50-79%:** Winner with notable trade-offs or situational dependencies
 - **Below 50%:** Genuinely close call, heavily depends on priorities or circumstances
 
+The `compass:converge` skill uses these same bands, so verdicts and confidence numbers carry between the two without re-scaling.
+
+### Handing off to `converge`
+
+A debate verdict is a one-shot synthesis from parallel research plus a 3-5 bullet personal-context block. When the verdict lands below ~80%, or when it lands high but explicitly names situational dependencies ("depends on your budget / team size / timeline"), the remaining uncertainty is usually about *the user*, not the evidence — and more research won't fix it.
+
+Offer the handoff once, after presenting the verdict:
+
+> This came out at [X%], and what's left hinges on your situation rather than the evidence. `/converge` picks this up as a starting recommendation and interviews you one question at a time to move the number — want to continue there?
+
+Do not offer it on high-confidence verdicts with no situational caveats, and never auto-invoke — `converge` is explicit-invocation only.
+
 ## Constraints
 
 - Maximum 5 advocate agents per round
