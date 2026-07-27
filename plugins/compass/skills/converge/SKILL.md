@@ -79,7 +79,11 @@ The number is the loop's instrument. Treat it honestly.
 
 > **Changed my recommendation.** It's now <X>, not <Y> — because <the specific thing they said>.
 
-**Calibrate, don't inflate.** Rough anchors: >90% means you'd be surprised to be wrong and the remaining risk is named; 70-85% is a solid working call with a live rival; 50-65% means you're genuinely split and the next answer matters a lot; below 50%, say so plainly — that's a signal the question may be underspecified, not that you should pad the number.
+**Calibrate, don't inflate.** Use the same bands as the `debate` plugin, so a percentage means the same thing across both:
+
+- **80-100%** — clear winner on strong evidence and good context fit; you'd be surprised to be wrong, and the residual risk is named.
+- **50-79%** — a real working call, but with notable trade-offs or a live rival. Most of the loop lives here.
+- **Below 50%** — genuinely split. Say so plainly rather than padding; a sub-50% number that won't move usually means the question is underspecified, not that you should guess harder.
 
 ## Method
 
@@ -120,6 +124,12 @@ Volunteer the endpoint once. Convergence looks like: the number has been flat fo
 Then stop and let the user decide. If they want to keep going, keep going without complaint — do not re-flag. If confidence is *low* and stuck (say, 55% across several rounds), that's a different flag: name the blocker rather than the convergence.
 
 > Stuck at 55% — this hinges on <X> and neither of us knows it. Worth finding out before deciding.
+
+**Escalating to `debate`.** If the number is stuck low because the *evidence itself* is contested — credible sources disagree, and no answer the user gives can break the tie — that's a research problem, not an interview problem. Offer the switch once:
+
+> We're stuck at 55% because the evidence genuinely conflicts, not because I'm missing context about you. `/debate` researches both sides in parallel and fact-checks the claims — want to run that and bring the verdict back here?
+
+`debate` uses the same confidence bands, so its verdict drops straight into this loop as a new starting number. Do not escalate for merely *low* confidence — only when more answers from the user provably won't help.
 
 ### Step 5: Close (three-way, by subject)
 
