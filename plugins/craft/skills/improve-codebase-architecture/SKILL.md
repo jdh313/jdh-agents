@@ -77,7 +77,7 @@ Do NOT propose interfaces yet. After the file is written, ask the user: "Which o
 
 ### 3. Grilling loop
 
-Once the user picks a candidate, drop into a grilling conversation. Walk the decision tree with them — constraints, dependencies, the shape of the deepened module, what sits behind the seam, what tests survive.
+Once the user picks a candidate, run `Skill(craft:grill)` to walk the decision tree with them. Scope it to this candidate: constraints, dependencies, the shape of the deepened module, what sits behind the seam, what tests survive. Keep `arch-explorer` addressable throughout — route factual questions about the codebase to it rather than to the user.
 
 Side effects happen inline as decisions crystallize:
 
