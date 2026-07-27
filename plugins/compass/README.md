@@ -76,7 +76,7 @@ All three skills set `disable-model-invocation: true`. They never auto-trigger f
 - **Decision is yours alone, you just need clarity** → `/reflect`
 - **You want a sanity check or pushback** → `/mull`
 - **You want an actual recommendation, researched and stress-tested** → `/converge`
-- **You want adversarial argument with structured pro/con** → see the `debate` plugin
+- **You want adversarial argument with structured pro/con** → see the `debate` plugin. `converge` and `debate` share confidence bands and hand off both ways: `converge` escalates to `debate` when it's stuck low because the *evidence* conflicts, and `debate` hands a sub-80% or situationally-caveated verdict back to `converge` to refine against your context.
 - **The decision is already made and just needs recording** → `coach:decide`, or `/capture-decision` for repo decisions
 
 All three share question and bias references — they're different stances on the same conversational craft, ordered by how much the agent commits: `reflect` commits nothing, `mull` commits a take, `converge` commits an answer.
