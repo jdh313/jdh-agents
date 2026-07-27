@@ -36,8 +36,8 @@ allowed-tools:
 upstream:
   repo: mattpocock/skills
   path: skills/engineering/to-tickets
-  reviewed_sha: d29732e49f60
-  reviewed: 2026-07-09
+  reviewed_sha: ed37663cc5fb
+  reviewed: 2026-07-27
   status: reviewed
 ---
 

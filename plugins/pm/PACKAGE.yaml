@@ -1,6 +1,6 @@
 schema: agentforge.package/v1
 id: pm
-defaults: {"name": "pm", "version": "0.5.1", "description": "PM helpers for team Linear workflows. Skills for the weekly grooming loop (per-person WIP), plan-to-tickets breakdown (assignee-aware), and end-of-cycle retro notes (attribution + Linear-first output). Composes with the linear plugin; ndr and librarian integrations are optional externals.", "author": {"name": "Jacob Hoehler"}, "license": "Apache-2.0", "keywords": ["pm", "project-management", "linear", "grooming", "breakdown", "cycle", "retro"]}
+defaults: {"name": "pm", "version": "0.5.2", "description": "PM helpers for team Linear workflows. Skills for the weekly grooming loop (per-person WIP), plan-to-tickets breakdown (assignee-aware), and end-of-cycle retro notes (attribution + Linear-first output). Composes with the linear plugin; ndr and librarian integrations are optional externals.", "author": {"name": "Jacob Hoehler"}, "license": "Apache-2.0", "keywords": ["pm", "project-management", "linear", "grooming", "breakdown", "cycle", "retro"]}
 artifacts:
   - {type: skill, pattern: 'skills/*/SKILL.md'}
 payloads:
