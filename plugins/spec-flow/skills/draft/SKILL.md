@@ -25,6 +25,7 @@ allowed-tools:
   - Glob
   - Grep
   - Bash(ls *)
+  - Skill
 ---
 
 # spec-flow:draft
@@ -89,6 +90,7 @@ Before asking the user anything, do legwork:
 - **Library docs** — If the goal mentions a library or framework, resolve and fetch docs via `mcp__plugin_context7_context7__resolve-library-id` then `query-docs`.
 - **Installed version** — If the goal names a specific dep, check the installed major version in the target repo (`bun info <pkg>`, `npm ls <pkg>`, `pip show <pkg>`, `cargo tree | grep <pkg>`, etc.) before drafting against the docs. Docs-vs-installed drift is a common amendment trigger.
 - **Relevant ndr atoms** — If the `ndr` plugin is installed, hand off to it to surface atoms scoped to this project/repo for the area or related concepts.
+- **Glossary** — Check whether a `CONTEXT.md` glossary exists at the repo root. If it does, note which of the goal's central nouns already appear in it and whether they are used consistently with their glossary definitions. This is the observable input to the vocabulary gate in step 4 — record it even when everything matches.
 - **Project rules** — Check `.claude/rules/` if present.
 - **Linear host (existing ticket) only** — Read the existing ticket description via `mcp__linear-server__get_issue`. Treat it as input to drafting (stakeholder context, what the PM or you-yesterday wrote — often a `spec-flow:capture` Goal/Context body). The body is overwritten by default at step 6, so its length no longer gates a prompt — it's drafting input only.
 - **Captured file stub only** — Read the stub's Goal/Context as drafting input, same role as an existing ticket body.
@@ -107,9 +109,19 @@ If the *done* state isn't obvious from the goal — i.e. you can't list 2–3 ob
 
 If the *how* is non-obvious enough to warrant real deliberation, suggest forking into the debate skill (advocate / devils-advocate / fact-checker / synthesizer). The debate's output — recommended approach plus a saved decision record — flows back into the contract's *Approach* section.
 
-If contested or fuzzy vocabulary surfaces during the conversation — terms used inconsistently, ambiguous nouns, drift between code naming and how the user is talking about the change — and the `craft` plugin is installed, suggest invoking `/grill-with-docs` to lock the terms down in the repo's `CONTEXT.md` glossary before drafting. Soft composition: spec-flow:draft works fine without craft installed; the suggestion simply doesn't fire if the skill isn't available.
+**Vocabulary gate.** If step 3 found a `CONTEXT.md` glossary AND the `craft` plugin is installed, invoke `/grill-with-docs` **before drafting** whenever the goal's central nouns are missing from the glossary or used inconsistently with it. This is a gate, not a suggestion — do not defer it to in-conversation judgment about whether vocabulary "feels contested." The drafting agent authors the contract's terminology itself, making it the worst-positioned observer of its own drift; a judgment-based trigger fires only when the user already noticed, which is too late. The cost of getting it wrong is deferred, not avoided: *Done when* bullets, *Out of scope* fences, and Decision-log rows are all written in domain nouns, and `close` migrates them into ndr atoms where a wrong term hardens.
 
-If the change **designs or extends a model that spans dimensions** — adding a second/orthogonal axis, a new role/tier, or a new principal type to an authz scheme, permission table, state machine, data model, or tenancy model — and the `craft` plugin is installed, suggest invoking `/interrogate-model` to check the extended model's representability *before* drafting the Approach. This is the design-time catch for emergent cross-axis conflations (decisions made weeks apart fusing at the seam). Same soft composition as above — the suggestion simply doesn't fire if craft isn't installed.
+The gate does **not** fire — proceed straight to drafting — when any of these hold:
+
+- **No `CONTEXT.md`** — do not author a glossary as a side effect of drafting. Fall back to flagging contested vocabulary in chat and moving on.
+- **`craft` not installed** — soft composition preserved; spec-flow:draft works standalone.
+- **Nouns present and used consistently** — nothing to lock down.
+
+Because step 3 already explored the codebase, run grill-with-docs warm: its interview loop answers from the code rather than asking (`grill-with-docs` step: *"If a question can be answered by exploring the codebase, explore the codebase instead of asking"*), so scope the interview to the contested terms — not a cold walk down the full design tree.
+
+If the change **designs or extends a model that spans dimensions** — adding a second/orthogonal axis, a new role/tier, or a new principal type to an authz scheme, permission table, state machine, data model, or tenancy model — and the `craft` plugin is installed, suggest invoking `/interrogate-model` to check the extended model's representability *before* drafting the Approach. This is the design-time catch for emergent cross-axis conflations (decisions made weeks apart fusing at the seam). Same soft composition as above — the suggestion simply doesn't fire if craft isn't installed. Unlike the vocabulary gate, this stays a suggestion: the trigger above is already a structural property of the change rather than a judgment call about how the conversation feels, so it does not have the never-fires failure mode the gate was written to close.
+
+> **Restated on purpose.** The trigger list above duplicates `craft:interrogate-model`'s own `when_to_use`. Do not dedupe it into a cross-plugin reference — `spec-flow` is published publicly and `craft` is not, so a public install has no craft skill to point at and the condition must stand alone here. When craft's trigger list changes, update this copy to match.
 
 ### 5. Draft the contract
 
