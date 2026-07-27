@@ -86,7 +86,7 @@ Both labels mark "we don't know something yet" work. The boundary test is **empi
 - **`Spike`** — unknown resolved *empirically*. Timeboxed, throwaway code, a **finding** as output (vault note; ndr atom only if the finding itself resolves a decision).
 - **`Decision`** — fork resolved by *judgment*. Tradeoffs weighed from the chair; an **ndr atom** as output.
 
-**Embed by default; ticket only orphans.** A decision whose lifecycle fits one work item lives in that item's `Open questions` (spec-flow contract) and gets lazily resolved at point of contact by the implementing agent. A standalone ticket is earned only when the unknown is *orphaned*:
+**Embed by default; ticket only orphans.** A decision whose lifecycle fits one work item lives as an `[open]` row in that item's Decision log (spec-flow contract) and gets lazily resolved at point of contact by the implementing agent. A standalone ticket is earned only when the unknown is *orphaned*:
 
 - no future work will naturally collide with it (silent-default risk), or
 - its input needs lead time (stakeholder availability, external data).
@@ -97,8 +97,10 @@ The 2×2:
 
 | | Judgment | Empirical |
 |---|---|---|
-| **Hosted** (fits one work item) | `Open questions` in the contract | probe mid-implementation (`craft:prototype`) |
+| **Hosted** (fits one work item) | `[open]` Decision-log row in the contract | probe mid-implementation (`craft:prototype`) |
 | **Homeless** (orphaned) | `Decision` ticket | `Spike` ticket |
+
+**The 2×2 assumes you can state the unknown.** If you can't yet phrase it as a question, none of these four cells apply — it isn't a ticket or a row, it's fog, and on a breakdown parent it belongs in the contract's `Not yet specified` (contract template v2.2). Don't manufacture a `Spike` out of something you can't pose a question for; that's how a backlog fills with tickets nobody can start.
 
 Labels are not static:
 
@@ -180,7 +182,7 @@ Timebox: <e.g. 2h, half a day>
 
 **Full spec-flow contract template (when the ticket *is* the contract):**
 
-The six-section template from `spec-flow:draft` (`What we're doing` / `Why` / `Approach` / `Out of scope` / `Done when` / `Open questions`). Used when the ticket is being created or written by `spec-flow:draft` against a Linear host. spec-flow handles writing this — this skill governs the surrounding fields (labels, priority, state, milestone).
+The six-section template from `spec-flow:draft` (`What we're doing` / `Why` / `Out of scope` / `Done when` / `Approach / wiring` / `Decision log`). Used when the ticket is being created or written by `spec-flow:draft` against a Linear host. A breakdown parent carries a seventh, `Not yet specified` — written by `pm:breakdown`, not by draft. spec-flow handles writing this — this skill governs the surrounding fields (labels, priority, state, milestone).
 
 ## MCP gotchas
 
