@@ -117,7 +117,7 @@ The gate does **not** fire — proceed straight to drafting — when any of thes
 - **`craft` not installed** — soft composition preserved; spec-flow:draft works standalone.
 - **Nouns present and used consistently** — nothing to lock down.
 
-Because step 3 already explored the codebase, run grill-with-docs warm: its interview loop answers from the code rather than asking (`grill-with-docs` step: *"If a question can be answered by exploring the codebase, explore the codebase instead of asking"*), so scope the interview to the contested terms — not a cold walk down the full design tree.
+Because step 3 already explored the codebase, run grill-with-docs warm: the interview loop it dispatches (`craft:grill`) looks facts up from the environment rather than asking the user for them, so scope the interview to the contested terms — not a cold walk down the full decision tree.
 
 If the change **designs or extends a model that spans dimensions** — adding a second/orthogonal axis, a new role/tier, or a new principal type to an authz scheme, permission table, state machine, data model, or tenancy model — and the `craft` plugin is installed, suggest invoking `/interrogate-model` to check the extended model's representability *before* drafting the Approach. This is the design-time catch for emergent cross-axis conflations (decisions made weeks apart fusing at the seam). Same soft composition as above — the suggestion simply doesn't fire if craft isn't installed. Unlike the vocabulary gate, this stays a suggestion: the trigger above is already a structural property of the change rather than a judgment call about how the conversation feels, so it does not have the never-fires failure mode the gate was written to close.
 
