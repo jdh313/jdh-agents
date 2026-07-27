@@ -1,6 +1,6 @@
 # Upstream divergences — teach
 
-_Upstream: `mattpocock/skills` · `skills/productivity/teach` · ledger current as of `reviewed_sha: aa024cb1954f`_
+_Upstream: `mattpocock/skills` · `skills/productivity/teach` · ledger current as of `reviewed_sha: 697d4ce9742d`_
 
 Intentional divergences from upstream. Reviewed via `skillsmith:upstream-review` intake (2026-06-12); adapted for Obsidian-vault routing the same day. Do not re-flag these as findings. Read by `upstream-review` only; never referenced from `SKILL.md`.
 
@@ -37,3 +37,5 @@ Lesson philosophy and beauty bar; fluency-vs-storage-strength; zone of proximal 
 | changed | Upstream added a reuse-first `./assets/` model since our pin: lessons are built from linked, cross-lesson-shared components — a shared stylesheet ("the first component every workspace earns") and shared quiz/simulator JS. We keep copy-in-only: each lesson stays independently self-contained per `LESSON-DESIGN-SYSTEM.md`'s "Self-contained, always" rule — no shared external stylesheet or JS. | Each lesson must be independently portable; linking to shared workspace assets breaks that guarantee the moment a lesson is copied or shared standalone. The JS-component reuse exception (shared quiz-grading JS) was considered and **deferred**, not adopted. |
 
 **Note (2026-07-09):** Upstream's new `./assets/` section nudges toward a de-facto per-workspace design system (a shared stylesheet as "the first component every workspace earns"). The row 29 claim "Upstream gives no styling/interactivity scaffolding" is trending toward stale — upstream is visibly moving in that direction — though it remains technically true as of this review, since upstream's scaffolding is link-out/shared rather than the copy-in composable system `LESSON-DESIGN-SYSTEM.md` defines.
+
+Pin advanced to `697d4ce9742d` on 2026-07-27 with no ledger change: the only upstream commit touching this path since the previous pin was `697d4ce` "add Codex `agents/openai.yaml` metadata to every skill", verified via `--name-only` to add nothing but that sidecar. No-op for this adaptation — Codex manifests here are generated from `PACKAGE.yaml`.
