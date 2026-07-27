@@ -1,10 +1,12 @@
-# Contract Template (v2.1)
+# Contract Template (v2.2)
 
 Used by `spec-flow:draft` to scaffold a new contract, and by `implement` / `amend` / `close` / `pm:breakdown` as the shared shape they read and write. The body below is the literal scaffold `draft` produces.
 
 The contract shape is **host-agnostic** — the same sections work whether the contract lives in `.docs/YYYY-MM-DD-<slug>.md` or in a Linear ticket description. Only frontmatter is file-only (Linear has its own metadata). See `hosts.md` (same directory) for host selection and per-host behavior.
 
 Governing decisions: ndr `39j5qb` (row supersedes pointer), `k7vepz` (nested parent), `233ar3` (cold-legible close), `kq7za5` (`[deferred]` drain), `957bqa` (audience primary). Rationale: `.docs/model-review-2026-07-10-contract-v2.md`.
+
+The `Not yet specified` section (v2.2) adapts the **fog of war** model from the `wayfinder` skill in [mattpocock/skills](https://github.com/mattpocock/skills) (MIT, © 2026 Matt Pocock) — the dim view ahead, the phrase-it-now sharpness test, and graduation as the frontier advances. The idea only; no skill was ported, and this contract shape is otherwise unrelated to wayfinder's map.
 
 ## The model
 
@@ -78,6 +80,21 @@ A resolved decision that REVERSES gets a NEW row pointing back via ^id.
 <!-- ^r1 is minted on the FIRST row only because the third row points back at it. The
      third (reversing) row carries no anchor of its own — nothing points back at it yet. -->
 
+## Not yet specified
+
+<!--
+BREAKDOWN PARENTS ONLY — omit on a single contract.
+The fog ahead: forks you can tell are coming but cannot yet state as a question.
+The test is whether you can PHRASE it now, not whether you can ANSWER it now —
+a sharp-but-unanswerable fork is a Decision-log [open] row or its own slice, not fog.
+Patches GRADUATE: when a slice closes and sharpens one, it becomes slices and leaves here.
+Coarser than a slice — one patch may graduate into several, or none.
+Excludes: what's decided (Decision log), what's already a slice, what's past the
+destination (Out of scope — that's a scope call, not a sharpness one).
+-->
+
+- <area of fog — the suspected question, as loosely as the view allows>
+
 ```
 
 ## Conventions
@@ -103,11 +120,13 @@ Three operations, organized by **"does this renegotiate the live agreement?"**:
 - **Row-id syntax:** an anchor `^r<N>` (`^r1`, `^r2`, …) placed right after the state token. Ids are **minted on demand** — a row gets one only when a later row points back at it. A successor references it inline: `_supersedes:_ ^r1`.
 - **Reversal:** a reversed decision gets a NEW `[resolved]` row carrying `_supersedes:_ ^<row-id>` pointing at the original; the original row is **retained, not edited** (its reasoning is the record of why the first call was made).
 - **Exclusions** route by the test *"was this a live fork?"*: never-considered → Out-of-scope fence; considered-and-rejected → `[resolved]` rejected-alt (may promote at close); not-now-maybe-later → `[deferred]` (mandatory drain).
+- **Not yet a fork at all** → `Not yet specified` (breakdown parents only). A Decision-log row *is* a fork — it carries `fork → call · because · alt · revisit`. Something you can't yet phrase as a question has no fork to write, so it can't be a row; it's fog. The router's question is sharpness, and it runs **before** the live-fork test: can you state it now? No → fog. Yes → the live-fork test decides which slot.
 
 ### Drain at close
 
 - **Working-matter only.** Decision log `[resolved]` rows are the **candidate set** handed to `/capture-decision`, which applies the **canonical ndr worthiness rubric** — the worksheet does NOT pre-filter with its own gate. Approach/wiring evaporates; durable/user-facing wiring reaches README via close's existing README-update proposal, not a section drain.
 - **`[deferred]` rows carry a mandatory drain.** Each must materialize as a tracked artifact (a `spec-flow:capture` ticket by default, or a link to an existing one) before close can archive — an ephemeral contract cannot honestly carry "later." See the close skill's deferral gate.
+- **Un-graduated `Not yet specified` patches drain too**, at parent-close, by the same logic: fog written down because you expected it to matter cannot quietly evaporate with the worksheet. Three dispositions, user's call per patch — **graduated** (already became slices; nothing to do), **out of scope** (the effort's destination moved past it; one line to the Out-of-scope fence, citing the patch), or **still real** (drains to `spec-flow:capture`). Capture is the natural landing: it is the zero-ceremony path built to accept a one-liner or rough paragraph, which is exactly a fog patch's shape. See the close skill's breakdown-parent gate.
 - **Front-matter** has no structural drain (rests in the archived contract / Linear body).
 
 ### Audience & state
@@ -119,8 +138,9 @@ Three operations, organized by **"does this renegotiate the live agreement?"**:
 
 There is **one shape**. A contract, or a **tree of contracts**. Verbose-vs-thin is fill depth, not a second shape.
 
-- **Single change** — front-matter lean, Decision log local. The everyday contract.
+- **Single change** — front-matter lean, Decision log local, **no `Not yet specified`**. A single change with fog in it isn't a contract yet; that's a `spec-flow:capture` stub.
 - **Breakdown** — the **parent is a normal contract at change altitude** (full front-matter + working-matter), **not** read-only. Each substantial slice is its own contract with a pointer to the parent.
+  - **Fog lives on the parent only.** `Not yet specified` is the parent's dim view of the whole effort; slices inherit nothing. It is **working-matter**, so adding a patch is a free append — no amend sign-off, the same as logging a Decision row. `pm:breakdown` writes it while charting and owns graduation; `spec-flow:close` owns its drain at parent-close.
   - **Decision altitude (duplication rule):** whole-change and cross-slice decisions live in the **parent's** Decision log; slice-local decisions live in the **slice's**. A decision belongs to exactly one log. Placement is author judgment during implement; `close` flags literal cross-log duplication at parent-close, not misplacement.
   - **Parent-close harvests too:** `close` runs per-slice, and the parent closes **last** — harvesting its integration/whole-change decisions. The parent has its own amend discipline (a breakdown's whole-change Done-when *can* change mid-flight).
   - **Wide refactor (shared integration):** migrate slices carry a **relative** Done-when ("call sites moved; end-to-end green promised at `<final slice>`"); close honors the deferral (`met-with-deferral`, not `not_met`). The final integrate-and-verify slice owns the cross-batch Done-when + integration Decision log.

@@ -98,8 +98,14 @@ Detect whether this contract is a **breakdown parent** — its Decision log or b
 - **The parent closes last.** Every child slice must already be closed — child files in `.docs/archive/`, or child tickets in a review-or-later state. If any child is still open, halt and list them: the parent cannot close over open slices.
 - **Parent-close harvests the parent's own log.** Run the normal migration (steps 3–6) against the parent's front-matter + its **integration / whole-change** Decision-log rows — the cross-slice calls that never belonged to any single slice.
 - **Flag literal duplication.** If a decision appears verbatim in both the parent log and a (now-archived) slice log, surface it — a row belongs to exactly one log. This is a duplication flag, not a misplacement audit; correct placement was author judgment at implement time.
+- **Drain un-graduated fog.** Read the parent's `## Not yet specified`. Every remaining patch is fog the effort never sharpened, and it cannot evaporate with the worksheet for the same reason a `[deferred]` row can't (gate 2b) — it was written down because it was expected to matter. Present each patch and take the user's disposition, one at a time:
+  - **Out of scope** — the destination settled somewhere that leaves this past the boundary. Append one line to the parent's `Out of scope` fence and clear the patch. It does **not** enter the migration candidate set: a scope boundary is not a decision the effort made.
+  - **Still real** — dispatch `Skill(spec-flow:capture)` to file it as a Backlog ticket, then replace the patch with the returned handle. Capture is built to accept exactly this vagueness; do not make the user sharpen a fog patch into a well-formed ticket just to close.
+  - **Was never real** — drop it. Allowed, but make the user say so explicitly rather than defaulting to it, and don't offer it first.
 
-A non-parent (single) contract skips this gate.
+  Do not archive a parent whose `Not yet specified` still holds an undisposed patch. If the section is absent or empty, this bullet is a no-op — that is the normal case for a parent whose fog fully graduated.
+
+A non-parent (single) contract skips this gate. Fog lives only on parents, so a single contract has no `Not yet specified` to drain.
 
 ### 3. Post team-facing outcome summary (Linear host only)
 
@@ -240,6 +246,16 @@ Brief summary to the user, wording differs by host:
 
 - **File host:** *"Closed `<slug>`. 2 ndr atoms created, 1 README update applied. Contract archived at `.docs/archive/<filename>.md`."*
 - **Linear host:** *"Closed TEAM-123. Outcome summary + verification record posted as comments; 2 ndr atoms created, 1 README update applied. Moved to In Review; `contracted` label removed; ticket body left intact. Set it Done yourself when the PR merges."*
+
+### 8a. Offer to graduate parent fog (breakdown slices only)
+
+When the contract just closed is a **child slice** of a breakdown parent, read the parent's `## Not yet specified`. Ask whether resolving this slice sharpened any patch — a patch graduates when its question can now be *stated*, which is not the same as answered.
+
+If one has, don't spawn the slice here. Say what sharpened and route:
+
+> "Closing this looks like it sharpened *<patch>* on <parent>. Run `/pm:breakdown <parent>` to graduate it into slices?"
+
+`pm:breakdown` owns creating slices and clearing the graduated patch; close only notices. Skip silently when the parent has no fog section, nothing sharpened, or this isn't a breakdown slice.
 
 ### 9. Recommend what's next (optional)
 
