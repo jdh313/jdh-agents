@@ -4,8 +4,8 @@ description: Shared vocabulary for designing deep modules. Use when the user wan
 upstream:
   repo: mattpocock/skills
   path: skills/engineering/codebase-design
-  reviewed_sha: ee8bae40062c
-  reviewed: 2026-07-09
+  reviewed_sha: 697d4ce9742d
+  reviewed: 2026-07-27
   status: reviewed
 allowed-tools:
   - Read

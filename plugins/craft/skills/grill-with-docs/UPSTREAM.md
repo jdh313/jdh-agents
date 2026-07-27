@@ -1,6 +1,6 @@
 # Upstream divergences — grill-with-docs
 
-_Upstream: `mattpocock/skills` · `skills/engineering/grill-with-docs` · ledger current as of `reviewed_sha: 658d53e6ded8`_
+_Upstream: `mattpocock/skills` · `skills/engineering/grill-with-docs` · ledger current as of `reviewed_sha: 697d4ce9742d`_
 
 Intentional divergences from upstream. Reviewed via `skillsmith:upstream-review` — do not re-flag these as findings. Read by `upstream-review` only; never referenced from `SKILL.md`.
 
@@ -15,3 +15,5 @@ Upstream's `grill-with-docs` collapsed to a thin dispatcher over `/grilling` + `
 ## Corrected earlier review
 
 - Removed a **fabricated attribution**: an `## Explicit non-goals` entry (content now owned by `domain-modeling`) claimed Matt's `CONTEXT-FORMAT.md` "asked for a conversation between a dev and a domain expert." The current upstream contains no such thing. Reworded to a positive rule in the absorbed copy.
+
+Pin advanced to `697d4ce9742d` on 2026-07-27 with no ledger change: the only upstream commit touching this path since the previous pin was `697d4ce` "add Codex `agents/openai.yaml` metadata to every skill", verified via `--name-only` to add nothing but that sidecar. No-op for this adaptation — Codex manifests here are generated from `PACKAGE.yaml`.

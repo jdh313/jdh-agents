@@ -5,8 +5,8 @@ effort: high
 upstream:
   repo: mattpocock/skills
   path: skills/engineering/improve-codebase-architecture
-  reviewed_sha: 221ffca96736
-  reviewed: 2026-07-09
+  reviewed_sha: 697d4ce9742d
+  reviewed: 2026-07-27
   status: reviewed
 allowed-tools:
   - Read
@@ -32,6 +32,11 @@ This skill is _informed_ by the project's domain model. The domain language give
 ## Process
 
 ### 1. Explore
+
+**Scope before you scan — YAGNI.** Deepening a module pays off by making future changes to it easier, so put extra weight on the parts of the codebase that have recently changed. Decide *where* to look before you look:
+
+- If the user named a direction — a module, a subsystem, a pain point — take it, and skip the inference below.
+- Otherwise, walk back a good stretch of the commit history (`git log --oneline`) to find the codebase's hot spots — the files and areas that keep coming up — and let those paths pull your attention first. If the changes are scattered with no clear hot spot, widen the net.
 
 Invoke `/ground` to surface relevant NDR atoms in the area you're touching first. Read the project's domain glossary (CONTEXT.md) alongside the grounded decisions.
 
@@ -72,7 +77,7 @@ Do NOT propose interfaces yet. After the file is written, ask the user: "Which o
 
 ### 3. Grilling loop
 
-Once the user picks a candidate, drop into a grilling conversation. Walk the design tree with them — constraints, dependencies, the shape of the deepened module, what sits behind the seam, what tests survive.
+Once the user picks a candidate, drop into a grilling conversation. Walk the decision tree with them — constraints, dependencies, the shape of the deepened module, what sits behind the seam, what tests survive.
 
 Side effects happen inline as decisions crystallize:
 

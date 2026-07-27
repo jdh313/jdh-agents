@@ -1,6 +1,6 @@
 # Upstream divergences — domain-modeling
 
-_Upstream: `mattpocock/skills` · `skills/engineering/domain-modeling` · ledger current as of `reviewed_sha: ee8bae40062c`_
+_Upstream: `mattpocock/skills` · `skills/engineering/domain-modeling` · ledger current as of `reviewed_sha: 697d4ce9742d`_
 
 Intentional divergences from upstream. Reviewed via `skillsmith:upstream-review` (2026-07-09) — do not re-flag these as findings. Read by `upstream-review` only; never referenced from `SKILL.md`.
 
@@ -18,3 +18,5 @@ The active-discipline framing, the four conversation moves (challenge against th
 ## Provenance / absorption note
 
 `CONTEXT-FORMAT.md` here is the canonical copy, absorbed from the former `grill-with-docs/CONTEXT-FORMAT.md`. As of Phase 2 (2026-07-09) the `grill-with-docs` copy was deleted and `grill-with-docs/SKILL.md` now dispatches to this skill for CONTEXT.md maintenance — `domain-modeling` is the sole owner of the format.
+
+Pin advanced to `697d4ce9742d` on 2026-07-27 with no ledger change: the only upstream commit touching this path since the previous pin was `697d4ce` "add Codex `agents/openai.yaml` metadata to every skill", verified via `--name-only` to add nothing but that sidecar. No-op for this adaptation — Codex manifests here are generated from `PACKAGE.yaml`.

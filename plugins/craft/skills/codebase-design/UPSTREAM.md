@@ -1,6 +1,6 @@
 # Upstream divergences — codebase-design
 
-_Upstream: `mattpocock/skills` · `skills/engineering/codebase-design` · ledger current as of `reviewed_sha: ee8bae40062c`_
+_Upstream: `mattpocock/skills` · `skills/engineering/codebase-design` · ledger current as of `reviewed_sha: 697d4ce9742d`_
 
 Intentional divergences from upstream. Reviewed via `skillsmith:upstream-review` (2026-07-09) — do not re-flag these as findings. Read by `upstream-review` only; never referenced from `SKILL.md`.
 
@@ -23,3 +23,5 @@ This skill was **created by consolidating pre-existing `craft` content** that pr
 ## Downstream rewiring (Phase 2 — complete 2026-07-09)
 
 All consumers were rewired to dispatch here: `tdd`, `improve-codebase-architecture`, and `grok` now point at `Skill(craft:codebase-design)` for the deep-module vocabulary. The former static `references/LANGUAGE.md` and `improve-codebase-architecture`'s own `INTERFACE-DESIGN.md` / `DEEPENING.md` copies were deleted. This skill is now the sole owner of the architecture vocabulary.
+
+Pin advanced to `697d4ce9742d` on 2026-07-27 with no ledger change: the only upstream commit touching this path since the previous pin was `697d4ce` "add Codex `agents/openai.yaml` metadata to every skill", verified via `--name-only` to add nothing but that sidecar. No-op for this adaptation — Codex manifests here are generated from `PACKAGE.yaml`.
