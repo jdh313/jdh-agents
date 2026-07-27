@@ -5,8 +5,8 @@ disable-model-invocation: true
 upstream:
   repo: mattpocock/skills
   path: skills/productivity/writing-great-skills
-  reviewed_sha: af6d6922c3e2
-  reviewed: 2026-07-10
+  reviewed_sha: 697d4ce9742d
+  reviewed: 2026-07-27
   status: reviewed
 ---
 

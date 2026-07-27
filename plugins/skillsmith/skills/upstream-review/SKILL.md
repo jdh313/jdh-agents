@@ -43,7 +43,8 @@ upstream:
   path: path/to/skill/dir       # path within the upstream repo
   reviewed_sha: <12-char sha>   # the last upstream commit touching `path` that we reconciled against
   reviewed: YYYY-MM-DD          # date of that reconciliation
-  status: reviewed | baseline   # see below
+  status: reviewed | baseline | upstream-removed   # see below
+  removed_sha: <12-char sha>    # upstream-removed only: the commit that deleted `path`
 ```
 
 `reviewed_sha` is the **last commit that touched `path`**, not the repo HEAD. Drift = "a newer commit has touched `path` since `reviewed_sha`."
@@ -52,6 +53,7 @@ upstream:
 
 - **`reviewed`** — a full behavioral comparison was run against `reviewed_sha`; divergences are known and documented.
 - **`baseline`** — provenance was pinned without a behavioral review (e.g. a backfill). The SHA is captured, but **pre-existing silent divergences between the local adaptation and `reviewed_sha` have not been checked**. A drift check on a baseline skill only catches *future* upstream commits — so a `baseline` skill still owes a first full review. Treat `baseline` as a to-do, not a clean bill.
+- **`upstream-removed`** — upstream deleted `path`; we kept the skill. `reviewed_sha` freezes at the last revision that existed upstream, and `removed_sha` records the deletion commit. **There is nothing left to drift against** — skip this skill on future drift sweeps rather than reporting a false clean result. Local changes from here on are ownership, not divergence, so the ledger stops taking new rows and freezes as a historical record. The license and attribution obligations survive the deletion; never strip them.
 
 ## Divergence ledger (`UPSTREAM.md`)
 
@@ -77,13 +79,17 @@ _Upstream: `<repo>` · `<path>` · ledger current as of `reviewed_sha: <sha>`_
 
 ## Procedure
 
-1. **Resolve provenance.** Drift mode: read the `upstream:` block. Intake mode: take `repo` + `path` from the user (derive from a URL if given).
+1. **Resolve provenance.** Drift mode: read the `upstream:` block. If `status: upstream-removed`, there is no live upstream — say so and stop; do not report it as "no drift." Intake mode: take `repo` + `path` from the user (derive from a URL if given).
 
 2. **Detect drift** (drift mode):
    ```bash
    gh api 'repos/<repo>/commits?path=<path>&per_page=1' --jq '.[0].sha[0:12] + "  " + .[0].commit.committer.date'
    ```
    If that SHA equals `reviewed_sha`, upstream is unchanged — report "no drift" and stop. Otherwise continue.
+
+   **Check what the newest commit did before assuming it's behavioral.** Two cases end the review early with a pin bump and no adjudication: (a) the commit only touches files the adaptation doesn't consume (metadata sidecars, per-runtime manifests, README indexes) — confirm with `--name-only` rather than the subject line; (b) the commit *deleted* `path`, in which case the skill is now a fork of a retired upstream — set `status: upstream-removed` (see above) instead of advancing `reviewed_sha`.
+
+   When a local clone of the upstream repo is available, prefer it over `gh api` for this step — `git log <reviewed_sha>..HEAD -- <path>` gives the full commit list and `git diff <reviewed_sha>..HEAD -- <path>` gives exactly the delta to adjudicate, which is far cheaper than re-reading whole files. Confirm the clone is current first (`git fetch --dry-run`, `git status -sb`) or the drift result is a lie.
 
 3. **Fetch the upstream files verbatim.** Use the GitHub API, NOT WebFetch — WebFetch routes through a summarizing model that drops content (link conventions, whole sections) and refuses verbatim reproduction past its quote limit. Get the real bytes:
    ```bash
