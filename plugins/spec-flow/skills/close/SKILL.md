@@ -9,12 +9,14 @@ allowed-tools:
   - Read
   - Glob
   - Grep
+  - Edit
   - Bash(ls *)
+  - Bash(trash *)
 ---
 
 # spec-flow:close
 
-Close an active contract. Migrate durable findings to ndr atoms and README; archive the file or hand the ticket back to the human, depending on host. See `../../references/hosts.md` for the dual-host model.
+Close an active contract. Migrate durable findings from the **companion doc** to ndr atoms and README, then delete the companion; archive the **contract doc** or hand the ticket back to the human, depending on host. See `../../references/hosts.md` for the two-document model.
 
 ## When to invoke
 
@@ -47,12 +49,15 @@ If host = linear, check that `mcp__linear-server__*` tools are loaded. If not:
 
 Do not install or configure the integration without approval, and never ask the user to paste credentials into chat.
 
-### 2. Read the contract and the actual change
+### 2. Read both documents and the actual change
 
-- **File host** — `Read` the contract file.
-- **Linear host** — Fetch description via `mcp__linear-server__get_issue`.
+The closer is a **cold reader of both tiers** (`233ar3`) — read the contract doc *and* the companion.
+
+- **Contract doc (front-matter)** — file host: `Read` the file. Linear host: fetch description via `mcp__linear-server__get_issue`.
+- **Companion doc (working-matter)** — `Read` `.docs/<date>-<slug>-companion.md` on **both** hosts. Locate it via the contract doc's pointer (`companion:` frontmatter key, or the trailing `Companion:` line in the description); failing that, glob `.docs/*-companion.md` for a matching `contract:` value.
+- **No companion** — the contract predates v2.3. Fall back to reading working-matter from the contract doc itself; every gate below then reads its *Approach / wiring*, *Decision log*, and *Not yet specified* from there. Note the absence in the close summary. Do not create a companion at close — there is nothing left to write into it.
 - **Detect the VCS first** — if `.jj/` exists at the repo root, use `jj log` / `jj diff`; otherwise `git log` / `git diff`. Survey what actually shipped since the contract was created.
-- Compare: what was in *Approach / wiring* (or *Approach* on a pre-v2.1 contract) vs. what's in the code now.
+- Compare: what was in the companion's *Approach / wiring* (or *Approach* on a pre-v2.1 contract) vs. what's in the code now.
 
 ### 2.5. Done-when check (first gate)
 
@@ -81,9 +86,9 @@ If yes, dispatch the skill and weave its findings into the migration proposal in
 
 ### 2b. Deferral materialization gate (second gate)
 
-The contract is ephemeral — its Decision log dies at archive. A `[deferred]` row tracked *only* in the dying worksheet is just forgetting with better manners, so close will not cleanly archive a contract holding an **un-materialized** deferral.
+The companion is ephemeral — it is **deleted** at close (step 6), so its Decision log genuinely dies. A `[deferred]` row tracked *only* there is just forgetting with better manners, so close will not cleanly archive a contract holding an **un-materialized** deferral.
 
-Scan the Decision log for `[deferred]` rows. Each must carry a **materialized handle** — a link or id to a durable tracked artifact (`tracked in TEAM-456`, `tracked in .docs/…`, `tracked in ndr:…`). For any `[deferred]` row missing one, halt and offer:
+Scan the companion's Decision log for `[deferred]` rows. Each must carry a **materialized handle** — a link or id to a durable tracked artifact (`tracked in TEAM-456`, `tracked in .docs/…`, `tracked in ndr:…`). For any `[deferred]` row missing one, halt and offer:
 
 - **Spawn a follow-up (default):** invoke `Skill(spec-flow:capture)` to file a zero-ceremony Backlog ticket (linear host) or `status: captured` stub (file host) carrying the row's fork + why-not-now, then **backfill** the returned handle into the row.
 - **Link an existing artifact:** the user names the ticket/note that already tracks it; backfill that handle.
@@ -93,13 +98,13 @@ Do not archive until every `[deferred]` row carries a handle. The three row stat
 
 ### 2c. Breakdown-parent gate (nested contracts)
 
-Detect whether this contract is a **breakdown parent** — its Decision log or body carries child-slice pointers (child `TEAM-N` relations on the linear host, or referenced child files). If it is:
+Detect whether this contract is a **breakdown parent** — its companion's Decision log or the contract doc's body carries child-slice pointers (child `TEAM-N` relations on the linear host, or referenced child files). If it is:
 
 - **The parent closes last.** Every child slice must already be closed — child files in `.docs/archive/`, or child tickets in a review-or-later state. If any child is still open, halt and list them: the parent cannot close over open slices.
 - **Parent-close harvests the parent's own log.** Run the normal migration (steps 3–6) against the parent's front-matter + its **integration / whole-change** Decision-log rows — the cross-slice calls that never belonged to any single slice.
 - **Flag literal duplication.** If a decision appears verbatim in both the parent log and a (now-archived) slice log, surface it — a row belongs to exactly one log. This is a duplication flag, not a misplacement audit; correct placement was author judgment at implement time.
-- **Drain un-graduated fog.** Read the parent's `## Not yet specified`. Every remaining patch is fog the effort never sharpened, and it cannot evaporate with the worksheet for the same reason a `[deferred]` row can't (gate 2b) — it was written down because it was expected to matter. Present each patch and take the user's disposition, one at a time:
-  - **Out of scope** — the destination settled somewhere that leaves this past the boundary. Append one line to the parent's `Out of scope` fence and clear the patch. It does **not** enter the migration candidate set: a scope boundary is not a decision the effort made.
+- **Drain un-graduated fog.** Read `## Not yet specified` in the parent's **companion**. Every remaining patch is fog the effort never sharpened, and it cannot evaporate with the companion for the same reason a `[deferred]` row can't (gate 2b) — it was written down because it was expected to matter. Present each patch and take the user's disposition, one at a time:
+  - **Out of scope** — the destination settled somewhere that leaves this past the boundary. Append one line to the parent **contract doc's** `Out of scope` fence and clear the patch from the companion. This is a contract-doc write, so it rides this close's sign-off (step 5) rather than going in silently; batch it with any `reconcile` edits into one host write. It does **not** enter the migration candidate set: a scope boundary is not a decision the effort made.
   - **Still real** — dispatch `Skill(spec-flow:capture)` to file it as a Backlog ticket, then replace the patch with the returned handle. Capture is built to accept exactly this vagueness; do not make the user sharpen a fog patch into a well-formed ticket just to close.
   - **Was never real** — drop it. Allowed, but make the user say so explicitly rather than defaulting to it, and don't offer it first.
 
@@ -140,11 +145,11 @@ Surface a structured proposal:
 
 **ndr atoms to capture:**
 
-- The **`[resolved]` Decision-log rows are the candidate set** — this is where the change's real forks were logged during implement. Each row already carries the atom's live-only fields (`fork → call · because · alt · revisit-if`); drafting an atom is **copy-plus-fill**: copy those, fill the derivable remainder (Scope, Commitments; `/capture-decision` mints the id). Include any rows spawned by a `reconcile` in the done-when gate.
+- The **companion's `[resolved]` Decision-log rows are the candidate set** — this is where the change's real forks were logged during implement, and deleting the companion at step 6 is the only thing that makes this harvest load-bearing rather than optional. Each row already carries the atom's live-only fields (`fork → call · because · alt · revisit-if`); drafting an atom is **copy-plus-fill**: copy those, fill the derivable remainder (Scope, Commitments; `/capture-decision` mints the id). Include any rows spawned by a `reconcile` in the done-when gate.
 - **Pre-v2.1 fallback (no Decision log).** A contract drafted before the worksheet shape has no Decision log — its architectural decisions live in *Approach*. If the contract has no `## Decision log` section, harvest the candidate set the old way: for each real choice in *Approach* (library, pattern, structural decision), draft an atom. Do not let *Approach* evaporate un-harvested here — that path only applies to the ephemeral *Approach / wiring* of a v2.1 contract, whose calls were already logged as rows.
 - **Do not pre-filter with a worksheet gate.** Hand the full `[resolved]` set to `/capture-decision` and let it apply the **canonical ndr worthiness rubric** — the contract's job is to surface candidates, not to adjudicate NDR-grade.
 - A `[resolved]` row that *reverses* an earlier one (carries `_supersedes:_ ^rN`) drafts as a **superseding** atom — resolve the predecessor's head and set `supersedes:` per the ndr plugin's conventions.
-- **`Approach / wiring` evaporates** — it is ephemeral integration mechanics, not a decision. Anything durable or user-facing in it reaches README via the README-update proposal below, not an atom.
+- **`Approach / wiring` evaporates** — it is ephemeral integration mechanics, not a decision, and it leaves with the deleted companion. Anything durable or user-facing in it reaches README via the README-update proposal below, not an atom. This is the last chance to notice something in it worth keeping.
 
 **README updates:**
 
@@ -162,8 +167,8 @@ Surface a structured proposal:
 - *Out of scope* items (by definition not part of this change).
 - Decision-log `[resolved]` rows that `/capture-decision` judged below NDR-grade (the rubric's call, not the worksheet's).
 - `[deferred]` rows — already materialized as their own tracked artifact by the deferral gate (step 2b); they don't also migrate here.
-- *Approach / wiring* — ephemeral by design; evaporates at archive.
-- Conversation history (lives in the contract file until archive).
+- *Approach / wiring* — ephemeral by design; leaves with the deleted companion.
+- Conversation history (lives in the companion until it is deleted).
 
 Present as a diff-style list:
 
@@ -192,9 +197,19 @@ If approved, execute each:
 
 If the user wants to skip or modify any item, accommodate that.
 
-### 6. Archive the contract (host-aware)
+### 6. Archive the contract doc, delete the companion
 
-**File host:**
+**Both hosts — delete the companion.** This runs **after** step 5's migrations have applied, never before: the deletion is the drain's completion signal, and gates 2b (deferrals) and 2c (fog) plus step 4's harvest must all have landed first.
+
+```bash
+trash .docs/<date>-<slug>-companion.md
+```
+
+Use `trash`, not `rm` — recovery stays available. If the companion is tracked, the deletion is a real commit: under jj (`.jj/` present) it auto-tracks; on pure git use `git rm`. Either way commit it via `Skill(commit:commit)`, folding it into the close commit from step 5 when that hasn't run yet. Git history retains the file's content — deletion removes it from the working set, not from the record, which is what makes "throwaway" honest rather than lossy.
+
+If step 2 found no companion (pre-v2.3 contract), skip this — there is nothing to delete.
+
+**File host — archive the contract doc:**
 
 Move the contract file:
 
@@ -244,12 +259,12 @@ Before confirming, check that nothing this change produced is left uncommitted �
 
 Brief summary to the user, wording differs by host:
 
-- **File host:** *"Closed `<slug>`. 2 ndr atoms created, 1 README update applied. Contract archived at `.docs/archive/<filename>.md`."*
-- **Linear host:** *"Closed TEAM-123. Outcome summary + verification record posted as comments; 2 ndr atoms created, 1 README update applied. Moved to In Review; `contracted` label removed; ticket body left intact. Set it Done yourself when the PR merges."*
+- **File host:** *"Closed `<slug>`. 2 ndr atoms created, 1 README update applied. Contract archived at `.docs/archive/<filename>.md`; companion deleted."*
+- **Linear host:** *"Closed TEAM-123. Outcome summary + verification record posted as comments; 2 ndr atoms created, 1 README update applied. Moved to In Review; `contracted` label removed; ticket body left intact; companion deleted. Set it Done yourself when the PR merges."*
 
 ### 8a. Offer to graduate parent fog (breakdown slices only)
 
-When the contract just closed is a **child slice** of a breakdown parent, read the parent's `## Not yet specified`. Ask whether resolving this slice sharpened any patch — a patch graduates when its question can now be *stated*, which is not the same as answered.
+When the contract just closed is a **child slice** of a breakdown parent, read `## Not yet specified` in the parent's companion. Ask whether resolving this slice sharpened any patch — a patch graduates when its question can now be *stated*, which is not the same as answered.
 
 If one has, don't spawn the slice here. Say what sharpened and route:
 

@@ -1,6 +1,6 @@
 ---
 name: implement
-description: This skill should be used when the user runs `/spec-flow implement [name]` or otherwise signals a transition from a drafted contract to actual coding work. Trigger phrases include "spec-flow implement", "let's start coding on the X contract", "pick up the X contract", "resume the X change", "continue the okta-auth work". Accepts either a file slug or a Linear ticket ID (e.g. `TEAM-123`). Covers both first-run implementation (negotiate handoff cadence, begin work) and resumption (restore context from contract, summarize where work last left off, continue). Same flow either way — read state, summarize, confirm cadence, execute. May invoke `spec-flow:amend` mid-implementation when reality diverges from the contract.
+description: This skill should be used when the user runs `/spec-flow implement [name]` or otherwise signals a transition from a drafted contract to actual coding work. Trigger phrases include "spec-flow implement", "let's start coding on the X contract", "pick up the X contract", "resume the X change", "continue the okta-auth work". Accepts either a file slug or a Linear ticket ID (e.g. `TEAM-123`). Covers both first-run implementation (negotiate handoff cadence, begin work) and resumption (restore context from contract, summarize where work last left off, continue). Same flow either way — read state, summarize, confirm cadence, compile the contract's *Done when* bullets into committed failing tests via an isolated red-phase author, then execute against them. May invoke `spec-flow:amend` mid-implementation when reality diverges from the contract.
 argument-hint: "[contract slug or TEAM-N; omit to infer]"
 allowed-tools:
   - mcp__linear-server__get_issue
@@ -9,12 +9,14 @@ allowed-tools:
   - Read
   - Glob
   - Grep
+  - Edit
+  - Write
   - Bash(ls *)
 ---
 
 # spec-flow:implement
 
-Start or resume implementation against an active contract. Works for both file-hosted (`.docs/`) and Linear-hosted contracts; the only difference is where the body is read from. See `../../references/hosts.md`.
+Start or resume implementation against an active contract. A contract is **two documents** — the durable **contract doc** (front-matter, file- or Linear-hosted) and the throwaway **companion doc** (working-matter, always `.docs/<date>-<slug>-companion.md`). Implementation reads both and writes only to the companion. See `../../references/hosts.md`.
 
 ## When to invoke
 
@@ -39,7 +41,7 @@ If a name was given as argument:
 
 If no name was given, enumerate active contracts across both hosts:
 
-- **File host** — scan `.docs/` (excluding `archive/` and `status: captured` stubs).
+- **File host** — scan `.docs/` (excluding `archive/`, `status: captured` stubs, and `*-companion.md` — a companion is half of a contract, never a contract in its own right).
 - **Linear host** (when the MCP is connected) — `mcp__linear-server__list_issues` filtered to the `contracted` label (team per the linear plugin's conventions; **no assignee filter** — list all team contracts; match the label name case-insensitively). The label is the canonical "this is a contract" signal, independent of workflow state. An issue carrying `contracted` (or, failing that, one whose description carries the six-section shape — `## What we're doing` is the cheap test) is ready to implement; it does not need to be in any particular state. Display the assignee per contract so ownership is visible when listing.
 
 Then:
@@ -56,8 +58,14 @@ Do not install or configure the integration without approval, and never ask the 
 
 ### 2. Read the contract
 
+Read the **contract doc** for front-matter:
+
 - **File host** — `Read` the contract file.
-- **Linear host** — Fetch via `mcp__linear-server__get_issue` and parse the description for the 6 sections.
+- **Linear host** — Fetch via `mcp__linear-server__get_issue` and parse the description.
+
+Then read the **companion doc** for working-matter — *Approach / wiring*, the *Decision log* (its `[open]` rows shape step 4's cadence conversation), and *Not yet specified* on a breakdown parent. Find it from the contract doc's pointer: the `companion:` frontmatter key (file host) or the trailing `Companion:` line (Linear host). If the pointer is absent, fall back to globbing `.docs/*-companion.md` for one whose `contract:` frontmatter matches this contract's slug or ticket ID.
+
+**If no companion exists**, the contract predates the two-document split (v2.3) or was drafted incompletely. Say so once, create one from the template's companion scaffold, and migrate any working-matter sections still sitting in the contract doc into it — leaving them behind means appends split across two places. On the Linear host, removing those sections from the description is a contract-doc write; batch it with the pointer line into a single `save_issue`.
 
 Follow any linked ndr atoms (`[[ndr-...]]` references) and read them.
 
@@ -101,6 +109,35 @@ If a sensible breakpoint exists, propose it:
 
 Wait for the user's choice. Do not persist this — cadence is per-session.
 
+### 4.5. Red phase — compile *Done when* into failing tests
+
+Before any implementation code is written, turn the contract's *Done when* bullets into tests that **fail**, and commit them. Those tests are the change's green gate.
+
+**Why it runs here and not later.** A test author who can see the implementation writes tests the implementation passes — the failure mode is well documented (SpecBench; "Building to the Test"; EvilGenie). Committing the tests red, before the code exists, is the evidence that their shape came from the contract and not from the diff. Authoring them after execute would not be TDD; it would be step 7 with extra steps.
+
+**Dispatch, don't author.** Run the **`redphase-author`** procedure in an isolated subagent (runtime mapping in `../../references/hosts.md`, procedure in `../agents/redphase-author.md`). Pass it:
+
+- The *Done when* bullets verbatim, and the *What we're doing* / *Out of scope* bullets for context.
+- The repo root and the detected VCS (from step 3).
+- Nothing about your intended implementation — no file plan, no approach notes. The isolation is the point.
+
+It returns, per bullet: `covered` (with the test's file path and test name), `manual` (the bullet describes a smoke check no automated test can express), or `unmappable` (with the reason). Plus a single confirmation that the suite was run and every new test failed for the expected reason.
+
+**What comes back to you is the manifest, not the tests.** Do not open the test files. You will see their names and failure output when you run the suite during execute — that is normal red-green working. Reading their source is not, and neither is editing them:
+
+- A red-phase test that is **wrong** is a contract problem, not a test problem. Surface it, append a `[resolved]` Decision-log row, and get the user's explicit sign-off before the test changes. If the wrongness is in what *Done when* promised, that is `spec-flow:amend`.
+- Never delete, skip, weaken, or `xfail` a red-phase test to get green. If that impulse arrives, the change isn't done.
+
+**Commit the tests as their own checkpoint** before writing implementation code — a single commit containing only the new tests, via the installed `commit` skill. The commit is the timestamp that proves the tests predate the code.
+
+**Skip conditions** — announce which one fired, then continue to execute:
+
+- **No test framework in the repo**, or the change is in a surface with no automated test path (docs-only, prose plugin content). Note it and rely on step 7's `contract-verifier`.
+- **Every bullet came back `manual` or `unmappable`.** Nothing to commit. Same fallback.
+- **`redphase-author` unavailable.** Do not author the tests yourself — that defeats the isolation. Say so and fall back to step 7 as the only gate.
+
+The red phase does **not** replace step 7. These tests assert the user-observable artifact; `contract-verifier` independently drives the behavior. Two gates, different evidence.
+
 ### 5. Execute
 
 **Linear host — move to In Progress.** Before writing any code, transition the ticket to the started state:
@@ -117,19 +154,23 @@ Work according to the chosen cadence:
 - **All at once** — Implement the full change; surface the diff at the end.
 - **Check in after a piece** — Implement up to the agreed breakpoint; surface progress; await sanity-check; continue.
 
-**Append Decision-log rows as forks resolve.** The Decision log is working-matter you *write into* during implementation — this is the routine `append` op (no sign-off; it logs a fact, not a renegotiation). As each fork lands, append a row:
+**Work the red-phase tests green.** If step 4.5 committed tests, they are the running target: implement until they pass. Their failure output is your feedback loop. Do not edit them (step 4.5's rule).
+
+**Append Decision-log rows as forks resolve.** The Decision log lives in the **companion doc** — working-matter you *write into* during implementation. This is the routine `append` op (no sign-off; it logs a fact, not a renegotiation). As each fork lands, append a row:
 
 - **[resolved]** — decided here: `<fork> → **<call>**, because <why>. _alt:_ <rejected + why-not>. _revisit if:_ <trigger>`. Reversing an earlier `[resolved]` row? Append a NEW row carrying `_supersedes:_ ^r<N>`, and add the `^r<N>` anchor to the original row so the pointer resolves (this anchor is the *only* touch the original takes). Never rewrite the original's call or reasoning — it stands as the record of why the first call was made.
 - **[deferred]** — punted to elsewhere: `<fork> → tracked in <handle>, because <why-not-now>`. The handle is backfilled at close if not known yet (close gates archive on it).
 - **[open]** — still unresolved: leave it, or add one if a new fork surfaces mid-flight. Close flags any `[open]` row that ships.
 
-Write rows to a **fresh-closer legibility standard** — the closer may not be you. When a *Done when* bullet turns out to have shipped differently than worded (drift, not a miss), append a `[resolved]` row capturing *why* it drifted; `close`'s `reconcile` op will pick it up. A bullet that genuinely didn't ship is not drift — surface it, don't paper it into a row. On the Linear host, every write is a whole-description overwrite, so appends carry the concurrent-edit guard (re-fetch + compare); on the file host, append is append-only, no guard.
+Write rows to a **fresh-closer legibility standard** — the closer may not be you. When a *Done when* bullet turns out to have shipped differently than worded (drift, not a miss), append a `[resolved]` row capturing *why* it drifted; `close`'s `reconcile` op will pick it up. A bullet that genuinely didn't ship is not drift — surface it, don't paper it into a row.
+
+Appends land in the companion — a `.docs/` file on **both** hosts — so they are `Edit`-append and carry **no** concurrent-edit guard. Nothing in this step touches the ticket description or the contract doc; mid-flight churn never reaches the user's sign-off surface. (The guard survives only on Linear-host *contract-doc* writes — i.e. `spec-flow:amend`.)
 
 **Commit atomically as you go.** Cadence governs when you *check in with the user*, not when you commit — commit each logical, self-contained slice as it lands in the repo's house style via the installed `commit` skill, which detects git vs. jj and writes the message for you. This holds even for "all at once": land the change as a series of atomic commits rather than one end-of-run blob. At a "check in after a piece" breakpoint, commit the slice once the user has sanity-checked the diff. Never commit over a failing verify (step 7). If the `commit` plugin isn't installed, commit directly following applicable repository guidance and recent history.
 
 ### 6. Amend when reality diverges
 
-Distinguish the two working-matter writes from a front-matter amendment. Logging a fork's outcome to the **Decision log** is the routine `append` (step 5) — no sign-off. Invoke the installed `spec-flow:amend` skill only when the **front-matter** is becoming inaccurate — the *target itself* changes: wrong approach, a new constraint narrowing scope, an *Out of scope* item that now needs to be in scope, or a `[open]` Decision-log row whose resolution changes what *Done when* promises. Amending front-matter renegotiates the agreement, so it always takes sign-off. Do NOT silently work outside the contract; do NOT silently edit front-matter.
+Distinguish the companion's working-matter writes from a contract-doc amendment. Logging a fork's outcome to the **Decision log** is the routine `append` (step 5) — no sign-off, and it never leaves the companion. Invoke the installed `spec-flow:amend` skill only when the **contract doc's front-matter** is becoming inaccurate — the *target itself* changes: wrong approach, a new constraint narrowing scope, an *Out of scope* item that now needs to be in scope, or a `[open]` Decision-log row whose resolution changes what *Done when* promises. Amending front-matter renegotiates the agreement, so it always takes sign-off. Do NOT silently work outside the contract; do NOT silently edit front-matter.
 
 ### 7. Verify against *Done when*
 
