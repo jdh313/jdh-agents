@@ -1,16 +1,29 @@
 # Contract hosts
 
-A spec-flow contract has a **host** — the container that holds the contract body during the change's lifecycle. Two hosts are supported:
+A spec-flow contract is **two documents**, split along the audience axis (`957bqa`):
+
+| Document | Holds | Lives | Lifetime |
+|---|---|---|---|
+| **contract doc** | front-matter — *What we're doing*, *Why*, *Out of scope*, *Done when* | `file` or `linear` host (below) | durable; survives close |
+| **companion doc** | working-matter — *Approach / wiring*, *Decision log*, *Not yet specified* | always `.docs/YYYY-MM-DD-<slug>-companion.md` | throwaway; drains and is deleted at close |
+
+The **contract doc** is what the user signs off and amends. The **companion doc** is the agent's ledger — free to churn, never signed off, and genuinely gone once its `[resolved]` rows have drained to ndr.
+
+The **host** governs the contract doc only. Two hosts are supported:
 
 - **`file`** — `.docs/YYYY-MM-DD-<slug>.md` in the working repo. Default.
-- **`linear`** — a Linear issue (e.g. `TEAM-123`), whose description holds the contract body. At `draft`, the ticket may already exist or be created fresh ("linear-new" — see detection below); after creation the two are indistinguishable.
+- **`linear`** — a Linear issue (e.g. `TEAM-123`), whose description holds the front-matter. At `draft`, the ticket may already exist or be created fresh ("linear-new" — see detection below); after creation the two are indistinguishable.
 
-The lifecycle has a pre-contract stage: `spec-flow:capture` files a minimal artifact (Backlog ticket on the linear host, `status: captured` stub on the file host) that `draft` later upgrades. Captured artifacts are **not** contracts — they're excluded from active-contract enumeration and have no lifecycle state transitions.
+The companion doc has no host choice — it is always a `.docs/` file, on both hosts. This is what makes evaporation real rather than nominal: under the previous single-document model the Linear body persisted forever with working-matter in it, so "Approach/wiring evaporates" was true only on the file host.
+
+**The two docs point at each other.** The contract doc carries a one-line pointer to its companion (a `companion:` frontmatter key on the file host; a `Companion: .docs/...` line at the foot of the description on the Linear host). The companion's frontmatter carries `contract:` — a slug or ticket ID. Either document alone is enough to find the other.
+
+The lifecycle has a pre-contract stage: `spec-flow:capture` files a minimal artifact (Backlog ticket on the linear host, `status: captured` stub on the file host) that `draft` later upgrades. Captured artifacts are **not** contracts — they're excluded from active-contract enumeration, have no lifecycle state transitions, and have **no companion** (a capture has no working-matter yet; `draft` creates the companion when it upgrades the stub).
 
 The contract *shape* (the 6-section template in `contract-template.md`) is host-agnostic. The host changes only:
 
-- Where the body is read from and written to.
-- What happens to the container at close.
+- Where the front-matter is read from and written to.
+- What happens to the contract doc at close.
 - Whether MCP availability gates the action.
 
 The host is **not persisted**. Each skill re-detects it from the identifier (or goal text, at `draft`). Same model as cadence — no per-contract flag.
@@ -30,6 +43,12 @@ Treat platform-specific names in this plugin as semantic operations:
   `contract-verifier` agent. Codex spawns an isolated subagent and passes the
   procedure in `../agents/contract-verifier.md` with the same inputs and
   read/execute-only constraints.
+- **Red-phase author:** Claude Code dispatches the registered
+  `redphase-author` agent. Codex spawns an isolated subagent and passes the
+  procedure in `../agents/redphase-author.md` with the same inputs and
+  tests-only write constraints. On both runtimes the isolation is load-bearing —
+  the subagent must receive the contract's *Done when* bullets and **not** the
+  implementer's plan.
 - **User choice:** use the runtime's structured question tool when available;
   otherwise ask one concise question and wait.
 
@@ -77,21 +96,25 @@ Same identifier-shape detection as `implement`/`close` (ticket token → linear,
 | Step | File host | Linear host |
 |---|---|---|
 | **`capture` — write** | Stub at `.docs/YYYY-MM-DD-<slug>.md` with `status: captured` | New Backlog ticket, lightweight Goal/Context body, fields per linear plugin conventions |
-| **`draft` — locate** | Scan `.docs/*.md` for active contracts (skip `status: captured`) | `list_issues` filtered to the `contracted` label (case-insensitive), no assignee filter; the label = contract, independent of state; display assignee per contract |
+| **`draft` — locate** | Scan `.docs/*.md` for active contracts (skip `status: captured` and `*-companion.md`) | `list_issues` filtered to the `contracted` label (case-insensitive), no assignee filter; the label = contract, independent of state; display assignee per contract |
 | **`draft` — draft body** | Compose 6-section contract | Compose 6-section contract |
-| **`draft` — approval** | Present in chat; user approves before the file is written | None in chat — write immediately; the user reviews the contract in Linear |
-| **`draft` — write container** | `Write` to `.docs/YYYY-MM-DD-<slug>.md`; captured stubs upgraded in place | `mcp__linear-server__save_issue` against the ticket ID (linear-new: `save_issue` with no ID creates ticket, `assignee="me"`) |
+| **`draft` — approval** | Present front-matter in chat; user approves before the file is written | None in chat — write immediately; the user reviews the contract in Linear |
+| **`draft` — write container** | `Write` front-matter to `.docs/YYYY-MM-DD-<slug>.md`; captured stubs upgraded in place | `mcp__linear-server__save_issue` against the ticket ID (linear-new: `save_issue` with no ID creates ticket, `assignee="me"`) |
+| **`draft` — write companion** | `Write` working-matter to `.docs/YYYY-MM-DD-<slug>-companion.md` | Same — the companion is always a `.docs/` file |
 | **`draft` — existing body** | Captured stub's Goal/Context is drafting input | Overwrite by default. Concurrent-edit guard: if description changed since last read, warn and offer merge/overwrite/abort. Prepend only if user explicitly asked to preserve the existing text |
 | **`draft` — contract marker** | n/a — no status | After writing the body, apply the `contracted` label (append-only, via `list_issue_labels` + `save_issue`; create it once if absent). **State is left untouched** — the label is orthogonal to workflow state |
 | **`implement` — read** | `Read` the file | `mcp__linear-server__get_issue`, parse description |
+| **`implement` — companion read/append** | `Read` / `Edit` the companion file | Same — `Read` / `Edit` the companion file. **No concurrent-edit guard**: appends land in a `.docs/` file, not a whole-description overwrite |
 | **`implement` — claiming** | n/a — no assignee | After reading, check assignee: if owned by someone else, warn and ask to implement as-is or reassign to self |
 | **`implement` — status** | n/a — no status | Before coding, set state to "In Progress" (fallback: first `started`-type state) via `save_issue` |
 | **`amend` — write** | `Edit` the file | Re-fetch current description; concurrent-edit guard (warn if changed); apply targeted change; `mcp__linear-server__save_issue`; post before/after comment via `save_comment` (comments are the changelog) |
 | **`close` — done-when check** | Walk bullets from file body | Walk bullets from ticket description |
+| **`close` — harvest** | Drain `[resolved]` rows from the companion's Decision log | Same — the Decision log always lives in the companion |
 | **`close` — outcome summary** | n/a — file host has no shared visibility surface | Post compact outcome summary (what shipped, decisions, README) as a comment via `save_comment` (team visibility) |
 | **`close` — verification record** | n/a — verdict lives in conversation | Post the per-bullet contract-verifier verdict as a comment via `save_comment` before the state change |
-| **`close` — container action** | `mv` to `.docs/archive/`, flip frontmatter | Advance state to a review state (In Review / Code Review / …) via `save_issue`; never set a completed state. Remove the `contracted` label (set current labels minus `contracted`; an empty array is honored, so clearing the last label works). Body untouched |
-| **`close` — confirm wording** | "Contract archived at `.docs/archive/...`" | "Verification comment posted; moved to In Review; body intact. Set Done yourself at merge." |
+| **`close` — container action** | `mv` contract doc to `.docs/archive/`, flip frontmatter | Advance state to a review state (In Review / Code Review / …) via `save_issue`; never set a completed state. Remove the `contracted` label (set current labels minus `contracted`; an empty array is honored, so clearing the last label works). Body untouched |
+| **`close` — companion action** | `trash` the companion once its rows have drained | Same — the companion is deleted on both hosts |
+| **`close` — confirm wording** | "Contract archived at `.docs/archive/...`; companion deleted." | "Verification comment posted; moved to In Review; body intact; companion deleted. Set Done yourself at merge." |
 
 ## Linear integration availability
 
@@ -126,7 +149,7 @@ Those concerns belong to the user's broader Linear workflow, owned by the siblin
 1. Detected from phrasing: *"open a Linear ticket and …"*, *"new linear ticket for …"*, *"create a ticket as the contract"*
 2. Same context-gathering and drafting as the other hosts
 3. Derive the **title** from the goal per the linear plugin's title conventions — no confirmation; the user reviews title and body together in Linear
-4. `save_issue` with no ID to create, six-section contract as the body; **all other fields** (team, project, labels, priority) follow the `linear` skill's conventions — spec-flow never hardcodes them
+4. `save_issue` with no ID to create, the contract doc's front-matter as the body (plus the trailing `Companion:` pointer line); **all other fields** (team, project, labels, priority) follow the `linear` skill's conventions — spec-flow never hardcodes them
 5. Return the new ticket ID; proceed with the `contracted` label application as if the ticket had pre-existed (no state transition)
 
 The original deferral reason — team/status discovery and Linear-side defaults — is resolved: the sibling `linear` plugin owns those conventions, and spec-flow defers to it.

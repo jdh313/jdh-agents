@@ -62,6 +62,7 @@ File contracts have no queryable Linear state — derive the phase from placemen
 |---|---|---|
 | `status: captured` stub in `.docs/` | **draft** | Invoke `Skill(spec-flow:draft)` to upgrade the stub. |
 | active contract in `.docs/` (not `archive/`, not captured) | **implement** | Invoke `Skill(spec-flow:implement)` with the slug. |
+| a `*-companion.md` file | **implement** | A companion is half of a contract, not a routable target. Resolve its `contract:` frontmatter to the contract doc and route on that instead. |
 | in `.docs/archive/` or `status: archived` | **done** | Report already closed; nothing to route. |
 
 Announce the detected phase the same way before handing off.
