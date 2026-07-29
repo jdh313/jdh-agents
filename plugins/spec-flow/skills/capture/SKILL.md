@@ -121,7 +121,7 @@ For raw captures that arrived outside any session (Linear mobile app, quick adds
 
 The captured artifact's second touch is `spec-flow:draft`:
 
-- Linear: `/spec-flow draft "the contract is TEAM-456"` — draft reads the captured Goal/Context as input and overwrites with the six-section contract.
+- Linear: `/spec-flow draft "the contract is TEAM-456"` — draft reads the captured Goal/Context as input, overwrites the description with the contract doc's front-matter, and creates the working-matter companion alongside it.
 - File: `/spec-flow draft <slug>` — draft upgrades the stub in place (`status: captured` → `active`, six sections).
 
 Many captures never get drafted — quick tasks get done directly, dead ideas get canceled. That's fine; capture doesn't obligate a contract.

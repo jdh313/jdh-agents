@@ -20,7 +20,7 @@ allowed-tools:
 
 # spec-flow:amend
 
-Propose a contract amendment mid-implementation. Sign-off required before any edit. Host (file vs. Linear) is re-detected from the contract identifier; see `../../references/hosts.md`.
+Propose a contract amendment mid-implementation. Sign-off required before any edit. Amend touches the **contract doc** only — the companion doc is working-matter and is never amended. Host (file vs. Linear) is re-detected from the contract identifier; see `../../references/hosts.md`.
 
 ## When to invoke
 
@@ -30,7 +30,7 @@ Propose a contract amendment mid-implementation. Sign-off required before any ed
   - A resolved fork changes what *Done when* promises — the resolution isn't just logged, it moves the target.
 - User explicitly asks: "update the contract to reflect X".
 
-**Not an amend:** switching the *Approach / wiring* itself is a **free working-matter edit** — Approach is ephemeral mechanics that evaporate at close, so `implement` just rewrites it, no sign-off. The *decision* behind the switch (why this approach over the old one) is logged as a `[resolved]` Decision-log row (append). Amend fires only when the switch also moves the front-matter target.
+**Not an amend:** switching the *Approach / wiring* itself is a **free working-matter edit** in the companion doc — Approach is ephemeral mechanics that evaporate at close, so `implement` just rewrites it, no sign-off. The *decision* behind the switch (why this approach over the old one) is logged as a `[resolved]` Decision-log row (append). Amend fires only when the switch also moves the front-matter target.
 
 ## Do NOT invoke for
 
@@ -43,13 +43,13 @@ Propose a contract amendment mid-implementation. Sign-off required before any ed
 
 Three ops touch the contract; only **amend** renegotiates the live agreement, so only amend gates on sign-off here:
 
-| Op | Touches | When | Renegotiates? | Owner |
-|----|---------|------|---------------|-------|
-| **append** | Decision log | in flight | no | `implement` (step 5) |
-| **amend** | front-matter | in flight | **yes** | this skill |
-| **reconcile** | front-matter | at close | no | `close` |
+| Op | Touches | Document | When | Renegotiates? | Owner |
+|----|---------|----------|------|---------------|-------|
+| **append** | Decision log | companion | in flight | no | `implement` (step 5) |
+| **amend** | front-matter | contract doc | in flight | **yes** | this skill |
+| **reconcile** | front-matter | contract doc | at close | no | `close` |
 
-**The concurrency guard follows the host, not the op.** On the **Linear host** every write is a whole-description overwrite, so *every* write — appends included — carries the concurrent-edit guard (re-fetch + compare; it only bites when a concurrent edit is actually detected). On the **file host**, append is append-only and needs no guard; only amends (front-matter edits) do. Step 4 below is the amend guard; the append guard lives in `implement`.
+**The concurrency guard follows the document, not the host.** Appends land in the companion — a `.docs/` file on both hosts — so they need **no** guard anywhere. Only contract-doc writes carry one, and only on the Linear host, where a write is a whole-description overwrite (re-fetch + compare; it only bites when a concurrent edit is actually detected). Since amend is the only in-flight contract-doc write, step 4 below is now the *only* place the guard fires during implementation.
 
 ## Workflow
 

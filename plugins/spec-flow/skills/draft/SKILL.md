@@ -25,6 +25,7 @@ allowed-tools:
   - Glob
   - Grep
   - Bash(ls *)
+  - Write
   - Skill
 ---
 
@@ -32,7 +33,7 @@ allowed-tools:
 
 Open a contract for a new code change. Drafts only; does not implement.
 
-A contract has a **host** — either a `.docs/` file or an existing Linear ticket. The contract *shape* is host-agnostic; the host changes only where the body is written. See `../../references/hosts.md` for the dual-host model.
+A contract is **two documents**: a durable **contract doc** holding front-matter (hosted in a `.docs/` file or a Linear ticket description) and a throwaway **companion doc** holding working-matter (always `.docs/YYYY-MM-DD-<slug>-companion.md`, both hosts). The **host** governs the contract doc only. See `../../references/hosts.md`.
 
 ## When to invoke
 
@@ -68,10 +69,10 @@ Full detection table and rationale: `../../references/hosts.md`.
 
 ### 2. Detect other active contracts
 
-List file-host contracts in `.docs/` excluding `archive/` (skip `status: captured` stubs — captures aren't contracts):
+List file-host contracts in `.docs/` excluding `archive/`. Skip `status: captured` stubs (captures aren't contracts) and `*-companion.md` files (a companion is half of a contract, and its contract doc is already in the list — counting both would double-count every change):
 
 ```bash
-ls .docs/*.md 2>/dev/null || true
+ls .docs/*.md 2>/dev/null | grep -v -- '-companion\.md$' || true
 ```
 
 If the Linear MCP is connected, also enumerate Linear-host contracts: `mcp__linear-server__list_issues` filtered to the `contracted` label (team per the linear plugin's conventions; **no assignee filter** — show all team contracts regardless of owner). The label is the canonical "this is a contract" signal — more robust than sniffing the description for the six-section shape, and independent of whatever workflow state the ticket sits in. Match the label name case-insensitively. If the team has no `contracted` label yet, there are no Linear-host contracts to surface. Display the assignee for each contract so ownership is visible.
@@ -125,16 +126,16 @@ If the change **designs or extends a model that spans dimensions** — adding a 
 
 ### 5. Draft the contract
 
-Use `../../references/contract-template.md` as the literal scaffold. The contract is a **worksheet**, ordered by audience — cold-legible **front-matter** on top, the internal **working-matter** ledger below:
+Use `../../references/contract-template.md` as the literal scaffold. The contract is a **worksheet** split by audience across two documents — the cold-legible **contract doc** (front-matter) and the internal **companion doc** (working-matter):
 
-**Front-matter (cold-legible, read at the gates):**
+**Contract doc — front-matter (cold-legible, read at the gates):**
 
 - **What we're doing** — one or two bullets, plain language.
 - **Why** — one or two bullets, trigger or motivation.
 - **Out of scope** — explicit non-goals. Fence only. Route by the test *"was this a live fork?"*: a never-considered non-goal belongs here; a considered-and-rejected option belongs in the Decision log as a `[resolved]` rejected-alt; a "not now, maybe later" belongs there as `[deferred]`.
 - **Done when** — 2–4 bullets describing observable outcomes (what's visibly different when the change ships). Bullets, not checkboxes. Load-bearing for the close skill's review.
 
-**Working-matter (internal ledger, cold-legible at close):**
+**Companion doc — working-matter (internal ledger, cold-legible at close, deleted after drain):**
 
 - **Approach / wiring** — larger strokes only, ephemeral integration mechanics. No task list, no enumeration; it evaporates at close. The *call* behind any wiring lives in the Decision log, not here.
 - **Decision log** — the accreting fork ledger. At draft, seed `[open]` rows for the forks deferred to implementation (leaning: `<default>`). These carry the cadence-shaping role the old *Open questions* section held — their presence/absence shapes the handoff conversation. `[resolved]` and `[deferred]` rows accrue during implement.
@@ -143,10 +144,10 @@ The shape is **one shape, nested** — a lean single contract and a breakdown pa
 
 ### 6. Write to the host
 
-Approval is host-dependent:
+Approval covers the **contract doc only** — the companion is working-matter and is never signed off (`1nfp9c`). Write it without asking, on both hosts.
 
-- **File host** — present the drafted contract in chat and ask the user to read and approve. Iterate inline before finalizing. (A `.docs/` file has no review surface of its own, so chat is where review happens.)
-- **Linear hosts (existing or new)** — write immediately, **no in-chat approval gate**. The contract body lands in the ticket description and the user reviews it in Linear. Don't paste the full contract into chat — report the ticket ID and a one-line summary. If the user wants changes after reading it in Linear, they say so and the description gets updated (no `amend` ceremony before implementation starts).
+- **File host** — present the drafted front-matter in chat and ask the user to read and approve. Iterate inline before finalizing. (A `.docs/` file has no review surface of its own, so chat is where review happens.)
+- **Linear hosts (existing or new)** — write immediately, **no in-chat approval gate**. The front-matter lands in the ticket description and the user reviews it in Linear. Don't paste the full contract into chat — report the ticket ID and a one-line summary. If the user wants changes after reading it in Linear, they say so and the description gets updated (no `amend` ceremony before implementation starts).
 
 Write to the chosen host:
 
@@ -161,10 +162,11 @@ Frontmatter (file-only — Linear has no frontmatter):
 status: active
 topic: <slug>
 started: YYYY-MM-DD
+companion: .docs/YYYY-MM-DD-<slug>-companion.md
 ---
 ```
 
-If the draft upgrades a `status: captured` stub: rewrite that file in place (keep the filename), flip `status` to `active`, set `started` to today, and keep the original `captured:` date line.
+If the draft upgrades a `status: captured` stub: rewrite that file in place (keep the filename), flip `status` to `active`, set `started` to today, add the `companion:` key, and keep the original `captured:` date line.
 
 **Linear-new host (fresh ticket created at draft):**
 
@@ -192,12 +194,30 @@ No frontmatter in Linear-hosted contracts. The ticket's own metadata (state, ass
 - If no such label exists, create it once via `mcp__linear-server__create_issue_label` with name `contracted` and description "Has a spec-flow contract in the description; ready for /spec-flow implement". If creation isn't possible (e.g. permissions), tell the user once — *"No `contracted` label on this team and I couldn't create one; skipping the label step. Create a `contracted` label to enable contract detection."* — and skip the rest of this step.
 - Apply the label **append-only** — never drop the issue's existing labels. `save_issue`'s `labels` field replaces the full label set (it is not additive and there is no remove-labels parameter), so set the union: take the issue's current labels (from the step-3 `get_issue` read), add `contracted` if absent, and pass the combined list to `mcp__linear-server__save_issue` (`labels` field). If the issue already carries `contracted`, this is a no-op.
 
+**Both hosts — write the companion.** `Write` the working-matter sections to `.docs/YYYY-MM-DD-<slug>-companion.md`, using the same date and slug as the contract doc. On the Linear host, derive `<slug>` from the ticket title the same way the file host derives it from the goal, so the two stay greppable together.
+
+Companion frontmatter:
+
+```yaml
+---
+contract: <slug-or-TEAM-123>
+started: YYYY-MM-DD
+---
+```
+
+Then close the loop on the pointer:
+
+- **File host** — the `companion:` key written above already points at it. Nothing more to do.
+- **Linear host** — append a final line to the ticket description: `Companion: .docs/YYYY-MM-DD-<slug>-companion.md`. This is part of the same `save_issue` write as the contract body; do not issue a second call for it.
+
+Create `.docs/` if it does not exist. A contract with no companion is malformed — `implement` has nowhere to append, so never skip this step, even for a lean single change.
+
 ### 7. End
 
 Do NOT proceed to implementation. Tell the user:
 
-- **File host:** *"Contract drafted at `.docs/YYYY-MM-DD-<slug>.md`. Run `/spec-flow implement` when ready to start coding."*
-- **Linear host:** *"Contract written to TEAM-123 and the `contracted` label applied (state left as-is) — review it in Linear. Run `/spec-flow implement TEAM-123` when it reads right."*
+- **File host:** *"Contract drafted at `.docs/YYYY-MM-DD-<slug>.md`, companion at `.docs/YYYY-MM-DD-<slug>-companion.md`. Run `/spec-flow implement` when ready to start coding."*
+- **Linear host:** *"Contract written to TEAM-123 and the `contracted` label applied (state left as-is) — review it in Linear. Companion at `.docs/YYYY-MM-DD-<slug>-companion.md`. Run `/spec-flow implement TEAM-123` when it reads right."*
 
 ## Notes
 
