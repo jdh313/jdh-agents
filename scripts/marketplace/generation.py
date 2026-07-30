@@ -14,7 +14,7 @@ import tempfile
 from dataclasses import dataclass
 from pathlib import Path
 
-PINNED_AGENTFORGE_REVISION = "7568c45df856a7e6447ab9f1491e826591018f1b"
+PINNED_AGENTFORGE_REVISION = "14dbb352f83bff34d80a1c527695b21f694766d8"
 
 _ROOT_MANIFESTS = {
     Path("claude/.claude-plugin/marketplace.json"): Path(

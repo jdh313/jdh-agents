@@ -24,6 +24,27 @@ _SEMVER = re.compile(
 )
 _INSTALLATION_POLICIES = {"AVAILABLE", "INSTALLED_BY_DEFAULT", "NOT_AVAILABLE"}
 _AUTHENTICATION_POLICIES = {"ON_INSTALL", "ON_FIRST_USE"}
+_HOOK_EVENTS = {
+    "PreToolUse",
+    "PermissionRequest",
+    "PostToolUse",
+    "PreCompact",
+    "PostCompact",
+    "UserPromptSubmit",
+    "SubagentStart",
+    "SubagentStop",
+    "Stop",
+    "SessionStart",
+    "SessionEnd",
+}
+# Codex caps a configured SessionEnd timeout at three seconds.
+_SESSION_END_TIMEOUT_CAP = 3
+# Companion scripts are referenced either through the plugin root — natively or
+# through Codex's legacy Claude alias — or as a plain plugin-relative ./ path.
+_COMPANION_REFERENCES = (
+    re.compile(r"\$\{(?:CLAUDE_)?PLUGIN_ROOT\}/([^\s\"']+)"),
+    re.compile(r"(?:^|[\s\"'])\./([^\s\"']+)"),
+)
 
 
 def validate_codex_marketplace(manifest: Any, plugins_root: Path) -> list[str]:
@@ -212,6 +233,98 @@ def _validate_component_paths(
             continue
         if not candidate.exists():
             errors.append(f"{prefix} manifest.{field} path does not exist: {path_value}")
+            continue
+        if field == "hooks":
+            _validate_hook_configuration(candidate, path_value, plugin_dir, prefix, errors)
+
+
+def _validate_hook_configuration(
+    hook_file: Path, path_value: str, plugin_dir: Path, prefix: str, errors: list[str]
+) -> None:
+    """Check a declared hook configuration against what was materialized.
+
+    A declared path that merely exists is not enough: the handler commands
+    inside it name companion scripts, and a hook whose script was never
+    materialized is skipped at runtime rather than reported.
+    """
+    label = f"{prefix} manifest.hooks[{path_value}]"
+    try:
+        document = json.loads(hook_file.read_text(encoding="utf-8"))
+    except (OSError, UnicodeDecodeError) as error:
+        errors.append(f"{label} could not be read: {error}")
+        return
+    except json.JSONDecodeError as error:
+        errors.append(f"{label} is not valid JSON: {error}")
+        return
+
+    if not isinstance(document, dict):
+        errors.append(f"{label} must be a JSON object")
+        return
+    events = document.get("hooks")
+    if not isinstance(events, dict):
+        errors.append(f"{label} must declare a hooks object")
+        return
+
+    for event, groups in sorted(events.items()):
+        if event not in _HOOK_EVENTS:
+            errors.append(f"{label} declares unknown Codex hook event: {event}")
+            continue
+        if not isinstance(groups, list) or not groups:
+            errors.append(f"{label} event {event} must be a non-empty array")
+            continue
+        for group in groups:
+            if not isinstance(group, dict):
+                errors.append(f"{label} event {event} entries must be objects")
+                continue
+            handlers = group.get("hooks")
+            if not isinstance(handlers, list) or not handlers:
+                errors.append(f"{label} event {event} must declare a non-empty hooks array")
+                continue
+            for handler in handlers:
+                _validate_hook_handler(handler, event, label, plugin_dir, errors)
+
+
+def _validate_hook_handler(
+    handler: Any, event: str, label: str, plugin_dir: Path, errors: list[str]
+) -> None:
+    if not isinstance(handler, dict):
+        errors.append(f"{label} event {event} handlers must be objects")
+        return
+    if handler.get("type") != "command":
+        errors.append(f"{label} event {event} handler type must be \"command\"")
+    if "args" in handler:
+        errors.append(
+            f"{label} event {event} handler declares args, which Codex has no field for; "
+            "fold arguments into command"
+        )
+    command = handler.get("command")
+    if not _is_nonempty_string(command):
+        errors.append(f"{label} event {event} handler command must be a non-empty string")
+        return
+
+    timeout = handler.get("timeout")
+    capped = isinstance(timeout, (int, float)) and timeout > _SESSION_END_TIMEOUT_CAP
+    if event == "SessionEnd" and capped:
+        errors.append(
+            f"{label} event SessionEnd declares a {timeout}s timeout; "
+            f"Codex caps it at {_SESSION_END_TIMEOUT_CAP}s"
+        )
+
+    references = {
+        reference for pattern in _COMPANION_REFERENCES for reference in pattern.findall(command)
+    }
+    for reference in sorted(references):
+        companion = (plugin_dir / reference).resolve()
+        try:
+            companion.relative_to(plugin_dir.resolve())
+        except ValueError:
+            errors.append(f"{label} event {event} handler command escapes plugin root: {reference}")
+            continue
+        if not companion.exists():
+            errors.append(
+                f"{label} event {event} handler command references a path that was not "
+                f"materialized: {reference}"
+            )
 
 
 def _validate_skill(skill_file: Path, errors: list[str]) -> None:
