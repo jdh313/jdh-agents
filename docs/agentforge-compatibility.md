@@ -5,7 +5,7 @@ AgentForge collection definitions. Native Claude and Codex manifests remain
 committed at the repository paths consumed by both runtimes, but they are now
 generated outputs rather than independently maintained metadata.
 
-The compiler baseline for this enrollment is AgentForge commit `8a6b894`
+The compiler baseline for this enrollment is AgentForge commit `949898a`
 (`agentforge` 0.0.1).
 
 ## Acceptance-suite ownership
@@ -135,7 +135,7 @@ not behavioral equivalence.
 Use a checkout at the recorded compiler baseline:
 
 ```bash
-export AGENTFORGE_PROJECT=/path/to/agentforge-at-8a6b894
+export AGENTFORGE_PROJECT=/path/to/agentforge-at-949898a
 uv run marketplace sync
 uv run marketplace check
 uv run pytest -q
@@ -151,7 +151,7 @@ uv run marketplace validate \
 ```
 
 CI checks out `jdh313/agentforge` at full commit
-`8a6b894d122daa78ca5e0c471ab2d3ebc100d451`. Since that repository is private,
+`949898ac535a4863f87fdd69496377a25d6994fe`. Since that repository is private,
 the workflow requires the `AGENTFORGE_DEPLOY_KEY` repository secret with read
 access and fails closed when it is not configured. The runner toolchain pins
 Bun `1.3.14` and Claude Code `2.1.216`, the versions used for the local
