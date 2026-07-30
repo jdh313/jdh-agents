@@ -22,7 +22,7 @@ files are committed generated outputs; never hand-edit them.
 Regenerate only those native manifests with the pinned AgentForge checkout:
 
 ```bash
-env AGENTFORGE_PROJECT=/path/to/agentforge-at-7568c45 \
+env AGENTFORGE_PROJECT=/path/to/agentforge-at-14dbb35 \
   uv run marketplace sync
 ```
 
@@ -30,8 +30,9 @@ env AGENTFORGE_PROJECT=/path/to/agentforge-at-7568c45 \
 root, package, missing, extra, and content drift without modifying the working
 tree. Skills, agents, commands, hooks, references, and other source content
 remain maintained in place. Codex enrollment remains limited to the five
-packages declared in `MARKETPLACE.yaml`; unsupported Codex hooks are not
-projected.
+packages declared in `MARKETPLACE.yaml`. Declared hooks are translated into
+Codex's handler schema; Codex skips plugin-bundled hooks until the user reviews
+and trusts the definition.
 
 ## Landing the Plane (Session Completion)
 

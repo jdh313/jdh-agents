@@ -63,7 +63,7 @@ codex plugin add spec-flow@cc-marketplace
 
 3. Regenerate the committed native manifests with the pinned compiler:
    ```bash
-   env AGENTFORGE_PROJECT=/path/to/agentforge-at-7568c45 \
+   env AGENTFORGE_PROJECT=/path/to/agentforge-at-14dbb35 \
      uv run marketplace sync
    ```
 
@@ -75,7 +75,7 @@ codex plugin add spec-flow@cc-marketplace
 5. Run the full-corpus acceptance suite against the pinned compatible
    AgentForge checkout and compile into an isolated output root:
    ```bash
-   export AGENTFORGE_PROJECT=/path/to/agentforge-at-7568c45
+   export AGENTFORGE_PROJECT=/path/to/agentforge-at-14dbb35
    uv run pytest -q
    agentforge compile MARKETPLACE.yaml --out /tmp/cc-marketplace-agentforge
    agentforge check MARKETPLACE.yaml --out /tmp/cc-marketplace-agentforge --claude-native
@@ -101,7 +101,7 @@ Codex pilot manifests. It never replaces maintained skills, agents, commands,
 hooks, references, or other source content.
 
 ```bash
-env AGENTFORGE_PROJECT=/path/to/agentforge-at-7568c45 uv run marketplace sync
+env AGENTFORGE_PROJECT=/path/to/agentforge-at-14dbb35 uv run marketplace sync
 # use `sync --check` to fail on drift without writing
 ```
 
@@ -157,7 +157,7 @@ uv run marketplace export --dry-run        # then --commit --push for the real e
 
 GitHub Actions runs on every push and pull request:
 - `uv run marketplace check` (Claude drift + Claude/Codex schemas + lint)
-- `uv run pytest` with AgentForge pinned to commit `7568c45`
+- `uv run pytest` with AgentForge pinned to commit `14dbb35`
 - deterministic full-corpus compilation and read-only drift checks
 - `claude plugin validate --strict` for the generated Claude publication,
   using Claude Code `2.1.216`
