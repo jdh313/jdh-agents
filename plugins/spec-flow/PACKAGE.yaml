@@ -11,6 +11,16 @@ payloads:
 targets:
   claude: {}
   codex:
+    dispositions:
+      - construct: agent-tools-filter
+        disposition: stripped
+        note: Codex role procedures carry no tool allowlist, so the verifier and red-phase author agents run unrestricted rather than read-plus-execute only.
+      - construct: command-tools-filter
+        disposition: stripped
+        note: The spec-flow command's allowlist, including the scoped Bash(ls *) permission, is not enforced on Codex.
+      - construct: mcp-tool-reference
+        disposition: retained-unenforced
+        note: Skills name mcp__linear-server__* tools that do not exist on Codex; Linear-hosted contracts degrade to the .docs file host there.
     native:
       interface:
         displayName: Spec Flow

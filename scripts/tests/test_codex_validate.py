@@ -267,3 +267,48 @@ def test_rejects_source_escape(tmp_path: Path) -> None:
     errors = validate_codex_marketplace(manifest, tmp_path / "plugins")
 
     assert any("escapes the marketplace root" in error for error in errors)
+
+
+# TEAM-341, bullet 2 (second clause): `marketplace validate --format codex` must
+# reject a manifest whose declared hook configuration does not match what was
+# materialized -- not just check that the declared `hooks` path itself exists.
+#
+# `_validate_component_paths` today only confirms the manifest-declared
+# `hooks` path (e.g. `./hooks/hooks.json`) exists on disk; it never opens that
+# file to check the handler commands it references. A hooks.json whose
+# PreToolUse handler points at a companion script that was never materialized
+# currently validates cleanly, which is the gap this test exercises.
+def test_rejects_hook_configuration_referencing_a_missing_companion_script(
+    tmp_path: Path,
+) -> None:
+    manifest = _make_codex_publication(tmp_path)
+    plugin_dir = tmp_path / "plugins/alpha"
+    hooks_dir = plugin_dir / "hooks"
+    hooks_dir.mkdir()
+    hooks_dir.joinpath("hooks.json").write_text(
+        json.dumps(
+            {
+                "hooks": {
+                    "PreToolUse": [
+                        {
+                            "matcher": "Bash",
+                            "hooks": [
+                                {"type": "command", "command": "./hooks/missing-guard.sh"}
+                            ],
+                        }
+                    ]
+                }
+            }
+        ),
+        encoding="utf-8",
+    )
+    # Intentionally not created: ./hooks/missing-guard.sh
+
+    plugin_manifest = plugin_dir / ".codex-plugin/plugin.json"
+    value = json.loads(plugin_manifest.read_text(encoding="utf-8"))
+    value["hooks"] = "./hooks/hooks.json"
+    plugin_manifest.write_text(json.dumps(value), encoding="utf-8")
+
+    errors = validate_codex_marketplace(manifest, tmp_path / "plugins")
+
+    assert any("missing-guard.sh" in error for error in errors)

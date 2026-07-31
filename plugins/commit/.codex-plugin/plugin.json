@@ -17,6 +17,7 @@
     "conventional-commits",
     "freeform"
   ],
+  "hooks": "./hooks/hooks.json",
   "interface": {
     "displayName": "Commit",
     "shortDescription": "Create and organize atomic commits",
