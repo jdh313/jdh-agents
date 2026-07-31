@@ -10,6 +10,9 @@ targets:
       include:
         - {source: hooks/destructive-vcs-guard.sh}
   codex:
+    payloads:
+      include:
+        - {source: hooks/destructive-vcs-guard.sh}
     native:
       interface:
         displayName: Commit

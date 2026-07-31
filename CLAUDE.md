@@ -112,7 +112,7 @@ mkdir -p plugins/my-plugin
 # 2. Add authoritative metadata in plugins/my-plugin/PACKAGE.yaml
 # 3. Add plugin files (skills/, agents/, commands/, README.md, etc.)
 # 4. Regenerate committed native manifests with the pinned compiler
-env AGENTFORGE_PROJECT=/path/to/agentforge-at-7568c45 uv run marketplace sync
+env AGENTFORGE_PROJECT=/path/to/agentforge-at-949898a uv run marketplace sync
 
 # 5. Validate schema and lint
 uv run marketplace validate
@@ -335,7 +335,10 @@ rm -rf ~/.claude/plugins/cache/cc-marketplace/[plugin-name]
 **DON'T:**
 - Hand-edit root or package native manifests.
 - Expand Codex enrollment without native mapping and fresh-runtime acceptance.
-- Claim unsupported Codex hooks are projected.
+- Pre-authorize Codex hook trust, or imply a translated hook runs before the
+  user reviews it.
+- Add a Claude-only construct to a Codex-enrolled package without declaring its
+  disposition under `targets.codex.dispositions`.
 
 ## Notes for Future Development
 

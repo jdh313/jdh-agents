@@ -5,7 +5,7 @@ AgentForge collection definitions. Native Claude and Codex manifests remain
 committed at the repository paths consumed by both runtimes, but they are now
 generated outputs rather than independently maintained metadata.
 
-The compiler baseline for this enrollment is AgentForge commit `7568c45`
+The compiler baseline for this enrollment is AgentForge commit `949898a`
 (`agentforge` 0.0.1).
 
 ## Acceptance-suite ownership
@@ -98,8 +98,11 @@ namespace at runtime, so `skills/today` declares `name: today` and is invoked as
 The five-pilot publication compiles and passes cc-marketplace's Codex-native
 validator. Compilation diagnostics are reviewed limitations, not parity claims:
 
-- `commit`: `allowed-tools` is stripped. The Claude hook and executable guard
-  are unsupported and absent from Codex output.
+- `commit`: `allowed-tools` is stripped. The PreToolUse hook is translated into
+  Codex's handler schema and the executable guard ships with it at `0755`;
+  `${CLAUDE_PLUGIN_ROOT}` becomes the native `${PLUGIN_ROOT}`. Codex skips
+  plugin-bundled hooks until the user reviews and trusts the definition, so the
+  guard is present but inert until then.
 - `craft`: Claude-only invocation and tool-policy fields are stripped where
   reported.
 - `librarian`: Claude-only policy fields are stripped. Four Claude agents
@@ -110,16 +113,29 @@ validator. Compilation diagnostics are reviewed limitations, not parity claims:
   becomes an explicit-invocation skill. Claude argument hints and tool
   restrictions are retained as source evidence but are not enforced by Codex.
 
+Constructs that would otherwise be lost with nothing reported must be declared
+in canonical YAML under `targets.codex.dispositions`, and compilation fails
+against the declaration when one is missing. Three constructs are gated today:
+an agent `tools:` filter (`librarian`, `spec-flow`), a command `allowed-tools:`
+filter (`spec-flow`), and an `mcp__*` tool reference (`librarian`, `linear`,
+`spec-flow`). A construct that is translated rather than lost — a hook
+handler's `args` folded into `command` — reports a warning instead; see the
+JUN-341 companion for that narrowing.
+
+Declaring a disposition does not buy silence. Every declaration that matches a
+detected construct emits a `declared-construct-disposition` note on each
+compile and check, carrying the author's statement of what a Codex user does
+not get.
+
 Schema validation and deterministic compilation establish collection integrity,
-not behavioral equivalence. The cutover does not change these reviewed
-limitations or claim unsupported Codex hooks.
+not behavioral equivalence.
 
 ## Reproducing the gate
 
 Use a checkout at the recorded compiler baseline:
 
 ```bash
-export AGENTFORGE_PROJECT=/path/to/agentforge-at-7568c45
+export AGENTFORGE_PROJECT=/path/to/agentforge-at-949898a
 uv run marketplace sync
 uv run marketplace check
 uv run pytest -q
@@ -135,7 +151,7 @@ uv run marketplace validate \
 ```
 
 CI checks out `jdh313/agentforge` at full commit
-`7568c45df856a7e6447ab9f1491e826591018f1b`. Since that repository is private,
+`949898ac535a4863f87fdd69496377a25d6994fe`. Since that repository is private,
 the workflow requires the `AGENTFORGE_DEPLOY_KEY` repository secret with read
 access and fails closed when it is not configured. The runner toolchain pins
 Bun `1.3.14` and Claude Code `2.1.216`, the versions used for the local
