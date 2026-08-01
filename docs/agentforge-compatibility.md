@@ -61,7 +61,7 @@ duplicate the translation in repository tooling.
 Target omission is an explicit compatibility decision. AgentForge must not emit
 an empty or untested package merely because its definition validates.
 
-## Source and payload dispositions
+## Source and payload handling
 
 - Skill `SKILL.md` files are canonical skill artifacts. Nested `scripts/`,
   `references/`, and `assets/` are projected by the skill renderer.
@@ -114,7 +114,7 @@ validator. Compilation diagnostics are reviewed limitations, not parity claims:
   restrictions are retained as source evidence but are not enforced by Codex.
 
 Constructs that would otherwise be lost with nothing reported must be declared
-in canonical YAML under `targets.codex.dispositions`, and compilation fails
+in canonical YAML under `targets.codex.losses`, and compilation fails
 against the declaration when one is missing. Three constructs are gated today:
 an agent `tools:` filter (`librarian`, `spec-flow`), a command `allowed-tools:`
 filter (`spec-flow`), and an `mcp__*` tool reference (`librarian`, `linear`,
@@ -122,10 +122,9 @@ filter (`spec-flow`), and an `mcp__*` tool reference (`librarian`, `linear`,
 handler's `args` folded into `command` — reports a warning instead; see the
 JUN-341 companion for that narrowing.
 
-Declaring a disposition does not buy silence. Every declaration that matches a
-detected construct emits a `declared-construct-disposition` note on each
-compile and check, carrying the author's statement of what a Codex user does
-not get.
+Declaring a loss does not buy silence. Every declaration that matches a
+detected construct emits a `declared-loss` note on each compile and check,
+carrying the author's statement of what a Codex user does not get.
 
 Schema validation and deterministic compilation establish collection integrity,
 not behavioral equivalence.

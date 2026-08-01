@@ -10,12 +10,12 @@ payloads:
 targets:
   claude: {}
   codex:
-    dispositions:
+    losses:
       - construct: agent-tools-filter
-        disposition: stripped
+        state: stripped
         note: Codex role procedures carry no tool allowlist, so the vault agents' read-only and obsidian-cli-only restrictions are not enforced.
       - construct: mcp-tool-reference
-        disposition: retained-unenforced
+        state: retained-unenforced
         note: Skills name mcp__obsidian-mcp__* tools that do not exist on Codex; the obsidian-cli paths in the same instructions are the portable route.
     native:
       interface:
