@@ -86,7 +86,7 @@ codex plugin add spec-flow@cc-marketplace
    ```
 
 See [`docs/agentforge-compatibility.md`](docs/agentforge-compatibility.md) for
-the current target matrix, payload dispositions, and reviewed compatibility
+the current target matrix, payload handling, and reviewed compatibility
 limitations.
 
 ## Marketplace CLI

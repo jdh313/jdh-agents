@@ -9,9 +9,9 @@ payloads:
 targets:
   claude: {}
   codex:
-    dispositions:
+    losses:
       - construct: mcp-tool-reference
-        disposition: retained-unenforced
+        state: retained-unenforced
         note: Skills name mcp__linear-server__* tools that do not exist on Codex; the ticket conventions still apply to whatever Linear access the user has configured.
     native:
       interface:

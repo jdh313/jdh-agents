@@ -337,8 +337,8 @@ rm -rf ~/.claude/plugins/cache/cc-marketplace/[plugin-name]
 - Expand Codex enrollment without native mapping and fresh-runtime acceptance.
 - Pre-authorize Codex hook trust, or imply a translated hook runs before the
   user reviews it.
-- Add a Claude-only construct to a Codex-enrolled package without declaring its
-  disposition under `targets.codex.dispositions`.
+- Add a Claude-only construct to a Codex-enrolled package without declaring the
+  resulting loss under `targets.codex.losses`.
 
 ## Notes for Future Development
 
