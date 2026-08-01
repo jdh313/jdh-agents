@@ -17,6 +17,9 @@ targets:
       - construct: mcp-tool-reference
         state: retained-unenforced
         note: Skills name mcp__obsidian-mcp__* tools that do not exist on Codex; the obsidian-cli paths in the same instructions are the portable route.
+      - construct: body-template-variable
+        state: retained-unenforced
+        note: Vault agent and skill bodies interpolate ${CLAUDE_PLUGIN_ROOT} to locate bundled reference files. Codex emits the literal text unexpanded, so those paths do not resolve and a Codex reader must locate the references/ files by name instead.
     native:
       interface:
         displayName: Librarian

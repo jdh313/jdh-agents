@@ -21,6 +21,9 @@ targets:
       - construct: mcp-tool-reference
         state: retained-unenforced
         note: Skills name mcp__linear-server__* tools that do not exist on Codex; Linear-hosted contracts degrade to the .docs file host there.
+      - construct: body-template-variable
+        state: retained-unenforced
+        note: The spec-flow command body interpolates $ARGUMENTS to receive the phase and ticket argument. Codex emits the literal text unexpanded, so the invoking user must restate the phase and ticket in prose.
     native:
       interface:
         displayName: Spec Flow
