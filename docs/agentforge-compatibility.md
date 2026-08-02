@@ -53,10 +53,17 @@ duplicate the translation in repository tooling.
 ## Target enrollment
 
 - Claude enrolls all fifteen packages with `all-compatible`.
-- Codex enrolls the accepted pilots only: `commit`, `craft`, `librarian`,
-  `linear`, and `spec-flow`.
-- The other ten packages do not declare Codex support. They must complete a
+- Codex enrolls the accepted pilots only: `commit`, `craft`, `feedback`,
+  `librarian`, `linear`, and `spec-flow`.
+- The other nine packages do not declare Codex support. They must complete a
   native mapping and fresh-runtime acceptance before joining that publication.
+
+`feedback` carries a **native mapping but not yet fresh-runtime acceptance**.
+Its Codex projection compiles, validates, and is drift-clean, and its report
+format was rewritten to name surfaces by intent rather than by Claude's surface
+set. The Codex smoke test in TEAM-342 has not been run — no Codex runtime was
+available — so under `ndr:v0a3bm` this package is enrolled on the mapping half
+of the gate only. Treat its Codex support as unverified until that test runs.
 
 Target omission is an explicit compatibility decision. AgentForge must not emit
 an empty or untested package merely because its definition validates.
@@ -105,6 +112,16 @@ validator. Compilation diagnostics are reviewed limitations, not parity claims:
   guard is present but inert until then.
 - `craft`: Claude-only invocation and tool-policy fields are stripped where
   reported.
+- `feedback`: two fields are stripped, and neither is a declarable loss —
+  the `session` skill's `argument-hint` and `allowed-tools`, and the `triage`
+  skill's `argument-hint`. Disposition: **accepted, no behavioral gap worth
+  gating.** The `allowed-tools` entries (`Bash(git rev-parse *)`, `Bash(date *)`)
+  are a permission-prompt convenience, not a capability — a Codex tester is
+  prompted where a Claude tester is not. The `argument-hint` values document the
+  optional `--save` flag and triage's path argument; both are restated in each
+  skill's body, so the guidance survives even though the autocomplete hint does
+  not. No `targets.codex.losses` entries: the package declares zero Claude-only
+  constructs, which is the whole reason it was picked as the M2 opener.
 - `librarian`: Claude-only policy fields are stripped. Four Claude agents
   become reusable Codex role procedures without Claude model, turn, or tool
   enforcement.

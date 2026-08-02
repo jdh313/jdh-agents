@@ -16,7 +16,7 @@ from tests.agentforge_harness import (
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 MARKETPLACE = REPO_ROOT / "MARKETPLACE.yaml"
-CODEX_PACKAGES = {"commit", "craft", "librarian", "linear", "spec-flow"}
+CODEX_PACKAGES = {"commit", "craft", "feedback", "librarian", "linear", "spec-flow"}
 
 
 @pytest.fixture(scope="module")

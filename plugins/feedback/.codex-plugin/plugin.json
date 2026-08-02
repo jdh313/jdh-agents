@@ -13,5 +13,20 @@
     "session-review",
     "triage",
     "plugins"
-  ]
+  ],
+  "interface": {
+    "displayName": "Feedback",
+    "shortDescription": "Grade plugin surfaces from a test session",
+    "longDescription": "Tester-side session reports grading the plugin surfaces exercised, and author-side triage that clusters many reports into a routed action plan.",
+    "developerName": "Jacob Hoehler",
+    "category": "Developer Tools",
+    "capabilities": [
+      "Read",
+      "Write",
+      "Interactive"
+    ],
+    "defaultPrompt": [
+      "Write up testing feedback for this session."
+    ]
+  }
 }
