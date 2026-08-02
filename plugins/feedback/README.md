@@ -1,6 +1,9 @@
 # feedback
 
-A two-sided loop for improving Claude Code plugins from real test sessions.
+A two-sided loop for improving agent plugins from real test sessions. Runs in
+any runtime that hosts the plugin — reports name surfaces by what they are for
+(`skill` / `delegate` / `hook`), so a Claude Code session and a Codex session
+produce the same shape and triage the same way.
 
 - **Testers** run `/feedback:session` to emit one copy-pasteable report.
 - **The author** runs `/feedback:triage` over a pile of those reports to get a
@@ -16,8 +19,8 @@ gets something machine-clusterable instead of prose to read by hand.
 ### `session` — `/feedback:session` (tester side)
 
 End-of-session feedback report. Analyzes **only the current session
-transcript**, asks no questions, and emits a single fenced report block that
-grades each plugin surface (skill / command / subagent / hook) the tester
+record**, asks no questions, and emits a single fenced report block that
+grades each plugin surface (skill / delegate / hook) the tester
 exercised and cites concrete evidence for every claim.
 
 **Use it at the end of a test session.** A tester runs `/feedback:session`,

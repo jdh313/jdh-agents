@@ -138,8 +138,8 @@
     },
     {
       "name": "feedback",
-      "version": "0.3.1",
-      "description": "A two-sided loop for improving Claude Code plugins from test sessions. The 'session' skill (tester side) turns the current transcript into a copy-pasteable report grading the plugins exercised; the 'triage' skill (author side) aggregates many reports into a prioritized action plan, routing each finding to a concrete fix. Both share one report-format contract.",
+      "version": "0.4.0",
+      "description": "A two-sided loop for improving agent plugins from test sessions. The 'session' skill (tester side) turns the current session record into a copy-pasteable report grading the plugins exercised; the 'triage' skill (author side) aggregates many reports into a prioritized action plan, routing each finding to a concrete fix. Both share one report-format contract.",
       "author": {
         "name": "Jacob Hoehler"
       },
