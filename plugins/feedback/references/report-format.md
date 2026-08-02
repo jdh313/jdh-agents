@@ -18,6 +18,7 @@ A report is exactly one fenced block with these sections, in order:
 
 **Tester:** <name, or [TESTER NAME] if unknown>
 **Session summary:** <2-3 sentences: what the tester was trying to do>
+**Runtime:** <the agent the session ran in, e.g. Claude Code, Codex; "unknown" if not discernible>
 **Environment:** <cwd repo @ <short-sha> and branch if in a git repo; repos whose plugins were exercised; "unknown" if not discernible>
 
 ### Surfaces exercised
@@ -52,8 +53,8 @@ These are the parts `triage` reads mechanically. Keep them exact.
 
 `<plugin>:<surface>` so a surface is unambiguous across repos:
 
-- Skill or slash command → `feedback:session`, `pm:groom`
-- Subagent → `ndr:@ndr-reader` (the `@` marks an agent)
+- Skill, however invoked → `feedback:session`, `pm:groom`
+- Delegate → `ndr:@ndr-reader` (the `@` marks a delegated worker)
 - Hook → `commit:hook/destructive-vcs-guard`
 
 Always wrap the id in backticks, both in the table and as the `[...]` tag on
@@ -62,7 +63,24 @@ use `?:<surface>` — never drop the prefix.
 
 ### Kind
 
-One of: `skill` · `command` · `subagent` · `hook`.
+One of: `skill` · `delegate` · `hook`.
+
+These name what a surface *is for*, so one report format covers any agent
+runtime. What each runtime calls them:
+
+| Kind | Means | Claude Code | Codex |
+| --- | --- | --- | --- |
+| `skill` | a capability the agent loads to do a thing — whether it chose to, or you invoked it by name | skill (a slash command is one) | skill (explicit-invocation or not) |
+| `delegate` | work dispatched to run in its own context, reporting back | subagent | role procedure |
+| `hook` | a handler fired by an event rather than by intent | hook | hook |
+
+**There is no separate `command` kind.** A user-invoked skill is still a
+`skill` — the invocation path is not what the surface *is*. When the problem is
+*how* it fired (or didn't), that is the `trigger` category on the finding, which
+is where invocation complaints belong regardless of kind.
+
+Reading old reports: `command` and `subagent` still parse, mapping to `skill`
+and `delegate`. Emit only the current three.
 
 ### Repo
 
