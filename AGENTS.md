@@ -22,7 +22,7 @@ files are committed generated outputs; never hand-edit them.
 Regenerate only those native manifests with the pinned AgentForge checkout:
 
 ```bash
-env AGENTFORGE_PROJECT=/path/to/agentforge-at-161d0e1 \
+env AGENTFORGE_PROJECT=/path/to/agentforge-at-a0701ec \
   uv run marketplace sync
 ```
 
