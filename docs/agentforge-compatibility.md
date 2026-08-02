@@ -109,16 +109,20 @@ validator. Compilation diagnostics are reviewed limitations, not parity claims:
   become reusable Codex role procedures without Claude model, turn, or tool
   enforcement.
 - `linear`: the doctor skill's `allowed-tools` field is stripped.
-- `spec-flow`: the verifier becomes a reusable role procedure and the command
-  becomes an explicit-invocation skill. Claude argument hints and tool
-  restrictions are retained as source evidence but are not enforced by Codex.
+- `spec-flow`: the verifier becomes a reusable role procedure. The `spec-flow`
+  dispatcher is a user-invocable skill, so its `disable-model-invocation` flag
+  is translated rather than lost. Claude argument hints and tool restrictions
+  are retained as source evidence but are not enforced by Codex.
 
 Constructs that would otherwise be lost with nothing reported must be declared
 in canonical YAML under `targets.codex.losses`, and compilation fails
 against the declaration when one is missing. Three constructs are gated today:
-an agent `tools:` filter (`librarian`, `spec-flow`), a command `allowed-tools:`
-filter (`spec-flow`), and an `mcp__*` tool reference (`librarian`, `linear`,
-`spec-flow`). A construct that is translated rather than lost — a hook
+an agent `tools:` filter (`librarian`, `spec-flow`), an `mcp__*` tool reference
+(`librarian`, `linear`, `spec-flow`), and a `$ARGUMENTS` body template variable
+(`spec-flow`). A skill's own `allowed-tools` is not among them — it is stripped
+with a warning, not a declared loss, so converting a command to a skill trades
+a gated construct for a reported one. A construct that is translated rather
+than lost — `disable-model-invocation`, or a hook
 handler's `args` folded into `command` — reports a warning instead; see the
 JUN-341 companion for that narrowing.
 

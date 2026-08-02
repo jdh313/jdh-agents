@@ -1,6 +1,8 @@
 ---
+name: spec-flow
 description: Drive a code change through spec-flow's contract lifecycle (capture, draft, implement, close)
 argument-hint: <subcommand> [args]
+disable-model-invocation: true
 allowed-tools:
   - Bash(ls *)
   - Read

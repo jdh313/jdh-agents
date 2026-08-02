@@ -1,10 +1,9 @@
 schema: agentforge.package/v1
 id: spec-flow
-defaults: {"name": "spec-flow", "version": "0.16.0", "description": "Personal SDLC scaffolding for AI-assisted development. A lightweight, ephemeral 'contract' between user and AI drives each code change from captured idea to verified done; the durable layer (CLAUDE.md, ndr atoms, README) lives elsewhere. Lifecycle: capture -> draft -> implement -> close.", "author": {"name": "Jacob Hoehler"}, "license": "Apache-2.0", "keywords": ["sdlc", "spec-driven-development", "ai-assisted-dev", "contract", "capture", "change-scoped", "ephemeral", "ndr", "librarian"]}
+defaults: {"name": "spec-flow", "version": "0.17.0", "description": "Personal SDLC scaffolding for AI-assisted development. A lightweight, ephemeral 'contract' between user and AI drives each code change from captured idea to verified done; the durable layer (CLAUDE.md, ndr atoms, README) lives elsewhere. Lifecycle: capture -> draft -> implement -> close.", "author": {"name": "Jacob Hoehler"}, "license": "Apache-2.0", "keywords": ["sdlc", "spec-driven-development", "ai-assisted-dev", "contract", "capture", "change-scoped", "ephemeral", "ndr", "librarian"]}
 artifacts:
   - {type: skill, pattern: 'skills/*/SKILL.md'}
   - {type: agent, pattern: 'agents/*.md'}
-  - {type: command, pattern: 'commands/*.md'}
 payloads:
   include:
     - {source: references/}
@@ -15,15 +14,12 @@ targets:
       - construct: agent-tools-filter
         state: stripped
         note: Codex role procedures carry no tool allowlist, so the verifier and red-phase author agents run unrestricted rather than read-plus-execute only.
-      - construct: command-tools-filter
-        state: stripped
-        note: The spec-flow command's allowlist, including the scoped Bash(ls *) permission, is not enforced on Codex.
       - construct: mcp-tool-reference
         state: retained-unenforced
         note: Skills name mcp__linear-server__* tools that do not exist on Codex; Linear-hosted contracts degrade to the .docs file host there.
       - construct: body-template-variable
         state: retained-unenforced
-        note: The spec-flow command body interpolates $ARGUMENTS to receive the phase and ticket argument. Codex emits the literal text unexpanded, so the invoking user must restate the phase and ticket in prose.
+        note: The spec-flow dispatcher skill body interpolates $ARGUMENTS to receive the phase and ticket argument. Codex emits the literal text unexpanded, so the invoking user must restate the phase and ticket in prose.
     native:
       interface:
         displayName: Spec Flow
