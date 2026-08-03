@@ -123,6 +123,19 @@ git add MARKETPLACE.yaml plugins/ .claude-plugin/ .agents/plugins/
 git commit -m "feat: add my-plugin"
 ```
 
+### Two environment traps that produce false results
+
+**The PATH `agentforge` binary is not the pinned compiler.** `~/.local/bin/agentforge` symlinks into `~/Projects/agentforge/dist/`, and that checkout tracks whatever branch is being worked on. Running against it fails for reasons that have nothing to do with your change — it has rejected canonical keys the pinned revision accepts. Always compile through a worktree pinned to the recorded baseline:
+
+```bash
+git -C ~/Projects/agentforge worktree add --detach /tmp/af-pin <pinned-sha>
+env AGENTFORGE_PROJECT=/tmp/af-pin uv run marketplace sync
+```
+
+The pinned SHA is in `docs/agentforge-compatibility.md` and in `.github/workflows/validate.yml`; CI checks out that revision, so a local run against anything else is not the merge gate.
+
+**This repo is registered as a local-path marketplace, so the working tree is live.** `~/.claude/plugins/known_marketplaces.json` points `cc-marketplace` at `/Users/jacob/Projects/cc-marketplace`, so installed plugins resolve to the working tree rather than the version-bucketed cache under `~/.claude/plugins/cache/`. Two consequences: there is no stale-published-copy trap when smoke-testing a branch, and — more importantly — **an uncommitted edit to any plugin here is immediately live to every Claude session on the machine.** Do not leave scratch markers or half-finished skill edits in the tree. `--plugin-dir` still works and is the honest way to name what you are testing, but it is not what isolates you.
+
 ### Validating Changes Locally
 
 Before pushing, always run the full validation suite:
