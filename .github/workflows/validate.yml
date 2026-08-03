@@ -60,12 +60,7 @@ jobs:
       - name: Unit tests
         run: uv run pytest -q
 
-      - name: Validate generated native publications
-        run: |
-          generated_root="$RUNNER_TEMP/cc-marketplace-agentforge"
-          bun run "$AGENTFORGE_PROJECT/src/cli.ts" compile MARKETPLACE.yaml --out "$generated_root"
-          bun run "$AGENTFORGE_PROJECT/src/cli.ts" check MARKETPLACE.yaml --out "$generated_root" --claude-native
-          uv run marketplace validate \
-            --format codex \
-            --manifest "$generated_root/codex/.agents/plugins/marketplace.json" \
-            --plugins-root "$generated_root/codex/plugins"
+      # The publications are committed, so the merge gate validates the exact
+      # bytes both runtimes will load rather than a fresh temporary compile.
+      - name: Validate committed publications
+        run: bun run "$AGENTFORGE_PROJECT/src/cli.ts" check MARKETPLACE.yaml --out marketplaces --claude-native

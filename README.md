@@ -12,17 +12,18 @@ ownership boundaries, runtime mappings, installation, and pilot acceptance.
 
 ```
 cc-marketplace/
-├── MARKETPLACE.yaml              # Canonical AgentForge collection definition
-├── .claude-plugin/
-│   └── marketplace.json      # Generated, committed Claude registry
-├── .agents/plugins/
-│   └── marketplace.json      # Generated, committed Codex pilot registry
-├── plugins/                  # Plugin files
+├── MARKETPLACE.yaml          # Canonical AgentForge collection definition
+├── plugins/                  # Authoring source — hand-edited, never installed from
 │   └── [plugin-name]/
 │       ├── PACKAGE.yaml      # Canonical AgentForge package definition
-│       ├── .claude-plugin/   # Generated Claude-native manifest
-│       ├── .codex-plugin/    # Generated Codex-native manifest for pilots
 │       └── ...               # Plugin files (commands, agents, skills, etc.)
+├── marketplaces/             # Compiler output — committed, never hand-edited
+│   ├── claude/               # Self-contained Claude marketplace root (15 plugins)
+│   │   ├── .claude-plugin/marketplace.json
+│   │   └── plugins/[name]/
+│   └── codex/                # Self-contained Codex marketplace root (7 pilots)
+│       ├── .agents/plugins/marketplace.json
+│       └── plugins/[name]/
 ├── scripts/                  # Automation tooling
 │   └── marketplace/          # `marketplace` CLI: sync, validate, lint, export, check
 ├── export/                   # Public export config
@@ -31,25 +32,36 @@ cc-marketplace/
     └── validate.yml          # GitHub Actions workflow
 ```
 
+Each directory under `marketplaces/` is a complete marketplace root, so a
+runtime is pointed at that directory rather than at the repository. Pointing a
+runtime at the repository root is what previously let Codex resolve canonical
+Claude sources instead of its own projection.
+
 ## Usage
 
 ### Installing the Marketplace
 
+Each runtime is pointed at its own compiled publication, never at the
+repository root.
+
 Claude Code:
 
-```text
-/plugin marketplace add jdh313/cc-marketplace
+```bash
+/plugin marketplace add /path/to/cc-marketplace/marketplaces/claude
 ```
 
 Codex local marketplace and pilots:
 
 ```bash
-codex plugin marketplace add /path/to/cc-marketplace
+codex plugin marketplace add /path/to/cc-marketplace/marketplaces/codex
 codex plugin add commit@cc-marketplace
 codex plugin add craft@cc-marketplace
 codex plugin add linear@cc-marketplace
 codex plugin add spec-flow@cc-marketplace
 ```
+
+Both publications keep the marketplace name `cc-marketplace`, so an existing
+install survives the repoint: only the path each runtime resolves changes.
 
 ### Adding a New Plugin
 
@@ -67,22 +79,18 @@ codex plugin add spec-flow@cc-marketplace
      uv run marketplace sync
    ```
 
-4. Validate repository-native files (read-only drift + schema + lint):
+4. Validate the committed publications (read-only drift + schema + lint):
    ```bash
    uv run marketplace check
    ```
 
 5. Run the full-corpus acceptance suite against the pinned compatible
-   AgentForge checkout and compile into an isolated output root:
+   AgentForge checkout, then verify the committed tree with the native
+   Claude validator:
    ```bash
    export AGENTFORGE_PROJECT=/path/to/agentforge-at-0ebebbb
    uv run pytest -q
-   agentforge compile MARKETPLACE.yaml --out /tmp/cc-marketplace-agentforge
-   agentforge check MARKETPLACE.yaml --out /tmp/cc-marketplace-agentforge --claude-native
-   uv run marketplace validate \
-     --format codex \
-     --manifest /tmp/cc-marketplace-agentforge/codex/.agents/plugins/marketplace.json \
-     --plugins-root /tmp/cc-marketplace-agentforge/codex/plugins
+   agentforge check MARKETPLACE.yaml --out marketplaces --claude-native
    ```
 
 See [`docs/agentforge-compatibility.md`](docs/agentforge-compatibility.md) for
@@ -171,10 +179,11 @@ does not skip the acceptance gate.
 ## Metadata ownership
 
 `MARKETPLACE.yaml` and `plugins/*/PACKAGE.yaml` are the only maintained sources
-of marketplace and package metadata. The JSON files under `.claude-plugin/`,
-`.agents/plugins/`, and package `.claude-plugin/` / `.codex-plugin/`
-directories are committed generated outputs. Edit the YAML and regenerate;
-never hand-edit those JSON manifests.
+of marketplace and package metadata, and `plugins/` is the only maintained
+source of plugin content. Everything under `marketplaces/` is committed
+compiler output — manifests and bodies alike. Edit the source and run
+`uv run marketplace sync`; never hand-edit a file under `marketplaces/`, because
+the next sync republishes the whole tree and silently discards the edit.
 
 ## License
 

@@ -12,7 +12,10 @@ on:
   push:
     branches: [main]
     paths:
-      - 'plugins/**'
+      # What ships is the compiled Claude publication, so the trigger follows
+      # the compiler output. An edit under plugins/ that has not been synced
+      # fails the drift gate in validate.yml rather than publishing stale bytes.
+      - 'marketplaces/claude/**'
       - 'export/**'
       - 'scripts/marketplace/**'
 

@@ -33,8 +33,9 @@ def test_marketplace_check_passes_with_seven_codex_plugins(capsys) -> None:
 
 
 def test_compass_codex_plugin_manifest_is_committed() -> None:
+    manifest = "marketplaces/codex/plugins/compass/.codex-plugin/plugin.json"
     result = subprocess.run(
-        ["git", "ls-files", "--error-unmatch", "plugins/compass/.codex-plugin/plugin.json"],
+        ["git", "ls-files", "--error-unmatch", manifest],
         cwd=REPO_ROOT,
         capture_output=True,
         text=True,
@@ -42,6 +43,5 @@ def test_compass_codex_plugin_manifest_is_committed() -> None:
     )
 
     assert result.returncode == 0, (
-        "plugins/compass/.codex-plugin/plugin.json is not tracked in git: "
-        f"{result.stderr.strip()}"
+        f"{manifest} is not tracked in git: {result.stderr.strip()}"
     )

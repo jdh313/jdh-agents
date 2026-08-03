@@ -11,8 +11,12 @@ from datetime import date
 from pathlib import Path
 from typing import Any
 
+from marketplace.generation import COMPILED_ROOT
 from marketplace.manifest import build_public
 from marketplace.validate import validate_manifest
+
+# Repository-relative plugins tree of the compiled Claude publication.
+COMPILED_CLAUDE_PLUGINS = COMPILED_ROOT / "claude" / "plugins"
 
 # ---------------------------------------------------------------------------
 # Privacy gate patterns
@@ -56,13 +60,16 @@ def _scan_privacy(file_path: Path) -> tuple[list[str], list[str]]:
     return hard, soft
 
 
-def _privacy_gate(private_root: Path, allowlist: list[str]) -> None:
+def _privacy_gate(plugins_dir: Path, allowlist: list[str]) -> None:
     """Scan every text file in the allowlisted plugin dirs.
+
+    Takes the plugins directory rather than the repository root: what ships is
+    the compiled Claude publication, so the gate must scan the bytes actually
+    being published, not the authoring source they were compiled from.
 
     Raises ``ValueError`` with all hard errors concatenated if any are found.
     Prints soft warnings to stdout (does NOT raise).
     """
-    plugins_dir = private_root / "plugins"
     all_hard: list[str] = []
 
     for name in allowlist:
@@ -214,7 +221,17 @@ def run_export(
         config: dict[str, Any] = json.load(fh)
 
     allowlist: list[str] = config["allowlist"]
-    plugins_dir = private_root / "plugins"
+
+    # The public repo is a Claude marketplace, so it receives the compiled
+    # Claude publication — not the authoring source. This is what keeps
+    # authoring-layer frontmatter out of a published plugin.
+    plugins_dir = private_root / COMPILED_CLAUDE_PLUGINS
+
+    if not plugins_dir.is_dir():
+        raise ValueError(
+            f"Compiled Claude publication not found at {plugins_dir}; "
+            "run `uv run marketplace sync` first."
+        )
 
     missing = [
         name
@@ -231,12 +248,14 @@ def run_export(
 
     # --- 2. Privacy gate -------------------------------------------------
     print("Running privacy gate...")
-    _privacy_gate(private_root, allowlist)
+    _privacy_gate(plugins_dir, allowlist)
     print("  Privacy gate passed.")
 
     # --- 3. Copy plugin dirs ---------------------------------------------
     public_plugins_dir = public_root / "plugins"
     public_plugins_dir.mkdir(parents=True, exist_ok=True)
+
+    canonical_plugins_dir = private_root / "plugins"
 
     for name in allowlist:
         src = plugins_dir / name
@@ -244,6 +263,21 @@ def run_export(
         if dst.exists():
             shutil.rmtree(dst)
         shutil.copytree(src, dst, ignore=_copy_ignore)
+
+        # The compiler publishes what a runtime loads, which excludes the
+        # package-level README. That file is the public repo's only
+        # human-facing description of a plugin, so carry it across explicitly
+        # rather than letting the cutover silently drop it.
+        readme = canonical_plugins_dir / name / "README.md"
+        if readme.is_file():
+            readme_hard, readme_soft = _scan_privacy(readme)
+            for msg in readme_soft:
+                print(f"  [privacy warn] {msg}")
+            if readme_hard:
+                detail = "\n".join(f"  {e}" for e in readme_hard)
+                raise ValueError(f"Privacy gate FAILED:\n{detail}")
+            shutil.copy2(readme, dst / "README.md")
+
         print(f"  Copied plugins/{name}")
 
     # Remove demoted dirs (present in public but not in allowlist)

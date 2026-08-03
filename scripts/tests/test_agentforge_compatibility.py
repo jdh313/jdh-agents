@@ -33,7 +33,7 @@ def test_codex_enrolled_argument_instructions_are_portable(relative_path: str) -
 # gap; it is expected to pass once the baseline is regenerated against a
 # compiler that projects `commit`'s hook.
 def test_commit_codex_baseline_declares_its_translated_hook_configuration() -> None:
-    manifest_path = REPO_ROOT / "plugins/commit/.codex-plugin/plugin.json"
+    manifest_path = REPO_ROOT / "marketplaces/codex/plugins/commit/.codex-plugin/plugin.json"
     manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
 
     assert "hooks" in manifest, (

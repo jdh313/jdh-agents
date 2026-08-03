@@ -1,3 +1,8 @@
 
 # Use bd merge for beads JSONL files
 .beads/issues.jsonl merge=beads
+
+# Compiled publications. Every byte is reproducible from plugins/ and the
+# pinned compiler, so collapse them in review: the diff to read is the source
+# change, and `uv run marketplace check` is what proves the output matches it.
+marketplaces/** linguist-generated=true

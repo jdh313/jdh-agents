@@ -11,10 +11,10 @@ from pathlib import Path
 from marketplace.codex_validate import validate_codex_marketplace
 from marketplace.export import run_export
 from marketplace.generation import (
+    COMPILED_ROOT,
     GenerationError,
-    compare_native_manifests,
-    compile_native_manifests,
-    materialize_native_manifests,
+    check_publications,
+    sync_publications,
 )
 from marketplace.lint import lint_plugins
 from marketplace.validate import validate_manifest
@@ -29,11 +29,31 @@ from marketplace.validate import validate_manifest
 # parents[2] = repo root
 _THIS_FILE = Path(__file__).resolve()
 _REPO_ROOT = _THIS_FILE.parents[2]
-_PLUGINS_ROOT = _REPO_ROOT / "plugins"
-_PRIVATE_MANIFEST = _REPO_ROOT / ".claude-plugin" / "marketplace.json"
-_CODEX_MANIFEST = _REPO_ROOT / ".agents" / "plugins" / "marketplace.json"
 _CANONICAL_MARKETPLACE = _REPO_ROOT / "MARKETPLACE.yaml"
 _DEFAULT_EXPORT_CONFIG = _REPO_ROOT / "export" / "public.json"
+
+# Authoring source. `lint` reads this, because lint grades what a human wrote;
+# every other consumer below reads a compiled publication instead.
+_PLUGINS_ROOT = _REPO_ROOT / "plugins"
+
+# Compiled publications. Each is a self-contained marketplace root, so a
+# runtime is pointed at the directory rather than at this repository.
+_COMPILED_ROOT = _REPO_ROOT / COMPILED_ROOT
+_CLAUDE_ROOT = _COMPILED_ROOT / "claude"
+_CODEX_ROOT = _COMPILED_ROOT / "codex"
+
+# Per-format defaults: a manifest is only meaningful against the plugins tree
+# of its own publication, so the two always move together.
+_NATIVE_PUBLICATIONS = {
+    "claude": (
+        _CLAUDE_ROOT / ".claude-plugin" / "marketplace.json",
+        _CLAUDE_ROOT / "plugins",
+    ),
+    "codex": (
+        _CODEX_ROOT / ".agents" / "plugins" / "marketplace.json",
+        _CODEX_ROOT / "plugins",
+    ),
+}
 
 
 # ---------------------------------------------------------------------------
@@ -42,38 +62,43 @@ _DEFAULT_EXPORT_CONFIG = _REPO_ROOT / "export" / "public.json"
 
 
 def _cmd_sync(args: argparse.Namespace) -> int:
+    root = COMPILED_ROOT.as_posix()
     try:
-        compilation = compile_native_manifests(_REPO_ROOT, _CANONICAL_MARKETPLACE)
+        if args.check:
+            result = check_publications(_REPO_ROOT, _CANONICAL_MARKETPLACE)
+        else:
+            result = sync_publications(_REPO_ROOT, _CANONICAL_MARKETPLACE)
     except GenerationError as error:
-        print(f"Native manifest generation failed: {error}", file=sys.stderr)
+        print(f"Publication compilation failed: {error}", file=sys.stderr)
         return 1
-    _print_agentforge_output(compilation.stdout, compilation.stderr)
+    _print_agentforge_output(result.stdout, result.stderr)
 
-    if args.check:
-        issues = compare_native_manifests(_REPO_ROOT, compilation.manifests)
-        if not issues:
-            print(
-                f"Native manifests are up-to-date ({len(compilation.manifests)} files)."
-            )
-            return 0
-        print("Native manifests are OUT OF SYNC (drift detected):", file=sys.stderr)
-        for issue in issues:
-            print(f"  {issue.kind}: {issue.path.as_posix()}", file=sys.stderr)
-        print("Run `uv run marketplace sync` to regenerate.", file=sys.stderr)
-        return 1
+    if not args.check:
+        print(f"Synced {result.file_count} compiled file(s) into {root}/.")
+        return 0
 
-    materialize_native_manifests(_REPO_ROOT, compilation.manifests)
-    print(f"Synced {len(compilation.manifests)} generated native manifest(s).")
-    return 0
+    if not result.drift:
+        print(f"Compiled publications are up-to-date ({result.file_count} files).")
+        return 0
+
+    print(f"Compiled publications in {root}/ are OUT OF SYNC:", file=sys.stderr)
+    for issue in result.drift:
+        print(f"  {issue.kind}: {root}/{issue.path.as_posix()}", file=sys.stderr)
+    print("Run `uv run marketplace sync` to regenerate.", file=sys.stderr)
+    return 1
 
 
 def _cmd_validate(args: argparse.Namespace) -> int:
-    default_manifest = _CODEX_MANIFEST if args.format == "codex" else _PRIVATE_MANIFEST
+    default_manifest, default_plugins_root = _NATIVE_PUBLICATIONS[args.format]
     manifest_path = Path(args.manifest) if args.manifest else default_manifest
-    plugins_root = Path(args.plugins_root) if args.plugins_root else _PLUGINS_ROOT
+    plugins_root = Path(args.plugins_root) if args.plugins_root else default_plugins_root
 
     if not manifest_path.exists():
         print(f"Error: manifest not found: {manifest_path}", file=sys.stderr)
+        print(
+            "Compiled publications are generated; run `uv run marketplace sync`.",
+            file=sys.stderr,
+        )
         return 1
 
     try:
@@ -203,24 +228,33 @@ def _build_parser() -> argparse.ArgumentParser:
 
     # sync
     sync_p = sub.add_parser(
-        "sync", help="Regenerate committed native manifests from AgentForge definitions"
+        "sync",
+        help=f"Recompile the committed publications under {COMPILED_ROOT.as_posix()}/",
     )
     sync_p.add_argument(
         "--check",
         action="store_true",
-        help="Exit 1 if native manifests are out of sync; do NOT write.",
+        help="Exit 1 if the committed publications are out of sync; do NOT write.",
     )
 
     # validate
-    val_p = sub.add_parser("validate", help="Validate marketplace.json schema")
+    val_p = sub.add_parser("validate", help="Validate a compiled marketplace manifest")
     val_p.add_argument(
         "--format",
         choices=("claude", "codex"),
         default="claude",
         help="Native marketplace format to validate (default: claude)",
     )
-    val_p.add_argument("--manifest", metavar="PATH", help="Path to manifest (default: private)")
-    val_p.add_argument("--plugins-root", metavar="PATH", help="Path to plugins/ dir")
+    val_p.add_argument(
+        "--manifest",
+        metavar="PATH",
+        help="Path to manifest (default: the compiled publication for --format)",
+    )
+    val_p.add_argument(
+        "--plugins-root",
+        metavar="PATH",
+        help="Path to plugins/ dir (default: the compiled publication for --format)",
+    )
 
     # lint
     lint_p = sub.add_parser("lint", help="Lint plugin files")

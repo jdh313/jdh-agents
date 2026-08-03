@@ -307,8 +307,6 @@ def test_privacy_gate_raises_on_absolute_home_path(tmp_path: Path) -> None:
     """Hard error: absolute home path like /Users/someone/."""
     plugins_dir = tmp_path / "plugins"
     plugins_dir.mkdir()
-    private_root = tmp_path
-    (private_root / "plugins").mkdir(exist_ok=True)
 
     _make_plugin_with_content(
         plugins_dir,
@@ -317,14 +315,13 @@ def test_privacy_gate_raises_on_absolute_home_path(tmp_path: Path) -> None:
     )
 
     with pytest.raises(ValueError, match="Privacy gate FAILED"):
-        _privacy_gate(private_root, ["myplugin"])
+        _privacy_gate(plugins_dir, ["myplugin"])
 
 
 def test_privacy_gate_raises_on_secret_assignment(tmp_path: Path) -> None:
     """Hard error: secret-ish assignment like api_key = 'abcdefgh12345'."""
     plugins_dir = tmp_path / "plugins"
     plugins_dir.mkdir()
-    private_root = tmp_path
 
     _make_plugin_with_content(
         plugins_dir,
@@ -333,14 +330,13 @@ def test_privacy_gate_raises_on_secret_assignment(tmp_path: Path) -> None:
     )
 
     with pytest.raises(ValueError, match="Privacy gate FAILED"):
-        _privacy_gate(private_root, ["myplugin"])
+        _privacy_gate(plugins_dir, ["myplugin"])
 
 
 def test_privacy_gate_warns_not_raises_on_loose_ends(tmp_path: Path, capsys) -> None:
     """Soft warning only: ~/Loose Ends/ vault mention must NOT block export."""
     plugins_dir = tmp_path / "plugins"
     plugins_dir.mkdir()
-    private_root = tmp_path
 
     _make_plugin_with_content(
         plugins_dir,
@@ -349,7 +345,7 @@ def test_privacy_gate_warns_not_raises_on_loose_ends(tmp_path: Path, capsys) -> 
     )
 
     # Should NOT raise
-    _privacy_gate(private_root, ["myplugin"])
+    _privacy_gate(plugins_dir, ["myplugin"])
 
     captured = capsys.readouterr()
     # A warning should have been printed
@@ -360,7 +356,6 @@ def test_privacy_gate_passes_clean_plugin(tmp_path: Path) -> None:
     """No secrets, no home paths — gate should pass silently."""
     plugins_dir = tmp_path / "plugins"
     plugins_dir.mkdir()
-    private_root = tmp_path
 
     _make_plugin_with_content(
         plugins_dir,
@@ -369,7 +364,7 @@ def test_privacy_gate_passes_clean_plugin(tmp_path: Path) -> None:
     )
 
     # Should not raise
-    _privacy_gate(private_root, ["clean"])
+    _privacy_gate(plugins_dir, ["clean"])
 
 
 # ---------------------------------------------------------------------------

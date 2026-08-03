@@ -11,8 +11,10 @@ contain Codex manifests, but the public registry remains Claude-native.
 
 - `plugins/<name>/skills/`, references, scripts, and other workflow content are
   canonical shared bodies. Do not fork substantive instructions by runtime.
-- `plugins/<name>/.claude-plugin/plugin.json` is the Claude manifest.
-- `plugins/<name>/.codex-plugin/plugin.json` is the Codex manifest.
+- `marketplaces/claude/plugins/<name>/.claude-plugin/plugin.json` is the Claude
+  manifest, and `marketplaces/codex/plugins/<name>/.codex-plugin/plugin.json` is
+  the Codex one. Both are compiler output; neither is hand-edited, and neither
+  lives beside the canonical source any more.
 - Claude agents and commands remain native Claude surfaces. Codex uses shared
   procedures plus runtime subagents; files under `agents/` do not register
   named Codex agents.
@@ -37,27 +39,33 @@ model memory.
 
 ## Marketplace layout
 
-- Claude registry: `.claude-plugin/marketplace.json`
-- Codex registry: `.agents/plugins/marketplace.json`
-- Shared plugin roots: `plugins/<name>/`
+- Claude publication root: `marketplaces/claude/`, registry at
+  `.claude-plugin/marketplace.json`
+- Codex publication root: `marketplaces/codex/`, registry at
+  `.agents/plugins/marketplace.json`
+- Shared canonical source: `plugins/<name>/`
 
-Claude discovery reads only `.claude-plugin/plugin.json`, so colocated Codex
-manifests cannot duplicate Claude registry entries. Codex validation checks its
-four catalog entries, manifest metadata, strict semantic versions, path
+Each publication is a separate, self-contained marketplace root, so the two
+runtimes no longer share a directory and cannot resolve each other's files.
+That separation replaces the earlier colocation, under which pointing Codex at
+the repository root made it install canonical Claude sources. Codex validation
+checks its catalog entries, manifest metadata, strict semantic versions, path
 containment, Claude/Codex name and version parity, and skill YAML frontmatter.
 
 ## Install
 
+Point each runtime at its own publication root, never at the repository.
+
 Claude Code:
 
-```text
-/plugin marketplace add jdh313/cc-marketplace
+```bash
+/plugin marketplace add /path/to/cc-marketplace/marketplaces/claude
 ```
 
 Codex local development marketplace:
 
 ```bash
-codex plugin marketplace add /path/to/cc-marketplace
+codex plugin marketplace add /path/to/cc-marketplace/marketplaces/codex
 codex plugin add commit@cc-marketplace
 codex plugin add craft@cc-marketplace
 codex plugin add linear@cc-marketplace
