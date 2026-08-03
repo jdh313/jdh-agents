@@ -137,7 +137,13 @@ env AGENTFORGE_PROJECT=/tmp/af-pin uv run marketplace sync
 
 The pinned SHA is in `docs/agentforge-compatibility.md` and in `.github/workflows/validate.yml`; CI checks out that revision, so a local run against anything else is not the merge gate.
 
-**This repo is registered as a local-path marketplace, so the working tree is live.** `~/.claude/plugins/known_marketplaces.json` points `cc-marketplace` at `/Users/jacob/Projects/cc-marketplace`, so installed plugins resolve to the working tree rather than the version-bucketed cache under `~/.claude/plugins/cache/`. Two consequences: there is no stale-published-copy trap when smoke-testing a branch, and — more importantly — **an uncommitted edit to any plugin here is immediately live to every Claude session on the machine.** Do not leave scratch markers or half-finished skill edits in the tree. `--plugin-dir` still works and is the honest way to name what you are testing, but it is not what isolates you.
+**The two runtimes disagree about whether the working tree is live, and the disagreement runs opposite ways.**
+
+`~/.claude/plugins/known_marketplaces.json` points `cc-marketplace` at `<repo>/marketplaces/claude`, and Claude resolves installed plugins straight out of that directory rather than a version-bucketed cache. So **an uncommitted change under `marketplaces/claude/` is immediately live to every Claude session on the machine** — including one produced by a `uv run marketplace sync` you ran to test something. Checking out a branch re-points every installed plugin. `--plugin-dir` is the honest way to name what you are testing, but it is not what isolates you.
+
+Codex is the inverse. `codex plugin add` **copies** into `~/.codex/plugins/cache/cc-marketplace/<plugin>/<version>/`, so the working tree is *not* live there — and because the cache is keyed by version, an unchanged version number means it is never invalidated. A Codex plugin can serve months-old bytes while `codex plugin list` prints the current marketplace path for it, which is indistinguishable from being up to date. Re-run `codex plugin add <name>@cc-marketplace` after any change you expect Codex to see.
+
+The trap that follows from the pair: a smoke test that passes under Claude proves nothing about Codex, because Claude read your edit and Codex read its cache.
 
 ### Validating Changes Locally
 
