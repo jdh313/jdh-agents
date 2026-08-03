@@ -1,6 +1,6 @@
 schema: agentforge.package/v1
 id: coach
-defaults: {"name": "coach", "version": "0.10.1", "description": "ADHD-friendly productivity coaching: daily planning (/today, /energy), end-of-day capture (/checkin), weekly scheduling (/plan-week) and review (/weekly), life-direction reviews (/review), goal-to-project alignment (/align), project lifecycle (/intake, /breakdown, /reentry, /sunset), idea capture (/spark), brain dump (/dump), task triage (/triage), decision journaling (/decide), and pattern analysis (momentum, overdue-rescue) with adaptive tone calibration", "author": {"name": "Jacob Hoehler"}, "license": "Apache-2.0", "keywords": ["adhd", "productivity", "coaching", "planning", "daily", "weekly", "review", "align", "projects", "decisions", "patterns", "closure", "journaling", "triage", "energy", "intake", "breakdown", "decomposition", "ideas", "tasks", "brain-dump"]}
+defaults: {"name": "coach", "version": "0.11.0", "description": "ADHD-friendly productivity coaching: daily planning (/today, /energy), end-of-day capture (/checkin), weekly scheduling (/plan-week) and review (/weekly), life-direction reviews (/review), goal-to-project alignment (/align), project lifecycle (/intake, /breakdown, /reentry, /sunset), idea capture (/spark), brain dump (/dump), task triage (/triage), decision journaling (/decide), and pattern analysis (momentum, overdue-rescue) with adaptive tone calibration", "author": {"name": "Jacob Hoehler"}, "license": "Apache-2.0", "keywords": ["adhd", "productivity", "coaching", "planning", "daily", "weekly", "review", "align", "projects", "decisions", "patterns", "closure", "journaling", "triage", "energy", "intake", "breakdown", "decomposition", "ideas", "tasks", "brain-dump"]}
 artifacts:
   - {type: skill, pattern: 'skills/*/SKILL.md'}
   - {type: agent, pattern: 'agents/*.md'}
@@ -9,3 +9,17 @@ payloads:
     - {source: references/}
 targets:
   claude: {}
+  codex:
+    losses:
+      - construct: agent-tools-filter
+        state: stripped
+        note: Codex role procedures carry no tool allowlist, so momentum, overdue-rescue, and project-pulse run unrestricted rather than scoped to their declared read-only tool sets.
+    native:
+      interface:
+        displayName: Coach
+        shortDescription: ADHD-friendly productivity coaching
+        longDescription: Daily and weekly planning, end-of-day capture, life-direction reviews, goal-to-project alignment, project lifecycle (intake through sunset), idea capture, brain dumps, task triage, decision journaling, and pattern analysis, with tone calibrated to energy level.
+        developerName: Jacob Hoehler
+        category: Productivity
+        capabilities: [Read, Write, Interactive]
+        defaultPrompt: [Plan my day.]
