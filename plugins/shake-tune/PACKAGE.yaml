@@ -1,6 +1,6 @@
 schema: agentforge.package/v1
 id: shake-tune
-defaults: {"name": "shake-tune", "version": "0.3.1", "description": "Interpret Klippain Shake Tune results for 3D printers: diagnose issues from PNG graphs, explain findings, recommend fixes, and track results over time. Supports belt comparison, input shaper, vibration profile, axes map, and excitation tests.", "author": {"name": "Jacob Hoehler"}, "license": "Apache-2.0", "keywords": ["3d-printing", "klipper", "shake-tune", "input-shaper", "diagnostics", "vibration", "belt-tension", "corexy"]}
+defaults: {"name": "shake-tune", "version": "0.4.0", "description": "Interpret Klippain Shake Tune results for 3D printers: diagnose issues from PNG graphs, explain findings, recommend fixes, and track results over time. Supports belt comparison, input shaper, vibration profile, axes map, and excitation tests.", "author": {"name": "Jacob Hoehler"}, "license": "Apache-2.0", "keywords": ["3d-printing", "klipper", "shake-tune", "input-shaper", "diagnostics", "vibration", "belt-tension", "corexy"]}
 artifacts:
   - {type: skill, pattern: 'skills/*/SKILL.md'}
   - {type: agent, pattern: 'agents/*.md'}
@@ -9,3 +9,17 @@ payloads:
     - {source: references/}
 targets:
   claude: {}
+  codex:
+    losses:
+      - construct: agent-tools-filter
+        state: stripped
+        note: Codex role procedures carry no tool allowlist, so the five analyzer agents' read-only Read/Glob/Grep restrictions are not enforced. On Claude these agents cannot write; a Codex role standing in for one could write to printer config despite each analyzer being scoped to read-only PNG interpretation. Separately, the author also pins model/effort per agent -- opus/high for belt-analyzer, shaper-analyzer, and vibration-analyzer (the numerical PSD/spectrogram interpretation agents), inherit/low for axes-map-analyzer and excitate-analyzer (mechanical checks) -- and Codex ignores that tiering too, running all five at whatever model the session is on. No `agent-model-pin`-shaped construct exists in the compiler's capability table (only agent-tools-filter, command-tools-filter, mcp-tool-reference, and three body constructs are declarable today), so this loss cannot be declared through the existing mechanism; it is recorded here as prose so the gap is not silently absorbed into the generic inferred-artifact-projection note.
+    native:
+      interface:
+        displayName: Shake Tune
+        shortDescription: Diagnose printer vibration from Shake Tune graphs
+        longDescription: Interprets Klippain Shake Tune PNG graphs for 3D printers -- diagnoses issues, explains findings in plain language, recommends mechanical or firmware fixes, and tracks results over time. Covers belt comparison, input shaper, vibration profile, axes map, and excitation tests.
+        developerName: Jacob Hoehler
+        category: Productivity
+        capabilities: [Read, Write, Interactive]
+        defaultPrompt: [Analyze my Shake Tune results.]
