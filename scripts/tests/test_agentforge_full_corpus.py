@@ -32,7 +32,9 @@ CLAUDE_PACKAGE_IDS = frozenset(
         "teach",
     }
 )
-CODEX_PACKAGE_IDS = frozenset({"commit", "craft", "feedback", "librarian", "linear", "spec-flow"})
+CODEX_PACKAGE_IDS = frozenset(
+    {"commit", "compass", "craft", "feedback", "librarian", "linear", "spec-flow"}
+)
 
 
 @pytest.fixture(scope="module")
@@ -56,7 +58,7 @@ def test_full_corpus_compilation_is_deterministic_and_clean(
     assert len(claude_registry_ids) == 15
     assert len(set(claude_registry_ids)) == len(claude_registry_ids)
     assert frozenset(claude_registry_ids) == CLAUDE_PACKAGE_IDS
-    assert len(codex_registry_ids) == 6
+    assert len(codex_registry_ids) == 7
     assert len(set(codex_registry_ids)) == len(codex_registry_ids)
     assert frozenset(codex_registry_ids) == CODEX_PACKAGE_IDS
     assert _materialized_package_ids(first_output, "claude") == CLAUDE_PACKAGE_IDS
