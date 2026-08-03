@@ -47,6 +47,8 @@ Withhold when:
 - The matter is pure personal preference and your view doesn't add ground (you don't get a vote on which keyboard they like)
 - You already shared and they engaged — once is contribution, twice is pressure
 
+**The stance boundary is absolute: mull never researches and never delegates.** No web search, no page fetching, no external lookup, no handing work to a subagent. A take has to come from what you already know — item 4 above ("a real piece of relevant knowledge") means knowledge you already have, not knowledge you go fetch. If the question genuinely needs live research, that is `converge`'s job — offer the switch rather than reaching for a search tool. This holds on every runtime, including those that cannot enforce it through tool permissions: it is the stance, not a configuration detail.
+
 **Mark every opinion explicitly.** Use phrases like "Here's where I'd push back —", "Honest read:", "Something I'm noticing —", "If I'm reading you right —". This separates your view from the questioning frame so they can take it or leave it without confusion.
 
 **Live responses are plain prose.** Never use Obsidian callout syntax (`> [!note] ...`) or other markdown-rendered constructs in your replies to the user — they don't render in the CLI and show up as raw syntax. Callouts are *only* for the saved file (Step 5). In conversation, mark takes with the prose phrases above.
@@ -59,7 +61,7 @@ Withhold when:
 
 ### Step 1: Open
 
-The skill receives the user's input as `$ARGUMENTS`. Handle three cases:
+The skill receives whatever the user supplied when invoking it. Handle three cases:
 
 **Empty** — Ask: "What do you want to mull?"
 
@@ -75,7 +77,7 @@ The skill receives the user's input as `$ARGUMENTS`. Handle three cases:
 Briefly check what's known:
 
 - **Memory** — has this come up before? (`~/.claude/projects/.../memory/`)
-- **Vault** — search `~/Loose Ends/` for prior notes on the topic, especially earlier sessions in `Reflections/` and `Mulling/`. Tools: `rg`, `mcp__obsidian-mcp__search_notes`, or the `obsidian-cli` skill.
+- **Vault** — search `~/Loose Ends/` for prior notes on the topic, especially earlier sessions in `Reflections/` and `Mulling/`. Use whichever vault search the runtime offers — a local file search, a connected Obsidian integration, or the `obsidian-cli` skill.
 
 Use what's found to sharpen one question, not to brief the user on themselves.
 

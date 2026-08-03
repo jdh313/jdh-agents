@@ -23,7 +23,7 @@ publications:
     destination: .agents/plugins/marketplace.json
     enrollment:
       mode: include
-      packages: [commit, craft, feedback, librarian, linear, spec-flow]
+      packages: [commit, compass, craft, feedback, librarian, linear, spec-flow]
     native:
       interface:
         displayName: CC Marketplace

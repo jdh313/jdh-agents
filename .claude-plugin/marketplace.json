@@ -62,7 +62,7 @@
     },
     {
       "name": "compass",
-      "version": "0.8.1",
+      "version": "0.9.0",
       "description": "A suite of conversational thinking tools — reflect (Socratic mirror, never recommends, always saves), mull (thinking partner, probes AND contributes opinions, saves substantive sessions only), and converge (advisor, leads with a researched recommendation plus confidence % and refines it one question at a time).",
       "author": {
         "name": "Jacob Hoehler",
