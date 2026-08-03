@@ -4,6 +4,7 @@ defaults: {"name": "skillsmith", "version": "1.1.0", "description": "Craft and u
 artifacts:
   - {type: skill, pattern: 'skills/*/SKILL.md'}
   - {type: agent, pattern: 'agents/*.md'}
+authoring-keys: [upstream]
 targets:
   claude:
     native:
