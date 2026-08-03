@@ -110,21 +110,26 @@ validator. Compilation diagnostics are reviewed limitations, not parity claims:
   `${CLAUDE_PLUGIN_ROOT}` becomes the native `${PLUGIN_ROOT}`. Codex skips
   plugin-bundled hooks until the user reviews and trusts the definition, so the
   guard is present but inert until then.
-- `compass`: `argument-hint`, `allowed-tools`, and `effort` are stripped on all
-  three skills, and none is a declarable loss. Disposition: **accepted.**
-  `allowed-tools` is a permission-prompt convenience rather than a capability;
-  `argument-hint` documents an autocomplete hint whose guidance already survives
-  in each skill's body; `effort` requests a reasoning budget Codex does not
-  expose. All three skills declare `disable-model-invocation: true`, which is
-  translated rather than stripped — see the explicit-only note above.
-  `disallowed-tools` is a fourth case and the one worth stating plainly: it is
-  **dropped with nothing reported.** The canonical skill frontmatter carries no
-  such key, so it is discarded at parse, and it is absent from the Claude-only
-  key set, so it never reaches a stripped warning. There is no construct token
-  to declare it under either. On `reflect` and `mull` that field was the only
-  enforcement of a no-research / no-delegate boundary, so the boundary is now
-  stated in each skill's body prose, where it survives to any runtime. No
-  `targets.codex.losses` entries: the two declarable constructs the package
+- `compass`: four fields are stripped on all three skills — `argument-hint`,
+  `allowed-tools`, `disallowed-tools`, and `effort` — and none is a declarable
+  loss. Disposition: **accepted.** `allowed-tools` is a permission-prompt
+  convenience rather than a capability; `argument-hint` documents an
+  autocomplete hint whose guidance already survives in each skill's body;
+  `effort` requests a reasoning budget Codex does not expose. All three skills
+  declare `disable-model-invocation: true`, which is translated rather than
+  stripped — see the explicit-only note above.
+  `disallowed-tools` is the one worth stating plainly. Codex enforces no tool
+  filter, so the field is stripped there exactly as `allowed-tools` is — and on
+  `reflect` and `mull` it was the *only* enforcement of a no-research /
+  no-delegate boundary. That boundary is now stated in each skill's body prose,
+  where it survives to any runtime regardless of what the frontmatter can carry.
+  Under the previous compiler baseline `a0701ec` this field was additionally
+  invisible: absent from the canonical schema, discarded at parse, and reported
+  nowhere. AgentForge tracked that as L-001 and fixed it; under the current
+  baseline `0ebebbb` the key is enumerated, round-trips into the Claude
+  projection, and is reported as stripped on Codex. The enforcement gap is
+  unchanged — only its visibility improved, so the prose remains load-bearing.
+  No `targets.codex.losses` entries: the two declarable constructs the package
   once carried — a `$ARGUMENTS` body template variable and `mcp__*` tool
   identifiers in prose — were rewritten to name intent rather than declared.
 - `craft`: Claude-only invocation and tool-policy fields are stripped where
