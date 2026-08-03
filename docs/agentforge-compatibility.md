@@ -28,7 +28,7 @@ The merge gate also applies the runtime-native checks that are available:
 - `claude plugin validate --strict` validates the complete generated Claude
   publication.
 - `uv run marketplace validate --format codex` validates the generated Codex
-  marketplace and only its five declared packages. It checks local source
+  marketplace and only its seven declared packages. It checks local source
   resolution, manifest identity and semantic versions, required skill metadata,
   explicit-only sidecars, and exact agreement between declared and materialized
   package directories. Codex currently provides marketplace management but no
@@ -38,7 +38,7 @@ The merge gate also applies the runtime-native checks that are available:
 Full generated publication roots are disposable and live outside the source
 repository. `uv run marketplace sync` projects only their native manifest files
 into the source tree: two root registries, fifteen Claude package manifests,
-and five Codex package manifests. The acceptance suite itself never updates
+and seven Codex package manifests. The acceptance suite itself never updates
 checked-in output.
 
 AgentForge owns explicit-only skill translation. When a canonical Claude skill
@@ -47,15 +47,15 @@ skill-local `agents/openai.yaml` containing
 `policy.allow_implicit_invocation: false`. Supplied sidecars remain subject to
 AgentForge's normal collision policy and cannot silently replace generated
 policy. cc-marketplace owns verifying those compiler results across the real
-15-package corpus and validating the five declared Codex packages; it does not
+15-package corpus and validating the seven declared Codex packages; it does not
 duplicate the translation in repository tooling.
 
 ## Target enrollment
 
 - Claude enrolls all fifteen packages with `all-compatible`.
-- Codex enrolls the accepted pilots only: `commit`, `craft`, `feedback`,
-  `librarian`, `linear`, and `spec-flow`.
-- The other nine packages do not declare Codex support. They must complete a
+- Codex enrolls the accepted pilots only: `commit`, `compass`, `craft`,
+  `feedback`, `librarian`, `linear`, and `spec-flow`.
+- The other eight packages do not declare Codex support. They must complete a
   native mapping and fresh-runtime acceptance before joining that publication.
 
 `feedback` carries a **native mapping but not yet fresh-runtime acceptance**.
@@ -102,7 +102,7 @@ namespace at runtime, so `skills/today` declares `name: today` and is invoked as
 
 ## Codex compatibility
 
-The five-pilot publication compiles and passes cc-marketplace's Codex-native
+The seven-pilot publication compiles and passes cc-marketplace's Codex-native
 validator. Compilation diagnostics are reviewed limitations, not parity claims:
 
 - `commit`: `allowed-tools` is stripped. The PreToolUse hook is translated into
@@ -110,6 +110,23 @@ validator. Compilation diagnostics are reviewed limitations, not parity claims:
   `${CLAUDE_PLUGIN_ROOT}` becomes the native `${PLUGIN_ROOT}`. Codex skips
   plugin-bundled hooks until the user reviews and trusts the definition, so the
   guard is present but inert until then.
+- `compass`: `argument-hint`, `allowed-tools`, and `effort` are stripped on all
+  three skills, and none is a declarable loss. Disposition: **accepted.**
+  `allowed-tools` is a permission-prompt convenience rather than a capability;
+  `argument-hint` documents an autocomplete hint whose guidance already survives
+  in each skill's body; `effort` requests a reasoning budget Codex does not
+  expose. All three skills declare `disable-model-invocation: true`, which is
+  translated rather than stripped — see the explicit-only note above.
+  `disallowed-tools` is a fourth case and the one worth stating plainly: it is
+  **dropped with nothing reported.** The canonical skill frontmatter carries no
+  such key, so it is discarded at parse, and it is absent from the Claude-only
+  key set, so it never reaches a stripped warning. There is no construct token
+  to declare it under either. On `reflect` and `mull` that field was the only
+  enforcement of a no-research / no-delegate boundary, so the boundary is now
+  stated in each skill's body prose, where it survives to any runtime. No
+  `targets.codex.losses` entries: the two declarable constructs the package
+  once carried — a `$ARGUMENTS` body template variable and `mcp__*` tool
+  identifiers in prose — were rewritten to name intent rather than declared.
 - `craft`: Claude-only invocation and tool-policy fields are stripped where
   reported.
 - `feedback`: two fields are stripped, and neither is a declarable loss —
