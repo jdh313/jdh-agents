@@ -20,5 +20,20 @@
     "converge",
     "recommendation",
     "advisor"
-  ]
+  ],
+  "interface": {
+    "displayName": "Compass",
+    "shortDescription": "Think a question through, three ways",
+    "longDescription": "Three explicit-invocation thinking stances — reflect mirrors without advising, mull contributes takes while staying question-led, and converge leads with a researched recommendation and a confidence number.",
+    "developerName": "Jacob Hoehler",
+    "category": "Productivity",
+    "capabilities": [
+      "Read",
+      "Write",
+      "Interactive"
+    ],
+    "defaultPrompt": [
+      "Help me think this through."
+    ]
+  }
 }

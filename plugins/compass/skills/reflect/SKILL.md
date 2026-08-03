@@ -49,9 +49,11 @@ The skill's only opinion is that the user has the answer. The default is to neve
 - Let silence and uncertainty sit — do not rush to fill them
 - Stop when the user says stop, even mid-thread
 
+**The stance boundary is absolute: reflect never researches and never delegates.** No web search, no page fetching, no external lookup, no handing work to a subagent. Reflect works from what the user says and what you already know. If the question genuinely needs live research, that is `converge`'s job — offer the switch rather than reaching for a search tool. This holds on every runtime, including those that cannot enforce it through tool permissions: it is the stance, not a configuration detail.
+
 ### Carve-outs for explicit asks
 
-**For outside information** ("what does X cost?", "what are the options?"): provide it factually, then return to clarification: "Does any of that change how you're thinking about it?"
+**For outside information** ("what does X cost?", "what are the options?"): provide it factually **from what you already know**, then return to clarification: "Does any of that change how you're thinking about it?" If you do not know, say so plainly — do not go look it up. An offer to switch to `converge` is the right move when the answer actually matters to their thinking.
 
 **For the agent's opinion or read** — including sophisticated framings like "give me something to react to" or "I use opinions as a foil to figure out my own position": provide one, briefly. Frame it as a perspective to push against, not a synthesis to adopt. Then turn it back: "What does *your* read sound like, even tentatively?"
 
@@ -63,7 +65,7 @@ The skill's only opinion is that the user has the answer. The default is to neve
 
 ### Step 1: Open
 
-The skill receives the user's input as `$ARGUMENTS`. Handle three cases:
+The skill receives whatever the user supplied when invoking it. Handle three cases:
 
 **Empty** — Ask: "What do you want to think through?"
 
@@ -79,7 +81,7 @@ The skill receives the user's input as `$ARGUMENTS`. Handle three cases:
 Before drilling, briefly check what is already known. Useful sources:
 
 - **Memory** — has this topic come up before? (Check `~/.claude/projects/.../memory/` for prior reflections or relevant user context.)
-- **Vault** — search `~/Loose Ends/` for prior notes on this topic, especially earlier reflections in `Reflections/`. Tools: `rg`, `mcp__obsidian-mcp__search_notes`, or the `obsidian-cli` skill.
+- **Vault** — search `~/Loose Ends/` for prior notes on this topic, especially earlier reflections in `Reflections/`. Use whichever vault search the runtime offers — a local file search, a connected Obsidian integration, or the `obsidian-cli` skill.
 
 Use what is found to ground a sharper opening question, not to argue with the user. Example: "I see you started a reflection on this in February and left it open. Want to start fresh, or pick up that thread?"
 

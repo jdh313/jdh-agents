@@ -89,7 +89,7 @@ The number is the loop's instrument. Treat it honestly.
 
 ### Step 1: Open
 
-The skill receives the user's input as `$ARGUMENTS`.
+The skill receives whatever the user supplied when invoking it.
 
 **Empty** — Ask once: "What do you want a recommendation on?" This is the only turn that opens with a question.
 
