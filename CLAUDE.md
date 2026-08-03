@@ -112,7 +112,7 @@ mkdir -p plugins/my-plugin
 # 2. Add authoritative metadata in plugins/my-plugin/PACKAGE.yaml
 # 3. Add plugin files (skills/, agents/, commands/, README.md, etc.)
 # 4. Regenerate committed native manifests with the pinned compiler
-env AGENTFORGE_PROJECT=/path/to/agentforge-at-a0701ec uv run marketplace sync
+env AGENTFORGE_PROJECT=/path/to/agentforge-at-0ebebbb uv run marketplace sync
 
 # 5. Validate schema and lint
 uv run marketplace validate
