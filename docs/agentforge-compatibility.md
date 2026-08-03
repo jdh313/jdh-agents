@@ -35,11 +35,19 @@ The merge gate also applies the runtime-native checks that are available:
   non-interactive `plugin validate` command, so this is cc-marketplace's native
   Codex validation boundary.
 
-Full generated publication roots are disposable and live outside the source
-repository. `uv run marketplace sync` projects only their native manifest files
-into the source tree: two root registries, fifteen Claude package manifests,
-and seven Codex package manifests. The acceptance suite itself never updates
-checked-in output.
+Generated publication roots are committed, not disposable. `uv run marketplace
+sync` compiles complete publications into `marketplaces/claude/` (174 files, 15
+packages) and `marketplaces/codex/` (120 files, 7 packages), and each root is
+self-contained enough for its runtime to be pointed directly at it. `sync
+--check` recompiles into a temporary root and diffs the whole tree — content and
+executable bits — against the committed one; it never writes. The acceptance
+suite likewise never updates checked-in output.
+
+An earlier revision projected only the native manifest files back into the
+source tree and discarded every compiled body. That left the repository root
+acting as both canonical source and partial publication, which is what let a
+Codex marketplace rooted at the repository install canonical Claude sources
+instead of the Codex projection.
 
 AgentForge owns explicit-only skill translation. When a canonical Claude skill
 declares `disable-model-invocation: true`, the Codex projection generates a
@@ -182,14 +190,9 @@ uv run marketplace sync
 uv run marketplace check
 uv run pytest -q
 
-generated_root=/tmp/cc-marketplace-agentforge
-bun run "$AGENTFORGE_PROJECT/src/cli.ts" compile MARKETPLACE.yaml --out "$generated_root"
+# Verify the committed publications, not a throwaway compile.
 bun run "$AGENTFORGE_PROJECT/src/cli.ts" check \
-  MARKETPLACE.yaml --out "$generated_root" --claude-native
-uv run marketplace validate \
-  --format codex \
-  --manifest "$generated_root/codex/.agents/plugins/marketplace.json" \
-  --plugins-root "$generated_root/codex/plugins"
+  MARKETPLACE.yaml --out marketplaces --claude-native
 ```
 
 CI checks out `jdh313/agentforge` at full commit

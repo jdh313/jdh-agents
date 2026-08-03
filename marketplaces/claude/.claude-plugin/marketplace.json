@@ -1,0 +1,368 @@
+{
+  "name": "cc-marketplace",
+  "description": "Personal dual-runtime plugin marketplace",
+  "owner": {
+    "name": "Jacob Hoehler",
+    "email": "jacob@example.com"
+  },
+  "plugins": [
+    {
+      "name": "coach",
+      "version": "0.10.1",
+      "description": "ADHD-friendly productivity coaching: daily planning (/today, /energy), end-of-day capture (/checkin), weekly scheduling (/plan-week) and review (/weekly), life-direction reviews (/review), goal-to-project alignment (/align), project lifecycle (/intake, /breakdown, /reentry, /sunset), idea capture (/spark), brain dump (/dump), task triage (/triage), decision journaling (/decide), and pattern analysis (momentum, overdue-rescue) with adaptive tone calibration",
+      "author": {
+        "name": "Jacob Hoehler"
+      },
+      "license": "Apache-2.0",
+      "keywords": [
+        "adhd",
+        "productivity",
+        "coaching",
+        "planning",
+        "daily",
+        "weekly",
+        "review",
+        "align",
+        "projects",
+        "decisions",
+        "patterns",
+        "closure",
+        "journaling",
+        "triage",
+        "energy",
+        "intake",
+        "breakdown",
+        "decomposition",
+        "ideas",
+        "tasks",
+        "brain-dump"
+      ],
+      "source": "./plugins/coach"
+    },
+    {
+      "name": "commit",
+      "version": "3.2.1",
+      "description": "Format-aware atomic commits for git and jj (Jujutsu). One skill covering commit, split, message review, and retrofitting edits into earlier commits (jj absorb / git fixup). Auto-detects VCS and commit message style from repo context. Includes PreToolUse hook that blocks destructive working-copy operations.",
+      "author": {
+        "name": "Jacob Hoehler"
+      },
+      "license": "Apache-2.0",
+      "keywords": [
+        "git",
+        "jj",
+        "jujutsu",
+        "commits",
+        "atomic",
+        "absorb",
+        "fixup",
+        "conventional-commits",
+        "freeform"
+      ],
+      "source": "./plugins/commit"
+    },
+    {
+      "name": "compass",
+      "version": "0.9.1",
+      "description": "A suite of conversational thinking tools — reflect (Socratic mirror, never recommends, always saves), mull (thinking partner, probes AND contributes opinions, saves substantive sessions only), and converge (advisor, leads with a researched recommendation plus confidence % and refines it one question at a time).",
+      "author": {
+        "name": "Jacob Hoehler",
+        "email": "jdhoehler@gmail.com"
+      },
+      "license": "Apache-2.0",
+      "keywords": [
+        "reflection",
+        "socratic",
+        "decision",
+        "journaling",
+        "obsidian",
+        "thinking-partner",
+        "compass",
+        "mull",
+        "clarify",
+        "converge",
+        "recommendation",
+        "advisor"
+      ],
+      "source": "./plugins/compass"
+    },
+    {
+      "name": "craft",
+      "version": "0.10.0",
+      "description": "Software craftsmanship discipline skills: grill (the interview primitive — walk a decision tree one question at a time, facts looked up rather than asked, no acting until shared understanding), grill-with-docs (that loop applied to vocabulary, against per-repo CONTEXT.md glossaries), diagnose, prototype, tdd, improve-codebase-architecture, grok (stateful multi-session codebase comprehension with supersession-aware understanding records), zoom-out (adapted in part from mattpocock/skills, MIT), infra-review (architecture/security review of Terraform+Atlantis PRs), quiz-me (opt-in active-recall comprehension check after a code explanation), interrogate-model (holistic representability review of a domain model — the legitimate scenarios and personas it cannot express), and design-by-stories (design an artifact's shape — schema, template, data model, config — by modeling its actors and user stories first, then deriving the shape from the stories). Composes with spec-flow and ndr plugins.",
+      "author": {
+        "name": "Jacob Hoehler"
+      },
+      "license": "Apache-2.0",
+      "keywords": [
+        "engineering",
+        "craft",
+        "discipline",
+        "vocabulary",
+        "context",
+        "glossary",
+        "comprehension",
+        "onboarding",
+        "terraform",
+        "infrastructure",
+        "review",
+        "learning",
+        "comprehension",
+        "design",
+        "modeling",
+        "grill",
+        "interview"
+      ],
+      "source": "./plugins/craft"
+    },
+    {
+      "name": "debate",
+      "version": "0.3.0",
+      "description": "Dialectical decision analysis: dispatch parallel advocate agents to research opposing perspectives, optionally fact-check claims, challenge the consensus with devil's advocacy, and independently synthesize a verdict. Three modes (Quick/Standard/Deep) control pipeline depth. Not for factual lookups or simple preferences.",
+      "author": {
+        "name": "Jacob Hoehler"
+      },
+      "license": "Apache-2.0",
+      "keywords": [
+        "debate",
+        "decision",
+        "advocate",
+        "fact-check",
+        "synthesis",
+        "dialectical",
+        "research",
+        "opinion",
+        "trade-offs",
+        "deliberation"
+      ],
+      "source": "./plugins/debate"
+    },
+    {
+      "name": "feedback",
+      "version": "0.4.0",
+      "description": "A two-sided loop for improving agent plugins from test sessions. The 'session' skill (tester side) turns the current session record into a copy-pasteable report grading the plugins exercised; the 'triage' skill (author side) aggregates many reports into a prioritized action plan, routing each finding to a concrete fix. Both share one report-format contract.",
+      "author": {
+        "name": "Jacob Hoehler"
+      },
+      "license": "Apache-2.0",
+      "keywords": [
+        "feedback",
+        "testing",
+        "dogfooding",
+        "session-review",
+        "triage",
+        "plugins"
+      ],
+      "source": "./plugins/feedback"
+    },
+    {
+      "name": "introspect",
+      "version": "0.5.0",
+      "description": "Introspection tooling for Claude Code itself. usage-report: reconstruct how a person works with Claude Code in a repo (skills, slash commands, subagents, MCP tools, task-kickoff style, activity over time) from their local session transcripts, via a stdlib-only read-only parser. Privacy-safe by default — names and counts only, no prompt text leaves the machine.",
+      "author": {
+        "name": "Jacob Hoehler"
+      },
+      "license": "Apache-2.0",
+      "keywords": [
+        "claude-code",
+        "introspection",
+        "usage",
+        "analytics",
+        "transcripts",
+        "workflow",
+        "skills",
+        "onboarding",
+        "self-analysis"
+      ],
+      "source": "./plugins/introspect"
+    },
+    {
+      "name": "langfuse",
+      "version": "1.3.1",
+      "description": "Sends Claude Code session traces to Langfuse via a Stop hook — per-turn traces with prompts, generations, tool observations, and backdated timestamps. Includes a SessionStart tripwire that marks programmatically-spawned sessions.",
+      "author": {
+        "name": "Jacob Hoehler"
+      },
+      "license": "Apache-2.0",
+      "keywords": [
+        "langfuse",
+        "observability",
+        "tracing",
+        "llm",
+        "monitoring"
+      ],
+      "source": "./plugins/langfuse",
+      "userConfig": {
+        "LANGFUSE_SECRET_KEY": {
+          "type": "string",
+          "title": "Langfuse Secret Key",
+          "description": "Your Langfuse project secret key (sk-lf-...)",
+          "sensitive": true,
+          "required": true
+        },
+        "LANGFUSE_PUBLIC_KEY": {
+          "type": "string",
+          "title": "Langfuse Public Key",
+          "description": "Your Langfuse project public key (pk-lf-...)",
+          "required": true
+        },
+        "LANGFUSE_BASE_URL": {
+          "type": "string",
+          "title": "Langfuse Base URL",
+          "description": "Langfuse host. Use https://us.cloud.langfuse.com for US, https://cloud.langfuse.com for EU, or your self-hosted URL.",
+          "default": "https://us.cloud.langfuse.com"
+        },
+        "CC_LANGFUSE_DEBUG": {
+          "type": "boolean",
+          "title": "Debug logging",
+          "description": "Write verbose logs to ~/.claude/state/langfuse_hook.log",
+          "default": false
+        }
+      }
+    },
+    {
+      "name": "librarian",
+      "version": "0.17.1",
+      "description": "Curates, catalogs, retrieves, and maintains your library of notes and knowledge in an Obsidian vault. Workflow-shaped (Capture / Process / Retrieve / Maintain) and agent-mediated (skills draft, agents execute). 17 skills + 4 agents + 6 references, coupled to the vault conventions in ~/Loose Ends/.claude/rules/{wiki.md,catalog.md} and the Templater templates in ~/Loose Ends/Templates/.",
+      "author": {
+        "name": "Jacob Hoehler"
+      },
+      "license": "Apache-2.0",
+      "keywords": [
+        "obsidian",
+        "knowledge-base",
+        "wiki",
+        "catalog",
+        "notes",
+        "meetings",
+        "experiments",
+        "bases",
+        "ingest",
+        "refresh",
+        "lint",
+        "curation",
+        "personal-knowledge"
+      ],
+      "source": "./plugins/librarian"
+    },
+    {
+      "name": "linear",
+      "version": "0.4.2",
+      "description": "Linear workflow conventions for a small two-person team. Owns ticket creation defaults (including assignee), status flow semantics, label set, title shape, collaboration conventions, and MCP call patterns. Composes with spec-flow (which uses Linear as a contract host but defers to this plugin for the conventions). Includes a doctor skill for workspace setup validation.",
+      "author": {
+        "name": "Jacob Hoehler"
+      },
+      "license": "Apache-2.0",
+      "keywords": [
+        "linear",
+        "issue-tracking",
+        "workflow",
+        "conventions",
+        "tickets",
+        "mcp",
+        "spec-flow"
+      ],
+      "source": "./plugins/linear"
+    },
+    {
+      "name": "pm",
+      "version": "0.6.0",
+      "description": "PM helpers for team Linear workflows. Skills for the weekly grooming loop (per-person WIP), plan-to-tickets breakdown (assignee-aware), and end-of-cycle retro notes (attribution + Linear-first output). Composes with the linear plugin; ndr and librarian integrations are optional externals.",
+      "author": {
+        "name": "Jacob Hoehler"
+      },
+      "license": "Apache-2.0",
+      "keywords": [
+        "pm",
+        "project-management",
+        "linear",
+        "grooming",
+        "breakdown",
+        "cycle",
+        "retro"
+      ],
+      "source": "./plugins/pm"
+    },
+    {
+      "name": "shake-tune",
+      "version": "0.3.1",
+      "description": "Interpret Klippain Shake Tune results for 3D printers: diagnose issues from PNG graphs, explain findings, recommend fixes, and track results over time. Supports belt comparison, input shaper, vibration profile, axes map, and excitation tests.",
+      "author": {
+        "name": "Jacob Hoehler"
+      },
+      "license": "Apache-2.0",
+      "keywords": [
+        "3d-printing",
+        "klipper",
+        "shake-tune",
+        "input-shaper",
+        "diagnostics",
+        "vibration",
+        "belt-tension",
+        "corexy"
+      ],
+      "source": "./plugins/shake-tune"
+    },
+    {
+      "name": "skillsmith",
+      "version": "1.1.1",
+      "description": "Craft and upkeep of skills. Authoring reference (the vocabulary and principles that make a skill predictable) plus provenance tracking for borrowed work: compares an adapted skill to its pinned upstream, flags behavioral drift and fabricated attributions, and refreshes the reviewed commit SHA. Houses writing-great-skills and upstream-review.",
+      "author": {
+        "name": "Jacob Hoehler"
+      },
+      "license": "Apache-2.0",
+      "keywords": [
+        "skills",
+        "authoring",
+        "skill-craft",
+        "provenance",
+        "upstream",
+        "drift",
+        "attribution"
+      ],
+      "defaultEnabled": false,
+      "source": "./plugins/skillsmith"
+    },
+    {
+      "name": "spec-flow",
+      "version": "0.17.0",
+      "description": "Personal SDLC scaffolding for AI-assisted development. A lightweight, ephemeral 'contract' between user and AI drives each code change from captured idea to verified done; the durable layer (CLAUDE.md, ndr atoms, README) lives elsewhere. Lifecycle: capture -> draft -> implement -> close.",
+      "author": {
+        "name": "Jacob Hoehler"
+      },
+      "license": "Apache-2.0",
+      "keywords": [
+        "sdlc",
+        "spec-driven-development",
+        "ai-assisted-dev",
+        "contract",
+        "capture",
+        "change-scoped",
+        "ephemeral",
+        "ndr",
+        "librarian"
+      ],
+      "source": "./plugins/spec-flow"
+    },
+    {
+      "name": "teach",
+      "version": "0.9.3",
+      "description": "A stateful, multi-session teaching workspace routed into the Obsidian vault. The /teach skill grounds learning in the user's documented learning style and high-trust sources, builds a mission, resources, glossary, and learning records as vault notes under the topic's best-fit context, and keeps lessons + cheat sheets as self-contained HTML. Grounds in owned textbooks via DEVONthink when available and pins live-code citations to immutable refs. Requires an Obsidian vault (obsidian-cli); optionally surfaces owned textbooks from DEVONthink. Adapted from mattpocock/skills (MIT, © 2026 Matt Pocock).",
+      "author": {
+        "name": "Jacob Hoehler"
+      },
+      "license": "Apache-2.0",
+      "keywords": [
+        "teach",
+        "learn",
+        "education",
+        "lessons",
+        "productivity"
+      ],
+      "source": "./plugins/teach"
+    }
+  ],
+  "metadata": {
+    "description": "Personal Claude Code plugin marketplace",
+    "version": "1.0.0"
+  }
+}

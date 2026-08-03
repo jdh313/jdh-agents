@@ -29,40 +29,43 @@ See `docs/dual-agent-operating-model.md` for Claude/Codex ownership boundaries, 
 ```
 cc-marketplace/
 ├── MARKETPLACE.yaml              # Authoritative collection metadata
-├── .claude-plugin/
-│   └── marketplace.json          # Generated Claude registry
-├── .agents/plugins/
-│   └── marketplace.json          # Generated Codex pilot registry
 ├── .github/workflows/
-│   └── validate.yml              # CI/CD: validates + lints + syncs
-├── plugins/                      # Plugin source directory
+│   └── validate.yml              # CI/CD: validates + lints + checks drift
+├── plugins/                      # AUTHORING SOURCE — edit here
 │   └── [plugin-name]/
 │       ├── PACKAGE.yaml          # Authoritative package metadata
-│       ├── .claude-plugin/
-│       │   └── plugin.json       # Generated Claude metadata
-│       ├── .codex-plugin/
-│       │   └── plugin.json       # Generated Codex metadata (pilots only)
 │       ├── skills/               # Skills (optional)
 │       ├── agents/               # Agents (optional)
 │       ├── commands/             # Commands (optional)
 │       └── README.md
+├── marketplaces/                 # COMPILER OUTPUT — committed, never hand-edited
+│   ├── claude/                   # Complete Claude marketplace root (15 plugins)
+│   │   ├── .claude-plugin/marketplace.json
+│   │   └── plugins/[name]/       # Compiled manifest + bodies
+│   └── codex/                    # Complete Codex marketplace root (7 pilots)
+│       ├── .agents/plugins/marketplace.json
+│       └── plugins/[name]/       # Compiled manifest + bodies + agents/openai.yaml
 ├── scripts/                      # Automation utilities
 │   └── marketplace/              # CLI tool: sync, validate, lint, export, check
 └── README.md
 ```
 
+The split is the point: `plugins/` is what a human writes, `marketplaces/` is
+what a runtime loads. Nothing under `marketplaces/` survives a `sync` unless the
+compiler reproduces it, so an edit made there is discarded without warning.
+
 ### Core Concepts
 
 **Plugin Registry Flow:**
 1. Edit `MARKETPLACE.yaml`, `plugins/[plugin-name]/PACKAGE.yaml`, or maintained source content.
-2. Run the pinned `uv run marketplace sync` workflow to compile AgentForge publications and project only native manifests into repository paths.
+2. Run the pinned `uv run marketplace sync` workflow to compile the AgentForge publications into `marketplaces/`. The compiler stages and publishes by rename, so a failed compile leaves the committed tree untouched and a successful one prunes every stale file.
 3. Run `uv run marketplace check` to compare canonical compilation with committed output without writing, then validate Claude, Codex, and lint.
-4. Commit canonical definitions and generated native manifests together.
+4. Commit canonical source and the regenerated `marketplaces/` tree together.
 5. GitHub Actions automatically re-runs all checks on push/PR.
 
 **Plugin Structure:**
 - Each plugin has an authoritative `PACKAGE.yaml` containing metadata and runtime target overlays.
-- Native `plugin.json` files are generated and must not be hand-edited.
+- Native `plugin.json` files live only under `marketplaces/`; they are generated and must not be hand-edited.
 - Optional subdirectories: `skills/`, `agents/`, `commands/` containing the actual plugin components
 - README.md documents the plugin's features and usage
 
@@ -118,8 +121,8 @@ env AGENTFORGE_PROJECT=/path/to/agentforge-at-0ebebbb uv run marketplace sync
 uv run marketplace validate
 uv run marketplace lint
 
-# 6. Commit PACKAGE.yaml, source content, and generated native manifests
-git add MARKETPLACE.yaml plugins/ .claude-plugin/ .agents/plugins/
+# 6. Commit PACKAGE.yaml, source content, and the regenerated publications
+git add MARKETPLACE.yaml plugins/ marketplaces/
 git commit -m "feat: add my-plugin"
 ```
 
@@ -284,10 +287,8 @@ Full example with all optional fields:
 |------|---------|-----------------|
 | `MARKETPLACE.yaml` | Marketplace identity, publications, enrollment | Authoritative maintained metadata |
 | `plugins/[name]/PACKAGE.yaml` | Package metadata and target overlays | Authoritative maintained metadata |
-| `.claude-plugin/marketplace.json` | Claude registry | Generated and committed by `marketplace sync` |
-| `.agents/plugins/marketplace.json` | Codex pilot registry | Generated and committed by `marketplace sync` |
-| `plugins/[name]/.claude-plugin/plugin.json` | Claude package metadata | Generated and committed |
-| `plugins/[name]/.codex-plugin/plugin.json` | Codex pilot metadata | Generated and committed for enrolled pilots |
+| `marketplaces/claude/` | Complete Claude marketplace root — the directory Claude is pointed at | Generated and committed by `marketplace sync` |
+| `marketplaces/codex/` | Complete Codex marketplace root — the directory Codex is pointed at | Generated and committed by `marketplace sync` |
 | `scripts/marketplace/` | AgentForge orchestration, validation/lint, and public export | Single entrypoint for all automation (`uv run marketplace <command>`) |
 | `.github/workflows/validate.yml` | CI/CD pipeline | Automated validation on push/PR |
 
