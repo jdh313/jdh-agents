@@ -32,7 +32,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: jdh313/agentforge
-          ref: a0701ec16ebc3ddc9252b43c6122c2d3477242d2
+          ref: 0ebebbb8f0cf23f9223792a4b625ca302c9d655d
           path: agentforge
           ssh-key: ${{ secrets.AGENTFORGE_DEPLOY_KEY }}
           persist-credentials: false
