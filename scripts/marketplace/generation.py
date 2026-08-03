@@ -1,8 +1,17 @@
-"""AgentForge-backed native-manifest projection for cc-marketplace.
+"""AgentForge-backed publication compilation for cc-marketplace.
 
-AgentForge owns deterministic publication compilation.  This module owns only
-the repository-specific projection from those complete publications into the
-native manifest paths consumed directly from this source tree.
+AgentForge owns deterministic publication compilation, including atomic
+materialization and total pruning of stale files.  This module owns only the
+repository-specific policy: complete publications are committed under
+``marketplaces/<publication-id>/``, and drift is measured against that tree.
+
+Earlier revisions projected *only* the native manifest files back into the
+source tree, discarding every compiled body.  That made the repository root
+simultaneously the canonical source and a partial publication, which is what
+let Codex install canonical Claude sources instead of its own projection.
+Committing the whole compiled tree removes the ambiguity: ``plugins/`` is
+authoring source, ``marketplaces/`` is compiler output, and each runtime is
+pointed at its own publication root.
 """
 
 from __future__ import annotations
@@ -16,22 +25,17 @@ from pathlib import Path
 
 PINNED_AGENTFORGE_REVISION = "0ebebbb8f0cf23f9223792a4b625ca302c9d655d"
 
-_ROOT_MANIFESTS = {
-    Path("claude/.claude-plugin/marketplace.json"): Path(
-        ".claude-plugin/marketplace.json"
-    ),
-    Path("codex/.agents/plugins/marketplace.json"): Path(
-        ".agents/plugins/marketplace.json"
-    ),
-}
+# Repository-relative root holding every compiled publication.  Each immediate
+# child is a self-contained marketplace root for one target runtime.
+COMPILED_ROOT = Path("marketplaces")
 
 
 class GenerationError(RuntimeError):
-    """Raised when AgentForge cannot produce the native manifest projection."""
+    """Raised when AgentForge cannot produce the compiled publications."""
 
 
 @dataclass(frozen=True, order=True)
-class ManifestDrift:
+class PublicationDrift:
     """One difference between canonical compilation and committed output."""
 
     kind: str
@@ -39,127 +43,117 @@ class ManifestDrift:
 
 
 @dataclass(frozen=True)
-class NativeManifestCompilation:
-    """The projected manifests and AgentForge's compatibility diagnostics."""
+class FileState:
+    """The content and executability of one compiled file."""
 
-    manifests: dict[Path, bytes]
+    content: bytes
+    executable: bool
+
+
+@dataclass(frozen=True)
+class CompilationResult:
+    """AgentForge's diagnostics plus the size of the tree it produced."""
+
+    file_count: int
     stdout: str
     stderr: str
 
 
-def compile_native_manifests(
-    repo_root: Path,
-    marketplace: Path,
-) -> NativeManifestCompilation:
-    """Compile with AgentForge and retain only native marketplace manifests."""
+@dataclass(frozen=True)
+class CheckResult(CompilationResult):
+    """A read-only comparison of a fresh compilation against the committed tree."""
 
-    command = _resolve_agentforge_command()
+    drift: tuple[PublicationDrift, ...]
+
+
+def sync_publications(repo_root: Path, marketplace: Path) -> CompilationResult:
+    """Compile publications directly into the committed ``marketplaces/`` tree.
+
+    AgentForge stages into a temporary directory and publishes by rename, so a
+    failed compile leaves the existing tree untouched and a successful one
+    prunes every stale file.
+    """
+
+    destination = repo_root / COMPILED_ROOT
+    stdout, stderr = _run_compile(repo_root, marketplace, destination)
+    return CompilationResult(_count_files(destination), stdout, stderr)
+
+
+def check_publications(repo_root: Path, marketplace: Path) -> CheckResult:
+    """Compile to a throwaway root and diff it against the committed tree."""
+
     with tempfile.TemporaryDirectory(prefix="cc-marketplace-agentforge-") as temporary:
-        output_root = Path(temporary) / "compiled"
-        result = subprocess.run(
-            [*command, "compile", str(marketplace.resolve()), "--out", str(output_root)],
-            cwd=repo_root,
-            check=False,
-            capture_output=True,
-            text=True,
+        candidate = Path(temporary) / COMPILED_ROOT.name
+        stdout, stderr = _run_compile(repo_root, marketplace, candidate)
+        expected = snapshot_tree(candidate)
+        drift = compare_trees(expected, snapshot_tree(repo_root / COMPILED_ROOT))
+    return CheckResult(len(expected), stdout, stderr, tuple(drift))
+
+
+def snapshot_tree(root: Path) -> dict[Path, FileState]:
+    """Map every regular file under *root* to its content and executability."""
+
+    if not root.is_dir():
+        return {}
+    snapshot: dict[Path, FileState] = {}
+    for path in sorted(root.rglob("*")):
+        if path.is_symlink() or not path.is_file():
+            continue
+        snapshot[path.relative_to(root)] = FileState(
+            path.read_bytes(),
+            bool(path.stat().st_mode & 0o111),
         )
-        if result.returncode != 0:
-            details = "\n".join(
-                part.strip() for part in (result.stdout, result.stderr) if part.strip()
-            )
-            suffix = f"\n{details}" if details else ""
-            raise GenerationError(
-                f"AgentForge compile exited {result.returncode}{suffix}"
-            )
-        manifests = collect_native_manifests(output_root)
-    return NativeManifestCompilation(manifests, result.stdout, result.stderr)
+    return snapshot
 
 
-def collect_native_manifests(compilation_root: Path) -> dict[Path, bytes]:
-    """Map complete AgentForge publications to repository native-manifest paths."""
+def compare_trees(
+    expected: dict[Path, FileState],
+    actual: dict[Path, FileState],
+) -> list[PublicationDrift]:
+    """Compare two tree snapshots without touching either one.
 
-    manifests: dict[Path, bytes] = {}
-    missing_roots: list[str] = []
-    for compiled_path, repository_path in _ROOT_MANIFESTS.items():
-        source = compilation_root / compiled_path
-        if not source.is_file():
-            missing_roots.append(compiled_path.as_posix())
-        else:
-            manifests[repository_path] = source.read_bytes()
-    if missing_roots:
-        raise GenerationError(
-            "AgentForge compilation omitted required root manifest(s): "
-            + ", ".join(missing_roots)
-        )
+    Permission drift is reported separately from content drift: a compiled hook
+    that loses its executable bit is still byte-identical, and calling that
+    "changed" would hide why the runtime stopped being able to run it.
+    """
 
-    projections = (
-        ("claude", ".claude-plugin"),
-        ("codex", ".codex-plugin"),
-    )
-    for publication, native_directory in projections:
-        pattern = f"{publication}/plugins/*/{native_directory}/plugin.json"
-        for source in sorted(compilation_root.glob(pattern)):
-            package_name = source.parents[1].name
-            destination = Path("plugins") / package_name / native_directory / "plugin.json"
-            manifests[destination] = source.read_bytes()
-
-    if not any(path.match("plugins/*/.claude-plugin/plugin.json") for path in manifests):
-        raise GenerationError("AgentForge compilation produced no Claude package manifests")
-    return dict(sorted(manifests.items()))
-
-
-def compare_native_manifests(
-    repo_root: Path,
-    expected: dict[Path, bytes],
-) -> list[ManifestDrift]:
-    """Compare committed native manifests to compilation without writing files."""
-
-    actual_paths = _existing_native_manifest_paths(repo_root)
     expected_paths = set(expected)
-    issues = [
-        ManifestDrift("missing", path) for path in sorted(expected_paths - actual_paths)
-    ]
-    issues.extend(ManifestDrift("extra", path) for path in sorted(actual_paths - expected_paths))
-    issues.extend(
-        ManifestDrift("changed", path)
-        for path in sorted(actual_paths & expected_paths)
-        if (repo_root / path).read_bytes() != expected[path]
-    )
+    actual_paths = set(actual)
+
+    issues = [PublicationDrift("missing", path) for path in expected_paths - actual_paths]
+    issues.extend(PublicationDrift("extra", path) for path in actual_paths - expected_paths)
+    for path in expected_paths & actual_paths:
+        if expected[path].content != actual[path].content:
+            issues.append(PublicationDrift("changed", path))
+        elif expected[path].executable != actual[path].executable:
+            issues.append(PublicationDrift("mode", path))
     return sorted(issues, key=lambda issue: (issue.path.as_posix(), issue.kind))
 
 
-def materialize_native_manifests(
-    repo_root: Path,
-    expected: dict[Path, bytes],
-) -> None:
-    """Replace the exact generated manifest set, leaving source content in place."""
+def _run_compile(repo_root: Path, marketplace: Path, output_root: Path) -> tuple[str, str]:
+    command = _resolve_agentforge_command()
+    result = subprocess.run(
+        [*command, "compile", str(marketplace.resolve()), "--out", str(output_root)],
+        cwd=repo_root,
+        check=False,
+        capture_output=True,
+        text=True,
+    )
+    if result.returncode != 0:
+        details = "\n".join(
+            part.strip() for part in (result.stdout, result.stderr) if part.strip()
+        )
+        suffix = f"\n{details}" if details else ""
+        raise GenerationError(f"AgentForge compile exited {result.returncode}{suffix}")
+    if not output_root.is_dir():
+        raise GenerationError(
+            f"AgentForge compile reported success but wrote no tree at {output_root}"
+        )
+    return result.stdout, result.stderr
 
-    actual_paths = _existing_native_manifest_paths(repo_root)
-    for relative_path in sorted(actual_paths - set(expected)):
-        target = repo_root / relative_path
-        target.unlink()
-        try:
-            target.parent.rmdir()
-        except OSError:
-            pass
 
-    for relative_path, content in sorted(expected.items()):
-        target = repo_root / relative_path
-        target.parent.mkdir(parents=True, exist_ok=True)
-        target.write_bytes(content)
-
-
-def _existing_native_manifest_paths(repo_root: Path) -> set[Path]:
-    paths: set[Path] = set()
-    for relative_path in _ROOT_MANIFESTS.values():
-        if (repo_root / relative_path).is_file():
-            paths.add(relative_path)
-    for pattern in (
-        "plugins/*/.claude-plugin/plugin.json",
-        "plugins/*/.codex-plugin/plugin.json",
-    ):
-        paths.update(path.relative_to(repo_root) for path in repo_root.glob(pattern))
-    return paths
+def _count_files(root: Path) -> int:
+    return sum(1 for path in root.rglob("*") if path.is_file() and not path.is_symlink())
 
 
 def _resolve_agentforge_command() -> list[str]:

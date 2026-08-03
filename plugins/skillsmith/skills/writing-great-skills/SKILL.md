@@ -12,9 +12,9 @@ upstream:
 
 A skill exists to wrangle determinism out of a stochastic system. **Predictability** — the agent taking the same _process_ every run, not producing the same output — is the root virtue; every lever below serves it.
 
-**Bold terms** are defined in [`GLOSSARY.md`](GLOSSARY.md); look them up there for the full meaning.
+**Bold terms** are defined in [`GLOSSARY.md`](references/GLOSSARY.md); look them up there for the full meaning.
 
-When authoring or editing a skill **in this marketplace** (cc-marketplace), the repo-specific conventions this generic reference doesn't cover — provenance blocks, `allowed-tools` vs agent `tools:` semantics, auto-discovery layout, commit format — are in [`ADDENDA.md`](ADDENDA.md).
+When authoring or editing a skill **in this marketplace** (cc-marketplace), the repo-specific conventions this generic reference doesn't cover — provenance blocks, `allowed-tools` vs agent `tools:` semantics, auto-discovery layout, commit format — are in [`ADDENDA.md`](references/ADDENDA.md).
 
 ## Invocation
 
