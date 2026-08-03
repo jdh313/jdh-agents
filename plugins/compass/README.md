@@ -56,7 +56,16 @@ The close is chosen by subject: throwaway questions print and end, durable ones 
 
 ## Explicit invocation only
 
-All three skills set `disable-model-invocation: true`. They never auto-trigger from natural language — you have to type `/reflect`, `/mull`, or `/converge`. This is deliberate: these are stances you choose, and an agent that decides *for* you that a question needs a Socratic mirror (or, worse, silently switches you into recommendation mode) defeats the point. The skills still hand off to each other mid-session, but only by offering the switch and waiting for you to take it.
+All three skills set `disable-model-invocation: true`. They never auto-trigger from natural language — you invoke them by name. This is deliberate: these are stances you choose, and an agent that decides *for* you that a question needs a Socratic mirror (or, worse, silently switches you into recommendation mode) defeats the point. The skills still hand off to each other mid-session, but only by offering the switch and waiting for you to take it.
+
+How you invoke them differs by runtime, and all three behave the same way on each:
+
+| Runtime | Invoke with | Shows up in the model's catalog? |
+|---|---|---|
+| Claude Code | `/reflect`, `/mull`, `/converge` | No — hidden from auto-trigger, listed for you |
+| Codex | `$compass:reflect`, `$compass:mull`, `$compass:converge` | No — the skill is not injected into the model context at all |
+
+On Codex the policy compiles to `allow_implicit_invocation: false`, which goes further than gating auto-trigger: the skill is absent from the model's context entirely and only reachable from the `$`-picker. That is the intended behavior, not a limitation — asking Codex in prose to "reflect on this" is *supposed* to do nothing.
 
 ## Output format
 
