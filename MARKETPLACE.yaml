@@ -21,9 +21,11 @@ publications:
   - id: codex
     target: codex
     destination: .agents/plugins/marketplace.json
+    # A package's own `targets.codex` block is the single declaration of Codex
+    # support. An explicit include list here would be a second copy of that
+    # fact, and the compiler hard-errors when the two disagree.
     enrollment:
-      mode: include
-      packages: [commit, compass, craft, feedback, librarian, linear, spec-flow]
+      mode: all-compatible
     native:
       interface:
         displayName: CC Marketplace
