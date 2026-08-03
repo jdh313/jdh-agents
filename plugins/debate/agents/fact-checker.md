@@ -97,6 +97,7 @@ If no claims are disputed, write "No disputed claims found." If no claims are un
 
 - Be **neutral** — you are not arguing for any side
 - Only flag real issues — do not manufacture disputes to appear thorough
+- Use **web search only** for verification — do not search Obsidian or local files
 - Use **web search** to independently verify — do not rely solely on what advocates provided
 - Focus on the **highest-impact claims** — you cannot verify everything, so prioritize
 - If you cannot verify a claim (insufficient search results), note it as "Unverifiable" rather than "Disputed"
