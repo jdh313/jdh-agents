@@ -58,9 +58,9 @@ Synthesis half of the weekly rhythm — the chat output captures the story of th
 
 ## Procedure
 
-1. **Resolve the target cycle.** If an argument was passed, find the matching cycle via `mcp__linear-server__list_cycles` (match by name, or find the cycle whose window contains the date). Otherwise, take the most recently closed cycle. Confirm the window with the user before scanning: e.g. "Retro for Cycle 12, Thu 2026-05-28 → Wed 2026-06-03?".
+1. **Resolve the target cycle.** If an argument was passed, find the matching cycle in Linear (match by name, or find the cycle whose window contains the date). Otherwise, take the most recently closed cycle. Confirm the window with the user before scanning: e.g. "Retro for Cycle 12, Thu 2026-05-28 → Wed 2026-06-03?".
 
-2. **Pull cycle tickets.** Use `mcp__linear-server__list_issues` filtered to the resolved cycle. Capture state at cycle close, priority, `createdAt`, `updatedAt`, and `assignee`. For tickets whose history matters (carried, mid-cycle adds), use `list_comments` to reconstruct timing.
+2. **Pull cycle tickets.** Pull the cycle's tickets from Linear filtered to the resolved cycle. Capture state at cycle close, priority, `createdAt`, `updatedAt`, and `assignee`. For tickets whose history matters (carried, mid-cycle adds), pull ticket comments to reconstruct timing.
 
 3. **Classify each ticket** along two axes:
    - **Outcome axis:** Shipped (Done at close) / Carried (open at close, still in next cycle) / Canceled (Canceled state) — one of three.
@@ -82,7 +82,7 @@ Synthesis half of the weekly rhythm — the chat output captures the story of th
 
 9. **Write the retro on approval.** Two outputs; Linear is primary:
 
-   - **Linear document (default — shared visibility):** Look up the active project via `mcp__linear-server__list_projects`. Create or replace a document in that project titled `Cycle Retro — <cycle-name>` using `mcp__linear-server__save_document`. This is the shared team artifact; both collaborators can read and comment here.
+   - **Linear document (default — shared visibility):** Look up the active project in Linear. Create or replace a document in that project titled `Cycle Retro — <cycle-name>`. This is the shared team artifact; both collaborators can read and comment here.
    - **Personal vault copy (optional):** Write to `~/Loose Ends/Projects/<project>/Retros/YYYY-MM-DD Cycle Retro.md` only if the user requests it OR if Linear is unavailable. If the external `librarian` setup is present, dispatch its `note-editor` agent with the drafted content, target path, and frontmatter shape — it reads the vault `CLAUDE.md` and honors folder/frontmatter conventions. Without librarian, write the note directly (create the Retros folder on first write).
 
    Ask once: "Write to Linear and optionally the vault?" Let the user choose. Skip the write entirely if the user declines. If a retro document/note already exists for the target cycle, ask before overwriting.
@@ -183,15 +183,15 @@ Things flagged in chat or session notes that need an owner:
 - **Show the full draft in chat** before writing anywhere. The user reviews and approves before any artifact lands.
 - **Linear document is the primary output.** Write there first. If Linear is unavailable, fall back to the vault — do not hard-depend on either.
 - **Personal vault copy is optional.** Write it only when the user requests it or when Linear is unavailable.
-- **Prefer librarian for the vault write when present.** Do not call `mcp__obsidian-mcp__*` create/update tools directly when a vault-convention-aware writer exists; dispatch it with the drafted content instead.
+- **Prefer librarian for the vault write when present.** Do not write to the vault directly when a vault-convention-aware writer exists; dispatch it with the drafted content instead.
 - **One retro per cycle.** If a retro document/note already exists for the target cycle, ask before overwriting.
 - **Omit empty sections.** Canceled / Added mid-cycle / Decisions / Patterns / Notable moments / Open questions are omitted entirely when empty — don't write placeholder headers.
 
 ## Composes with
 
-- **`linear`** (linear plugin) — retro reads Linear state (tickets, cycles) and writes the retro output to a Linear document via `mcp__linear-server__save_document`.
+- **`linear`** (linear plugin) — retro reads Linear state (tickets, cycles) and writes the retro output to a Linear document.
 - **`note-editor`** (external librarian setup) — performs the optional vault write when present. Honors frontmatter/folder conventions; creates the `Retros/` folder on first invocation.
-- **`vault-reader`** (external librarian setup) — optional alternative to inline `mcp__obsidian-mcp__*` reads for the session-note + prior-retro pass. Useful when the read scope is large.
+- **`vault-reader`** (external librarian setup) — optional alternative to inline vault reads for the session-note + prior-retro pass. Useful when the read scope is large.
 - **`ndr:decisions`** (external ndr plugin) — optional: dispatch when the retro narrative needs the current state of a referenced decision (e.g. confirming a cancellation reason).
 
 ## See also
