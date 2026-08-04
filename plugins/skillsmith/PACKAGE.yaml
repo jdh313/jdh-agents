@@ -1,6 +1,6 @@
 schema: agentforge.package/v1
 id: skillsmith
-defaults: {"name": "skillsmith", "version": "1.1.1", "description": "Craft and upkeep of skills. Authoring reference (the vocabulary and principles that make a skill predictable) plus provenance tracking for borrowed work: compares an adapted skill to its pinned upstream, flags behavioral drift and fabricated attributions, and refreshes the reviewed commit SHA. Houses writing-great-skills and upstream-review.", "author": {"name": "Jacob Hoehler"}, "license": "Apache-2.0", "keywords": ["skills", "authoring", "skill-craft", "provenance", "upstream", "drift", "attribution"]}
+defaults: {"name": "skillsmith", "version": "1.2.0", "description": "Craft and upkeep of skills. Authoring reference (the vocabulary and principles that make a skill predictable) plus provenance tracking for borrowed work: compares an adapted skill to its pinned upstream, flags behavioral drift and fabricated attributions, and refreshes the reviewed commit SHA. Houses writing-great-skills and upstream-review.", "author": {"name": "Jacob Hoehler"}, "license": "Apache-2.0", "keywords": ["skills", "authoring", "skill-craft", "provenance", "upstream", "drift", "attribution"]}
 artifacts:
   - {type: skill, pattern: 'skills/*/SKILL.md'}
   - {type: agent, pattern: 'agents/*.md'}
@@ -9,3 +9,17 @@ targets:
   claude:
     native:
       defaultEnabled: false
+  codex:
+    losses:
+      - construct: agent-tools-filter
+        state: stripped
+        note: The upstream-reviewer agent's read-only allowlist (Read, Grep, Glob, Bash(gh api *), Bash(base64 *)) is not enforceable on a Codex role procedure, which carries no tool allowlist; the read-only boundary is unenforced there.
+    native:
+      interface:
+        displayName: Skillsmith
+        shortDescription: Craft and audit skills
+        longDescription: Authoring reference for writing predictable skills, plus provenance tracking that compares an adapted skill to its pinned upstream and flags behavioral drift or fabricated attributions.
+        developerName: Jacob Hoehler
+        category: Developer Tools
+        capabilities: [Read, Write]
+        defaultPrompt: [Review this adapted skill against its upstream source.]
