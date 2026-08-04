@@ -1,6 +1,6 @@
 schema: agentforge.package/v1
 id: teach
-defaults: {"name": "teach", "version": "0.9.3", "description": "A stateful, multi-session teaching workspace routed into the Obsidian vault. The /teach skill grounds learning in the user's documented learning style and high-trust sources, builds a mission, resources, glossary, and learning records as vault notes under the topic's best-fit context, and keeps lessons + cheat sheets as self-contained HTML. Grounds in owned textbooks via DEVONthink when available and pins live-code citations to immutable refs. Requires an Obsidian vault (obsidian-cli); optionally surfaces owned textbooks from DEVONthink. Adapted from mattpocock/skills (MIT, © 2026 Matt Pocock).", "author": {"name": "Jacob Hoehler"}, "license": "Apache-2.0", "keywords": ["teach", "learn", "education", "lessons", "productivity"]}
+defaults: {"name": "teach", "version": "0.10.0", "description": "A stateful, multi-session teaching workspace routed into the Obsidian vault. The /teach skill grounds learning in the user's documented learning style and high-trust sources, builds a mission, resources, glossary, and learning records as vault notes under the topic's best-fit context, and keeps lessons + cheat sheets as self-contained HTML. Grounds in owned textbooks via DEVONthink when available and pins live-code citations to immutable refs. Requires an Obsidian vault (obsidian-cli); optionally surfaces owned textbooks from DEVONthink. Adapted from mattpocock/skills (MIT, © 2026 Matt Pocock).", "author": {"name": "Jacob Hoehler"}, "license": "Apache-2.0", "keywords": ["teach", "learn", "education", "lessons", "productivity"]}
 artifacts:
   - {type: skill, pattern: 'skills/*/SKILL.md'}
 authoring-keys: [upstream]
@@ -10,3 +10,17 @@ payloads:
       exclude: ['skills/*/SKILL.md', 'skills/*/scripts/**', 'skills/*/references/**', 'skills/*/assets/**']
 targets:
   claude: {}
+  codex:
+    losses:
+      - construct: mcp-tool-reference
+        state: retained-unenforced
+        note: The skill names mcp__devonthink__search_records / mcp__devonthink__lookup_records as the first move when gathering resources — surfacing the user's owned textbooks before falling back to the web. Codex has no DEVONthink MCP integration, so a Codex user cannot follow this step and loses the highest-trust source class the skill prioritizes; teaching proceeds from web sources only, with no in-runtime substitute.
+    native:
+      interface:
+        displayName: Teach
+        shortDescription: Multi-session teaching workspace in your vault
+        longDescription: Explicit-invocation, stateful teaching sessions grounded in your documented learning style and high-trust sources — builds a mission, resources, glossary, and learning records as vault notes, and keeps lessons and cheat sheets as self-contained HTML. Requires an Obsidian vault (obsidian-cli); DEVONthink textbook grounding is Claude-only.
+        developerName: Jacob Hoehler
+        category: Productivity
+        capabilities: [Read, Write, Interactive]
+        defaultPrompt: [Teach me something new.]
