@@ -50,11 +50,13 @@ informed_by: []
 - Run against three real Codex rollouts, the plugin's own parser resolved zero turns from 8,127 rows.
 - Both its hook events are supported Codex lifecycle events, its argument arrays fold correctly into Codex's single command string, plugin-root variables translate, and the executable payload keeps its mode.
 - Codex skips plugin-bundled hooks until the user reviews and trusts them, so nothing runs before an explicit trust step.
+- The package presents in the marketplace as an observability integration, which is what a user installing it expects it to be.
+- On a run that resolves no turns the hook exits 0 and logs `Processed 0 turns` to a path under `~/.claude`, which is not a location a Codex user has reason to read.
 - A separate ticket already scopes porting the transcript reader.
 
 ## Why
 
-Everything mechanical about this projection works, which is exactly what makes shipping it wrong. The package would install, pass validation, appear in the marketplace under an observability tile, clear the trust gate, and then run `uv` on every turn to read a transcript it cannot interpret — writing `Processed 0 turns` to a log under a Claude-named path that nobody checks on a Codex machine, and exiting 0 every time.
+Everything mechanical about this projection works, which is exactly what makes shipping it wrong. Install, validation, and the trust gate all pass, and what waits on the far side is a hook that runs every turn, reads a transcript it cannot interpret, and reports its own failure only to a log the user has no reason to open.
 
 An observability tool that fails silently is worse than an absent one, because it retires the user's suspicion that anything is wrong. A missing integration prompts someone to go install it. A present one that emits nothing produces an empty dashboard read as an empty period.
 

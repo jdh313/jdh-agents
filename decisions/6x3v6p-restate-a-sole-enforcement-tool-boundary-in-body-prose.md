@@ -47,12 +47,13 @@ When a frontmatter tool filter is the only thing enforcing a behavioral boundary
 - Frontmatter tool filters are Claude-only; Codex role procedures and skills carry no allowlist and strip them.
 - Some filters are permission-prompt convenience, and some are the sole enforcement of a rule the artifact was designed around.
 - `compass` had already handled one instance of this by moving a `disallowed-tools` boundary into body prose, but as a one-off with no rule behind it.
-- Enrolling the rest of the catalog surfaced six more instances across two packages, three of which could otherwise create or modify external records.
+- Enrolling the rest of the catalog surfaced six more instances across two packages.
+- Three of those are `coach` skills designed never to write, whose filters name Todoist and Linear mutation tools, so losing the filter permits creating or modifying tasks and issues in those systems.
 - A stripped filter is reported as a warning, so the loss is visible, but visibility does not restore the boundary.
 
 ## Why
 
-The alternative on the table was to document each gap honestly in the compatibility doc and ship it. That is defensible for a loss of scope, and indefensible for a loss of restraint. Three `coach` skills were designed never to write, and without their `disallowed-tools` a Codex user could have them create or modify Todoist tasks and Linear issues — a change with external side effects that no reader of the skill would anticipate.
+The alternative on the table was to document each gap honestly in the compatibility doc and ship it. That is defensible for a loss of scope, and indefensible for a loss of restraint — and three of these are the latter, carrying external side effects no reader of the skill would anticipate.
 
 What tips it is where the boundary actually lives. If a rule is real, it is part of what the artifact *is*, not part of how one runtime happens to sandbox it. Encoding it only in a field one target understands makes correctness a property of the deployment rather than of the artifact, and every new target then re-opens a question that should already be closed.
 

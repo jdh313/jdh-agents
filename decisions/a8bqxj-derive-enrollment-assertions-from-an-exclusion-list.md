@@ -42,7 +42,7 @@ Test assertions about which packages a target enrolls derive that set from the f
 
 ## Context
 
-- Assertions enumerated the enrolled packages as a literal set and a literal count.
+- Assertions enumerated the enrolled packages as a literal set and a literal count, currently fourteen of the catalog's fifteen.
 - Three separate test modules each carried their own copy of that set.
 - Adding seven packages required editing every copy, and the literals had already drifted behind the catalog once.
 - A package that is silently absent from an enumerated set is not tested, and nothing reports that it went unchecked.
