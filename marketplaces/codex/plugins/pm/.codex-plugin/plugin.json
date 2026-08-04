@@ -1,0 +1,33 @@
+{
+  "name": "pm",
+  "version": "0.7.0",
+  "description": "PM helpers for team Linear workflows. Skills for the weekly grooming loop (per-person WIP), plan-to-tickets breakdown (assignee-aware), and end-of-cycle retro notes (attribution + Linear-first output). Composes with the linear plugin; ndr and librarian integrations are optional externals.",
+  "author": {
+    "name": "Jacob Hoehler"
+  },
+  "license": "Apache-2.0",
+  "keywords": [
+    "pm",
+    "project-management",
+    "linear",
+    "grooming",
+    "breakdown",
+    "cycle",
+    "retro"
+  ],
+  "interface": {
+    "displayName": "PM",
+    "shortDescription": "Weekly grooming, breakdown, and cycle retros for Linear",
+    "longDescription": "PM helpers for team Linear workflows — weekly backlog grooming with per-person WIP, plan-to-tickets breakdown into assignee-aware vertical slices, and end-of-cycle retro notes with attribution and Linear-first output.",
+    "developerName": "Jacob Hoehler",
+    "category": "Productivity",
+    "capabilities": [
+      "Read",
+      "Write",
+      "Interactive"
+    ],
+    "defaultPrompt": [
+      "Groom the backlog for this cycle."
+    ]
+  }
+}

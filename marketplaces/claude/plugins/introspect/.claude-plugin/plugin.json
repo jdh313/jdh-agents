@@ -1,6 +1,6 @@
 {
   "name": "introspect",
-  "version": "0.5.0",
+  "version": "0.6.0",
   "description": "Introspection tooling for Claude Code itself. usage-report: reconstruct how a person works with Claude Code in a repo (skills, slash commands, subagents, MCP tools, task-kickoff style, activity over time) from their local session transcripts, via a stdlib-only read-only parser. Privacy-safe by default — names and counts only, no prompt text leaves the machine.",
   "author": {
     "name": "Jacob Hoehler"

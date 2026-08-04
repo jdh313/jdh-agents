@@ -28,6 +28,8 @@ disallowed-tools:
 
 A parking lot for the "ooh shiny" moment. Captures an idea or interest in under a minute to a monthly sparks log. Validates the dopamine hit without committing to a project. Speed over structure -- if this takes more than 60 seconds, it's too slow.
 
+**The capture boundary is absolute: /spark never touches Todoist or Linear.** No adding, updating, or completing Todoist tasks; no creating, saving, or updating Linear issues or projects. Capture is Obsidian-only. This holds on every runtime, including those that cannot enforce it through tool permissions: it is the boundary, not a configuration detail.
+
 ## Flow
 
 Execute these steps in order. Minimal coaching -- capture only.

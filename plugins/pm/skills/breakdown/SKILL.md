@@ -71,8 +71,8 @@ When the source is a spec-flow contract, breakdown grows it into a **nested cont
 ## Procedure
 
 1. **Gather context.** Read the conversation. If an argument was passed, read the source fully:
-   - `TEAM-N` — fetch via `mcp__linear-server__get_issue`. Record as the **parent ticket** for later linking.
-   - Vault note path — read via `mcp__obsidian-mcp__read_multiple_notes`.
+   - `TEAM-N` — fetch it from Linear. Record as the **parent ticket** for later linking.
+   - Vault note path — read it from the vault.
    - `ndr:<atom-id>` — dispatch `Skill(ndr:decisions)` to resolve the head.
    - File path — `Read` it.
 
@@ -120,7 +120,7 @@ When the source is a spec-flow contract, breakdown grows it into a **nested cont
    - Compose body per `references/issue-shape.md`: `## Context`, `## Done when:`, `## NDR references` (if any), `## Notes` (if any).
    - Set labels: one Surface, one Type. Defaults: `Feature` type unless decision-shaped (`Decision`). Surface comes from the slice's primary layer.
    - Set priority: `medium` (Backlog default per the `linear` skill). Bump to `high` only when the user explicitly committed to the slice this cycle.
-   - Set project: the active phase project (lookup via `mcp__linear-server__list_projects`, take the non-completed one).
+   - Set project: the active phase project (lookup in Linear, take the non-completed one).
    - Set parent relation if applicable.
    - **Assignee:** Omit `assignee` by default — breakdown produces independently-grabbable slices that either person can pull from the shared team queue. Set `assignee` only for slices the user explicitly pre-assigned during the quiz. (See the `linear` skill's collaboration conventions for the accept ritual.)
    - After save, capture the returned `TEAM-N` for downstream blocks/blocked-by references.

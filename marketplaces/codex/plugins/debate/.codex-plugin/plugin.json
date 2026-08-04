@@ -1,0 +1,36 @@
+{
+  "name": "debate",
+  "version": "0.4.0",
+  "description": "Dialectical decision analysis: dispatch parallel advocate agents to research opposing perspectives, optionally fact-check claims, challenge the consensus with devil's advocacy, and independently synthesize a verdict. Three modes (Quick/Standard/Deep) control pipeline depth. Not for factual lookups or simple preferences.",
+  "author": {
+    "name": "Jacob Hoehler"
+  },
+  "license": "Apache-2.0",
+  "keywords": [
+    "debate",
+    "decision",
+    "advocate",
+    "fact-check",
+    "synthesis",
+    "dialectical",
+    "research",
+    "opinion",
+    "trade-offs",
+    "deliberation"
+  ],
+  "interface": {
+    "displayName": "Debate",
+    "shortDescription": "Get a researched, opinionated verdict",
+    "longDescription": "Dispatches parallel advocate agents to research opposing perspectives on a decision, optionally fact-checks their claims and challenges the leading position with devil's advocacy, then synthesizes an opinionated verdict with a confidence percentage.",
+    "developerName": "Jacob Hoehler",
+    "category": "Productivity",
+    "capabilities": [
+      "Read",
+      "Write",
+      "Interactive"
+    ],
+    "defaultPrompt": [
+      "Should I do X or Y?"
+    ]
+  }
+}
