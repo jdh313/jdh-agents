@@ -8,7 +8,7 @@
   "plugins": [
     {
       "name": "coach",
-      "version": "0.10.1",
+      "version": "0.11.0",
       "description": "ADHD-friendly productivity coaching: daily planning (/today, /energy), end-of-day capture (/checkin), weekly scheduling (/plan-week) and review (/weekly), life-direction reviews (/review), goal-to-project alignment (/align), project lifecycle (/intake, /breakdown, /reentry, /sunset), idea capture (/spark), brain dump (/dump), task triage (/triage), decision journaling (/decide), and pattern analysis (momentum, overdue-rescue) with adaptive tone calibration",
       "author": {
         "name": "Jacob Hoehler"
@@ -116,7 +116,7 @@
     },
     {
       "name": "debate",
-      "version": "0.3.0",
+      "version": "0.4.0",
       "description": "Dialectical decision analysis: dispatch parallel advocate agents to research opposing perspectives, optionally fact-check claims, challenge the consensus with devil's advocacy, and independently synthesize a verdict. Three modes (Quick/Standard/Deep) control pipeline depth. Not for factual lookups or simple preferences.",
       "author": {
         "name": "Jacob Hoehler"
@@ -156,7 +156,7 @@
     },
     {
       "name": "introspect",
-      "version": "0.5.0",
+      "version": "0.6.0",
       "description": "Introspection tooling for Claude Code itself. usage-report: reconstruct how a person works with Claude Code in a repo (skills, slash commands, subagents, MCP tools, task-kickoff style, activity over time) from their local session transcripts, via a stdlib-only read-only parser. Privacy-safe by default — names and counts only, no prompt text leaves the machine.",
       "author": {
         "name": "Jacob Hoehler"
@@ -265,7 +265,7 @@
     },
     {
       "name": "pm",
-      "version": "0.6.0",
+      "version": "0.7.0",
       "description": "PM helpers for team Linear workflows. Skills for the weekly grooming loop (per-person WIP), plan-to-tickets breakdown (assignee-aware), and end-of-cycle retro notes (attribution + Linear-first output). Composes with the linear plugin; ndr and librarian integrations are optional externals.",
       "author": {
         "name": "Jacob Hoehler"
@@ -284,7 +284,7 @@
     },
     {
       "name": "shake-tune",
-      "version": "0.3.1",
+      "version": "0.4.0",
       "description": "Interpret Klippain Shake Tune results for 3D printers: diagnose issues from PNG graphs, explain findings, recommend fixes, and track results over time. Supports belt comparison, input shaper, vibration profile, axes map, and excitation tests.",
       "author": {
         "name": "Jacob Hoehler"
@@ -304,7 +304,7 @@
     },
     {
       "name": "skillsmith",
-      "version": "1.1.1",
+      "version": "1.2.0",
       "description": "Craft and upkeep of skills. Authoring reference (the vocabulary and principles that make a skill predictable) plus provenance tracking for borrowed work: compares an adapted skill to its pinned upstream, flags behavioral drift and fabricated attributions, and refreshes the reviewed commit SHA. Houses writing-great-skills and upstream-review.",
       "author": {
         "name": "Jacob Hoehler"
@@ -345,7 +345,7 @@
     },
     {
       "name": "teach",
-      "version": "0.9.3",
+      "version": "0.10.0",
       "description": "A stateful, multi-session teaching workspace routed into the Obsidian vault. The /teach skill grounds learning in the user's documented learning style and high-trust sources, builds a mission, resources, glossary, and learning records as vault notes under the topic's best-fit context, and keeps lessons + cheat sheets as self-contained HTML. Grounds in owned textbooks via DEVONthink when available and pins live-code citations to immutable refs. Requires an Obsidian vault (obsidian-cli); optionally surfaces owned textbooks from DEVONthink. Adapted from mattpocock/skills (MIT, © 2026 Matt Pocock).",
       "author": {
         "name": "Jacob Hoehler"

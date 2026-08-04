@@ -86,7 +86,7 @@ Decompose the user's question into:
 Search for relevant personal context BEFORE dispatching agents. All agents must receive identical context.
 
 - Search Obsidian notes for relevant prior work, decisions, or situation details
-- Search the vault via `mcp__obsidian-mcp__search_notes` for prior decision records on related topics — no fixed folder; note any hits so Step 11 can offer them as the save-location default
+- Search the vault for prior decision records on related topics, using whichever vault search the runtime offers (a connected Obsidian integration, or the `obsidian-cli` skill) — no fixed folder; note any hits so Step 11 can offer them as the save-location default
 - Extract relevant details from the current conversation history
 - Compile into a brief context block (3-5 bullet points max)
 

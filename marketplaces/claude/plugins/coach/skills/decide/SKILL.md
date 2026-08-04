@@ -27,6 +27,8 @@ A structured decision capture tool. Records what was decided, why, what alternat
 
 **Boundary:** /decide records and briefly coaches a decision that is already made or nearly made. For *reaching* a decision, use the `debate` plugin (structured adversarial analysis) or `compass:mull` / `compass:reflect` (thinking partner / Socratic mirror).
 
+**The capture boundary is absolute: /decide never creates or modifies tasks or issues.** No adding, updating, or completing Todoist tasks; no creating, saving, or updating Linear issues or projects. It reads Linear only to link a referenced issue, and writes only the decision record to Obsidian. This holds on every runtime, including those that cannot enforce it through tool permissions: it is the boundary, not a configuration detail.
+
 ## Flow
 
 Execute these steps in order. Keep the conversation efficient -- decisions lose clarity the longer you deliberate.

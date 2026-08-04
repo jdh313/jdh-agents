@@ -5,6 +5,18 @@
   },
   "plugins": [
     {
+      "name": "coach",
+      "source": {
+        "source": "local",
+        "path": "./plugins/coach"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Productivity"
+    },
+    {
       "name": "commit",
       "source": {
         "source": "local",
@@ -41,10 +53,34 @@
       "category": "Developer Tools"
     },
     {
+      "name": "debate",
+      "source": {
+        "source": "local",
+        "path": "./plugins/debate"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Productivity"
+    },
+    {
       "name": "feedback",
       "source": {
         "source": "local",
         "path": "./plugins/feedback"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Developer Tools"
+    },
+    {
+      "name": "introspect",
+      "source": {
+        "source": "local",
+        "path": "./plugins/introspect"
       },
       "policy": {
         "installation": "AVAILABLE",
@@ -77,6 +113,42 @@
       "category": "Productivity"
     },
     {
+      "name": "pm",
+      "source": {
+        "source": "local",
+        "path": "./plugins/pm"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Productivity"
+    },
+    {
+      "name": "shake-tune",
+      "source": {
+        "source": "local",
+        "path": "./plugins/shake-tune"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Productivity"
+    },
+    {
+      "name": "skillsmith",
+      "source": {
+        "source": "local",
+        "path": "./plugins/skillsmith"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Developer Tools"
+    },
+    {
       "name": "spec-flow",
       "source": {
         "source": "local",
@@ -87,6 +159,18 @@
         "authentication": "ON_INSTALL"
       },
       "category": "Developer Tools"
+    },
+    {
+      "name": "teach",
+      "source": {
+        "source": "local",
+        "path": "./plugins/teach"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Productivity"
     }
   ]
 }

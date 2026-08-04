@@ -1,6 +1,6 @@
 {
   "name": "debate",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "Dialectical decision analysis: dispatch parallel advocate agents to research opposing perspectives, optionally fact-check claims, challenge the consensus with devil's advocacy, and independently synthesize a verdict. Three modes (Quick/Standard/Deep) control pipeline depth. Not for factual lookups or simple preferences.",
   "author": {
     "name": "Jacob Hoehler"

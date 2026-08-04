@@ -51,7 +51,7 @@ Each topic gets a **self-contained workspace folder in the vault**, placed under
 - `./lessons/*.html` — a directory of lessons. A **lesson** is a single, self-contained HTML output that teaches one tightly-scoped thing tied to the mission. This is the primary unit of teaching. Titled `0001-<dash-case-name>.html`, the number incrementing each time.
 - `./reference/*.html` — print-beautiful HTML cheat sheets, reference algorithms, syntax cards, pose sequences — compressed learnings designed for quick reference. They should be beautiful documents which print out well.
 
-**Tooling:** `.md` notes are created and edited with `obsidian-cli` (`create`, `append`, `property:set`); surgical in-note edits use `mcp__obsidian-mcp__patch_note`; complex restructures are dispatched to `@note-editor`. The `.html` lessons and reference docs are written with the `Write` tool — they are non-markdown vault assets and live inside the workspace folder so their relative anchor links resolve.
+**Tooling:** `.md` notes are created and edited with `obsidian-cli` (`create`, `append`, `property:set`); surgical in-note edits use whichever targeted note-patch tool the runtime offers (Claude's Obsidian MCP integration); complex restructures are dispatched to `@note-editor`. The `.html` lessons and reference docs are written with the `Write` tool — they are non-markdown vault assets and live inside the workspace folder so their relative anchor links resolve.
 
 ### Resolving the context (where the workspace lives)
 
