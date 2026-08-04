@@ -1,6 +1,6 @@
 schema: agentforge.package/v1
 id: pm
-defaults: {"name": "pm", "version": "0.6.0", "description": "PM helpers for team Linear workflows. Skills for the weekly grooming loop (per-person WIP), plan-to-tickets breakdown (assignee-aware), and end-of-cycle retro notes (attribution + Linear-first output). Composes with the linear plugin; ndr and librarian integrations are optional externals.", "author": {"name": "Jacob Hoehler"}, "license": "Apache-2.0", "keywords": ["pm", "project-management", "linear", "grooming", "breakdown", "cycle", "retro"]}
+defaults: {"name": "pm", "version": "0.7.0", "description": "PM helpers for team Linear workflows. Skills for the weekly grooming loop (per-person WIP), plan-to-tickets breakdown (assignee-aware), and end-of-cycle retro notes (attribution + Linear-first output). Composes with the linear plugin; ndr and librarian integrations are optional externals.", "author": {"name": "Jacob Hoehler"}, "license": "Apache-2.0", "keywords": ["pm", "project-management", "linear", "grooming", "breakdown", "cycle", "retro"]}
 artifacts:
   - {type: skill, pattern: 'skills/*/SKILL.md'}
 authoring-keys: [upstream]
@@ -9,3 +9,25 @@ payloads:
     - {source: references/}
 targets:
   claude: {}
+  codex:
+    losses:
+      - construct: mcp-tool-reference
+        state: retained-unenforced
+        note: >-
+          groom's step 2 documents a specific Linear MCP gotcha (`list_cycles({type:
+          "current"})` must resolve the cycle's numeric name before it's passed to
+          `list_issues({cycle: N})` — passing `cycle: "current"` directly silently
+          returns `[]`) and cites the linear plugin's `references/mcp-gotchas.md`.
+          That failure mode is tied to the exact Linear MCP tool shape and may not
+          hold for whatever Linear access a Codex user has configured; the
+          underlying advice (resolve the current cycle explicitly before filtering
+          by it) still applies.
+    native:
+      interface:
+        displayName: PM
+        shortDescription: Weekly grooming, breakdown, and cycle retros for Linear
+        longDescription: PM helpers for team Linear workflows — weekly backlog grooming with per-person WIP, plan-to-tickets breakdown into assignee-aware vertical slices, and end-of-cycle retro notes with attribution and Linear-first output.
+        developerName: Jacob Hoehler
+        category: Productivity
+        capabilities: [Read, Write, Interactive]
+        defaultPrompt: [Groom the backlog for this cycle.]
