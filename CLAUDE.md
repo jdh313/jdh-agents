@@ -366,6 +366,8 @@ rm -rf ~/.claude/plugins/cache/cc-marketplace/[plugin-name]
 - **Manifest stability:** Never manually edit generated JSON. Update canonical YAML and re-run `uv run marketplace sync`.
 - **Determinism:** Re-running sync without canonical changes must leave the repository clean.
 - **Semantic versioning:** Enforce semantic versioning (major.minor.patch) for all plugin versions to maintain marketplace stability.
+- **Parallelizing plugin work:** Give each agent its own worktree, not just its own plugin directory. `agentforge compile` reads the *whole* marketplace and hard-fails (exit 2) on any package's undeclared loss, so agents editing disjoint `plugins/<name>/` directories in one checkout still fail each other's compile probes — and each failure looks like the agent's own bug. Disjoint file ownership is not enough when the verification command is whole-tree. Merge the branches at the end; the diffs genuinely are disjoint.
+- **One `sync` per batch:** `marketplace sync` regenerates all of `marketplaces/`. Parallel agents must never run it; the orchestrator runs it once after collecting their changes.
 
 <!-- babysitter:start -->
 ## Babysitter
