@@ -1,0 +1,34 @@
+{
+  "name": "shake-tune",
+  "version": "0.4.0",
+  "description": "Interpret Klippain Shake Tune results for 3D printers: diagnose issues from PNG graphs, explain findings, recommend fixes, and track results over time. Supports belt comparison, input shaper, vibration profile, axes map, and excitation tests.",
+  "author": {
+    "name": "Jacob Hoehler"
+  },
+  "license": "Apache-2.0",
+  "keywords": [
+    "3d-printing",
+    "klipper",
+    "shake-tune",
+    "input-shaper",
+    "diagnostics",
+    "vibration",
+    "belt-tension",
+    "corexy"
+  ],
+  "interface": {
+    "displayName": "Shake Tune",
+    "shortDescription": "Diagnose printer vibration from Shake Tune graphs",
+    "longDescription": "Interprets Klippain Shake Tune PNG graphs for 3D printers -- diagnoses issues, explains findings in plain language, recommends mechanical or firmware fixes, and tracks results over time. Covers belt comparison, input shaper, vibration profile, axes map, and excitation tests.",
+    "developerName": "Jacob Hoehler",
+    "category": "Productivity",
+    "capabilities": [
+      "Read",
+      "Write",
+      "Interactive"
+    ],
+    "defaultPrompt": [
+      "Analyze my Shake Tune results."
+    ]
+  }
+}

@@ -32,9 +32,14 @@ CLAUDE_PACKAGE_IDS = frozenset(
         "teach",
     }
 )
-CODEX_PACKAGE_IDS = frozenset(
-    {"commit", "compass", "craft", "feedback", "librarian", "linear", "spec-flow"}
-)
+# Codex enrolls every package except `langfuse`, whose Stop hook parses Claude
+# Code's transcript schema and resolves zero turns against a Codex rollout. Its
+# exclusion is a reviewed decision, not a pending mapping — see JUN-350 and the
+# `langfuse` entry in docs/agentforge-compatibility.md. Deriving the set here
+# keeps a new package enrolled-by-default in this assertion, so forgetting to
+# update it fails loudly rather than silently under-checking the catalog.
+CODEX_ONLY_EXCLUSIONS = frozenset({"langfuse"})
+CODEX_PACKAGE_IDS = CLAUDE_PACKAGE_IDS - CODEX_ONLY_EXCLUSIONS
 
 
 @pytest.fixture(scope="module")
@@ -58,7 +63,7 @@ def test_full_corpus_compilation_is_deterministic_and_clean(
     assert len(claude_registry_ids) == 15
     assert len(set(claude_registry_ids)) == len(claude_registry_ids)
     assert frozenset(claude_registry_ids) == CLAUDE_PACKAGE_IDS
-    assert len(codex_registry_ids) == 7
+    assert len(codex_registry_ids) == len(CODEX_PACKAGE_IDS)
     assert len(set(codex_registry_ids)) == len(codex_registry_ids)
     assert frozenset(codex_registry_ids) == CODEX_PACKAGE_IDS
     assert _materialized_package_ids(first_output, "claude") == CLAUDE_PACKAGE_IDS

@@ -29,6 +29,8 @@ effort: low
 
 A short end-of-day bookend to `/today`. Reads the morning's stated priorities, compares them to what actually happened, and captures the delta. Intentionally brief -- EOD energy is low. This is capture, not coaching.
 
+**The capture boundary is absolute: /checkin never creates or modifies tasks or issues.** No adding, updating, or completing Todoist tasks; no creating, saving, or updating Linear issues or projects. It reads Todoist and Linear only to gather today's context, and writes only an end-of-day section to the Obsidian daily note. This holds on every runtime, including those that cannot enforce it through tool permissions: it is the boundary, not a configuration detail.
+
 ## Flow
 
 Execute these steps in order. The whole interaction should take 2-3 minutes.

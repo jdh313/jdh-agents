@@ -16,7 +16,12 @@ from tests.agentforge_harness import (
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 MARKETPLACE = REPO_ROOT / "MARKETPLACE.yaml"
-CODEX_PACKAGES = {"commit", "compass", "craft", "feedback", "librarian", "linear", "spec-flow"}
+from .test_agentforge_full_corpus import CODEX_PACKAGE_IDS
+
+# The drift fixtures only need the enrolled set to assert they are operating on
+# a complete compilation before mutating it; the set itself is owned by the
+# full-corpus test.
+CODEX_PACKAGES = set(CODEX_PACKAGE_IDS)
 
 
 @pytest.fixture(scope="module")
