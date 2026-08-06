@@ -62,8 +62,8 @@
     },
     {
       "name": "compass",
-      "version": "0.9.1",
-      "description": "A suite of conversational thinking tools — reflect (Socratic mirror, never recommends, always saves), mull (thinking partner, probes AND contributes opinions, saves substantive sessions only), and converge (advisor, leads with a researched recommendation plus confidence % and refines it one question at a time).",
+      "version": "0.10.0",
+      "description": "A suite of conversational thinking tools — reflect (Socratic mirror, never recommends, always saves), mull (thinking partner, probes AND contributes opinions, saves substantive sessions only), and converge (advisor, leads with a researched recommendation plus confidence % and refines it one question at a time). Plus a paired evaluation track: first-principles (evidence-first interview that produces a signed-off needs map before any option is named) hands off to solution-research (turns that map into a systems-first parallel-research handoff prompt).",
       "author": {
         "name": "Jacob Hoehler",
         "email": "accts@jdh.onl"
@@ -81,7 +81,13 @@
         "clarify",
         "converge",
         "recommendation",
-        "advisor"
+        "advisor",
+        "requirements",
+        "needs-map",
+        "first-principles",
+        "research",
+        "evaluation",
+        "handoff"
       ],
       "source": "./plugins/compass"
     },

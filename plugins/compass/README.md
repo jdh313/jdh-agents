@@ -1,12 +1,21 @@
 # compass
 
-A suite of conversational thinking tools. The plugin name is the metaphor: it points, it doesn't command. Three skills, arranged along one axis — how much the agent commits. `reflect` always saves; `mull` saves only substantive sessions; `converge` picks its artifact by subject.
+A suite of conversational thinking tools. The plugin name is the metaphor: it points, it doesn't command.
+
+Three **stance** skills sit on one axis — how much the agent commits. `reflect` always saves; `mull` saves only substantive sessions; `converge` picks its artifact by subject.
 
 | Skill | Stance | Use when |
 |---|---|---|
 | `/reflect` | Strict mirror — only questions, never opinions | You want to find your own answer without influence |
 | `/mull` | Thinking partner — questions plus honest takes, pushback, and feedback | You want a collaborator who'll probe AND weigh in |
 | `/converge` | Advisor — a recommendation with a confidence %, refined one question at a time | You want an actual answer, stress-tested against your context |
+
+Two **evaluation** skills form a pipeline for the case where you're going to pick something and want the criteria settled before any option is named.
+
+| Skill | Produces | Use when |
+|---|---|---|
+| `first-principles` | A signed-off needs map — must-solve gates, nice-to-haves, exclusions — locked to a vault note | You need to know what the answer must do before comparing answers |
+| `solution-research` | A parallel-research handoff prompt for a fresh session | A needs map exists and you want the solution space researched against it |
 
 ## /reflect — Socratic mirror
 
