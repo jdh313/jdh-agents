@@ -1,7 +1,7 @@
 {
   "name": "craft",
-  "version": "0.10.0",
-  "description": "Software craftsmanship discipline skills: grill (the interview primitive — walk a decision tree one question at a time, facts looked up rather than asked, no acting until shared understanding), grill-with-docs (that loop applied to vocabulary, against per-repo CONTEXT.md glossaries), diagnose, prototype, tdd, improve-codebase-architecture, grok (stateful multi-session codebase comprehension with supersession-aware understanding records), zoom-out (adapted in part from mattpocock/skills, MIT), infra-review (architecture/security review of Terraform+Atlantis PRs), quiz-me (opt-in active-recall comprehension check after a code explanation), interrogate-model (holistic representability review of a domain model — the legitimate scenarios and personas it cannot express), and design-by-stories (design an artifact's shape — schema, template, data model, config — by modeling its actors and user stories first, then deriving the shape from the stories). Composes with spec-flow and ndr plugins.",
+  "version": "0.11.0",
+  "description": "Software craftsmanship discipline skills: grill (the interview primitive — walk a decision tree one question at a time, facts looked up rather than asked, no acting until shared understanding), grill-with-docs (that loop applied to vocabulary, against per-repo CONTEXT.md glossaries), diagnose, prototype, tdd, improve-codebase-architecture, grok (stateful multi-session codebase comprehension with supersession-aware understanding records), zoom-out (adapted in part from mattpocock/skills, MIT), infra-review (architecture/security review of Terraform+Atlantis PRs), quiz-me (opt-in active-recall comprehension check after a code explanation), interrogate-model (holistic representability review of a domain model — the legitimate scenarios and personas it cannot express), design-by-stories (design an artifact's shape — schema, template, data model, config — by modeling its actors and user stories first, then deriving the shape from the stories), and lucid-architecture-diagram (drive AWS cloud architecture diagrams in Lucid, including the two silent-failure modes of its API). Composes with spec-flow and ndr plugins.",
   "author": {
     "name": "Jacob Hoehler"
   },
@@ -23,6 +23,12 @@
     "design",
     "modeling",
     "grill",
-    "interview"
+    "interview",
+    "lucid",
+    "lucidchart",
+    "diagram",
+    "architecture",
+    "aws",
+    "cloud"
   ]
 }

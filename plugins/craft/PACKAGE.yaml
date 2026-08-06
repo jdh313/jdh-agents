@@ -1,6 +1,6 @@
 schema: agentforge.package/v1
 id: craft
-defaults: {"name": "craft", "version": "0.10.0", "description": "Software craftsmanship discipline skills: grill (the interview primitive — walk a decision tree one question at a time, facts looked up rather than asked, no acting until shared understanding), grill-with-docs (that loop applied to vocabulary, against per-repo CONTEXT.md glossaries), diagnose, prototype, tdd, improve-codebase-architecture, grok (stateful multi-session codebase comprehension with supersession-aware understanding records), zoom-out (adapted in part from mattpocock/skills, MIT), infra-review (architecture/security review of Terraform+Atlantis PRs), quiz-me (opt-in active-recall comprehension check after a code explanation), interrogate-model (holistic representability review of a domain model — the legitimate scenarios and personas it cannot express), and design-by-stories (design an artifact's shape — schema, template, data model, config — by modeling its actors and user stories first, then deriving the shape from the stories). Composes with spec-flow and ndr plugins.", "author": {"name": "Jacob Hoehler"}, "license": "Apache-2.0", "keywords": ["engineering", "craft", "discipline", "vocabulary", "context", "glossary", "comprehension", "onboarding", "terraform", "infrastructure", "review", "learning", "comprehension", "design", "modeling", "grill", "interview"]}
+defaults: {"name": "craft", "version": "0.11.0", "description": "Software craftsmanship discipline skills: grill (the interview primitive — walk a decision tree one question at a time, facts looked up rather than asked, no acting until shared understanding), grill-with-docs (that loop applied to vocabulary, against per-repo CONTEXT.md glossaries), diagnose, prototype, tdd, improve-codebase-architecture, grok (stateful multi-session codebase comprehension with supersession-aware understanding records), zoom-out (adapted in part from mattpocock/skills, MIT), infra-review (architecture/security review of Terraform+Atlantis PRs), quiz-me (opt-in active-recall comprehension check after a code explanation), interrogate-model (holistic representability review of a domain model — the legitimate scenarios and personas it cannot express), design-by-stories (design an artifact's shape — schema, template, data model, config — by modeling its actors and user stories first, then deriving the shape from the stories), and lucid-architecture-diagram (drive AWS cloud architecture diagrams in Lucid, including the two silent-failure modes of its API). Composes with spec-flow and ndr plugins.", "author": {"name": "Jacob Hoehler"}, "license": "Apache-2.0", "keywords": ["engineering", "craft", "discipline", "vocabulary", "context", "glossary", "comprehension", "onboarding", "terraform", "infrastructure", "review", "learning", "comprehension", "design", "modeling", "grill", "interview", "lucid", "lucidchart", "diagram", "architecture", "aws", "cloud"]}
 artifacts:
   - {type: skill, pattern: 'skills/*/SKILL.md'}
 authoring-keys: [upstream]
@@ -13,6 +13,20 @@ payloads:
 targets:
   claude: {}
   codex:
+    losses:
+      - construct: mcp-tool-reference
+        state: retained-unenforced
+        note: >-
+          lucid-architecture-diagram names mcp__lucid__* tools that do not exist
+          on Codex. The identifiers are deliberate rather than incidental — both
+          documented gotchas are about specific arguments of specific calls
+          (`container_id` silently ignored on assisted-layout containers, AWS
+          shape classes rejected until the library is bootstrapped by a UI drag),
+          so naming the operation by intent would lose the detail that makes the
+          warning usable. The skill carries a runtime-adapter paragraph telling a
+          non-Claude reader to map each identifier onto whatever its own Lucid
+          integration calls the same operation; with no Lucid integration
+          connected, only the diagramming conventions carry over.
     native:
       interface:
         displayName: Craft
