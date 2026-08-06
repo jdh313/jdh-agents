@@ -221,8 +221,8 @@
     },
     {
       "name": "librarian",
-      "version": "0.17.1",
-      "description": "Curates, catalogs, retrieves, and maintains your library of notes and knowledge in an Obsidian vault. Workflow-shaped (Capture / Process / Retrieve / Maintain) and agent-mediated (skills draft, agents execute). 17 skills + 4 agents + 6 references, coupled to the vault conventions in ~/Loose Ends/.claude/rules/{wiki.md,catalog.md} and the Templater templates in ~/Loose Ends/Templates/.",
+      "version": "0.18.0",
+      "description": "Curates, catalogs, retrieves, and maintains your library of notes and knowledge in an Obsidian vault. Workflow-shaped (Capture / Process / Retrieve / Maintain) and agent-mediated (skills draft, agents execute). 18 skills + 4 agents + 6 references, coupled to the vault conventions in ~/Loose Ends/.claude/rules/{wiki.md,catalog.md} and the Templater templates in ~/Loose Ends/Templates/.",
       "author": {
         "name": "Jacob Hoehler"
       },
@@ -240,7 +240,11 @@
         "refresh",
         "lint",
         "curation",
-        "personal-knowledge"
+        "personal-knowledge",
+        "savings-goal",
+        "budget",
+        "purchase",
+        "planning"
       ],
       "source": "./plugins/librarian"
     },

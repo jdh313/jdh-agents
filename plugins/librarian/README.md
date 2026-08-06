@@ -6,7 +6,7 @@ Workflow-shaped (Capture → Process → Retrieve → Maintain), agent-mediated
 (skills draft, agents execute), reference-backed (conventions and
 templates load on demand).
 
-17 skills + 4 agents + 6 references, coupled to the vault at
+18 skills + 4 agents + 6 references, coupled to the vault at
 `~/Loose Ends/` and governed by `~/Loose Ends/.claude/rules/{wiki.md,
 catalog.md}`.
 
@@ -14,7 +14,7 @@ catalog.md}`.
 
 | Stage | Skills |
 |---|---|
-| **Capture** | `wiki-create` (stub mode), `event-capture`, `meeting-notes`, `experiment-start`, `note-capture`, `note-suggester`, `catalog-evaluate` (new) |
+| **Capture** | `wiki-create` (stub mode), `event-capture`, `meeting-notes`, `experiment-start`, `note-capture`, `note-suggester`, `catalog-evaluate` (new), `savings-goal-add` (scaffold a funded-purchase goal with tier, budget, acceptance criteria) |
 | **Process** | `wiki-create` (ingest mode), `wiki-refresh`, `wiki-graduate`, `meeting-restructure`, `catalog-evaluate` (re-eval), `catalog-recheck` (re-evaluate existing entry against revisit triggers) |
 | **Retrieve** | `wiki-query`, `meeting-followup`, `experiment-review` |
 | **Maintain** | `vault-inspect`, `note-cleanup` |
