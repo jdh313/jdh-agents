@@ -20,6 +20,17 @@ from collections import Counter, defaultdict
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
+# Shared transcript parsing lives at the plugin root so both introspect skills
+# agree on what a prompt is. Resolved from __file__ rather than
+# ${CLAUDE_PLUGIN_ROOT} so the script also works under Codex, which renames
+# that variable to ${PLUGIN_ROOT}. Bytecode is disabled so importing never
+# drops a __pycache__ into the plugin tree, where the payload sweep would
+# copy it into the compiled marketplaces.
+sys.dont_write_bytecode = True
+sys.path.insert(0, str(Path(__file__).resolve().parents[3] / "shared"))
+
+from transcripts import clean_user_text, raw_user_text  # noqa: E402
+
 PROJECTS_DIR = Path.home() / ".claude" / "projects"
 HISTORY_FILE = Path.home() / ".claude" / "history.jsonl"
 # Full-report output goes to `.docs/` under the working directory, not under the
@@ -199,15 +210,7 @@ def clean_for_tone(text: str) -> str:
 
 def extract_text_content(content: list | str) -> str:
     """Extract text from message content blocks."""
-    if isinstance(content, str):
-        return content
-    texts = []
-    for block in content:
-        if isinstance(block, str):
-            texts.append(block)
-        elif isinstance(block, dict) and block.get("type") == "text":
-            texts.append(block.get("text", ""))
-    return "\n".join(texts)
+    return raw_user_text(content)
 
 
 def extract_tool_calls(content: list | str) -> list[dict]:
@@ -221,53 +224,14 @@ def extract_tool_calls(content: list | str) -> list[dict]:
     ]
 
 
-def _is_meta_summary(text: str) -> bool:
-    """True for auto-compaction / continuation summaries injected as user turns.
-    These are machine-generated recaps ('Primary Request and Intent', numbered
-    analysis) that badly skew every section (corrections, goals, tone): they're
-    long, third-person, and full of 'the user'/'we' — not authored register.
-    Distinctive template phrases only, to avoid catching real messages."""
-    head = text[:600]
-    return (
-        "Primary Request and Intent" in head
-        or ("Analysis:" in head and "Summary:" in head)
-        or head.lstrip().lower().startswith("this session is being continued")
-    )
-
-
 def extract_user_text(record: dict) -> str:
-    """Extract user text from a message record, stripping tool results and system tags."""
-    msg = record.get("message", {})
-    content = msg.get("content", "")
-    if isinstance(content, list):
-        text_parts = []
-        for block in content:
-            if isinstance(block, dict):
-                if block.get("type") == "tool_result":
-                    continue
-                if block.get("type") == "text":
-                    text_parts.append(block.get("text", ""))
-            elif isinstance(block, str):
-                text_parts.append(block)
-        text = "\n".join(text_parts)
-    else:
-        text = str(content)
-    # Strip system tags that leak into user messages
-    text = re.sub(r"<(system-reminder|local-command-stdout|task-notification|command-name|command-message|command-args)[^>]*>.*?</\1>", "", text, flags=re.DOTALL)
-    text = re.sub(r"<[a-z-]+>.*?</[a-z-]+>", "", text, flags=re.DOTALL)
-    # Strip skill content that gets injected as user messages
-    text = re.sub(r"Base directory for this skill:.*", "", text, flags=re.DOTALL)
-    # Strip version changelogs injected by hooks
-    text = re.sub(r"Version \d+\.\d+\.\d+:.*", "", text, flags=re.DOTALL)
-    # Strip session continuation preambles
-    text = re.sub(r"This session is being continued from a previous conversation.*?(?=\n\n|\Z)", "", text, flags=re.DOTALL)
-    text = text.strip()
-    # Drop auto-compaction / continuation summaries entirely — machine-generated
-    # recaps, not authored register. Skews every downstream section (corrections,
-    # goals, tone), so filter at the source. See _is_meta_summary.
-    if _is_meta_summary(text):
-        return ""
-    return text
+    """Extract user text from a message record, stripping tool results and system tags.
+
+    Auto-compaction / continuation summaries yield ``""`` — they are
+    machine-generated recaps, not authored register, and skew every downstream
+    section (corrections, goals, tone). See ``transcripts.is_meta_summary``.
+    """
+    return clean_user_text(record.get("message", {}).get("content", ""))
 
 
 def detect_corrections(text: str) -> list[dict]:

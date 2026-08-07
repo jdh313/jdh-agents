@@ -34,93 +34,31 @@ import csv
 import io
 import json
 import re
+import sys
 from collections import Counter, defaultdict
 from datetime import datetime
 from pathlib import Path
 
-COMMAND_NAME_RE = re.compile(r"<command-name>\s*(/?[^<]+?)\s*</command-name>")
-# Built-in session-management commands — listed separately from workflow skills.
-SESSION_COMMANDS = {
-    "/compact",
-    "/clear",
-    "/cost",
-    "/context",
-    "/config",
-    "/model",
-    "/resume",
-    "/help",
-    "/exit",
-    "/quit",
-    "/login",
-    "/logout",
-    "/status",
-    "/init",
-}
+# Shared transcript parsing lives at the plugin root so both introspect skills
+# agree on what a prompt is. Resolved from __file__ rather than
+# ${CLAUDE_PLUGIN_ROOT} so the script also works under Codex, which renames
+# that variable to ${PLUGIN_ROOT}. Bytecode is disabled so importing never
+# drops a __pycache__ into the plugin tree, where the payload sweep would
+# copy it into the compiled marketplaces.
+sys.dont_write_bytecode = True
+sys.path.insert(0, str(Path(__file__).resolve().parents[3] / "shared"))
 
-# Bare names NOT to merge even when they uniquely match a canonical skill —
-# they also exist as independent standalone skills (e.g. the built-in `/review`
-# is distinct from `commits:review`).
-SKILL_ALIAS_EXCLUDE = {"review"}
-
-# Canonical-name renames applied after alias-collapsing, folding a renamed
-# plugin's skills into their current home. The `commits` plugin was renamed to
-# `commit` and collapsed its review/split skills into a single `commit` skill.
-SKILL_RENAMES = {
-    "commits:commits": "commit:commit",
-    "commits:review": "commit:commit",
-    "commits:split": "commit:commit",
-}
-
-# Plugin-rollup renames — the same rename at plugin grain (for plugin_attribution).
-PLUGIN_RENAMES = {"commits": "commit"}
-
-
-def find_transcripts(projects_dir: Path, repo_keyword: str | None, scan_all: bool) -> list[Path]:
-    """Return JSONL transcript paths for matching project dirs.
-
-    Args:
-        projects_dir: The ``~/.claude/projects`` directory (or an override).
-        repo_keyword: Case-insensitive substring a project dir must contain.
-        scan_all: If True, ignore ``repo_keyword`` and take every project dir.
-
-    Returns:
-        Sorted list of ``*.jsonl`` transcript file paths.
-    """
-    if not projects_dir.is_dir():
-        return []
-    files: list[Path] = []
-    for child in projects_dir.iterdir():
-        if not child.is_dir():
-            continue
-        if not scan_all and repo_keyword and repo_keyword.lower() not in child.name.lower():
-            continue
-        files.extend(child.glob("*.jsonl"))
-    return sorted(files)
-
-
-def parse_ts(value: object) -> datetime | None:
-    """Parse an ISO-8601 timestamp (with trailing ``Z``) to a naive UTC datetime."""
-    if not isinstance(value, str) or not value:
-        return None
-    try:
-        return datetime.fromisoformat(value.replace("Z", "+00:00")).replace(tzinfo=None)
-    except ValueError:
-        return None
-
-
-def text_of(content: object) -> str | None:
-    """Extract typed human text from a user-message ``content`` field, if any.
-
-    Returns the string for plain-string content, or the first ``text`` block of a
-    list (tool-result-only records yield ``None`` and are thus skipped as prompts).
-    """
-    if isinstance(content, str):
-        return content
-    if isinstance(content, list):
-        for block in content:
-            if isinstance(block, dict) and block.get("type") == "text":
-                return block.get("text")
-    return None
+from transcripts import (  # noqa: E402
+    COMMAND_NAME_RE,
+    PLUGIN_RENAMES,
+    SKILL_RENAMES,
+    build_skill_alias,
+    classify_command,
+    clean_user_text,
+    find_transcripts,
+    parse_ts,
+    raw_user_text,
+)
 
 
 class Stats:
@@ -162,12 +100,6 @@ class Stats:
             self.first_ts = ts
         if self.last_ts is None or ts > self.last_ts:
             self.last_ts = ts
-
-
-def classify_command(name: str) -> str:
-    """Bucket a command-name into the session-management or workflow lane."""
-    base = name.split()[0] if name else name
-    return "session" if base in SESSION_COMMANDS else "workflow"
 
 
 def process_file(path: Path, st: Stats, include_args: bool) -> None:
@@ -217,15 +149,19 @@ def process_file(path: Path, st: Stats, include_args: bool) -> None:
                 st.models[str(msg["model"])] += 1
 
             if rtype == "user" and not rec.get("isSidechain") and not rec.get("isMeta"):
-                txt = text_of(msg.get("content"))
-                if txt:
+                # Raw text keeps the harness tags (command-name / command-args
+                # are read below); typed text has them stripped, so hook-injected
+                # blocks alone no longer count as a human prompt.
+                raw = raw_user_text(msg.get("content"))
+                typed = clean_user_text(msg.get("content"))
+                cmds = COMMAND_NAME_RE.findall(raw)
+                if typed or cmds:
                     st.human_prompts += 1
                     branch = rec.get("gitBranch") or "(none)"
                     st.prompts_per_branch[str(branch)] += 1
                     if ts:
                         st.prompts_per_day[ts.strftime("%Y-%m-%d")] += 1
 
-                    cmds = COMMAND_NAME_RE.findall(txt)
                     opener = "bare prompt"
                     if cmds:
                         first_cmd = cmds[0].strip()
@@ -239,7 +175,7 @@ def process_file(path: Path, st: Stats, include_args: bool) -> None:
                                 st.slash_workflow[base] += 1
                                 if include_args:
                                     args = re.search(
-                                        r"<command-args>(.*?)</command-args>", txt, re.S
+                                        r"<command-args>(.*?)</command-args>", raw, re.S
                                     )
                                     if args and args.group(1).strip():
                                         st.slash_args[base].append(args.group(1).strip()[:120])
@@ -302,31 +238,6 @@ def _multi_table(headers: list[str], data_rows: list[list[str]]) -> list[str]:
     if not data_rows:
         rows.append("| _(none)_ |" + " |" * (len(headers) - 1))
     return rows
-
-
-def build_skill_alias(names: set[str]) -> dict[str, str]:
-    """Map non-namespaced skill aliases to their canonical ``plugin:skill`` form.
-
-    Two recording quirks produce aliases for the same skill: a bare skill name
-    with no plugin prefix (``linear-workflow`` for ``linear:linear-workflow``)
-    and a dash-joined form (``spec-flow-implement`` for ``spec-flow:implement``).
-    A canonical name is any that already contains ``:``. An alias is merged only
-    when it maps to exactly one canonical — ambiguous collisions are left alone.
-    """
-    canonical = {n for n in names if ":" in n}
-    bare: dict[str, set[str]] = defaultdict(set)
-    dash: dict[str, set[str]] = defaultdict(set)
-    for c in canonical:
-        plugin, _, skill = c.partition(":")
-        bare[skill].add(c)
-        dash[f"{plugin}-{skill}"].add(c)
-
-    alias: dict[str, str] = {}
-    for key, matches in list(bare.items()) + list(dash.items()):
-        if key in canonical or key in SKILL_ALIAS_EXCLUDE or len(matches) != 1:
-            continue
-        alias.setdefault(key, next(iter(matches)))
-    return alias
 
 
 def normalized_view(st: Stats) -> dict[str, object]:
