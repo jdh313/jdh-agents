@@ -10,10 +10,12 @@ Standard library only, Python 3.9+.
 
 from __future__ import annotations
 
+import json
 import re
 from collections import defaultdict
 from datetime import datetime
 from pathlib import Path
+from typing import Iterator, NamedTuple
 
 COMMAND_NAME_RE = re.compile(r"<command-name>\s*(/?[^<]+?)\s*</command-name>")
 
@@ -174,6 +176,118 @@ def classify_command(name: str) -> str:
     """Bucket a command-name into the session-management or workflow lane."""
     base = name.split()[0] if name else name
     return "session" if base in SESSION_COMMANDS else "workflow"
+
+
+class SkillInvocation(NamedTuple):
+    """One ``Skill`` tool call paired with the user turn that preceded it.
+
+    ``trigger`` is ``"explicit"`` when the user typed the slash command by name
+    and ``"inferred"`` when the model chose the skill from its description.
+    Only inferred rows carry routing signal — an explicit invocation tests
+    nothing, since there was no choice to make.
+
+    Empirically ``"explicit"`` does not occur: the harness expands a typed
+    ``/plugin:skill`` inline as ``<command-name>`` plus injected body, without
+    ever emitting a ``Skill`` tool call. Every recorded ``Skill`` call is
+    therefore a model choice. The field stays as a guard — if that expansion
+    ever changes, explicit rows appear here instead of silently polluting the
+    inferred set.
+    """
+
+    utterance: str
+    skill: str
+    trigger: str
+    session: str
+    ts: datetime | None
+
+
+def iter_records(path: Path) -> Iterator[dict]:
+    """Yield the parsed JSON records of one transcript, skipping malformed lines."""
+    with path.open(encoding="utf-8", errors="replace") as fh:
+        for line in fh:
+            line = line.strip()
+            if not line:
+                continue
+            try:
+                rec = json.loads(line)
+            except json.JSONDecodeError:
+                continue
+            if isinstance(rec, dict):
+                yield rec
+
+
+def _matches_command(skill: str, commands: list[str]) -> bool:
+    """True when one of the typed slash commands names this skill.
+
+    Accepts the canonical ``plugin:skill`` form plus the two recording quirks
+    ``build_skill_alias`` handles — a bare skill name and a dash-joined form.
+    """
+    plugin, _, bare = skill.partition(":")
+    forms = {skill, bare or skill}
+    if plugin and bare:
+        forms.add(f"{plugin}-{bare}")
+    for cmd in commands:
+        base = cmd.strip().split()[0].lstrip("/") if cmd.strip() else ""
+        if base and base in forms:
+            return True
+    return False
+
+
+def iter_skill_invocations(path: Path) -> Iterator[SkillInvocation]:
+    """Pair each main-thread ``Skill`` call with the user turn that preceded it.
+
+    The held utterance persists across several skill calls, so a turn that fires
+    two skills yields two rows sharing one utterance. Sidechain (subagent)
+    records are skipped — a subagent's skill call answers the orchestrator's
+    prompt, not the user's. Turns with no recoverable typed text are dropped,
+    since an empty utterance cannot serve as a routing case.
+    """
+    utterance = ""
+    commands: list[str] = []
+    ts: datetime | None = None
+    session = path.stem
+
+    for rec in iter_records(path):
+        if rec.get("isSidechain"):
+            continue
+        msg = rec.get("message")
+        if not isinstance(msg, dict):
+            continue
+        rtype = rec.get("type")
+
+        if rtype == "user" and not rec.get("isMeta"):
+            content = msg.get("content")
+            raw = raw_user_text(content)
+            typed = clean_user_text(content)
+            cmds = COMMAND_NAME_RE.findall(raw)
+            # Tool-result-only records carry neither; they are not a new turn.
+            if typed or cmds:
+                utterance = typed
+                commands = cmds
+                ts = parse_ts(rec.get("timestamp"))
+
+        elif rtype == "assistant":
+            content = msg.get("content")
+            if not isinstance(content, list):
+                continue
+            for block in content:
+                if not (isinstance(block, dict) and block.get("type") == "tool_use"):
+                    continue
+                if block.get("name") != "Skill":
+                    continue
+                inp = block.get("input")
+                if not isinstance(inp, dict) or not inp.get("skill"):
+                    continue
+                skill = SKILL_RENAMES.get(str(inp["skill"]), str(inp["skill"]))
+                if not utterance:
+                    continue
+                yield SkillInvocation(
+                    utterance=utterance,
+                    skill=skill,
+                    trigger="explicit" if _matches_command(skill, commands) else "inferred",
+                    session=session,
+                    ts=ts,
+                )
 
 
 def build_skill_alias(names: set[str]) -> dict[str, str]:

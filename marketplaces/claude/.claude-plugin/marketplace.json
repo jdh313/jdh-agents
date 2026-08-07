@@ -168,7 +168,7 @@
     },
     {
       "name": "introspect",
-      "version": "0.9.0",
+      "version": "0.10.0",
       "description": "Introspection tooling for Claude Code itself. usage-report: reconstruct how a person works with Claude Code in a repo (skills, slash commands, subagents, MCP tools, task-kickoff style, activity over time) from their local session transcripts, via a stdlib-only read-only parser. conversation-temperature: read the local user's own authored register across all their transcripts — terseness, heat, and warmth, led by marker rates and real quoted messages rather than composite indices. Both run locally against the user's own transcripts and make no network calls; usage-report emits names and counts only, while conversation-temperature quotes the user's own messages back to them by design.",
       "author": {
         "name": "Jacob Hoehler"
