@@ -7,6 +7,28 @@
   },
   "plugins": [
     {
+      "name": "attention-workflow",
+      "version": "0.1.0",
+      "description": "EXPERIMENTAL, Claude-only. An attention-regulating development lifecycle — Frame, Design, Prepare, authorize, Implement, Verify, Deliver, Close — carried by one orchestration skill over local run state. Versioned grants are create-only and supersede rather than rewrite; an independent verifier derives the actual route itself and its verdict stays withheld until the operator commits a judgment; narrow PreToolUse guards deny grant rewrites and unauthorized pushes. Supersedes spec-flow while enabled.",
+      "author": {
+        "name": "Jacob Hoehler"
+      },
+      "license": "Apache-2.0",
+      "keywords": [
+        "experimental",
+        "sdlc",
+        "attention",
+        "adhd",
+        "authority",
+        "autonomy",
+        "verification",
+        "resumption",
+        "ai-assisted-dev"
+      ],
+      "defaultEnabled": false,
+      "source": "./plugins/attention-workflow"
+    },
+    {
       "name": "coach",
       "version": "0.11.0",
       "description": "ADHD-friendly productivity coaching: daily planning (/today, /energy), end-of-day capture (/checkin), weekly scheduling (/plan-week) and review (/weekly), life-direction reviews (/review), goal-to-project alignment (/align), project lifecycle (/intake, /breakdown, /reentry, /sunset), idea capture (/spark), brain dump (/dump), task triage (/triage), decision journaling (/decide), and pattern analysis (momentum, overdue-rescue) with adaptive tone calibration",

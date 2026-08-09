@@ -13,7 +13,7 @@ The compiler baseline for this enrollment is AgentForge commit `0ebebbb`
 cc-marketplace owns full-corpus acceptance and drift detection against its real
 canonical `MARKETPLACE.yaml`. AgentForge retains its focused five-package
 compiler fixture as compiler-level coverage; that fixture is not a substitute
-for validating all fifteen packages in this repository.
+for validating all sixteen packages in this repository.
 
 The cc-marketplace suite runs the pinned compiler twice in separate temporary
 output roots and compares paths, file types, bytes, and normalized permissions.
@@ -36,7 +36,7 @@ The merge gate also applies the runtime-native checks that are available:
   Codex validation boundary.
 
 Generated publication roots are committed, not disposable. `uv run marketplace
-sync` compiles complete publications into `marketplaces/claude/` (174 files, 15
+sync` compiles complete publications into `marketplaces/claude/` (196 files, 16
 packages) and `marketplaces/codex/` (120 files, 7 packages), and each root is
 self-contained enough for its runtime to be pointed directly at it. `sync
 --check` recompiles into a temporary root and diffs the whole tree — content and
@@ -55,17 +55,18 @@ skill-local `agents/openai.yaml` containing
 `policy.allow_implicit_invocation: false`. Supplied sidecars remain subject to
 AgentForge's normal collision policy and cannot silently replace generated
 policy. cc-marketplace owns verifying those compiler results across the real
-15-package corpus and validating the seven declared Codex packages; it does not
+16-package corpus and validating the seven declared Codex packages; it does not
 duplicate the translation in repository tooling.
 
 ## Target enrollment
 
-- Claude enrolls all fifteen packages with `all-compatible`.
+- Claude enrolls all sixteen packages with `all-compatible`.
 - Codex enrolls fourteen: `coach`, `commit`, `compass`, `craft`, `debate`,
   `feedback`, `introspect`, `librarian`, `linear`, `pm`, `shake-tune`,
   `skillsmith`, `spec-flow`, and `teach`.
-- `langfuse` is the sole package that does not declare Codex support, and its
-  omission is deliberate rather than pending. See the entry below.
+- `langfuse` and `attention-workflow` are the two packages that do not declare
+  Codex support, and both omissions are deliberate rather than pending. See the
+  entries below.
 
 `feedback` carries a **native mapping but not yet fresh-runtime acceptance**.
 Its Codex projection compiles, validates, and is drift-clean, and its report
@@ -109,7 +110,8 @@ an empty or untested package merely because its definition validates.
   types. Claude preserves those artifacts directly.
 - Package-root references, `craft/CONTEXT.md`, and arbitrary skill sidecars are
   supplied payloads.
-- The commit guard and Langfuse hook companions are Claude-only payloads.
+- The commit guard, Langfuse hook companions, and the attention-workflow hooks
+  and state helper are Claude-only payloads.
 - Native plugin manifests are represented by canonical defaults and target
   overlays, never copied as payloads.
 - Plugin READMEs stay in the source repository but are intentionally excluded
@@ -117,13 +119,15 @@ an empty or untested package merely because its definition validates.
 - Symbolic links are not supported as package payload sources. The enrolled
   inventory contains none.
 
-AgentForge derives executable intent from source mode. The commit guard and
-Langfuse tripwire are the only executable payloads and compile as `0755`; all
-other compiled files normalize to `0644`.
+AgentForge derives executable intent from source mode. The commit guard, the
+Langfuse tripwire, and the two attention-workflow hook scripts are the
+executable payloads and compile as `0755`; all other compiled files normalize to
+`0644`. `attention-workflow`'s `scripts/aw_state.py` is invoked as
+`python3 <path>` by the skill and the verifier agent, so it is a plain payload.
 
 ## Claude compatibility
 
-All fifteen packages compile for Claude and pass `claude plugin validate
+All sixteen packages compile for Claude and pass `claude plugin validate
 --strict`. The canonical marketplace omits three legacy generated metadata
 fields—`metadata.homepage`, `metadata.totalPlugins`, and
 `metadata.lastUpdated`—because current strict validation reports them as

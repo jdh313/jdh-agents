@@ -39,7 +39,7 @@ cc-marketplace/
 │       ├── commands/             # Commands (optional)
 │       └── README.md
 ├── marketplaces/                 # COMPILER OUTPUT — committed, never hand-edited
-│   ├── claude/                   # Complete Claude marketplace root (15 plugins)
+│   ├── claude/                   # Complete Claude marketplace root (16 plugins)
 │   │   ├── .claude-plugin/marketplace.json
 │   │   └── plugins/[name]/       # Compiled manifest + bodies
 │   └── codex/                    # Complete Codex marketplace root (7 pilots)

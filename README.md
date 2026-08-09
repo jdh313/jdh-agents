@@ -18,7 +18,7 @@ cc-marketplace/
 │       ├── PACKAGE.yaml      # Canonical AgentForge package definition
 │       └── ...               # Plugin files (commands, agents, skills, etc.)
 ├── marketplaces/             # Compiler output — committed, never hand-edited
-│   ├── claude/               # Self-contained Claude marketplace root (15 plugins)
+│   ├── claude/               # Self-contained Claude marketplace root (16 plugins)
 │   │   ├── .claude-plugin/marketplace.json
 │   │   └── plugins/[name]/
 │   └── codex/                # Self-contained Codex marketplace root (7 pilots)

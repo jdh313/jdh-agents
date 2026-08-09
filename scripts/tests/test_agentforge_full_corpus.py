@@ -15,6 +15,7 @@ MARKETPLACE = REPO_ROOT / "MARKETPLACE.yaml"
 
 CLAUDE_PACKAGE_IDS = frozenset(
     {
+        "attention-workflow",
         "coach",
         "commit",
         "compass",
@@ -32,13 +33,22 @@ CLAUDE_PACKAGE_IDS = frozenset(
         "teach",
     }
 )
-# Codex enrolls every package except `langfuse`, whose Stop hook parses Claude
-# Code's transcript schema and resolves zero turns against a Codex rollout. Its
-# exclusion is a reviewed decision, not a pending mapping — see TEAM-350 and the
-# `langfuse` entry in docs/agentforge-compatibility.md. Deriving the set here
-# keeps a new package enrolled-by-default in this assertion, so forgetting to
-# update it fails loudly rather than silently under-checking the catalog.
-CODEX_ONLY_EXCLUSIONS = frozenset({"langfuse"})
+# Codex enrolls every package except two, and both exclusions are reviewed
+# decisions rather than pending mappings — see the matching entries in
+# docs/agentforge-compatibility.md:
+#
+#   langfuse            its Stop hook parses Claude Code's transcript schema and
+#                       resolves zero turns against a Codex rollout (TEAM-350).
+#   attention-workflow  its load-bearing guarantee is plugin-bundled hook
+#                       enforcement, and Codex skips bundled hooks until the
+#                       user separately reviews and trusts them, so the Codex
+#                       projection could not exercise the behavior the
+#                       experiment exists to test.
+#
+# Deriving the set here keeps a new package enrolled-by-default in this
+# assertion, so forgetting to update it fails loudly rather than silently
+# under-checking the catalog.
+CODEX_ONLY_EXCLUSIONS = frozenset({"langfuse", "attention-workflow"})
 CODEX_PACKAGE_IDS = CLAUDE_PACKAGE_IDS - CODEX_ONLY_EXCLUSIONS
 
 
@@ -60,7 +70,7 @@ def test_full_corpus_compilation_is_deterministic_and_clean(
     assert snapshot_tree(first_output / "codex") == snapshot_tree(second_output / "codex")
     claude_registry_ids = _registry_package_ids(first_output, "claude")
     codex_registry_ids = _registry_package_ids(first_output, "codex")
-    assert len(claude_registry_ids) == 15
+    assert len(claude_registry_ids) == len(CLAUDE_PACKAGE_IDS)
     assert len(set(claude_registry_ids)) == len(claude_registry_ids)
     assert frozenset(claude_registry_ids) == CLAUDE_PACKAGE_IDS
     assert len(codex_registry_ids) == len(CODEX_PACKAGE_IDS)
