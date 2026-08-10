@@ -195,7 +195,9 @@ python3 "$HELPER" transition --phase implement --owner execution --condition act
   --next "Candidate ready -> independent Verify"
 ```
 
-Then emit one short `AUTHORIZED` receipt and go quiet.
+Then emit one short `GRANT REQUEST` receipt and go quiet. Never report status
+with a word the operator uses to authorize (`AUTHORIZE`, `READY`) — status
+language and authorization language stay lexically disjoint.
 
 ### Implement
 
@@ -259,7 +261,7 @@ Verify begins at a **readiness handoff**, not when a test runs.
    candidate scope. **Do not pass** the implementer's success claim, narrative,
    claimed actual route, or deviation assessment. Record the implementer's own
    claim separately in your notes so it can be compared afterward.
-4. Emit one orienting `CANDIDATE READY` receipt.
+4. Emit one orienting `CANDIDATE SUBMITTED` receipt.
 
 **Resolve the run by identity, never by message.** Before starting fallback
 verification or reporting a result as unavailable:

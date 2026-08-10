@@ -650,7 +650,14 @@ def render_card(kind: str, projection: dict[str, Any], grant: dict[str, Any] | N
         # being asked, what would count as an answer, what the answer rests on,
         # what would catch a breach, and what you say back. Flat, it was twelve
         # undifferentiated fields and the eye had nowhere to rest.
-        lines.append(f"AUTHORIZED  {grant.get('id')}"
+        # "GRANT REQUEST", not "AUTHORIZED". Tenerife 1977: "we are at takeoff"
+        # was a status report heard as a clearance, because status language and
+        # authorization language shared a sentence pattern. A card headed
+        # AUTHORIZED whose response token is AUTHORIZE has the same defect --
+        # and it was also simply false, since nothing is authorized until the
+        # operator says so. Status language and authorization language stay
+        # lexically disjoint from here.
+        lines.append(f"GRANT REQUEST  {grant.get('id')}"
                      + (f"  supersedes {grant['supersedes']}" if grant.get("supersedes") else ""))
         lines.append(_rule("the question"))
         lines.append(_field("QUESTION", grant.get("operator_question")))
@@ -691,7 +698,10 @@ def render_card(kind: str, projection: dict[str, Any], grant: dict[str, Any] | N
         lines.append(_field("RESPOND", "AUTHORIZE | REVISE | STOP"))
 
     elif kind == "ready":
-        lines.append(f"CANDIDATE READY  {projection.get('active_candidate')}")
+        # "SUBMITTED", not "READY": READY is the operator's verdict on the
+        # reconcile card. The agent asserting a status must not borrow the word
+        # the operator uses to grant.
+        lines.append(f"CANDIDATE SUBMITTED  {projection.get('active_candidate')}")
         lines.append("")
         lines.append(_field("MOVED", "implement -> verify", 12))
         lines.append(_field("AUTHORITY", grant.get("id"), 12))

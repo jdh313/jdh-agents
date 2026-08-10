@@ -236,7 +236,7 @@ def test_source_package_declares_claude_only() -> None:
 def test_claude_publication_carries_every_declared_surface() -> None:
     manifest = json.loads((PUBLISHED / ".claude-plugin" / "plugin.json").read_text(encoding="utf-8"))
     assert manifest["name"] == "attention-workflow"
-    assert manifest["version"] == "0.5.0"
+    assert manifest["version"] == "0.6.0"
     # Experimental: installing the marketplace must not switch the lifecycle
     # out from under an in-flight spec-flow change.
     assert manifest["defaultEnabled"] is False
@@ -305,7 +305,7 @@ def test_claude_registry_lists_the_package() -> None:
         )
     )
     entry = next(p for p in registry["plugins"] if p["name"] == "attention-workflow")
-    assert entry["version"] == "0.5.0"
+    assert entry["version"] == "0.6.0"
 
 
 def test_verifier_agent_is_read_and_execute_only() -> None:
@@ -553,14 +553,14 @@ def test_cards_are_rendered_by_the_helper_and_saved_to_disk(
     open_change(env, tmp_path)
     out = helper(env, "card", "authorize").stdout
 
-    assert out.startswith("AUTHORIZED  g1")
+    assert out.startswith("GRANT REQUEST  g1")
     for label in ("QUESTION", "PROMISE", "EXCLUDES", "ROUTE", "STOP BEFORE",
                   "GUARDED", "UNCOVERED", "DELIVERY", "OWNER", "ATTENTION"):
         assert label in out, label
 
     saved = state_root / "cards" / "001-authorize.txt"
     assert saved.is_file()
-    assert saved.read_text(encoding="utf-8").startswith("AUTHORIZED  g1")
+    assert saved.read_text(encoding="utf-8").startswith("GRANT REQUEST  g1")
 
     # Rendering again appends rather than overwriting: the card an operator
     # returns to an hour later must not be clobbered.
@@ -588,6 +588,31 @@ def test_reconcile_card_leads_with_the_frame_and_withholds_the_verdict(
     # the operator's own call.
     assert "deliver" not in out.lower().split("respond")[0]
     assert "RESPOND" in out and "THEN STATE" in out
+
+
+def test_status_language_never_borrows_an_authorization_word(
+    env: dict[str, str], tmp_path: Path
+) -> None:
+    """Tenerife 1977: a status report phrased like a clearance killed 583 people.
+
+    "We are at takeoff" was heard as a takeoff clearance because status
+    language and authorization language shared a sentence pattern. The words
+    the operator uses to grant — AUTHORIZE, READY — must never appear in a
+    line where the system is asserting its own status.
+    """
+    grant = open_change(env, tmp_path)
+    _completed_run(env, tmp_path, grant)
+
+    granting_words = ("AUTHORIZE", "AUTHORIZED", "READY")
+    for kind in ("authorize", "ready", "reconcile", "closed", "exception"):
+        out = helper(env, "card", kind).stdout
+        for line in out.splitlines():
+            # The RESPOND line is where the operator's own tokens belong; it is
+            # the one place these words are not a status claim.
+            if line.startswith("RESPOND") or line.startswith("NOT READY"):
+                continue
+            for word in granting_words:
+                assert word not in line, f"{kind}: status line borrows {word!r}: {line!r}"
 
 
 def test_card_labels_are_a_closed_vocabulary(env: dict[str, str], tmp_path: Path) -> None:
