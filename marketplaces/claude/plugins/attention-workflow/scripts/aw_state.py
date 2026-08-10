@@ -24,7 +24,7 @@ import subprocess
 import sys
 import tempfile
 import textwrap
-from datetime import UTC, datetime
+from datetime import UTC, datetime, timedelta
 from pathlib import Path
 from typing import Any
 
@@ -270,6 +270,34 @@ def load_current(state_root: Path) -> dict[str, Any] | None:
 # ---------------------------------------------------------------------------
 
 
+# One working session, not one calendar day. A grant is the operator's answer
+# to "may this proceed without me for a while", and "a while" is bounded by the
+# span they were actually thinking about. Overridable per grant.
+DEFAULT_GRANT_HOURS = 8.0
+
+
+def grant_expiry(created_at: str, hours: float) -> str:
+    """Absolute expiry, computed once at creation and never rewritten."""
+    started = datetime.fromisoformat(created_at.replace("Z", "+00:00"))
+    return (
+        (started + timedelta(hours=hours)).isoformat(timespec="seconds").replace("+00:00", "Z")
+    )
+
+
+def grant_expired(grant: dict[str, Any], now: str | None = None) -> bool:
+    """Has this grant's authority lapsed with time?
+
+    A grant with no ``expires_at`` never expires. That is deliberate rather
+    than lenient: grants written before expiry existed must not silently become
+    invalid, since invalidating authority retroactively is exactly the kind of
+    surprise this workflow is built to prevent.
+    """
+    expires_at = grant.get("expires_at")
+    if not expires_at:
+        return False
+    return (now or _now()) >= str(expires_at)
+
+
 def evaluate(state_root: Path) -> dict[str, Any]:
     """Return the projection a resumer should act on.
 
@@ -316,6 +344,17 @@ def evaluate(state_root: Path) -> dict[str, Any]:
             problems.append(
                 f"active grant {grant_id} was superseded by {successor}; "
                 "authority must be re-established before work continues"
+            )
+        # Permit-to-work: no open-ended permits. Work stops at expiry
+        # regardless of progress. A grant issued three days ago describes a
+        # repository, a baseline, and a set of assumptions that have all had
+        # three days to stop being true -- and the operator who granted it was
+        # reasoning about a session, not a standing licence.
+        if grant_expired(grant) and phase in PHASES_REQUIRING_GRANT:
+            problems.append(
+                f"active grant {grant_id} expired at {grant.get('expires_at')}; "
+                "authority lapsed with time, not with scope. Nothing about the work "
+                "is wrong -- the licence to continue it unattended simply ran out"
             )
 
     run: dict[str, Any] | None = None
@@ -546,7 +585,7 @@ CARD_LABELS = frozenset(
         "RUN", "ACTION", "CANDIDATE", "OUTCOME", "ANSWERS Q", "PLANNED",
         "DERIVED", "DEVIATION", "NEW", "PRIOR", "UNCLASSED", "FAILED",
         "PHASE", "PRESERVED", "NOT DONE", "CHANGE", "EVIDENCE", "BASIS",
-        "RESPOND", "THEN STATE", "LIMITS",
+        "RESPOND", "THEN STATE", "LIMITS", "EXPIRES",
     }
 )
 
@@ -694,6 +733,10 @@ def render_card(kind: str, projection: dict[str, Any], grant: dict[str, Any] | N
 
         lines.append(_rule("your response"))
         lines.append(_field("OWNER", projection.get("owner")))
+        lines.append(_field(
+            "EXPIRES",
+            grant.get("expires_at") or "does not expire (open-ended, stated in the basis)",
+        ))
         lines.append(_field("ATTENTION", "released until exception or readiness handoff"))
         lines.append(_field("RESPOND", "AUTHORIZE | REVISE | STOP"))
 
@@ -1093,6 +1136,19 @@ def cmd_grant_create(args: argparse.Namespace) -> int:
     payload["id"] = grant_id
     payload["schema"] = SCHEMA_GRANT
     payload["created_at"] = _now()
+    # Expiry is stamped once, here, and never rewritten -- the grant stays
+    # create-only. `valid_for_hours: 0` means an open-ended grant, which the
+    # basis has to say out loud rather than get by omission.
+    hours = payload.get("valid_for_hours", DEFAULT_GRANT_HOURS)
+    try:
+        hours = float(hours)
+    except (TypeError, ValueError):
+        raise StateError("valid_for_hours must be a number of hours") from None
+    if hours < 0:
+        raise StateError("valid_for_hours cannot be negative")
+    payload["valid_for_hours"] = hours
+    if hours:
+        payload["expires_at"] = grant_expiry(payload["created_at"], hours)
 
     create_json_exclusive(grants_dir(state_root) / f"{grant_id}.json", payload)
     append_history(

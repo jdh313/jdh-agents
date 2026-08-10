@@ -236,7 +236,7 @@ def test_source_package_declares_claude_only() -> None:
 def test_claude_publication_carries_every_declared_surface() -> None:
     manifest = json.loads((PUBLISHED / ".claude-plugin" / "plugin.json").read_text(encoding="utf-8"))
     assert manifest["name"] == "attention-workflow"
-    assert manifest["version"] == "0.8.1"
+    assert manifest["version"] == "0.9.0"
     # Experimental: installing the marketplace must not switch the lifecycle
     # out from under an in-flight spec-flow change.
     assert manifest["defaultEnabled"] is False
@@ -305,7 +305,7 @@ def test_claude_registry_lists_the_package() -> None:
         )
     )
     entry = next(p for p in registry["plugins"] if p["name"] == "attention-workflow")
-    assert entry["version"] == "0.8.1"
+    assert entry["version"] == "0.9.0"
 
 
 def test_verifier_agent_is_read_and_execute_only() -> None:
@@ -1461,3 +1461,56 @@ def test_a_closed_tab_does_not_strand_a_pending_gate(
 
     assert not pending.is_file(), "a resolved gate must not leave a stale URL behind"
     helper(env, "gate-url", expect=2)
+
+
+def test_a_grant_expires_and_the_lapse_reads_as_time_not_scope(
+    env: dict[str, str], tmp_path: Path
+) -> None:
+    """Permit-to-work: no open-ended permits, and work stops at expiry.
+
+    The distinction that matters is *why* authority lapsed. Nothing about the
+    work is wrong; the licence to continue it unattended ran out.
+    """
+    open_change(env, tmp_path, valid_for_hours=0.0006)  # ~2s, above timestamp resolution
+    grant = helper_json(env, "grant-show", "g1")
+    assert grant["expires_at"] > grant["created_at"]
+
+    import time
+    time.sleep(3.0)
+
+    projection = helper_json(env, "show")
+    assert projection["status"] == "fail-safe"
+    assert projection["phase"] == "prepare"
+    assert projection["owner"] == "jacob"
+    problems = " ".join(projection["problems"])
+    assert "expired" in problems
+    assert "not with scope" in problems
+
+
+def test_grant_expiry_defaults_to_one_working_session(
+    env: dict[str, str], tmp_path: Path
+) -> None:
+    open_change(env, tmp_path)
+    grant = helper_json(env, "grant-show", "g1")
+    assert grant["valid_for_hours"] == aw_state.DEFAULT_GRANT_HOURS == 8.0
+    assert aw_state.grant_expired(grant) is False
+
+
+def test_an_open_ended_grant_must_say_so_out_loud(
+    env: dict[str, str], tmp_path: Path
+) -> None:
+    """Open-ended authority is available, but never by omission."""
+    open_change(env, tmp_path, valid_for_hours=0)
+    grant = helper_json(env, "grant-show", "g1")
+    assert "expires_at" not in grant
+    assert aw_state.grant_expired(grant) is False
+    # And a grant written before expiry existed is not invalidated retroactively.
+    assert aw_state.grant_expired({"id": "old"}) is False
+
+
+def test_expiry_is_stamped_once_and_never_rewritten(
+    env: dict[str, str], tmp_path: Path
+) -> None:
+    open_change(env, tmp_path)
+    first = helper_json(env, "grant-show", "g1")["expires_at"]
+    assert helper_json(env, "grant-show", "g1")["expires_at"] == first
