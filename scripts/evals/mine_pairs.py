@@ -30,46 +30,26 @@ plugin already streams full prompts to.
 from __future__ import annotations
 
 import argparse
-import base64
-import json
-import subprocess
 import sys
-import urllib.error
-import urllib.request
 from collections import defaultdict
 from pathlib import Path
 
 sys.dont_write_bytecode = True
 REPO = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(REPO / "plugins" / "introspect" / "shared"))
+sys.path.insert(0, str(Path(__file__).resolve().parent))
 
+from _langfuse import api  # noqa: E402
 from transcripts import (  # noqa: E402
     build_skill_alias,
     find_transcripts,
     iter_skill_invocations,
 )
 
-OP_ITEM = "Langfuse Code Agent API"
 DATASET = "skill-routing"
 # Utterances shorter than this are almost always "yes" / "go" / "continue" —
 # real turns, but they carry no routing signal a description could match.
 MIN_UTTERANCE_CHARS = 25
-
-
-def op_field(label: str) -> str:
-    """Read one field of the 1Password item, or exit with a usable message."""
-    try:
-        out = subprocess.run(
-            ["op", "item", "get", OP_ITEM, "--fields", f"label={label}", "--reveal"],
-            capture_output=True,
-            text=True,
-            check=True,
-        )
-    except FileNotFoundError:
-        sys.exit("op CLI not found — install 1Password CLI or export credentials manually.")
-    except subprocess.CalledProcessError as exc:
-        sys.exit(f"op could not read {label!r} from {OP_ITEM!r}: {exc.stderr.strip()}")
-    return out.stdout.strip()
 
 
 def collect(per_skill: int) -> list[dict]:
@@ -114,26 +94,9 @@ def collect(per_skill: int) -> list[dict]:
     return items
 
 
-def push(items: list[dict], base_url: str, auth: str) -> None:
+def push(items: list[dict]) -> None:
     """Create the dataset (idempotent) and upload every item."""
-
-    def call(path: str, payload: dict) -> dict:
-        req = urllib.request.Request(
-            f"{base_url.rstrip('/')}{path}",
-            data=json.dumps(payload).encode(),
-            headers={"Authorization": f"Basic {auth}", "Content-Type": "application/json"},
-            method="POST",
-        )
-        try:
-            with urllib.request.urlopen(req, timeout=30) as resp:
-                return json.loads(resp.read() or b"{}")
-        except urllib.error.HTTPError as exc:
-            body = exc.read().decode(errors="replace")[:300]
-            sys.exit(f"{path} failed: HTTP {exc.code} {body}")
-        except urllib.error.URLError as exc:
-            sys.exit(f"{path} unreachable: {exc.reason} — is the homelab host up?")
-
-    call(
+    api(
         "/api/public/datasets",
         {
             "name": DATASET,
@@ -145,7 +108,7 @@ def push(items: list[dict], base_url: str, auth: str) -> None:
         },
     )
     for i, item in enumerate(items, 1):
-        call(
+        api(
             "/api/public/dataset-items",
             {
                 "datasetName": DATASET,
@@ -156,7 +119,7 @@ def push(items: list[dict], base_url: str, auth: str) -> None:
                 "metadata": {"split": "mined", "session": item["session"], "ts": item["ts"]},
             },
         )
-    print(f"pushed {len(items)} item(s) to dataset {DATASET!r} at {base_url}")
+    print(f"pushed {len(items)} item(s) to dataset {DATASET!r}")
 
 
 def main() -> None:
@@ -176,9 +139,7 @@ def main() -> None:
         print("\n(dry run — nothing pushed)")
         return
 
-    base_url = op_field("base-url")
-    auth = base64.b64encode(f"{op_field('public-key')}:{op_field('secret-key')}".encode()).decode()
-    push(items, base_url, auth)
+    push(items)
 
 
 if __name__ == "__main__":
