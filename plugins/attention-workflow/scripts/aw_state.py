@@ -533,20 +533,42 @@ def render_context(projection: dict[str, Any]) -> str:
 
 CARD_KINDS = ("authorize", "ready", "reconcile", "closed", "exception", "status")
 
+# Controlled vocabulary. One label, one meaning, one slot — never a synonym.
+# The discipline aviation gets from phraseology lives on the challenge side:
+# a reader learns the slot once and then stops reading the label at all.
+# Values stay plain; they carry facts, not restatements of what the slot means.
+CARD_LABELS = frozenset(
+    {
+        "QUESTION", "PROMISE", "EXCLUDES", "ROUTE", "STOP BEFORE", "ASSUMES",
+        "UNLISTED", "BASELINE", "PROBE", "GUARDED", "CHECKED", "WATCHED",
+        "UNCOVERED", "DELIVERY", "OWNER", "ATTENTION", "MOVED", "AUTHORITY",
+        "RUN", "ACTION", "CANDIDATE", "OUTCOME", "ANSWERS Q", "PLANNED",
+        "DERIVED", "DEVIATION", "NEW", "PRIOR", "UNCLASSED", "FAILED",
+        "PHASE", "PRESERVED", "NOT DONE", "CHANGE", "EVIDENCE", "BASIS",
+        "RESPOND", "THEN STATE", "LIMITS",
+    }
+)
+
+# Positive confirmation, not silence. "No new adverse context" is a finding an
+# operator needs stated; an absent line reads as an unasked question.
+CLEAN = "none observed"
+
 
 def cards_dir(state_root: Path) -> Path:
     return state_root / "cards"
 
 
 def _field(label: str, value: Any, width: int = 11) -> str:
+    assert label in CARD_LABELS, f"{label!r} is not in the card vocabulary"
     if isinstance(value, (list, tuple)):
-        value = ", ".join(str(v) for v in value) or "none"
-    return f"{label.ljust(width)} {_clip(value, 200)}"
+        value = ", ".join(str(v) for v in value) or CLEAN
+    text = _clip(value, 200) or CLEAN
+    return f"{label.ljust(width)} {text}"
 
 
 def _list_field(label: str, values: Any, width: int = 11) -> list[str]:
     if not values:
-        return [_field(label, "none", width)]
+        return [_field(label, CLEAN, width)]
     if isinstance(values, str):
         values = [values]
     lines = [_field(label, values[0], width)]
@@ -574,9 +596,16 @@ def render_card(kind: str, projection: dict[str, Any], grant: dict[str, Any] | N
         lines.extend(_list_field("GUARDED", enforcement.get("hook_guarded")))
         lines.extend(_list_field("UNCOVERED", enforcement.get("uncovered")))
         lines.extend(_list_field("DELIVERY", grant.get("delivery_authorized")))
+        coverage = grant.get("assumption_coverage") or {}
+        lines.extend(_list_field("ASSUMES", [a.get("statement") for a in grant.get("assumptions") or []]))
+        lines.append(_field("UNLISTED", coverage.get("residual_unlisted_risk")))
+        probe = grant.get("representative_probe") or {}
+        lines.append(_field("PROBE", probe.get("probe") or probe.get("waived_reason")))
         lines.append("")
         lines.append(_field("OWNER", projection.get("owner")))
         lines.append(_field("ATTENTION", "released until exception or readiness handoff"))
+        lines.append("")
+        lines.append(_field("RESPOND", "AUTHORIZE | REVISE | STOP"))
 
     elif kind == "ready":
         lines.append(f"CANDIDATE READY  {projection.get('active_candidate')}")
@@ -602,7 +631,7 @@ def render_card(kind: str, projection: dict[str, Any], grant: dict[str, Any] | N
             lines.append(f"  {_clip(obs.get('promise'), 90)}")
             lines.append(f"    -> {obs.get('result')}: {_clip(obs.get('evidence') or obs.get('observation'), 90)}")
             if obs.get("limitations"):
-                lines.append(f"       limits: {_clip(obs['limitations'], 90)}")
+                lines.append(f"       LIMITS {_clip(obs['limitations'], 90)}")
         outcome = result.get("representative_outcome") or {}
         if outcome:
             lines.append("")
@@ -623,8 +652,8 @@ def render_card(kind: str, projection: dict[str, Any], grant: dict[str, Any] | N
         lines.append("")
         lines.append("VERIFIER VERDICT AND RECOMMENDATION WITHHELD")
         lines.append("")
-        lines.append("YOUR CALL   ready | not ready | inspect <one named artifact>")
-        lines.append("THEN STATE  the decisive observation or mismatch, one sentence")
+        lines.append(_field("RESPOND", "READY | NOT READY | INSPECT <one artifact>"))
+        lines.append(_field("THEN STATE", "the decisive observation or mismatch, one sentence"))
 
     elif kind == "exception":
         attention = projection.get("attention") or {}
@@ -636,7 +665,7 @@ def render_card(kind: str, projection: dict[str, Any], grant: dict[str, Any] | N
         lines.append(_field("PRESERVED", projection.get("safe_point")))
         lines.append(_field("AUTHORITY", f"{grant.get('id')} no longer sufficient"))
         lines.append("")
-        lines.append("BOUNDED DECISION follows; no divergent work until authority is restored.")
+        lines.append(_field("RESPOND", "one bounded decision; no divergent work until authority is restored"))
 
     elif kind == "closed":
         lines.append(f"CLOSED      {projection.get('outcome')}")

@@ -236,7 +236,7 @@ def test_source_package_declares_claude_only() -> None:
 def test_claude_publication_carries_every_declared_surface() -> None:
     manifest = json.loads((PUBLISHED / ".claude-plugin" / "plugin.json").read_text(encoding="utf-8"))
     assert manifest["name"] == "attention-workflow"
-    assert manifest["version"] == "0.3.0"
+    assert manifest["version"] == "0.4.0"
     # Experimental: installing the marketplace must not switch the lifecycle
     # out from under an in-flight spec-flow change.
     assert manifest["defaultEnabled"] is False
@@ -305,7 +305,7 @@ def test_claude_registry_lists_the_package() -> None:
         )
     )
     entry = next(p for p in registry["plugins"] if p["name"] == "attention-workflow")
-    assert entry["version"] == "0.3.0"
+    assert entry["version"] == "0.4.0"
 
 
 def test_verifier_agent_is_read_and_execute_only() -> None:
@@ -584,8 +584,41 @@ def test_reconcile_card_leads_with_the_frame_and_withholds_the_verdict(
     )
 
     assert "VERIFIER VERDICT AND RECOMMENDATION WITHHELD" in out
-    assert "deliver" not in out.lower().split("your call")[0]
-    assert "YOUR CALL" in out and "THEN STATE" in out
+    # The verifier's recommendation ("deliver") must not appear anywhere above
+    # the operator's own call.
+    assert "deliver" not in out.lower().split("respond")[0]
+    assert "RESPOND" in out and "THEN STATE" in out
+
+
+def test_card_labels_are_a_closed_vocabulary(env: dict[str, str], tmp_path: Path) -> None:
+    """One label, one meaning, one slot — a synonym defeats the whole point."""
+    with pytest.raises(AssertionError):
+        aw_state._field("GOAL", "a synonym for QUESTION")
+    assert "QUESTION" in aw_state.CARD_LABELS
+    for synonym in ("GOAL", "INTENT", "SUMMARY", "NOTES", "STATUS"):
+        assert synonym not in aw_state.CARD_LABELS, synonym
+
+
+def test_empty_fields_state_the_finding_rather_than_going_silent(
+    env: dict[str, str], tmp_path: Path
+) -> None:
+    """'No new adverse context' is a finding; an absent line is an open question."""
+    grant = open_change(env, tmp_path)
+    _completed_run(env, tmp_path, grant)
+    out = helper(env, "card", "reconcile").stdout
+
+    assert f"NEW         {aw_state.CLEAN}" in out
+    assert f"DEVIATION   {aw_state.CLEAN}" in out
+    assert "PRIOR       one deprecation warning" in out
+
+
+def test_actionable_cards_name_their_response_tokens(
+    env: dict[str, str], tmp_path: Path
+) -> None:
+    grant = open_change(env, tmp_path)
+    assert "RESPOND     AUTHORIZE | REVISE | STOP" in helper(env, "card", "authorize").stdout
+    _completed_run(env, tmp_path, grant)
+    assert "RESPOND     READY | NOT READY | INSPECT" in helper(env, "card", "reconcile").stdout
 
 
 def test_cards_never_leak_python_list_syntax(env: dict[str, str], tmp_path: Path) -> None:
