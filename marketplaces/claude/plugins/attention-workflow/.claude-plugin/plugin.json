@@ -1,6 +1,6 @@
 {
   "name": "attention-workflow",
-  "version": "0.4.0",
+  "version": "0.5.0",
   "description": "EXPERIMENTAL, Claude-only. An attention-regulating development lifecycle — Frame, Design, Prepare, authorize, Implement, Verify, Deliver, Close — carried by one orchestration skill over local run state. Versioned grants are create-only and supersede rather than rewrite; an independent verifier derives the actual route itself and its verdict stays withheld until the operator commits a judgment; narrow PreToolUse guards deny grant rewrites and unauthorized pushes. Supersedes spec-flow while enabled.",
   "author": {
     "name": "Jacob Hoehler"

@@ -236,7 +236,7 @@ def test_source_package_declares_claude_only() -> None:
 def test_claude_publication_carries_every_declared_surface() -> None:
     manifest = json.loads((PUBLISHED / ".claude-plugin" / "plugin.json").read_text(encoding="utf-8"))
     assert manifest["name"] == "attention-workflow"
-    assert manifest["version"] == "0.4.0"
+    assert manifest["version"] == "0.5.0"
     # Experimental: installing the marketplace must not switch the lifecycle
     # out from under an in-flight spec-flow change.
     assert manifest["defaultEnabled"] is False
@@ -305,7 +305,7 @@ def test_claude_registry_lists_the_package() -> None:
         )
     )
     entry = next(p for p in registry["plugins"] if p["name"] == "attention-workflow")
-    assert entry["version"] == "0.4.0"
+    assert entry["version"] == "0.5.0"
 
 
 def test_verifier_agent_is_read_and_execute_only() -> None:
@@ -577,7 +577,7 @@ def test_reconcile_card_leads_with_the_frame_and_withholds_the_verdict(
 
     question_at = out.index("QUESTION")
     excludes_at = out.index("EXCLUDES")
-    evidence_at = out.index("PROMISED / OBSERVED")
+    evidence_at = out.index("promised / observed")
     assert question_at < excludes_at < evidence_at, (
         "the frame must precede the evidence; an hour after authorization it is "
         "the frame that has gone missing"
@@ -619,6 +619,41 @@ def test_actionable_cards_name_their_response_tokens(
     assert "RESPOND     AUTHORIZE | REVISE | STOP" in helper(env, "card", "authorize").stdout
     _completed_run(env, tmp_path, grant)
     assert "RESPOND     READY | NOT READY | INSPECT" in helper(env, "card", "reconcile").stdout
+
+
+def test_cards_fit_a_terminal_and_keep_the_label_column_clear(
+    env: dict[str, str], tmp_path: Path
+) -> None:
+    """A card the terminal wraps for you is a card that stops being scannable."""
+    grant = open_change(env, tmp_path, operator_question=(
+        "When I or an agent types a reference in the form the rules, skills, and "
+        "the CLI's own error text all prescribe, does resolve give the right "
+        "answer, and is it now impossible to be told coverage is missing when "
+        "the reference was merely prefixed?"
+    ))
+    _completed_run(env, tmp_path, grant)
+
+    for kind in ("authorize", "ready", "reconcile", "closed", "exception"):
+        out = helper(env, "card", kind).stdout
+        for line in out.splitlines():
+            assert len(line) <= aw_state.CARD_WIDTH_DEFAULT, f"{kind}: {line!r}"
+
+    out = helper(env, "card", "authorize").stdout
+    wrapped = [ln for ln in out.splitlines() if ln.startswith(" " * 12)]
+    assert wrapped, "the long question should have wrapped at all"
+    for line in wrapped:
+        # Continuation text must never land in the label column, or the labels
+        # stop reading as a column.
+        assert line[:12].strip() == ""
+
+
+def test_card_width_follows_the_environment(env: dict[str, str], tmp_path: Path) -> None:
+    open_change(env, tmp_path)
+    narrow = helper({**env, "AW_CARD_WIDTH": "56"}, "card", "authorize").stdout
+    assert max(len(ln) for ln in narrow.splitlines()) <= 56
+    # Out-of-range values clamp rather than producing an unreadable card.
+    absurd = helper({**env, "AW_CARD_WIDTH": "4"}, "card", "authorize").stdout
+    assert max(len(ln) for ln in absurd.splitlines()) <= aw_state.CARD_WIDTH_MIN
 
 
 def test_cards_never_leak_python_list_syntax(env: dict[str, str], tmp_path: Path) -> None:

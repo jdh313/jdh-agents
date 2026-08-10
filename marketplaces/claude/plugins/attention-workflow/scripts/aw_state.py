@@ -23,6 +23,7 @@ import re
 import subprocess
 import sys
 import tempfile
+import textwrap
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
@@ -554,26 +555,88 @@ CARD_LABELS = frozenset(
 CLEAN = "none observed"
 
 
+# A card is read in a terminal, so it has to fit one. Values used to run to a
+# single 200-character line, which the terminal then hard-wrapped at whatever
+# width it happened to be -- continuation text landed in the label column and
+# the card stopped being scannable. Everything is now laid out to a known
+# width, with continuation lines indented under the value column so the label
+# column stays a column.
+CARD_LABEL_WIDTH = 11
+CARD_WIDTH_DEFAULT = 72
+CARD_WIDTH_MIN = 48
+CARD_WIDTH_MAX = 120
+
+
+def card_width() -> int:
+    raw = os.environ.get("AW_CARD_WIDTH", "")
+    try:
+        width = int(raw)
+    except (TypeError, ValueError):
+        width = CARD_WIDTH_DEFAULT
+    return max(CARD_WIDTH_MIN, min(CARD_WIDTH_MAX, width))
+
+
 def cards_dir(state_root: Path) -> Path:
     return state_root / "cards"
 
 
-def _field(label: str, value: Any, width: int = 11) -> str:
+# The operator question is the one field that must never be shortened: it is
+# the thing being decided, and a clipped question is a different question.
+CARD_ITEM_LIMIT = 240
+CARD_UNCLIPPED = ("QUESTION",)
+
+
+def _lay(label: str, items: list[str], bullet: bool, width: int) -> list[str]:
+    """Lay one label against one or more values, wrapped to the card width."""
     assert label in CARD_LABELS, f"{label!r} is not in the card vocabulary"
+    body = max(20, card_width() - width - 1)
+    prefix = "- " if bullet else ""
+    limit = 10_000 if label in CARD_UNCLIPPED else CARD_ITEM_LIMIT
+    out: list[str] = []
+    for index, item in enumerate(items):
+        text = _clip(item, limit) or CLEAN
+        wrapped = textwrap.wrap(
+            prefix + text,
+            width=body,
+            subsequent_indent=" " * len(prefix),
+            # A hyphen is not a wrap point here: "pre-existing" split across
+            # two lines reads as a typo, not as a wrapped word.
+            break_on_hyphens=False,
+        ) or [CLEAN]
+        gutter = label.ljust(width) if index == 0 else " " * width
+        out.append(f"{gutter} {wrapped[0]}")
+        out.extend(" " * (width + 1) + line for line in wrapped[1:])
+    return out
+
+
+def _field(label: str, value: Any, width: int = CARD_LABEL_WIDTH) -> str:
     if isinstance(value, (list, tuple)):
         value = ", ".join(str(v) for v in value) or CLEAN
-    text = _clip(value, 200) or CLEAN
-    return f"{label.ljust(width)} {text}"
+    return "\n".join(_lay(label, [str(value or CLEAN)], False, width))
 
 
-def _list_field(label: str, values: Any, width: int = 11) -> list[str]:
+def _list_field(label: str, values: Any, width: int = CARD_LABEL_WIDTH) -> list[str]:
     if not values:
         return [_field(label, CLEAN, width)]
     if isinstance(values, str):
         values = [values]
-    lines = [_field(label, values[0], width)]
-    lines.extend(" " * (width + 1) + _clip(v, 200) for v in values[1:])
-    return lines
+    items = [str(v) for v in values if str(v or "").strip()]
+    if not items:
+        return [_field(label, CLEAN, width)]
+    # A single value needs no bullet; several do, or a wrapped item reads as
+    # two items.
+    return _lay(label, items, len(items) > 1, width)
+
+
+def _rule(caption: str) -> str:
+    """A section divider.
+
+    Deliberately lowercase and dashed: it must not read as a field label. The
+    controlled vocabulary is for slots that carry facts, and a divider carries
+    none -- it only tells the eye where one kind of question ends.
+    """
+    head = f"-- {caption} "
+    return "\n" + head + "-" * max(3, card_width() - len(head))
 
 
 def render_card(kind: str, projection: dict[str, Any], grant: dict[str, Any] | None,
@@ -583,28 +646,48 @@ def render_card(kind: str, projection: dict[str, Any], grant: dict[str, Any] | N
     lines: list[str] = []
 
     if kind == "authorize":
+        # Five sections, in the order the decision is actually made: what is
+        # being asked, what would count as an answer, what the answer rests on,
+        # what would catch a breach, and what you say back. Flat, it was twelve
+        # undifferentiated fields and the eye had nowhere to rest.
         lines.append(f"AUTHORIZED  {grant.get('id')}"
                      + (f"  supersedes {grant['supersedes']}" if grant.get("supersedes") else ""))
-        lines.append("")
+        lines.append(_rule("the question"))
         lines.append(_field("QUESTION", grant.get("operator_question")))
+
+        lines.append(_rule("what would answer it"))
         lines.extend(_list_field("PROMISE", grant.get("promise")))
-        lines.extend(_list_field("EXCLUDES", grant.get("exclusions")))
         lines.extend(_list_field("ROUTE", grant.get("route")))
+        probe = grant.get("representative_probe") or {}
+        lines.append(_field("PROBE", probe.get("probe") or probe.get("waived_reason")))
+        baseline = grant.get("baseline")
+        if isinstance(baseline, dict):
+            baseline_text = baseline.get("description") or CLEAN
+            if baseline.get("classified") is False:
+                baseline_text += " (pre-existing failures not classified)"
+        else:
+            baseline_text = baseline
+        lines.append(_field("BASELINE", baseline_text))
+
+        lines.append(_rule("what it rests on"))
+        coverage = grant.get("assumption_coverage") or {}
+        lines.extend(
+            _list_field("ASSUMES", [a.get("statement") for a in grant.get("assumptions") or []])
+        )
+        lines.append(_field("UNLISTED", coverage.get("residual_unlisted_risk")))
+
+        lines.append(_rule("where autonomy stops"))
+        lines.extend(_list_field("EXCLUDES", grant.get("exclusions")))
         tolerances = grant.get("tolerances") or {}
-        lines.extend(_list_field("STOP BEFORE", tolerances.get("stop_before"), 11))
+        lines.extend(_list_field("STOP BEFORE", tolerances.get("stop_before")))
         enforcement = grant.get("enforcement") or {}
         lines.extend(_list_field("GUARDED", enforcement.get("hook_guarded")))
         lines.extend(_list_field("UNCOVERED", enforcement.get("uncovered")))
         lines.extend(_list_field("DELIVERY", grant.get("delivery_authorized")))
-        coverage = grant.get("assumption_coverage") or {}
-        lines.extend(_list_field("ASSUMES", [a.get("statement") for a in grant.get("assumptions") or []]))
-        lines.append(_field("UNLISTED", coverage.get("residual_unlisted_risk")))
-        probe = grant.get("representative_probe") or {}
-        lines.append(_field("PROBE", probe.get("probe") or probe.get("waived_reason")))
-        lines.append("")
+
+        lines.append(_rule("your response"))
         lines.append(_field("OWNER", projection.get("owner")))
         lines.append(_field("ATTENTION", "released until exception or readiness handoff"))
-        lines.append("")
         lines.append(_field("RESPOND", "AUTHORIZE | REVISE | STOP"))
 
     elif kind == "ready":
@@ -620,36 +703,51 @@ def render_card(kind: str, projection: dict[str, Any], grant: dict[str, Any] | N
         result = run.get("result") or {}
         lines.append(f"RECONCILE   run {run.get('id')}  grant {run.get('grant')}  "
                      f"candidate {run.get('candidate')}")
-        lines.append("")
         # The frame comes first on purpose. Eight promise bullets an hour after
         # authorization is where the bigger picture goes missing.
+        lines.append(_rule("the question you asked"))
         lines.append(_field("QUESTION", grant.get("operator_question")))
         lines.extend(_list_field("EXCLUDES", grant.get("exclusions")))
-        lines.append("")
-        lines.append("PROMISED / OBSERVED")
+
+        lines.append(_rule("promised / observed"))
+        body = max(24, card_width() - 6)
         for obs in result.get("observations") or []:
-            lines.append(f"  {_clip(obs.get('promise'), 90)}")
-            lines.append(f"    -> {obs.get('result')}: {_clip(obs.get('evidence') or obs.get('observation'), 90)}")
+            lines.extend(
+                textwrap.wrap(_clip(obs.get("promise"), CARD_ITEM_LIMIT), width=body,
+                              initial_indent="  ", subsequent_indent="  ",
+                              break_on_hyphens=False)
+            )
+            evidence = _clip(obs.get("evidence") or obs.get("observation"), CARD_ITEM_LIMIT)
+            lines.extend(
+                textwrap.wrap(f"{obs.get('result')}: {evidence}", width=body,
+                              initial_indent="    -> ", subsequent_indent="       ",
+                              break_on_hyphens=False)
+            )
             if obs.get("limitations"):
-                lines.append(f"       LIMITS {_clip(obs['limitations'], 90)}")
+                lines.extend(
+                    textwrap.wrap(f"LIMITS {_clip(obs['limitations'], CARD_ITEM_LIMIT)}",
+                                  width=body, initial_indent="       ",
+                                  subsequent_indent="              ",
+                                  break_on_hyphens=False)
+                )
         outcome = result.get("representative_outcome") or {}
         if outcome:
-            lines.append("")
+            lines.append(_rule("the outcome itself"))
             lines.append(_field("OUTCOME", outcome.get("answer")))
             lines.append(_field("ANSWERS Q", "yes" if outcome.get("answers_the_question") else "NO"))
         route = result.get("route") or {}
         if route:
-            lines.append("")
+            lines.append(_rule("route taken"))
             lines.extend(_list_field("PLANNED", route.get("planned")))
             lines.extend(_list_field("DERIVED", route.get("verifier_derived_actual")))
             lines.extend(_list_field("DEVIATION", route.get("material_deviations")))
         context = result.get("context") or {}
         if context:
-            lines.append("")
+            lines.append(_rule("context around it"))
             lines.extend(_list_field("NEW", context.get("new")))
             lines.extend(_list_field("PRIOR", context.get("pre_existing")))
             lines.extend(_list_field("UNCLASSED", context.get("unclassified")))
-        lines.append("")
+        lines.append(_rule("your judgment first"))
         lines.append("VERIFIER VERDICT AND RECOMMENDATION WITHHELD")
         lines.append("")
         lines.append(_field("RESPOND", "READY | NOT READY | INSPECT <one artifact>"))
@@ -1214,7 +1312,10 @@ def cmd_card(args: argparse.Namespace) -> int:
     text = render_card(args.kind, projection, grant, run)
     path = write_card(state_root, args.kind, text)
     sys.stdout.write(text + "\n\n")
-    sys.stdout.write(f"[card saved: {path}]\n")
+    # The absolute state path is 150+ characters and would be the one line the
+    # terminal wraps. The root is already in the session context; the card's
+    # own name is what an operator needs to find it again.
+    sys.stdout.write(f"[saved: cards/{path.name}]\n")
     return 0
 
 
