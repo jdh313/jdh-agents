@@ -34,24 +34,36 @@ Immediate, automatic feedback with zero JavaScript: a radio input plus a CSS
 should be the same word/character length so formatting leaks no clue.
 
 ```html
-<div class="tl-quiz" markdown="1">
-
-Which builds storage strength?
-
+<div class="tl-quiz">
+<p class="tl-quiz-q"><strong>Which builds storage strength?</strong></p>
 <label class="tl-quiz-opt"><input type="radio" name="q1"> Massed cramming the night before</label>
 <div class="tl-quiz-feedback tl-no">Not quite — try again.</div>
-
 <label class="tl-quiz-opt"><input type="radio" name="q1"> Spaced retrieval over several days</label>
 <div class="tl-quiz-feedback tl-ok">Correct.</div>
-
 </div>
 ```
 
 Each option is its own radio + the feedback div that immediately follows it;
 checking the radio reveals only that option's feedback via the sibling
 selector — there's nothing to grade, the correct option's feedback text
-just says so. `markdown="1"` keeps Obsidian rendering the question text and
-any inline formatting inside the block as markdown, not raw HTML.
+just says so.
+
+**Write the quiz as one unbroken run of lines.** No blank lines anywhere
+inside the block, and no `markdown="1"`. This is not cosmetic: a blank line
+ends the HTML block, so the next chunk begins with an inline `<label>`,
+which Obsidian wraps in a `<p>`; the browser then auto-closes that `<p>` at
+the following `<div>`, and the feedback div stops being the label's sibling.
+The `+` selector no longer matches and **that option silently reveals
+nothing** — no error, just a dead radio. Opening with the block-level
+`<p class="tl-quiz-q">` is what protects the first option from the same fate
+(a markdown question paragraph above it absorbs it identically).
+
+The consequence: nothing inside the block is parsed as markdown, so use
+`<strong>` and `<code>` inline rather than `**` and backticks.
+
+**Vary which position holds the correct answer** across a lesson's quizzes.
+Always-first is a position tell that lets recognition substitute for recall —
+the exact failure the quiz exists to catch.
 
 ### Reveal / spoiler — desirable difficulty before the answer
 

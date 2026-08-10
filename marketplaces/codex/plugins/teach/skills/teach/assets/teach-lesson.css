@@ -19,22 +19,28 @@
 /* ---- Quiz -------------------------------------------------------------
  * Markdown shape (see LESSON-DESIGN-SYSTEM.md for the full snippet):
  *
- * <div class="tl-quiz" markdown="1">
- *
- * Which builds storage strength?
- *
+ * <div class="tl-quiz">
+ * <p class="tl-quiz-q"><strong>Which builds storage strength?</strong></p>
  * <label class="tl-quiz-opt"><input type="radio" name="q1"> Massed cramming the night before</label>
  * <div class="tl-quiz-feedback tl-no">Not quite — try again.</div>
- *
  * <label class="tl-quiz-opt"><input type="radio" name="q1"> Spaced retrieval over several days</label>
  * <div class="tl-quiz-feedback tl-ok">Correct.</div>
- *
  * </div>
  *
  * Each option is its own radio + adjacent feedback div; :checked reveals
  * the feedback that immediately follows the checked input via the sibling
  * combinator. No JS, no grading logic — the correct option's feedback IS
  * the "Correct." text, so there is nothing to compute.
+ *
+ * BLOCK CONTIGUITY IS LOAD-BEARING. Write the whole quiz as one unbroken run
+ * of lines: no blank lines anywhere inside the block, and no `markdown="1"`.
+ * A blank line ends the HTML block, so the next chunk starts with an inline
+ * <label>, which Obsidian wraps in a <p>; the browser then auto-closes that
+ * <p> at the following <div>, and the feedback div is no longer the label's
+ * sibling — that option silently stops responding. Opening with the
+ * block-level <p class="tl-quiz-q"> is what keeps the first option safe.
+ * Consequence: the question and options carry no markdown, so use <strong>
+ * and <code> inline rather than ** and backticks.
  */
 .tl-quiz {
   border: 1px solid var(--background-modifier-border);
@@ -44,15 +50,35 @@
   background: var(--background-secondary);
 }
 
+/* Question line. Raw <p> (not a markdown paragraph) so the options that follow
+ * stay in the same HTML block — see the block-contiguity note above. */
+.tl-quiz-q {
+  margin: 0 0 0.6em;
+}
+
 .tl-quiz-opt {
-  display: block;
+  display: flex;
+  align-items: baseline;
+  gap: 0.5em;
   cursor: pointer;
-  padding: 0.25em 0;
+  padding: 0.25em 0.4em;
+  border-radius: var(--radius-s, 4px);
+  transition: background-color 120ms ease;
+}
+
+.tl-quiz-opt:hover {
+  background: var(--background-modifier-hover);
+}
+
+/* Once an option is picked, recede the ones not picked so the eye lands on the
+ * choice made and its feedback, not on the full menu. */
+.tl-quiz:has(input:checked) .tl-quiz-opt:not(:has(input:checked)) {
+  opacity: 0.55;
 }
 
 .tl-quiz-feedback {
   display: none;
-  margin: 0.15em 0 0.6em 1.6em;
+  margin: 0.15em 0 0.6em 1.9em;
   font-size: 0.9em;
   font-weight: var(--font-medium, 500);
 }
