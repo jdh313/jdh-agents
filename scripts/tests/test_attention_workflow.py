@@ -236,7 +236,7 @@ def test_source_package_declares_claude_only() -> None:
 def test_claude_publication_carries_every_declared_surface() -> None:
     manifest = json.loads((PUBLISHED / ".claude-plugin" / "plugin.json").read_text(encoding="utf-8"))
     assert manifest["name"] == "attention-workflow"
-    assert manifest["version"] == "0.1.0"
+    assert manifest["version"] == "0.2.0"
     # Experimental: installing the marketplace must not switch the lifecycle
     # out from under an in-flight spec-flow change.
     assert manifest["defaultEnabled"] is False
@@ -261,6 +261,9 @@ def test_claude_publication_carries_every_declared_surface() -> None:
     skill = (PUBLISHED / "skills" / "workflow" / "SKILL.md").read_text(encoding="utf-8")
     assert "name: workflow" in skill
     assert "Frame -> Design -> Prepare --authorize--> Implement" in skill
+    # Run 1 left an ordinary defect recorded as verify -> verify; the skill must
+    # spell out the phase change so the record stays honest about who is acting.
+    assert "--phase implement --owner execution" in skill
     assert "VERIFIER VERDICT" in skill or "no verdict, no recommendation" in skill
 
     agent = (PUBLISHED / "agents" / "workflow-verifier.md").read_text(encoding="utf-8")
@@ -302,7 +305,7 @@ def test_claude_registry_lists_the_package() -> None:
         )
     )
     entry = next(p for p in registry["plugins"] if p["name"] == "attention-workflow")
-    assert entry["version"] == "0.1.0"
+    assert entry["version"] == "0.2.0"
 
 
 def test_verifier_agent_is_read_and_execute_only() -> None:
@@ -513,6 +516,53 @@ def test_sessionstart_reports_an_active_change(
     assert "independent verification result" in context
     assert "candidate c2 awaiting verification" in context
     assert "not chat history" in context
+
+
+def test_sessionstart_collapses_a_closed_change_to_one_line(
+    env: dict[str, str], tmp_path: Path, git_repo: Path
+) -> None:
+    open_change(env, tmp_path)
+    helper(
+        env,
+        "transition",
+        "--phase",
+        "close",
+        "--owner",
+        "jacob",
+        "--outcome",
+        "delivered",
+        "--reason",
+        "delivered as authorized",
+        "--clear-attention",
+    )
+    context = run_hook(
+        SESSION_START_HOOK, {"hook_event_name": "SessionStart", "cwd": str(git_repo)}, env
+    )["hookSpecificOutput"]["additionalContext"]
+
+    assert context.count("\n") == 0, "a closed change must not reprint the full card"
+    assert "no active change" in context
+    assert "delivered" in context
+    assert "PHASE" not in context and "QUESTION" not in context
+
+
+def test_sessionstart_clips_a_long_operator_question(
+    env: dict[str, str], tmp_path: Path, git_repo: Path
+) -> None:
+    question = (
+        "When I or an agent type a reference in the form the rules, skills, and the CLI's own "
+        "error text all prescribe, does resolve give the right answer, and is it now impossible "
+        "to be told coverage is missing when the reference was merely prefixed?"
+    )
+    open_change(env, tmp_path, operator_question=question)
+    context = run_hook(
+        SESSION_START_HOOK, {"hook_event_name": "SessionStart", "cwd": str(git_repo)}, env
+    )["hookSpecificOutput"]["additionalContext"]
+
+    line = next(ln for ln in context.splitlines() if ln.startswith("QUESTION"))
+    assert len(line) <= 155, line
+    assert line.endswith("…")
+    # The record keeps the whole thing; only the card is clipped.
+    assert helper_json(env, "grant-show", "g1")["operator_question"] == question
 
 
 def test_sessionstart_reports_a_holding_condition_without_asking_for_a_decision(

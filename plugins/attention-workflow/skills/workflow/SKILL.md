@@ -242,9 +242,21 @@ notification produces no operator message and no state change. Never launch a
 second verification while a completed run exists for the same grant and
 candidate, and never record independent verification as inline.
 
-**Ordinary defect → back to Implement, silently.** Same authority, history
-records the reason, no interactive turn, and the final evidence keeps the
-failed and corrected observation.
+**Ordinary defect → back to Implement, silently.** A defect plainly inside the
+promise, route, and verification plan does not touch Jacob and does not
+supersede authority. Record the move as a real phase change — do **not** leave
+the change sitting in Verify while implementation edits code, or the record
+cannot distinguish "the verifier is judging" from "the implementer is fixing":
+
+```bash
+python3 "$HELPER" transition --phase implement --owner execution \
+  --reason "ordinary defect returned to implementation under g1: <what failed>"
+```
+
+Then correct it, present a **new** candidate, and mint a **new** verification
+run bound to the same grant. A corrected candidate is a new candidate; it never
+reuses the prior run's identity. The final evidence keeps both the failed and
+the corrected observation.
 
 ### Reconciliation — the one place recommendation-first is forbidden
 

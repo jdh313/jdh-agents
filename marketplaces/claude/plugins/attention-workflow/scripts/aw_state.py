@@ -413,10 +413,28 @@ def _bullets(label: str, values: Any, limit: int = 4) -> list[str]:
     return lines
 
 
+def _clip(text: Any, limit: int = 140) -> str:
+    """Keep the card scannable. The full text always stays in the record."""
+    value = str(text or "").strip().replace("\n", " ")
+    if len(value) <= limit:
+        return value
+    return value[: limit - 1].rstrip() + "…"
+
+
 def render_context(projection: dict[str, Any]) -> str:
     """Compact orientation text for a fresh, resumed, or forked session."""
     if projection.get("status") == "no-state":
         return ""
+
+    # A closed change owns no attention. Reprinting its whole card in every
+    # later session is exactly the ceremony this workflow exists to remove, so
+    # it collapses to one line that says the thread is released.
+    if projection.get("closed") and projection.get("status") == "ok":
+        return (
+            f"ATTENTION-WORKFLOW: no active change. Last change "
+            f"{projection.get('change_id')} is {projection.get('outcome') or 'closed'}; "
+            "attention released. Ask for its state only if you need the history."
+        )
 
     lines = ["ATTENTION-WORKFLOW STATE (loaded from local run state, not chat history)"]
     lines.append("")
@@ -450,7 +468,7 @@ def render_context(projection: dict[str, Any]) -> str:
             + (f" (supersedes {grant['supersedes']})" if grant.get("supersedes") else "")
         )
         if grant.get("operator_question"):
-            lines.append(f"QUESTION   {grant['operator_question']}")
+            lines.append(f"QUESTION   {_clip(grant['operator_question'])}")
     else:
         lines.append("AUTHORITY  none recorded")
 
