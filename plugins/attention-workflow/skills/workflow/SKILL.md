@@ -45,6 +45,30 @@ it once and reuse the absolute path for the rest of the change.
 Never hand-edit anything under the state root. Grants are create-only and the
 guard hook denies direct writes on the declared tool surfaces.
 
+## Never write a card yourself
+
+Cards are **rendered by the helper**, not composed by you:
+
+```bash
+python3 "$HELPER" card authorize     # after the grant is created
+python3 "$HELPER" card ready         # at the readiness handoff
+python3 "$HELPER" card reconcile     # instead of run-evidence, at reconciliation
+python3 "$HELPER" card exception     # at handback
+python3 "$HELPER" card closed        # at close
+python3 "$HELPER" card status        # on demand
+```
+
+Each renders a fixed field set in a fixed order, prints it, and saves it to
+`<state root>/cards/NNN-<kind>.txt` so it stays readable after the chat scrolls
+or compacts. Show the rendered block verbatim in a fenced code block. Do not
+paraphrase it, reorder it, summarize it, or expand it into paragraphs — a card
+restated as prose is not a card, and the operator loses the one artifact they
+can return to an hour later.
+
+Cards that demand an action (`authorize`, `reconcile`, `exception`) go inline.
+Purely orienting ones (`ready`, `closed`) may be reduced to a one-line receipt
+plus the saved path.
+
 ## Three interaction classes — choose deliberately every time
 
 | Class | When | Shape |
@@ -261,10 +285,12 @@ the corrected observation.
 ### Reconciliation — the one place recommendation-first is forbidden
 
 ```bash
-python3 "$HELPER" run-evidence v1     # verdict and recommendation stripped
+python3 "$HELPER" card reconcile      # verdict and recommendation stripped
 ```
 
-Show Jacob:
+The card opens with the operator question and the exclusions before any
+evidence — an hour after authorization, that frame is what has gone missing,
+and eight promise bullets will not restore it. Then it shows:
 
 - each promised outcome against the observation actually performed, the command,
   and the result;

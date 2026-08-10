@@ -236,7 +236,7 @@ def test_source_package_declares_claude_only() -> None:
 def test_claude_publication_carries_every_declared_surface() -> None:
     manifest = json.loads((PUBLISHED / ".claude-plugin" / "plugin.json").read_text(encoding="utf-8"))
     assert manifest["name"] == "attention-workflow"
-    assert manifest["version"] == "0.2.0"
+    assert manifest["version"] == "0.3.0"
     # Experimental: installing the marketplace must not switch the lifecycle
     # out from under an in-flight spec-flow change.
     assert manifest["defaultEnabled"] is False
@@ -305,7 +305,7 @@ def test_claude_registry_lists_the_package() -> None:
         )
     )
     entry = next(p for p in registry["plugins"] if p["name"] == "attention-workflow")
-    assert entry["version"] == "0.2.0"
+    assert entry["version"] == "0.3.0"
 
 
 def test_verifier_agent_is_read_and_execute_only() -> None:
@@ -516,6 +516,84 @@ def test_sessionstart_reports_an_active_change(
     assert "independent verification result" in context
     assert "candidate c2 awaiting verification" in context
     assert "not chat history" in context
+
+
+def _completed_run(env: dict[str, str], tmp_path: Path, grant: str) -> None:
+    helper(env, "run-create", "--grant", grant, "--candidate", "c1")
+    result = tmp_path / "verifier.json"
+    result.write_text(
+        json.dumps(
+            {
+                "verdict": "pass",
+                "recommendation": "deliver",
+                "observations": [
+                    {"promise": "exits 0 for valid configuration", "result": "met",
+                     "command": "cli --check ok.toml", "evidence": "exit 0"}
+                ],
+                "representative_outcome": {"answer": "named key and rule",
+                                           "answers_the_question": True},
+                "route": {"planned": ["reuse validator"],
+                          "verifier_derived_actual": ["validator reused"],
+                          "material_deviations": []},
+                "context": {"new": [], "pre_existing": ["one deprecation warning"],
+                            "unclassified": []},
+            }
+        ),
+        encoding="utf-8",
+    )
+    helper(env, "run-complete", "v1", "--result", str(result))
+    helper(env, "transition", "--phase", "verify", "--owner", "jacob",
+           "--active-verification-run", "v1", "--active-candidate", "c1",
+           "--reason", "candidate presented as ready")
+
+
+def test_cards_are_rendered_by_the_helper_and_saved_to_disk(
+    env: dict[str, str], tmp_path: Path, state_root: Path
+) -> None:
+    open_change(env, tmp_path)
+    out = helper(env, "card", "authorize").stdout
+
+    assert out.startswith("AUTHORIZED  g1")
+    for label in ("QUESTION", "PROMISE", "EXCLUDES", "ROUTE", "STOP BEFORE",
+                  "GUARDED", "UNCOVERED", "DELIVERY", "OWNER", "ATTENTION"):
+        assert label in out, label
+
+    saved = state_root / "cards" / "001-authorize.txt"
+    assert saved.is_file()
+    assert saved.read_text(encoding="utf-8").startswith("AUTHORIZED  g1")
+
+    # Rendering again appends rather than overwriting: the card an operator
+    # returns to an hour later must not be clobbered.
+    helper(env, "card", "authorize")
+    assert (state_root / "cards" / "002-authorize.txt").is_file()
+
+
+def test_reconcile_card_leads_with_the_frame_and_withholds_the_verdict(
+    env: dict[str, str], tmp_path: Path
+) -> None:
+    grant = open_change(env, tmp_path)
+    _completed_run(env, tmp_path, grant)
+    out = helper(env, "card", "reconcile").stdout
+
+    question_at = out.index("QUESTION")
+    excludes_at = out.index("EXCLUDES")
+    evidence_at = out.index("PROMISED / OBSERVED")
+    assert question_at < excludes_at < evidence_at, (
+        "the frame must precede the evidence; an hour after authorization it is "
+        "the frame that has gone missing"
+    )
+
+    assert "VERIFIER VERDICT AND RECOMMENDATION WITHHELD" in out
+    assert "deliver" not in out.lower().split("your call")[0]
+    assert "YOUR CALL" in out and "THEN STATE" in out
+
+
+def test_cards_never_leak_python_list_syntax(env: dict[str, str], tmp_path: Path) -> None:
+    grant = open_change(env, tmp_path)
+    _completed_run(env, tmp_path, grant)
+    for kind in ("authorize", "ready", "reconcile"):
+        out = helper(env, "card", kind).stdout
+        assert "['" not in out and "']" not in out, f"{kind} leaked a list repr"
 
 
 def test_sessionstart_collapses_a_closed_change_to_one_line(

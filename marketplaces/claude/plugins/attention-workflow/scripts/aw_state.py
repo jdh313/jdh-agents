@@ -519,6 +519,152 @@ def render_context(projection: dict[str, Any]) -> str:
 
 
 # ---------------------------------------------------------------------------
+# Cards
+# ---------------------------------------------------------------------------
+#
+# Cards are rendered here, not written as prose by the agent. A card produced
+# from a description drifts into chat paragraphs on the first run that is in a
+# hurry -- which is exactly what happened. Rendering them makes the field set,
+# the order, and the wording the same every time, and makes them testable.
+#
+# Every card is also written to <state root>/cards/ so it stays readable after
+# the chat scrolls or compacts. The authorization card is the one an operator
+# needs an hour later, at reconciliation.
+
+CARD_KINDS = ("authorize", "ready", "reconcile", "closed", "exception", "status")
+
+
+def cards_dir(state_root: Path) -> Path:
+    return state_root / "cards"
+
+
+def _field(label: str, value: Any, width: int = 11) -> str:
+    if isinstance(value, (list, tuple)):
+        value = ", ".join(str(v) for v in value) or "none"
+    return f"{label.ljust(width)} {_clip(value, 200)}"
+
+
+def _list_field(label: str, values: Any, width: int = 11) -> list[str]:
+    if not values:
+        return [_field(label, "none", width)]
+    if isinstance(values, str):
+        values = [values]
+    lines = [_field(label, values[0], width)]
+    lines.extend(" " * (width + 1) + _clip(v, 200) for v in values[1:])
+    return lines
+
+
+def render_card(kind: str, projection: dict[str, Any], grant: dict[str, Any] | None,
+                run: dict[str, Any] | None) -> str:
+    grant = grant or {}
+    run = run or {}
+    lines: list[str] = []
+
+    if kind == "authorize":
+        lines.append(f"AUTHORIZED  {grant.get('id')}"
+                     + (f"  supersedes {grant['supersedes']}" if grant.get("supersedes") else ""))
+        lines.append("")
+        lines.append(_field("QUESTION", grant.get("operator_question")))
+        lines.extend(_list_field("PROMISE", grant.get("promise")))
+        lines.extend(_list_field("EXCLUDES", grant.get("exclusions")))
+        lines.extend(_list_field("ROUTE", grant.get("route")))
+        tolerances = grant.get("tolerances") or {}
+        lines.extend(_list_field("STOP BEFORE", tolerances.get("stop_before"), 11))
+        enforcement = grant.get("enforcement") or {}
+        lines.extend(_list_field("GUARDED", enforcement.get("hook_guarded")))
+        lines.extend(_list_field("UNCOVERED", enforcement.get("uncovered")))
+        lines.extend(_list_field("DELIVERY", grant.get("delivery_authorized")))
+        lines.append("")
+        lines.append(_field("OWNER", projection.get("owner")))
+        lines.append(_field("ATTENTION", "released until exception or readiness handoff"))
+
+    elif kind == "ready":
+        lines.append(f"CANDIDATE READY  {projection.get('active_candidate')}")
+        lines.append("")
+        lines.append(_field("MOVED", "implement -> verify", 12))
+        lines.append(_field("AUTHORITY", grant.get("id"), 12))
+        lines.append(_field("RUN", projection.get("active_verification_run"), 12))
+        lines.append(_field("OWNER", "independent verifier", 12))
+        lines.append(_field("ACTION", "none", 12))
+
+    elif kind == "reconcile":
+        result = run.get("result") or {}
+        lines.append(f"RECONCILE   run {run.get('id')}  grant {run.get('grant')}  "
+                     f"candidate {run.get('candidate')}")
+        lines.append("")
+        # The frame comes first on purpose. Eight promise bullets an hour after
+        # authorization is where the bigger picture goes missing.
+        lines.append(_field("QUESTION", grant.get("operator_question")))
+        lines.extend(_list_field("EXCLUDES", grant.get("exclusions")))
+        lines.append("")
+        lines.append("PROMISED / OBSERVED")
+        for obs in result.get("observations") or []:
+            lines.append(f"  {_clip(obs.get('promise'), 90)}")
+            lines.append(f"    -> {obs.get('result')}: {_clip(obs.get('evidence') or obs.get('observation'), 90)}")
+            if obs.get("limitations"):
+                lines.append(f"       limits: {_clip(obs['limitations'], 90)}")
+        outcome = result.get("representative_outcome") or {}
+        if outcome:
+            lines.append("")
+            lines.append(_field("OUTCOME", outcome.get("answer")))
+            lines.append(_field("ANSWERS Q", "yes" if outcome.get("answers_the_question") else "NO"))
+        route = result.get("route") or {}
+        if route:
+            lines.append("")
+            lines.extend(_list_field("PLANNED", route.get("planned")))
+            lines.extend(_list_field("DERIVED", route.get("verifier_derived_actual")))
+            lines.extend(_list_field("DEVIATION", route.get("material_deviations")))
+        context = result.get("context") or {}
+        if context:
+            lines.append("")
+            lines.extend(_list_field("NEW", context.get("new")))
+            lines.extend(_list_field("PRIOR", context.get("pre_existing")))
+            lines.extend(_list_field("UNCLASSED", context.get("unclassified")))
+        lines.append("")
+        lines.append("VERIFIER VERDICT AND RECOMMENDATION WITHHELD")
+        lines.append("")
+        lines.append("YOUR CALL   ready | not ready | inspect <one named artifact>")
+        lines.append("THEN STATE  the decisive observation or mismatch, one sentence")
+
+    elif kind == "exception":
+        attention = projection.get("attention") or {}
+        lines.append("AUTHORITY EXCEPTION")
+        lines.append("")
+        lines.append(_field("FAILED", attention.get("summary")))
+        lines.append(_field("PHASE", projection.get("phase")))
+        lines.append(_field("OWNER", projection.get("owner")))
+        lines.append(_field("PRESERVED", projection.get("safe_point")))
+        lines.append(_field("AUTHORITY", f"{grant.get('id')} no longer sufficient"))
+        lines.append("")
+        lines.append("BOUNDED DECISION follows; no divergent work until authority is restored.")
+
+    elif kind == "closed":
+        lines.append(f"CLOSED      {projection.get('outcome')}")
+        lines.append("")
+        lines.append(_field("CHANGE", projection.get("title") or projection.get("change_id")))
+        lines.append(_field("QUESTION", grant.get("operator_question")))
+        lines.append(_field("AUTHORITY", grant.get("id")))
+        lines.append(_field("EVIDENCE", f"run {run.get('id')}" if run else "none"))
+        last = projection.get("last_transition") or {}
+        lines.append(_field("BASIS", last.get("reason")))
+        lines.append(_field("ATTENTION", "released; this change no longer owns a thread"))
+
+    else:  # status
+        return render_context(projection)
+
+    return "\n".join(lines)
+
+
+def write_card(state_root: Path, kind: str, text: str) -> Path:
+    directory = cards_dir(state_root)
+    directory.mkdir(parents=True, exist_ok=True)
+    seq = len(list(directory.glob("*.txt"))) + 1
+    path = directory / f"{seq:03d}-{kind}.txt"
+    path.write_text(text + "\n", encoding="utf-8")
+    return path
+
+
+# ---------------------------------------------------------------------------
 # Delivery authority
 # ---------------------------------------------------------------------------
 
@@ -1025,6 +1171,24 @@ def cmd_run_list(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_card(args: argparse.Namespace) -> int:
+    state_root = _state_root_from_args(args)
+    projection = evaluate(state_root)
+    if projection.get("status") == "no-state":
+        raise StateError("no active change in this repository")
+
+    grant_id = args.grant or projection.get("active_grant")
+    run_id = args.run or projection.get("active_verification_run")
+    grant = load_grant(state_root, grant_id) if grant_id else None
+    run = load_run(state_root, run_id) if run_id else None
+
+    text = render_card(args.kind, projection, grant, run)
+    path = write_card(state_root, args.kind, text)
+    sys.stdout.write(text + "\n\n")
+    sys.stdout.write(f"[card saved: {path}]\n")
+    return 0
+
+
 def cmd_guard_check(args: argparse.Namespace) -> int:
     allowed, reason = delivery_allowed(_state_root_from_args(args), args.action)
     _emit({"action": args.action, "allowed": allowed, "reason": reason})
@@ -1158,6 +1322,12 @@ def build_parser() -> argparse.ArgumentParser:
     p.set_defaults(func=cmd_run_reveal)
 
     sub.add_parser("run-list").set_defaults(func=cmd_run_list)
+
+    p = sub.add_parser("card")
+    p.add_argument("kind", choices=list(CARD_KINDS))
+    p.add_argument("--grant", help="grant id (defaults to the active one)")
+    p.add_argument("--run", help="verification run id (defaults to the active one)")
+    p.set_defaults(func=cmd_card)
 
     p = sub.add_parser("guard-check")
     p.add_argument("--action", required=True)
