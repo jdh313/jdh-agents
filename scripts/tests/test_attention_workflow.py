@@ -236,7 +236,7 @@ def test_source_package_declares_claude_only() -> None:
 def test_claude_publication_carries_every_declared_surface() -> None:
     manifest = json.loads((PUBLISHED / ".claude-plugin" / "plugin.json").read_text(encoding="utf-8"))
     assert manifest["name"] == "attention-workflow"
-    assert manifest["version"] == "0.7.1"
+    assert manifest["version"] == "0.8.0"
     # Experimental: installing the marketplace must not switch the lifecycle
     # out from under an in-flight spec-flow change.
     assert manifest["defaultEnabled"] is False
@@ -305,7 +305,7 @@ def test_claude_registry_lists_the_package() -> None:
         )
     )
     entry = next(p for p in registry["plugins"] if p["name"] == "attention-workflow")
-    assert entry["version"] == "0.7.1"
+    assert entry["version"] == "0.8.0"
 
 
 def test_verifier_agent_is_read_and_execute_only() -> None:
@@ -1366,3 +1366,63 @@ def test_gate_records_no_decision_when_abandoned(
     history = (state_root / "history.jsonl").read_text(encoding="utf-8")
     assert "gate-abandoned" in history
     assert '"decision": "denied"' not in history
+
+
+def test_authorization_gate_is_off_unless_explicitly_enabled(
+    env: dict[str, str], tmp_path: Path, git_repo: Path
+) -> None:
+    """A blocking hook can take the operator's whole session with it.
+
+    It stays opt-in until it has been driven by hand across real changes.
+    """
+    helper(env, "init", "--change-id", "demo", "--title", "Demo change")
+    helper_json(env, "grant-create", "--file", str(write_basis(tmp_path)))
+    result = run_hook(
+        GUARD_HOOK,
+        bash_payload("python3 aw_state.py transition --phase implement", str(git_repo)),
+        env,
+    )
+    assert decision(result) is None, "the gate must not fire without AW_GATE=1"
+
+
+def test_an_abandoned_gate_denies_without_calling_it_a_refusal(
+    env: dict[str, str], tmp_path: Path, git_repo: Path, state_root: Path
+) -> None:
+    """The transition is blocked, but the operator is not recorded as refusing.
+
+    Blocking and refusing are different claims. Only one of them was made.
+    """
+    helper(env, "init", "--change-id", "demo", "--title", "Demo change")
+    helper_json(env, "grant-create", "--file", str(write_basis(tmp_path)))
+    gated = {**env, "AW_GATE": "1", "AW_GATE_TIMEOUT": "0.3"}
+    result = run_hook(
+        GUARD_HOOK,
+        bash_payload("python3 aw_state.py transition --phase implement", str(git_repo)),
+        gated,
+    )
+    assert decision(result) == "deny"
+    reason = result["hookSpecificOutput"]["permissionDecisionReason"]
+    assert "NOT a refusal" in reason
+    assert "no decision was made" in reason
+
+    history = (state_root / "history.jsonl").read_text(encoding="utf-8")
+    assert "gate-abandoned" in history
+    assert '"decision": "denied"' not in history
+
+
+def test_the_gate_does_not_re_prompt_on_re_entry(
+    env: dict[str, str], tmp_path: Path, git_repo: Path
+) -> None:
+    """A returned defect or a resumed session is not a fresh hand-off.
+
+    Re-prompting there would make the gate a toll booth on ordinary work,
+    which is exactly the phase-per-turn ceremony this workflow rejects.
+    """
+    open_change(env, tmp_path)  # already in implement, authorized
+    gated = {**env, "AW_GATE": "1", "AW_GATE_TIMEOUT": "0.3"}
+    result = run_hook(
+        GUARD_HOOK,
+        bash_payload("python3 aw_state.py transition --phase implement", str(git_repo)),
+        gated,
+    )
+    assert decision(result) is None
