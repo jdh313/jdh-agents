@@ -1,154 +1,169 @@
 # Lesson Design System
 
-A composable base for lesson and reference HTML. The goal is twofold: every lesson shares a consistent, beautiful, print-friendly look (Tufte-leaning), and the interactive components that justify HTML over markdown — the tight, automatic feedback loop — are drop-in rather than reinvented each time.
+A composable base for lesson and reference notes. The goal is twofold: every
+lesson shares a consistent, readable look that fits the vault's native
+rendering, and the interactive component that justifies giving lessons a
+feedback loop — the self-grading quiz — is drop-in rather than reinvented
+each time.
 
-**This is a design system, not a template.** Compose lessons from these tokens and components; override or break them the moment a topic genuinely needs something bespoke. A locked template would flatten the per-topic craft the skill prizes — these are primitives, not a cage.
+**This is a design system, not a template.** Compose lessons from these
+components; override or break them the moment a topic genuinely needs
+something bespoke. A locked template would flatten the per-topic craft the
+skill prizes — these are primitives, not a cage.
 
-## Self-contained, always
+## Markdown, backed by one CSS snippet
 
-Lessons are single, portable HTML files (no shared external stylesheet — relative anchor links between lessons must resolve from anywhere). So the design system is **copy-in**, not linked: paste the tokens into a `<style>` block and the components inline. Don't factor them out to a shared `.css`/`.js` file — that would break the self-contained guarantee.
+Lessons are `type: lesson` markdown notes — real vault notes, not files
+outside the graph. They carry no CSS boilerplate themselves. All styling
+lives in one shipped snippet, `assets/teach-lesson.css`, installed once to
+`.obsidian/snippets/teach-lesson.css` and enabled under Settings →
+Appearance → CSS snippets. Every lesson in every workspace shares it — this
+is the one place D1 (`SKILL.md`) trades the old self-contained-HTML
+guarantee for graph participation. See `UPSTREAM.md` for why that trade is
+now worth making.
 
-## Tokens
-
-Drop into each lesson's `<style>`. Tuned for screen reading and clean print.
-
-```css
-:root {
-  /* Type — a restrained Tufte-ish scale */
-  --font-body: et-book, Palatino, "Palatino Linotype", Georgia, serif;
-  --font-mono: "SF Mono", "JetBrains Mono", ui-monospace, monospace;
-  --size-base: 1.125rem;     --line-base: 1.6;
-  --size-h1: 2.2rem;         --size-h2: 1.5rem;       --size-small: 0.85rem;
-
-  /* Ink & ground — high contrast, low saturation */
-  --ink: #1a1a1a;            --ink-soft: #555;
-  --ground: #fdfdfb;        --rule: #e4e2dc;
-  --accent: #5a3e85;         /* sparingly: links, focus */
-  --ok: #2e7d4f;             --no: #b03030;
-  --snap-bg: #f6f4ee;        /* code-snapshot background */
-
-  --measure: 38rem;          /* line length cap — readability */
-  --space: 1.4rem;
-}
-body {
-  font: var(--size-base)/var(--line-base) var(--font-body);
-  color: var(--ink); background: var(--ground);
-  max-width: var(--measure); margin: 3rem auto; padding: 0 1.2rem;
-}
-@media print { body { background:#fff; color:#000; max-width:none; margin:0; } .no-print { display:none; } }
-```
+**Setup, once per vault:** copy `assets/teach-lesson.css` into
+`.obsidian/snippets/`, enable it. Nothing further — no plugin, no JS.
 
 ## Components
 
-Minimal, dependency-free (vanilla JS, inline). Each carries the feedback loop where one applies.
+### Quiz — the load-bearing component
 
-### Auto-grading quiz — the load-bearing component
-
-The whole reason lessons are HTML: immediate, automatic feedback. Per `SKILL.md`, every answer in a set should be the same word/character length so formatting leaks no clue.
-
-```html
-<form class="quiz" data-answer="b">
-  <p class="q">Which builds storage strength?</p>
-  <label><input type="radio" name="q1" value="a"> Massed cramming the night before</label>
-  <label><input type="radio" name="q1" value="b"> Spaced retrieval over several days</label>
-  <button type="submit" class="no-print">Check</button>
-  <p class="verdict" hidden></p>
-</form>
-<script>
-document.querySelectorAll('form.quiz').forEach(f => f.addEventListener('submit', e => {
-  e.preventDefault();
-  const picked = f.querySelector('input:checked');
-  const v = f.querySelector('.verdict'); v.hidden = false;
-  const ok = picked && picked.value === f.dataset.answer;
-  v.textContent = ok ? 'Correct.' : 'Not quite — try again.';
-  v.style.color = ok ? 'var(--ok)' : 'var(--no)';
-}));
-</script>
-```
-
-### Reveal — desirable difficulty before the answer
-
-Forces a retrieval attempt before showing the answer (don't let the eye coast to it).
+Immediate, automatic feedback with zero JavaScript: a radio input plus a CSS
+`:has(:checked) + sibling` reveal. Per `SKILL.md`, every answer in a set
+should be the same word/character length so formatting leaks no clue.
 
 ```html
-<details class="reveal"><summary>Predict the output, then open</summary>
-  <p>…the answer and why…</p>
-</details>
+<div class="tl-quiz" markdown="1">
+
+Which builds storage strength?
+
+<label class="tl-quiz-opt"><input type="radio" name="q1"> Massed cramming the night before</label>
+<div class="tl-quiz-feedback tl-no">Not quite — try again.</div>
+
+<label class="tl-quiz-opt"><input type="radio" name="q1"> Spaced retrieval over several days</label>
+<div class="tl-quiz-feedback tl-ok">Correct.</div>
+
+</div>
 ```
 
-### Callout — aside without breaking flow
+Each option is its own radio + the feedback div that immediately follows it;
+checking the radio reveals only that option's feedback via the sibling
+selector — there's nothing to grade, the correct option's feedback text
+just says so. `markdown="1"` keeps Obsidian rendering the question text and
+any inline formatting inside the block as markdown, not raw HTML.
 
-```html
-<aside class="note"><strong>Note —</strong> a margin-ish aside; use for caveats, not core content.</aside>
+### Reveal / spoiler — desirable difficulty before the answer
+
+Use the vault's native collapsed callout, not a widget. Forces a retrieval
+attempt before the answer shows (don't let the eye coast to it):
+
+```markdown
+> [!question]- Predict the output, then open
+> …the answer and why…
 ```
-```css
-.note { border-left: 3px solid var(--rule); padding-left: 1rem; color: var(--ink-soft); font-size: var(--size-small); }
+
+### Visual vocabulary — reuse, don't invent
+
+Use the vault's existing custom callouts (`explainer-callouts.css`) for
+everything a lesson needs to flag:
+
+```markdown
+> [!key-idea] The concept in one line
+> The thing to actually retain.
+
+> [!gotcha] Where this trips people up
+> The specific misconception or edge case.
+
+> [!good] Do this
+> A concrete correct pattern.
+
+> [!bad] Not this
+> The tempting-but-wrong alternative.
+
+> [!test] Check yourself
+> A quick self-check before moving on.
+```
+
+Do not define lesson-specific callout types. If a lesson needs a callout
+`explainer-callouts.css` doesn't cover, that's a signal to extend the shared
+vault snippet, not to fork a parallel one scoped to `teach`.
+
+For a set of related items shown side by side (e.g. comparing three
+approaches, or a set of terms), use the vault's `[!cards]` grid
+(`explainer-cards.css`) rather than a table when a table would cram — cards
+read better for short, parallel chunks:
+
+```markdown
+> [!cards]
+> ##### Rung 1 — Predict-then-verify
+> Real material, zero blast radius.
+>
+> ##### Rung 2 — Review, don't author
+> Judgment under real conditions, nothing shipped.
 ```
 
 ### Code snapshot — pinned, self-contained code
 
-The HTML home of the "Citing a live codebase" rule (`SKILL.md`). Embed the snippet inline; stamp the pinned ref; link the permalink.
+The markdown home of the "Citing a live codebase" rule (`SKILL.md`). Embed
+the snippet inline in a fenced code block; stamp the pinned ref immediately
+below it:
 
-```html
-<figure class="snap">
-  <figcaption><code>services/auth/guard.ts</code> · <a href="PERMALINK">atlas-app@a1b2c3d (2026-06-15)</a></figcaption>
-  <pre><code>export function requireRole(r) { /* … */ }</code></pre>
-</figure>
+````markdown
+```typescript
+export function requireRole(r) { /* … */ }
 ```
-```css
-.snap { background: var(--snap-bg); border: 1px solid var(--rule); border-radius: 4px; padding: 0.6rem 0.9rem; }
-.snap figcaption { font: var(--size-small)/1.4 var(--font-mono); color: var(--ink-soft); margin-bottom: 0.4rem; }
-.snap pre { margin: 0; overflow-x: auto; font-family: var(--font-mono); }
-```
-
-### Diagrams (Mermaid)
-
-For flows, handshakes, and state machines, a diagram beats prose. Mermaid is the lightest authoring format — but it is **not** bundled; load it from a pinned CDN and write diagrams as `<pre class="mermaid">` blocks:
-
-```html
-<pre class="mermaid">
-sequenceDiagram
-    actor U as Browser
-    participant S as App
-    U->>S: request a protected route
-    S->>U: respond
-</pre>
-<script type="module">
-  import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
-  mermaid.initialize({ startOnLoad: true, theme: 'neutral' });
-</script>
-```
-
-**Self-containment caveat.** This is the one component that breaks the offline guarantee — the diagram needs a network connection to render. Note the dependency in the lesson's provenance footer. (If a Mermaid renderer like `mmdc` is available at authoring time, pre-render to inline SVG instead and the lesson stays fully self-contained — but that pulls a headless browser, so it's rarely worth it.)
-
-**Sequence-diagram syntax gotchas** — these silently break the parser:
-- No parentheses in `participant X as <label>` aliases — write `participant O as Okta`, not `Okta (auth server)`.
-- Keep message text plain — avoid `<br/>`, `;`, and `&`.
+`services/auth/guard.ts` · [atlas-app@a1b2c3d (2026-06-15)](PERMALINK)
+````
 
 ### Lesson footer — the standing reminders
 
-Every lesson ends with the two fixtures `SKILL.md` requires: the primary source and the ask-your-teacher nudge.
+Every lesson ends with the two fixtures `SKILL.md` requires: the primary
+source and the ask-your-teacher nudge.
 
 ```html
-<footer class="lesson-end">
-  <p><strong>Read next:</strong> <a href="SOURCE_URL">primary source</a> — the highest-trust resource on this.</p>
-  <p>Stuck or curious? <em>Ask me</em> — I'm your teacher for this, not just the author of the page.</p>
-</footer>
+<div class="tl-footer" markdown="1">
+
+**Read next:** [primary source](SOURCE_URL) — the highest-trust resource on this.
+
+Stuck or curious? *Ask me* — I'm your teacher for this, not just the author of the page.
+
+</div>
 ```
 
-### Provenance footer — for codebase-bound lessons
+### Provenance stamp — for lessons bound to a live codebase
 
-When a lesson is tightly bound to live code (its snapshots and line references track a moving repo), stamp the lesson *as a whole* so a future reader knows how old it is and what to diff against. This complements the per-snapshot pins from "Citing a live codebase" in `SKILL.md` — the snapshot pins each citation; this dates the whole lesson.
+When a lesson is tightly bound to live code (its snapshots and line
+references track a moving repo), stamp the lesson *as a whole* so a future
+reader knows how old it is and what to diff against. This complements the
+per-snapshot pins from "Citing a live codebase" in `SKILL.md` — the snapshot
+pins each citation; this dates the whole lesson.
 
 ```html
-<p class="provenance">Lesson authored 2026-06-17 09:34 EDT · grounded against <a href="PERMALINK">repo@sha</a> (committed YYYY-MM-DD). Code citations are pinned snapshots — diff against current <code>HEAD</code> before trusting line numbers if you revisit this later.</p>
-```
-```css
-.provenance { font-family: var(--font-mono); font-size: 0.78rem; color: var(--ink-soft); margin-top: 1.2rem; padding-top: 0.6rem; border-top: 1px dotted var(--rule); }
+<p class="tl-provenance">Lesson authored 2026-08-10 09:34 EDT · grounded against <a href="PERMALINK">repo@sha</a> (committed YYYY-MM-DD). Code citations are pinned snapshots — diff against current <code>HEAD</code> before trusting line numbers if you revisit this later.</p>
 ```
 
-Re-resolve the SHA (`git -C <repo> rev-parse --short HEAD`) and the timestamp at authoring time — don't copy a stale stamp from a prior lesson. If the lesson uses a CDN-rendered diagram (Mermaid above), note that network dependency in this same line.
+Re-resolve the SHA (`git -C <repo> rev-parse --short HEAD`) and the
+timestamp at authoring time — don't copy a stale stamp from a prior lesson.
+
+### Transclusion — where the lesson's prose comes from
+
+Per `SKILL.md`'s wiki/lesson split, a lesson does not restate prose that
+already lives on a wiki concept page — it transcludes the canonical gist:
+
+```markdown
+![[Postgres MVCC#Gist]]
+```
+
+Embed only from the small canonical heading set (`## Gist` and peers) — see
+`SKILL.md` for the rename-fragility constraint this exists to bound.
 
 ## Reference-doc note
 
-Print-beautiful cheat sheets in `./reference/` use the same tokens but lean harder on the print rules (`@media print`) and density — they exist to be printed and pinned up, not scrolled. The quiz/reveal components rarely apply there; the code-snapshot and callout do.
+Reference material — glossaries, syntax cards, algorithm notes — is now
+ordinary wiki content (D3, `SKILL.md`), so it uses the vault's normal wiki
+conventions, not this system. The quiz component is lesson-specific (a
+reference page is state, not process, and has nothing to "check yourself"
+on); the reveal, callout, and code-snapshot components are shared vocabulary
+and apply equally to wiki pages, via the vault's existing snippets rather
+than this one.

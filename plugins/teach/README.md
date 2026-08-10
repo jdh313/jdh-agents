@@ -1,6 +1,6 @@
 # teach
 
-A stateful, multi-session teaching workspace **routed into your Obsidian vault**. Each topic becomes a self-contained workspace folder under its best-fit context — its mission, resources, glossary, and learning records live as vault notes; its lessons and cheat sheets stay as self-contained HTML files.
+A stateful, multi-session teaching workspace **routed into your Obsidian vault**. Each topic becomes a self-contained workspace folder under its best-fit context — mission, resources, glossary, and learning records live as vault notes, and so do the lessons themselves: markdown notes that transclude prose from the wiki and add a pure-CSS self-grading quiz on top. There is no HTML anywhere in this skill.
 
 > Adapted from [mattpocock/skills](https://github.com/mattpocock/skills) (`skills/productivity/teach`), MIT © 2026 Matt Pocock. The original treats the current directory as the workspace; this fork routes durable artifacts into the vault. Upstream provenance is pinned in the skill's frontmatter; divergences are tracked in `skills/teach/UPSTREAM.md` via `skillsmith:upstream-review`. Design spec: `.docs/2026-06-12-teach-vault-routing.md`.
 
@@ -27,12 +27,19 @@ Explicit-invocation only (`disable-model-invocation: true`) — it won't fire on
 | `Mission.md` | `type: learning-mission` note | *Why* you're learning this + teaching prefs — grounds every lesson |
 | `Resources.md` | index note → `Sources/` | High-trust sources; ingestible material goes to the vault's `Sources/` |
 | `Glossary.md` | working note → `Reference/` wiki | Canonical terms; durable ones graduate to wiki concept notes |
-| `Records/*.md` | `type: learning-record` notes | ADR-style insights that steer future sessions |
-| `lessons/*.html` | HTML files | The primary unit of teaching — one self-contained, beautiful lesson each |
-| `reference/*.html` | HTML files | Print-beautiful cheat sheets, algorithm cards, pose sequences |
+| `Records/*.md` | `type: learning-record` notes | ADR-style insights that steer future sessions and gate mastery claims |
+| `lessons/*.md` | `type: lesson` notes | The primary unit of teaching — transcludes the wiki's prose, adds a quiz |
 
-A unified "all my learning" view comes from querying `type: learning-mission` across the vault (MOC/Base), not from folder colocation.
+Cheat sheets, algorithm cards, and syntax references are no longer workspace files — they're ordinary `Reference/` wiki pages (state, returned to), while a lesson is process (get from not-understanding to understanding, rarely revisited). The lesson transcludes the wiki page's `## Gist`; it never restates it. A unified "all my learning" view comes from querying `type: learning-mission` across the vault (MOC/Base), not from folder colocation.
+
+### Depth without a status field
+
+Entry altitude for a new topic comes from two signals — the question's own altitude, and the density of the surrounding graph (existing `expands:` chains). But graph density only proves the agent *taught* something, never that the user *learned* it — so `Records/` stays the only gate on mastery claims, and whenever density and records disagree, the session opens with a one-line calibration check before any lesson gets written. This is deliberately not a new `understanding:` frontmatter field; the graph's shape already carries the signal.
 
 ### Philosophy
 
 Deep learning needs **knowledge** (from trusted sources), **skills** (built through effortful, real-stakes practice), and **wisdom** (from real-world communities). Lessons are short, tied to the mission, and designed for storage strength over fluency. The four FORMAT files (`MISSION-FORMAT`, `RESOURCES-FORMAT`, `LEARNING-RECORD-FORMAT`, `GLOSSARY-FORMAT`) define each artifact's shape and load on demand.
+
+### Setup
+
+Install the shipped CSS snippet once per vault: copy `skills/teach/assets/teach-lesson.css` to `.obsidian/snippets/teach-lesson.css` and enable it under Settings → Appearance → CSS snippets. It backs the quiz component every lesson uses — no plugin, no JavaScript.

@@ -2,16 +2,16 @@
 name: teach
 description: >-
   Teach the user a new skill or concept over multiple sessions, building a
-  teaching workspace in the Obsidian vault — a mission, resources, HTML lessons,
-  a glossary, and learning records — grounded in the user's documented learning
-  style and high-trust sources. Use when the user says "teach me X", "I want to
-  learn X", or "/teach". Adapted from mattpocock/skills (MIT, © 2026 Matt
-  Pocock).
+  teaching workspace in the Obsidian vault — a mission, resources, markdown
+  lessons, a glossary, and learning records — grounded in the user's documented
+  learning style and high-trust sources. Use when the user says "teach me X", "I
+  want to learn X", or "/teach". Adapted from mattpocock/skills (MIT, © 2026
+  Matt Pocock).
 ---
 
 The user has asked you to teach them something. This is a stateful request — they intend to learn the topic over multiple sessions.
 
-This adaptation routes the durable artifacts into the **Obsidian vault** (`~/Loose Ends/`) as real notes, while keeping lessons and cheat sheets as self-contained HTML files inside the workspace folder.
+This adaptation routes every teaching artifact — including lessons and reference sheets — into the **Obsidian vault** (`~/Loose Ends/`) as real notes. There is no HTML in this skill: a lesson is a `type: lesson` markdown note, and it participates in the graph the same as any other note (frontmatter, wikilinks, Breadcrumbs, query). This is what makes depth-matching possible in the first place — see [Entry altitude](#entry-altitude-question-altitude--graph-density) and [the calibration gate](#the-calibration-gate--mandatory-not-advisory) below.
 
 ## Before you start: ground in how this user learns
 
@@ -30,10 +30,11 @@ Each topic gets a **self-contained workspace folder in the vault**, placed under
 - `Resources.md` — a curated index of high-trust sources to ground your teaching. Material worth ingesting (articles, videos, transcripts) is saved to the vault's global `Sources/` via the wiki-ingest flow (the `wiki-create` skill); `Resources.md` links into those source notes by `[[wikilink]]`. Use the format in [RESOURCES-FORMAT.md](./RESOURCES-FORMAT.md).
 - `Glossary.md` — the canonical terminology for this workspace (markdown). Building it is itself part of learning. Durable, cross-cutting terms **graduate** to `Reference/` wiki concept notes (`type: wiki, page_type: concept`) — the vault's wiki _is_ the long-term glossary. Use the format in [GLOSSARY-FORMAT.md](./GLOSSARY-FORMAT.md).
 - `./Records/*.md` — learning records: `type: learning-record` notes titled `0001-<dash-case-name>.md`, the number incrementing each time. These are the teaching equivalent of architectural decision records — they capture non-obvious lessons and key insights that drive future sessions and let you calculate the zone of proximal development. Use the format in [LEARNING-RECORD-FORMAT.md](./LEARNING-RECORD-FORMAT.md).
-- `./lessons/*.html` — a directory of lessons. A **lesson** is a single, self-contained HTML output that teaches one tightly-scoped thing tied to the mission. This is the primary unit of teaching. Titled `0001-<dash-case-name>.html`, the number incrementing each time.
-- `./reference/*.html` — print-beautiful HTML cheat sheets, reference algorithms, syntax cards, pose sequences — compressed learnings designed for quick reference. They should be beautiful documents which print out well.
+- `./lessons/*.md` — a directory of lessons. A **lesson** is a single `type: lesson` markdown note that teaches one tightly-scoped thing tied to the mission. This is the primary unit of teaching. Titled `0001-<dash-case-name>.md`, the number incrementing each time. See [Lessons](#lessons) below for what a lesson contains and how it relates to the wiki.
 
-**Tooling:** `.md` notes are created and edited with `obsidian-cli` (`create`, `append`, `property:set`); surgical in-note edits use whichever targeted note-patch tool the runtime offers (Claude's Obsidian MCP integration); complex restructures are dispatched to `@note-editor`. The `.html` lessons and reference docs are written with the `Write` tool — they are non-markdown vault assets and live inside the workspace folder so their relative anchor links resolve.
+Reference material — cheat sheets, algorithm notes, syntax cards — is **not** a workspace artifact anymore. It's ordinary wiki content; see [Reference material](#reference-material) below for where it lives.
+
+**Tooling:** every artifact above is a `.md` note, created and edited with `obsidian-cli` (`create`, `append`, `property:set`); surgical in-note edits use whichever targeted note-patch tool the runtime offers (Claude's Obsidian MCP integration); complex restructures are dispatched to `@note-editor`.
 
 ### Resolving the context (where the workspace lives)
 
@@ -88,15 +89,41 @@ This is also the boundary of the skill. `teach` is for **concept + stack lens** 
 
 ## Lessons
 
-A lesson is the main thing you produce — the unit in which knowledge and skills reach the user. Each lesson is one self-contained HTML file, saved to `./lessons/` inside the workspace folder and titled `0001-<dash-case-name>.html` where the number increments each time.
+A lesson is the main thing you produce — the unit in which knowledge and skills reach the user. Each lesson is one `type: lesson` markdown note, saved to `./lessons/` inside the workspace folder and titled `0001-<dash-case-name>.md` where the number increments each time. There is no HTML anywhere in this skill.
 
-A lesson should be **beautiful** — clean, readable typography and layout — since the user will return to these later to review. Think Tufte. Compose it from the shared **lesson design system** ([LESSON-DESIGN-SYSTEM.md](./LESSON-DESIGN-SYSTEM.md)) — a set of inline tokens and drop-in components (auto-grading quiz, reveal, callout, code-snapshot) that give every lesson a consistent base and a ready-made feedback loop. The system is a starting skeleton, **not a cage**: override or break it whenever a topic genuinely calls for something bespoke.
+### The wiki owns content; the lesson owns pedagogy
+
+A lesson and a wiki concept page can cover the same thing, but they differ by **tense**, not scope:
+
+- **Wiki page = state.** "What is true about X." Optimized for re-reading, returned to.
+- **Lesson = process.** "Get from not-understanding X to understanding it." Ordered by prerequisite and effortful retrieval, rarely revisited.
+
+So prose lives **once**, on the wiki page — never copied into the lesson. The lesson **transcludes** it and wraps it in the teaching apparatus:
+
+```
+Reference/Developer/.../Postgres MVCC.md   ← the thing. Prose lives here.
+<Workspace>/lessons/0007-mvcc.md           ← type: lesson
+    ![[Postgres MVCC#Gist]]                ← transcluded, not copied
+    + quiz (pure CSS)
+    + practice / real-stakes prompt
+    + links onward
+```
+
+If the concept the lesson needs doesn't have a wiki page yet, create one first (via `wiki-create`) — the lesson is not the place for durable prose to originate. A lesson that restates wiki content instead of transcluding it will drift the moment either side changes; a lesson that *is* the wiki page permanently pollutes reference material with quiz scaffolding. Neither is acceptable.
+
+**Constraint — transclude only from canonical headings.** Heading embeds (`![[Page#Heading]]`) break silently on rename: no error, just a note that renders empty. To keep that risk bounded, lessons may embed only from a small canonical heading set — `## Gist` and its established peers — never an arbitrary heading picked for one lesson. If the wiki page doesn't yet have a `## Gist` section, add one rather than embedding something else.
+
+**Known limitation:** a lesson cannot stage an explanation (simplify first, complicate later) unless the wiki page itself carries that staged structure — a single `## Gist` embed is one altitude. Accepted for now; revisit if it bites.
+
+### Composing the lesson
+
+A lesson should be **clear and scannable** — since the user will return to these later to review. Compose it from the shared **lesson design system** ([LESSON-DESIGN-SYSTEM.md](./LESSON-DESIGN-SYSTEM.md)) — the transclusion pattern above, a pure-CSS self-grading quiz, native collapsed callouts for reveals, and the vault's existing visual-vocabulary callouts (`key-idea`, `gotcha`, `good`, `bad`, `test`) rather than inventing lesson-specific ones. The system is a starting skeleton, **not a cage**: override or break it whenever a topic genuinely calls for something bespoke.
 
 The lesson should be short, and completable very quickly. Learners' working memory is very small, and we need to stay within it. But each lesson should give the user a single tangible win that they can build on. It should be directly tied to the mission, and should be in the user's zone of proximal development.
 
-If possible, open the lesson file for the user by running a CLI command.
+If possible, open the lesson note for the user by running a CLI command.
 
-Each lesson should link via HTML anchors to other lessons and reference documents (relative paths within the workspace folder).
+Each lesson should link via wikilinks to other lessons, the wiki concept(s) it transcludes, and anything else relevant — the whole point of moving into the vault is that these links are real, queryable graph edges, not anchor-tag dead ends.
 
 Each lesson should recommend a primary source for the user to read or watch. This should be the most high-quality, high-trust resource you found on the topic.
 
@@ -125,6 +152,27 @@ The user may specify an exact thing they want to learn. If they don't, figure ou
 - Reading their learning records in `./Records/`
 - Figuring out the right thing to teach them based on their mission
 - Teach the most relevant thing that fits in their zone of proximal development
+
+### Entry altitude: question altitude × graph density
+
+This is a separate question from the concept/stack-lens/wiring altitude above — it's about how deep *in* to start a new topic, not what a lesson's claims bind to. Two signals set the starting point:
+
+1. **The question's own altitude.** "What is a database" is a gist request. "How does Postgres sync" names a descent.
+2. **Density of the surrounding graph.** A sparse neighborhood (few notes, no `expands:` chains) means start at the gist. A dense neighborhood with existing `expands:` chains means the question is likely at the frontier — teach there, not from scratch.
+
+Worked example: *"what is a database"* against an empty neighborhood earns a gist, not Postgres replication internals. The same question against a dense distributed-systems neighborhood may well be asking about the sync engine.
+
+### The calibration gate — mandatory, not advisory
+
+Graph density is a real signal, but it has a sharp edge: **a note existing means the agent taught it, not that the user knows it.** Left unchecked, the agent bootstraps itself into believing the user is advanced because it wrote a lot of notes — the AI-as-substitute crutch that `Personal/Manual of Me/Learning/Learning Style.md` already names, in a new costume.
+
+So the rule has three parts, and all three matter:
+
+- Graph density sets **entry altitude** only — a fair proxy for familiarity and vocabulary, nothing more.
+- `Records/` remains the **only** gate on claims of demonstrated understanding. A concept with a lesson but no learning record backing it is not "known" — it's "taught," which is a different fact.
+- Where the two disagree — dense graph, thin or absent records — **ask**. Open the session with a one-line calibration check: _"you have six notes here and a JWKS descent — am I right that scope resolution is the frontier?"_
+
+**Run this check before writing lessons, every time it's warranted — this is not a nice-to-have.** It's the guard that keeps the graph from becoming a self-confirming model of the user's knowledge: the agent inferring mastery from its own prior output rather than from evidence the user actually retained anything.
 
 ## Knowledge
 
@@ -198,11 +246,11 @@ A community is a place (online or offline) where the user can test their skills 
 
 You should attempt to find high-reputation communities the user can join. If the user expresses a preference that they don't want to join a community, respect it — note that preference in `Mission.md` so future sessions don't keep proposing them.
 
-## Reference Documents
+## Reference material
 
-While creating lessons, you should also create reference documents. Lessons can reference these documents — they are useful for tracking raw units of knowledge useful across lessons.
+While creating lessons, you should also build up reference material. Lessons can transclude from it — it's useful for tracking raw units of knowledge useful across lessons.
 
-Lessons will rarely be revisited later — reference documents will be. They should be the compressed essence of the lesson, in a format designed for quick reference.
+Lessons will rarely be revisited later — reference material will be. It should be the compressed essence of the lesson, in a format designed for quick reference.
 
 Some learning topics lend themselves to reference:
 
@@ -212,16 +260,18 @@ Some learning topics lend themselves to reference:
 - Exercises and routines for fitness
 - Glossaries for any topic with its own nomenclature
 
-Print-beautiful cheat sheets, algorithm cards, and pose sequences are HTML, saved to `./reference/`. The **glossary** is the exception — it is a markdown note, `Glossary.md`, because its terms graduate into the vault's wiki. Once a glossary exists, it should be adhered to in every lesson, and durable cross-cutting terms should be promoted to `Reference/` wiki concept notes via the `wiki-create` / `wiki-graduate` skills.
+**All of it is wiki content now — there is no `./reference/` workspace directory.** Under the wiki/lesson split (see [Lessons](#lessons)), a cheat sheet is unambiguously *state* — the most-returned-to artifact there is — so keeping it outside the graph as HTML would leave exactly the wrong content unlinked. Cheat sheets, algorithm cards, pose sequences, and syntax cards are `Reference/` wiki pages (`type: wiki, page_type: concept` or a suitable sibling `page_type`), created and maintained via `wiki-create` / `wiki-graduate` the same way any other wiki concept is. The **glossary** stays the workspace's own staging area, `Glossary.md` — a markdown note whose terms graduate into those wiki pages once they're durable and cross-cutting. Once a glossary exists, it should be adhered to in every lesson.
+
+Print quality for these pages is a **rendering** concern, not a storage one — deliberately deferred (see `UPSTREAM.md`); if export quality matters later, the answer is a print CSS snippet plus an exporter, never a second stored copy.
 
 ### Keeping the durable layer fresh
 
-Lessons are ephemeral — they're "rarely revisited later," so a stale lesson costs little. **Reference documents and graduated wiki concepts are the opposite**: they exist *to be returned to*, so a stale one actively misleads the user every time they reach for it. The freshness obligation lives here, on the durable layer — not on lessons.
+Lessons are ephemeral — they're "rarely revisited later," so a stale lesson costs little. **Reference wiki pages are the opposite**: they exist *to be returned to*, so a stale one actively misleads the user every time they reach for it. The freshness obligation lives here, on the durable layer — not on lessons.
 
-When a reference doc or wiki concept carries pinned code citations (per "Citing a live codebase"), it can silently rot as the codebase moves past the pinned ref. So run a **freshness check** — modeled on the same posture as a decision/code drift audit. Calibrate it to altitude (see [Altitude](#altitude-what-a-lesson-binds-to)): most citation drift is *wiring* and is cheap to absorb; the case that actually demands attention is a **stack-lens move**.
+When a reference wiki page carries pinned code citations (per "Citing a live codebase"), it can silently rot as the codebase moves past the pinned ref. So run a **freshness check** — modeled on the same posture as a decision/code drift audit. Calibrate it to altitude (see [Altitude](#altitude-what-a-lesson-binds-to)): most citation drift is *wiring* and is cheap to absorb; the case that actually demands attention is a **stack-lens move**.
 
-- **When:** at the start of a session that will lean on an existing reference doc, or on demand ("is this cheat sheet still accurate?", "re-pin the trace map").
+- **When:** at the start of a session that will lean on an existing reference page, or on demand ("is this cheat sheet still accurate?", "re-pin the trace map").
 - **What:** re-resolve each pinned citation against the codebase's current `HEAD` and classify the drift by altitude:
   - **Wiring drift** (file moved, lines shifted, a provider relocated, a signature changed) — re-pin to the new SHA + bump the as-of stamp. Safe to do directly; the teaching is unaffected.
-  - **Stack-lens move** (the *approach* changed — a new auth provider, RBAC → ABAC) — this is the real signal. It may mean the concept-level teaching is now taught through the wrong approach. **Do not silently rewrite** — surface it and let the user decide whether the reference (and the mission's `stack_lens:`) needs updating.
-- **Posture:** read-only and advisory. A freshness pass may re-pin wiring quietly, but must never quietly change what a doc *claims*. Trigger a full pass on major (stack-lens) change, not on every refactor.
+  - **Stack-lens move** (the *approach* changed — a new auth provider, RBAC → ABAC) — this is the real signal. It may mean the concept-level teaching is now taught through the wrong approach. **Do not silently rewrite** — surface it and let the user decide whether the reference page (and the mission's `stack_lens:`) needs updating.
+- **Posture:** read-only and advisory. A freshness pass may re-pin wiring quietly, but must never quietly change what a page *claims*. Trigger a full pass on major (stack-lens) change, not on every refactor.

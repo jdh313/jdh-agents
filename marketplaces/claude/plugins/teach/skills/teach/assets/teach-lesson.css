@@ -1,0 +1,96 @@
+/*
+ * teach-lesson.css — CSS snippet backing the `teach` plugin's markdown
+ * lesson components. Install to `.obsidian/snippets/teach-lesson.css` and
+ * enable it under Settings → Appearance → CSS snippets.
+ *
+ * All classes are namespaced `tl-` to avoid colliding with theme CSS or
+ * other snippets (explainer-callouts.css, explainer-cards.css). Uses
+ * Obsidian's own CSS variables throughout, so it inherits the active theme
+ * and adapts automatically to light/dark — no hardcoded colors.
+ *
+ * Components:
+ *   - Pure-CSS self-grading quiz (radio + :checked sibling reveal)
+ *   - Lesson footer / provenance stamp
+ * Everything else (reveal, visual vocabulary) reuses vault-native forms —
+ * collapsed callouts (`> [!question]-`) and the existing key-idea / gotcha /
+ * good / bad / test callouts — and needs no CSS of its own.
+ */
+
+/* ---- Quiz -------------------------------------------------------------
+ * Markdown shape (see LESSON-DESIGN-SYSTEM.md for the full snippet):
+ *
+ * <div class="tl-quiz" markdown="1">
+ *
+ * Which builds storage strength?
+ *
+ * <label class="tl-quiz-opt"><input type="radio" name="q1"> Massed cramming the night before</label>
+ * <div class="tl-quiz-feedback tl-no">Not quite — try again.</div>
+ *
+ * <label class="tl-quiz-opt"><input type="radio" name="q1"> Spaced retrieval over several days</label>
+ * <div class="tl-quiz-feedback tl-ok">Correct.</div>
+ *
+ * </div>
+ *
+ * Each option is its own radio + adjacent feedback div; :checked reveals
+ * the feedback that immediately follows the checked input via the sibling
+ * combinator. No JS, no grading logic — the correct option's feedback IS
+ * the "Correct." text, so there is nothing to compute.
+ */
+.tl-quiz {
+  border: 1px solid var(--background-modifier-border);
+  border-radius: var(--radius-m, 6px);
+  padding: 0.9em 1.1em;
+  margin: 1em 0;
+  background: var(--background-secondary);
+}
+
+.tl-quiz-opt {
+  display: block;
+  cursor: pointer;
+  padding: 0.25em 0;
+}
+
+.tl-quiz-feedback {
+  display: none;
+  margin: 0.15em 0 0.6em 1.6em;
+  font-size: 0.9em;
+  font-weight: var(--font-medium, 500);
+}
+
+/* Reveal the feedback div immediately following a checked radio's label. */
+.tl-quiz-opt:has(input:checked) + .tl-quiz-feedback {
+  display: block;
+}
+
+.tl-quiz-feedback.tl-ok { color: var(--text-success, var(--color-green)); }
+.tl-quiz-feedback.tl-no { color: var(--text-error, var(--color-red)); }
+
+/* ---- Lesson footer -----------------------------------------------------
+ * Markdown shape:
+ *
+ * <div class="tl-footer" markdown="1">
+ * **Read next:** [primary source](URL) — the highest-trust resource on this.
+ *
+ * Stuck or curious? *Ask me* — I'm your teacher for this, not just the author.
+ * </div>
+ */
+.tl-footer {
+  margin-top: 1.5em;
+  padding-top: 0.6em;
+  border-top: 1px dotted var(--background-modifier-border);
+  color: var(--text-muted);
+  font-size: 0.92em;
+}
+
+/* ---- Provenance stamp ---------------------------------------------------
+ * For lessons bound to a live codebase snapshot (see SKILL.md "Citing a
+ * live codebase"). Markdown shape:
+ *
+ * <p class="tl-provenance">Lesson authored 2026-08-10 · grounded against
+ * <a href="PERMALINK">repo@sha</a> (committed YYYY-MM-DD).</p>
+ */
+.tl-provenance {
+  font-family: var(--font-monospace);
+  font-size: 0.78em;
+  color: var(--text-faint);
+}
