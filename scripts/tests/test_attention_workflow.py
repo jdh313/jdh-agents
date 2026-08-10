@@ -236,7 +236,7 @@ def test_source_package_declares_claude_only() -> None:
 def test_claude_publication_carries_every_declared_surface() -> None:
     manifest = json.loads((PUBLISHED / ".claude-plugin" / "plugin.json").read_text(encoding="utf-8"))
     assert manifest["name"] == "attention-workflow"
-    assert manifest["version"] == "0.7.0"
+    assert manifest["version"] == "0.7.1"
     # Experimental: installing the marketplace must not switch the lifecycle
     # out from under an in-flight spec-flow change.
     assert manifest["defaultEnabled"] is False
@@ -305,7 +305,7 @@ def test_claude_registry_lists_the_package() -> None:
         )
     )
     entry = next(p for p in registry["plugins"] if p["name"] == "attention-workflow")
-    assert entry["version"] == "0.7.0"
+    assert entry["version"] == "0.7.1"
 
 
 def test_verifier_agent_is_read_and_execute_only() -> None:

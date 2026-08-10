@@ -1397,6 +1397,10 @@ def cmd_gate(args: argparse.Namespace) -> int:
     is not a refusal: no decision was made, so none is recorded, and the same
     gate can simply be opened again.
     """
+    # Importing a sibling module must not leave a __pycache__ inside the plugin
+    # source tree: the marketplace linter walks that directory and reports the
+    # .pyc as an unusual plugin file. Same guard the hooks use.
+    sys.dont_write_bytecode = True
     sys.path.insert(0, str(Path(__file__).resolve().parent))
     import aw_gate
 
