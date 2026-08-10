@@ -236,7 +236,7 @@ def test_source_package_declares_claude_only() -> None:
 def test_claude_publication_carries_every_declared_surface() -> None:
     manifest = json.loads((PUBLISHED / ".claude-plugin" / "plugin.json").read_text(encoding="utf-8"))
     assert manifest["name"] == "attention-workflow"
-    assert manifest["version"] == "0.8.0"
+    assert manifest["version"] == "0.8.1"
     # Experimental: installing the marketplace must not switch the lifecycle
     # out from under an in-flight spec-flow change.
     assert manifest["defaultEnabled"] is False
@@ -305,7 +305,7 @@ def test_claude_registry_lists_the_package() -> None:
         )
     )
     entry = next(p for p in registry["plugins"] if p["name"] == "attention-workflow")
-    assert entry["version"] == "0.8.0"
+    assert entry["version"] == "0.8.1"
 
 
 def test_verifier_agent_is_read_and_execute_only() -> None:
@@ -1426,3 +1426,38 @@ def test_the_gate_does_not_re_prompt_on_re_entry(
         gated,
     )
     assert decision(result) is None
+
+
+def test_a_closed_tab_does_not_strand_a_pending_gate(
+    env: dict[str, str], tmp_path: Path, state_root: Path
+) -> None:
+    """The URL carries a random token; printing it once makes it losable.
+
+    While a gate is open its URL lives in the state root, so reopening a
+    closed tab is possible at all. It is removed the instant the gate
+    resolves, so a stale URL can never point at a decision already made.
+    """
+    import threading
+    import time
+
+    open_change(env, tmp_path)
+    pending = state_root / "gate-url.txt"
+
+    proc = subprocess.Popen(
+        [sys.executable, str(HELPER), "gate", "authorize", "--timeout", "3", "--no-browser"],
+        stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, env=env,
+    )
+    try:
+        for _ in range(100):
+            if pending.is_file():
+                break
+            time.sleep(0.05)
+        assert pending.is_file(), "a live gate must publish its URL somewhere recoverable"
+        url = pending.read_text(encoding="utf-8").strip()
+        assert url.startswith("http://127.0.0.1:")
+        assert helper(env, "gate-url").stdout.strip() == url
+    finally:
+        proc.wait(timeout=15)
+
+    assert not pending.is_file(), "a resolved gate must not leave a stale URL behind"
+    helper(env, "gate-url", expect=2)

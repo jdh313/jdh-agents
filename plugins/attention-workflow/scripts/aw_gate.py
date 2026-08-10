@@ -190,6 +190,7 @@ def serve_decision(
     timeout: float = DEFAULT_TIMEOUT_SECONDS,
     open_browser: bool = True,
     announce: Any = sys.stderr,
+    pending_path: Any = None,
 ) -> GateResult:
     """Serve one decision page on loopback and block until it resolves.
 
@@ -278,6 +279,19 @@ def serve_decision(
         # RFC 8252 and `gh auth login` both do this: try to open a browser, and
         # leave a working manual path when that fails. A fallback that is always
         # present is a fallback that is always tested.
+        # A closed tab must not strand a pending decision. The URL carries a
+        # random token, so printing it once to stderr makes the gate
+        # unrecoverable the moment that line scrolls away -- and "the grant
+        # stays pending and can be reopened" is then a promise with no
+        # mechanism behind it. While the gate is open the URL lives in a file;
+        # it is removed the instant the gate resolves, so a stale URL can never
+        # point at a decision that has already been made.
+        if pending_path is not None:
+            try:
+                pending_path.parent.mkdir(parents=True, exist_ok=True)
+                pending_path.write_text(url + "\n", encoding="utf-8")
+            except OSError:
+                pass
         if announce is not None:
             announce.write(f"attention-workflow gate: {url}\n")
             announce.flush()
@@ -293,3 +307,8 @@ def serve_decision(
         # The listener dies with the decision, answered or not.
         server.shutdown()
         server.server_close()
+        if pending_path is not None:
+            try:
+                pending_path.unlink(missing_ok=True)
+            except OSError:
+                pass

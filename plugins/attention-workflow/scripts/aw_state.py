@@ -1389,6 +1389,20 @@ def render_card_html_body(text: str) -> str:
     return "\n".join(out) + "</section>"
 
 
+def pending_gate_path(state_root: Path) -> Path:
+    """Where a live gate publishes its URL, so a closed tab is recoverable."""
+    return state_root / "gate-url.txt"
+
+
+def cmd_gate_url(args: argparse.Namespace) -> int:
+    """Print the URL of the gate currently waiting, if one is."""
+    path = pending_gate_path(_state_root_from_args(args))
+    if not path.is_file():
+        raise StateError("no gate is waiting for a decision in this repository")
+    sys.stdout.write(path.read_text(encoding="utf-8").strip() + "\n")
+    return 0
+
+
 def cmd_gate(args: argparse.Namespace) -> int:
     """Render a card as a page, block on a human decision, report the outcome.
 
@@ -1422,6 +1436,7 @@ def cmd_gate(args: argparse.Namespace) -> int:
         args.kind,
         timeout=args.timeout,
         open_browser=not args.no_browser,
+        pending_path=pending_gate_path(state_root),
     )
 
     if result.is_decision:
@@ -1606,6 +1621,9 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--no-browser", action="store_true",
                    help="print the URL but do not open a browser")
     p.set_defaults(func=cmd_gate)
+
+    p = sub.add_parser("gate-url")
+    p.set_defaults(func=cmd_gate_url)
 
     p = sub.add_parser("guard-check")
     p.add_argument("--action", required=True)

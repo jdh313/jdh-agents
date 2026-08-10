@@ -205,6 +205,7 @@ def guard_authorization_gate(command: str, state_root: Path):
     result = aw_gate.serve_decision(
         aw_state.render_card_html_body(text), "authorize",
         timeout=float(os.environ.get("AW_GATE_TIMEOUT") or aw_gate.DEFAULT_TIMEOUT_SECONDS),
+        pending_path=aw_state.pending_gate_path(state_root),
     )
 
     aw_state.append_history(
