@@ -236,7 +236,7 @@ def test_source_package_declares_claude_only() -> None:
 def test_claude_publication_carries_every_declared_surface() -> None:
     manifest = json.loads((PUBLISHED / ".claude-plugin" / "plugin.json").read_text(encoding="utf-8"))
     assert manifest["name"] == "attention-workflow"
-    assert manifest["version"] == "0.6.0"
+    assert manifest["version"] == "0.7.0"
     # Experimental: installing the marketplace must not switch the lifecycle
     # out from under an in-flight spec-flow change.
     assert manifest["defaultEnabled"] is False
@@ -305,7 +305,7 @@ def test_claude_registry_lists_the_package() -> None:
         )
     )
     entry = next(p for p in registry["plugins"] if p["name"] == "attention-workflow")
-    assert entry["version"] == "0.6.0"
+    assert entry["version"] == "0.7.0"
 
 
 def test_verifier_agent_is_read_and_execute_only() -> None:
@@ -1192,3 +1192,177 @@ def test_state_root_is_keyed_by_repository_and_stays_out_of_the_worktree(
     assert from_root == from_nested
     assert str(git_repo) not in from_root, "state must not live in the target repository"
     assert from_root.startswith(str(tmp_path / "claude-home"))
+
+
+# ---------------------------------------------------------------------------
+# Authorization gate (loopback server)
+# ---------------------------------------------------------------------------
+
+
+def _load_gate() -> Any:
+    previous = sys.dont_write_bytecode
+    sys.dont_write_bytecode = True
+    try:
+        spec = importlib.util.spec_from_file_location(
+            "aw_gate_under_test", SOURCE / "scripts" / "aw_gate.py"
+        )
+        assert spec and spec.loader
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        return module
+    finally:
+        sys.dont_write_bytecode = previous
+
+
+aw_gate = _load_gate()
+
+
+def _gate_in_thread(kind: str = "authorize", timeout: float = 5.0) -> tuple[Any, list[Any], list[str]]:
+    """Run a gate on a background thread; return (thread, results, [url])."""
+    import io
+    import re as _re
+    import threading as _threading
+
+    announce = io.StringIO()
+    results: list[Any] = []
+
+    def run() -> None:
+        results.append(
+            aw_gate.serve_decision(
+                "<section class='sec'></section>",
+                kind,
+                timeout=timeout,
+                open_browser=False,
+                announce=announce,
+            )
+        )
+
+    thread = _threading.Thread(target=run, daemon=True)
+    thread.start()
+
+    url = ""
+    for _ in range(200):
+        text = announce.getvalue()
+        match = _re.search(r"http://127\.0\.0\.1:\d+/\?state=[\w\-]+", text)
+        if match:
+            url = match.group(0)
+            break
+        __import__("time").sleep(0.02)
+    assert url, "the gate must print its URL whether or not a browser opens"
+    return thread, results, [url]
+
+
+def _post(url: str, payload: dict[str, Any]) -> int:
+    import urllib.error
+    import urllib.request
+
+    base = url.split("/?")[0]
+    req = urllib.request.Request(
+        base + "/decide",
+        data=json.dumps(payload).encode(),
+        headers={"Content-Type": "application/json"},
+        method="POST",
+    )
+    try:
+        with urllib.request.urlopen(req, timeout=5) as resp:
+            return resp.status
+    except urllib.error.HTTPError as exc:
+        return exc.code
+    except OSError:
+        # The listener is already gone. For a replay that is a refusal too --
+        # arguably the strongest one available.
+        return 0
+
+
+def _state_of(url: str) -> str:
+    return url.split("state=")[1]
+
+
+def test_gate_returns_the_operator_decision() -> None:
+    thread, results, (url,) = _gate_in_thread()
+    assert _post(url, {"state": _state_of(url), "token": "AUTHORIZE", "note": "read it"}) == 200
+    thread.join(timeout=5)
+    assert results[0].state == aw_gate.AUTHORIZED
+    assert results[0].note == "read it"
+
+
+def test_abandonment_is_not_denial() -> None:
+    """RFC 8628 keeps expired_token separate from access_denied, and so must we.
+
+    Walking away from a decision is not making one. Recording it as a denial
+    would put a decision the operator never made into the authority of record.
+    """
+    thread, results, _ = _gate_in_thread(timeout=0.4)
+    thread.join(timeout=5)
+    assert results[0].state == aw_gate.ABANDONED
+    assert results[0].state != aw_gate.DENIED
+    assert results[0].is_decision is False
+
+
+def test_gate_refuses_a_replayed_or_forged_state_token() -> None:
+    thread, results, (url,) = _gate_in_thread()
+    assert _post(url, {"state": "forged", "token": "AUTHORIZE"}) == 403
+    assert _post(url, {"state": _state_of(url), "token": "AUTHORIZE"}) == 200
+    # Single-use: the gate has already moved the state, so a second answer is
+    # both meaningless and a replay.
+    assert _post(url, {"state": _state_of(url), "token": "STOP"}) != 200
+    thread.join(timeout=5)
+    assert results[0].state == aw_gate.AUTHORIZED
+
+
+def test_gate_binds_loopback_only_and_closes_after_resolving() -> None:
+    import socket
+    import urllib.error
+    import urllib.request
+
+    thread, results, (url,) = _gate_in_thread()
+    port = int(url.split(":")[2].split("/")[0])
+
+    # Loopback bind: the port must not be reachable on a non-loopback address.
+    probe = socket.socket()
+    probe.settimeout(0.5)
+    host_ip = socket.gethostbyname(socket.gethostname())
+    reachable_externally = host_ip != "127.0.0.1" and probe.connect_ex((host_ip, port)) == 0
+    probe.close()
+    assert not reachable_externally, "the gate must bind 127.0.0.1, never 0.0.0.0"
+
+    _post(url, {"state": _state_of(url), "token": "AUTHORIZE"})
+    thread.join(timeout=5)
+    assert results[0].state == aw_gate.AUTHORIZED
+
+    # The listener dies with the decision.
+    try:
+        urllib.request.urlopen(url, timeout=1)
+        still_up = True
+    except (urllib.error.URLError, OSError):
+        still_up = False
+    assert not still_up, "the listener must not outlive the decision"
+
+
+def test_gate_page_requires_the_state_token_to_be_read() -> None:
+    import urllib.error
+    import urllib.request
+
+    thread, results, (url,) = _gate_in_thread(timeout=2.0)
+    bare = url.split("/?")[0] + "/"
+    try:
+        urllib.request.urlopen(bare, timeout=2)
+        code = 200
+    except urllib.error.HTTPError as exc:
+        code = exc.code
+    assert code == 403, "another local process must not read the grant by guessing the port"
+    thread.join(timeout=5)
+    assert results[0].state == aw_gate.ABANDONED
+
+
+def test_gate_records_no_decision_when_abandoned(
+    env: dict[str, str], tmp_path: Path, state_root: Path
+) -> None:
+    open_change(env, tmp_path)
+    out = json.loads(
+        helper(env, "gate", "authorize", "--timeout", "0.3", "--no-browser").stdout
+    )
+    assert out["decision"] == "abandoned"
+    history = (state_root / "history.jsonl").read_text(encoding="utf-8")
+    assert "gate-abandoned" in history
+    assert '"decision": "denied"' not in history

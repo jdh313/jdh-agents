@@ -1329,6 +1329,130 @@ def cmd_card(args: argparse.Namespace) -> int:
     return 0
 
 
+def render_card_html_body(text: str) -> str:
+    """Turn a rendered card into the HTML body of the decision page.
+
+    Deliberately derived from the *rendered text*, not from the records a
+    second time. One renderer means the page and the terminal card cannot drift
+    apart, and the saved .txt stays the honest record of what was on screen.
+    """
+    import html as _html
+
+    out: list[str] = []
+    rows: list[str] = []
+
+    def flush() -> None:
+        if rows:
+            out.append('<div class="rows">' + "".join(rows) + "</div>")
+            rows.clear()
+
+    lines = text.splitlines()
+    if lines:
+        head = lines[0]
+        out.append(
+            '<header class="head"><span class="kind">'
+            + _html.escape(head)
+            + "</span></header>"
+        )
+    pending: list[str] = []
+    label = ""
+
+    def close_row() -> None:
+        nonlocal label
+        if label:
+            body = "<br>".join(_html.escape(p) for p in pending)
+            rows.append(
+                f'<div class="row"><div class="lab">{_html.escape(label)}</div>'
+                f'<div class="val">{body}</div></div>'
+            )
+        pending.clear()
+        label = ""
+
+    for line in lines[1:]:
+        if not line.strip():
+            continue
+        if line.startswith("-- "):
+            close_row()
+            flush()
+            caption = line[3:].split(" --")[0].strip(" -")
+            out.append(f'<section class="sec"><div class="eyebrow">{_html.escape(caption)}</div>')
+            continue
+        if line.startswith(" " * 12):
+            pending.append(line.strip())
+            continue
+        close_row()
+        label, _, value = line.partition("  ")
+        label = label.strip()
+        pending.append(value.strip())
+    close_row()
+    flush()
+    return "\n".join(out) + "</section>"
+
+
+def cmd_gate(args: argparse.Namespace) -> int:
+    """Render a card as a page, block on a human decision, report the outcome.
+
+    Prints one JSON object. ``decision`` is ``authorized``, ``denied``, or
+    ``abandoned`` -- and the caller must branch on all three. An abandoned gate
+    is not a refusal: no decision was made, so none is recorded, and the same
+    gate can simply be opened again.
+    """
+    sys.path.insert(0, str(Path(__file__).resolve().parent))
+    import aw_gate
+
+    state_root = _state_root_from_args(args)
+    projection = evaluate(state_root)
+    if projection.get("status") == "no-state":
+        raise StateError("no active change in this repository")
+
+    grant_id = args.grant or projection.get("active_grant")
+    run_id = args.run or projection.get("active_verification_run")
+    grant = load_grant(state_root, grant_id) if grant_id else None
+    run = load_run(state_root, run_id) if run_id else None
+
+    text = render_card(args.kind, projection, grant, run)
+    write_card(state_root, args.kind, text)
+
+    result = aw_gate.serve_decision(
+        render_card_html_body(text),
+        args.kind,
+        timeout=args.timeout,
+        open_browser=not args.no_browser,
+    )
+
+    if result.is_decision:
+        append_history(
+            state_root,
+            {
+                "event": "gate",
+                "kind": args.kind,
+                "grant": grant_id,
+                "run": run_id,
+                "decision": result.state,
+                "token": result.token,
+                "note": result.note,
+            },
+        )
+    else:
+        # Recorded as an observation about the gate, never as an answer. The
+        # distinction is the whole point: RFC 8628 keeps expired_token separate
+        # from access_denied, and writing a denial here would put a decision the
+        # operator never made into the authority of record.
+        append_history(
+            state_root,
+            {
+                "event": "gate-abandoned",
+                "kind": args.kind,
+                "grant": grant_id,
+                "seconds": args.timeout,
+                "note": f"no response within {int(args.timeout)}s; no decision recorded",
+            },
+        )
+
+    _emit(result.as_dict())
+    return 0
+
+
 def cmd_guard_check(args: argparse.Namespace) -> int:
     allowed, reason = delivery_allowed(_state_root_from_args(args), args.action)
     _emit({"action": args.action, "allowed": allowed, "reason": reason})
@@ -1468,6 +1592,16 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--grant", help="grant id (defaults to the active one)")
     p.add_argument("--run", help="verification run id (defaults to the active one)")
     p.set_defaults(func=cmd_card)
+
+    p = sub.add_parser("gate")
+    p.add_argument("kind", choices=["authorize", "reconcile"])
+    p.add_argument("--grant", help="grant id (defaults to the active one)")
+    p.add_argument("--run", help="verification run id (defaults to the active one)")
+    p.add_argument("--timeout", type=float, default=300.0,
+                   help="seconds to wait for a decision (default 300)")
+    p.add_argument("--no-browser", action="store_true",
+                   help="print the URL but do not open a browser")
+    p.set_defaults(func=cmd_gate)
 
     p = sub.add_parser("guard-check")
     p.add_argument("--action", required=True)
