@@ -186,6 +186,20 @@ def guard_authorization_gate(command: str, state_root: Path):
     """
     if os.environ.get("AW_GATE") != "1":
         return None
+    # hooks.json declares a 15s ceiling, because that is what the DEFAULT
+    # configuration needs -- the gate is off, and a 330s ceiling on every Bash
+    # call to support a disabled feature is a standing cost paid by everyone
+    # for nobody. Turning the gate on therefore also means raising that
+    # timeout by hand; without it Claude Code would kill this hook mid-decision
+    # and the operator would watch their authorization page die at 15 seconds.
+    if os.environ.get("AW_GATE_HOOK_TIMEOUT_RAISED") != "1":
+        return deny(
+            "[attention-workflow] AW_GATE=1 is set, but the PreToolUse hook "
+            "timeout in hooks.json is still 15s -- shorter than the decision it "
+            "would have to wait for. Raise that timeout above AW_GATE_TIMEOUT "
+            "(default 300s) and set AW_GATE_HOOK_TIMEOUT_RAISED=1, or unset "
+            "AW_GATE and answer at the terminal card instead."
+        )
     if not any(ENTER_IMPLEMENT_RE.search(seg) for seg in segments(command)):
         return None
     # Already authorized under this grant? Then this is a re-entry (a returned

@@ -24,7 +24,7 @@
             "args": [
               "${CLAUDE_PLUGIN_ROOT}/hooks/authority_delivery_guard.py"
             ],
-            "timeout": 330
+            "timeout": 15
           }
         ]
       }

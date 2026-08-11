@@ -236,7 +236,7 @@ def test_source_package_declares_claude_only() -> None:
 def test_claude_publication_carries_every_declared_surface() -> None:
     manifest = json.loads((PUBLISHED / ".claude-plugin" / "plugin.json").read_text(encoding="utf-8"))
     assert manifest["name"] == "attention-workflow"
-    assert manifest["version"] == "0.9.1"
+    assert manifest["version"] == "0.10.0"
     # Experimental: installing the marketplace must not switch the lifecycle
     # out from under an in-flight spec-flow change.
     assert manifest["defaultEnabled"] is False
@@ -305,7 +305,7 @@ def test_claude_registry_lists_the_package() -> None:
         )
     )
     entry = next(p for p in registry["plugins"] if p["name"] == "attention-workflow")
-    assert entry["version"] == "0.9.1"
+    assert entry["version"] == "0.10.0"
 
 
 def test_verifier_agent_is_read_and_execute_only() -> None:
@@ -1394,7 +1394,8 @@ def test_an_abandoned_gate_denies_without_calling_it_a_refusal(
     """
     helper(env, "init", "--change-id", "demo", "--title", "Demo change")
     helper_json(env, "grant-create", "--file", str(write_basis(tmp_path)))
-    gated = {**env, "AW_GATE": "1", "AW_GATE_TIMEOUT": "0.3"}
+    gated = {**env, "AW_GATE": "1", "AW_GATE_TIMEOUT": "0.3",
+             "AW_GATE_HOOK_TIMEOUT_RAISED": "1"}
     result = run_hook(
         GUARD_HOOK,
         bash_payload("python3 aw_state.py transition --phase implement", str(git_repo)),
@@ -1419,7 +1420,8 @@ def test_the_gate_does_not_re_prompt_on_re_entry(
     which is exactly the phase-per-turn ceremony this workflow rejects.
     """
     open_change(env, tmp_path)  # already in implement, authorized
-    gated = {**env, "AW_GATE": "1", "AW_GATE_TIMEOUT": "0.3"}
+    gated = {**env, "AW_GATE": "1", "AW_GATE_TIMEOUT": "0.3",
+             "AW_GATE_HOOK_TIMEOUT_RAISED": "1"}
     result = run_hook(
         GUARD_HOOK,
         bash_payload("python3 aw_state.py transition --phase implement", str(git_repo)),
@@ -1514,3 +1516,24 @@ def test_expiry_is_stamped_once_and_never_rewritten(
     open_change(env, tmp_path)
     first = helper_json(env, "grant-show", "g1")["expires_at"]
     assert helper_json(env, "grant-show", "g1")["expires_at"] == first
+
+
+def test_the_gate_refuses_to_start_a_decision_the_hook_cannot_outlive(
+    env: dict[str, str], tmp_path: Path, git_repo: Path
+) -> None:
+    """hooks.json ships a 15s ceiling because that is what the default needs.
+
+    A 330s ceiling on every Bash call, to support a feature that is off, is a
+    standing cost paid by everyone for nobody. So turning the gate on also
+    means raising that timeout by hand -- and if it has not been raised, the
+    gate says so rather than opening a page that dies at 15 seconds.
+    """
+    helper(env, "init", "--change-id", "demo", "--title", "Demo change")
+    helper_json(env, "grant-create", "--file", str(write_basis(tmp_path)))
+    result = run_hook(
+        GUARD_HOOK,
+        bash_payload("python3 aw_state.py transition --phase implement", str(git_repo)),
+        {**env, "AW_GATE": "1"},
+    )
+    assert decision(result) == "deny"
+    assert "still 15s" in result["hookSpecificOutput"]["permissionDecisionReason"]
