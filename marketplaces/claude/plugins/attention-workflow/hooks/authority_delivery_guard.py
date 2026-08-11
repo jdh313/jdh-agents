@@ -20,7 +20,6 @@ than a guard that misses.
 from __future__ import annotations
 
 import json
-import os
 import re
 import sys
 from pathlib import Path
@@ -161,94 +160,6 @@ def guard_delivery(command: str, state_root: Path) -> str | None:
     return None
 
 
-# The transition that hands autonomy to the agent. Gating it, rather than the
-# grant's creation, is deliberate: the grant is a proposal until this moment.
-ENTER_IMPLEMENT_RE = re.compile(
-    r"aw_state\.py\b[^|;&]*\btransition\b[^|;&]*--phase\s+implement", re.IGNORECASE
-)
-
-
-def guard_authorization_gate(command: str, state_root: Path):
-    """Block the hand-off to the agent behind a human decision.
-
-    OFF unless ``AW_GATE=1``. A hook that blocks is a hook that can take the
-    operator's whole session with it, so this stays opt-in until it has been
-    driven by hand across several real changes. When off, the terminal card and
-    a typed token remain the path, exactly as before.
-
-    Three outcomes, and the middle one is the reason this is not a boolean:
-
-    * authorized -> allow the transition
-    * denied     -> deny it, quoting the operator's own words back
-    * abandoned  -> deny it, but say plainly that no decision was made. The
-      grant stays pending and the gate can simply be reopened. Reporting this
-      as a refusal would attribute to the operator a choice they never made.
-    """
-    if os.environ.get("AW_GATE") != "1":
-        return None
-    # hooks.json declares a 15s ceiling, because that is what the DEFAULT
-    # configuration needs -- the gate is off, and a 330s ceiling on every Bash
-    # call to support a disabled feature is a standing cost paid by everyone
-    # for nobody. Turning the gate on therefore also means raising that
-    # timeout by hand; without it Claude Code would kill this hook mid-decision
-    # and the operator would watch their authorization page die at 15 seconds.
-    if os.environ.get("AW_GATE_HOOK_TIMEOUT_RAISED") != "1":
-        return deny(
-            "[attention-workflow] AW_GATE=1 is set, but the PreToolUse hook "
-            "timeout in hooks.json is still 15s -- shorter than the decision it "
-            "would have to wait for. Raise that timeout above AW_GATE_TIMEOUT "
-            "(default 300s) and set AW_GATE_HOOK_TIMEOUT_RAISED=1, or unset "
-            "AW_GATE and answer at the terminal card instead."
-        )
-    if not any(ENTER_IMPLEMENT_RE.search(seg) for seg in segments(command)):
-        return None
-    # Already authorized under this grant? Then this is a re-entry (a returned
-    # defect, a resumed session), not a fresh hand-off, and must not re-prompt.
-    projection = aw_state.evaluate(state_root)
-    if projection.get("phase") == "implement" and projection.get("status") == "ok":
-        return None
-
-    sys.path.insert(0, str(Path(aw_state.__file__).resolve().parent))
-    sys.dont_write_bytecode = True
-    import aw_gate
-
-    grant_id = projection.get("active_grant")
-    grant = aw_state.load_grant(state_root, grant_id) if grant_id else None
-    run = None
-    text = aw_state.render_card("authorize", projection, grant, run)
-    result = aw_gate.serve_decision(
-        aw_state.render_card_html_body(text), "authorize",
-        timeout=float(os.environ.get("AW_GATE_TIMEOUT") or aw_gate.DEFAULT_TIMEOUT_SECONDS),
-        pending_path=aw_state.pending_gate_path(state_root),
-    )
-
-    aw_state.append_history(
-        state_root,
-        {
-            "event": "gate" if result.is_decision else "gate-abandoned",
-            "kind": "authorize",
-            "grant": grant_id,
-            "decision": result.state,
-            "token": result.token,
-            "note": result.note,
-        },
-    )
-
-    if result.state == aw_gate.AUTHORIZED:
-        return 0
-    if result.state == aw_gate.DENIED:
-        return deny(
-            f"The operator answered {result.token} at the authorization gate"
-            + (f": {result.note}" if result.note else ".")
-            + " Do not enter implement. Revise the basis and request a new grant."
-        )
-    return deny(
-        "No answer at the authorization gate within the timeout. This is NOT a "
-        "refusal — no decision was made, so none was recorded. The grant stays "
-        "pending; reopen the gate when the operator is back."
-    )
-
-
 def main() -> int:
     try:
         payload = json.load(sys.stdin)
@@ -286,9 +197,6 @@ def main() -> int:
             reason = guard_delivery(command, state_root)
             if reason:
                 return deny(reason)
-            decision = guard_authorization_gate(command, state_root)
-            if decision is not None:
-                return decision
     except Exception:
         return 0
 
