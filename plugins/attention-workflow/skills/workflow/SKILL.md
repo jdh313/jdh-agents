@@ -410,6 +410,11 @@ python3 "$HELPER" transition --phase close --owner jacob --condition active \
   --outcome delivered --reason "delivered as authorized" --clear-attention
 ```
 
+While this workflow is an experiment, offer `/debrief` once after the closed
+card — one line, declined without discussion. It asks what the *workflow* cost
+and emits a sanitized block the operator can carry off the machine; a run that
+went badly is worth debriefing before Close rather than after.
+
 `--outcome` is `delivered`, `stopped`, or `abandoned`. Abandoned work is never
 represented as delivered. Durable residue goes to its usual home —
 `/capture-decision` for decisions, README/CLAUDE.md for behavior changes — not

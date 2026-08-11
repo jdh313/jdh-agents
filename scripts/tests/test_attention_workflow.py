@@ -32,6 +32,7 @@ SOURCE = REPO_ROOT / "plugins" / "attention-workflow"
 PUBLISHED = REPO_ROOT / "marketplaces" / "claude" / "plugins" / "attention-workflow"
 HELPER = SOURCE / "scripts" / "aw_state.py"
 SKILL = SOURCE / "skills" / "workflow" / "SKILL.md"
+DEBRIEF = SOURCE / "skills" / "debrief" / "SKILL.md"
 SESSION_START_HOOK = SOURCE / "hooks" / "session_start.py"
 GUARD_HOOK = SOURCE / "hooks" / "authority_delivery_guard.py"
 
@@ -237,7 +238,7 @@ def test_source_package_declares_claude_only() -> None:
 def test_claude_publication_carries_every_declared_surface() -> None:
     manifest = json.loads((PUBLISHED / ".claude-plugin" / "plugin.json").read_text(encoding="utf-8"))
     assert manifest["name"] == "attention-workflow"
-    assert manifest["version"] == "0.14.0"
+    assert manifest["version"] == "0.15.0"
     # Experimental: installing the marketplace must not switch the lifecycle
     # out from under an in-flight spec-flow change.
     assert manifest["defaultEnabled"] is False
@@ -269,6 +270,10 @@ def test_claude_publication_carries_every_declared_surface() -> None:
     # spell out the phase change so the record stays honest about who is acting.
     assert "--phase implement --owner execution" in skill
     assert "VERIFIER VERDICT" in skill or "no verdict, no recommendation" in skill
+
+    debrief = (PUBLISHED / "skills" / "debrief" / "SKILL.md").read_text(encoding="utf-8")
+    assert "name: debrief" in debrief
+    assert "AW-DEBRIEF" in debrief
 
     agent = (PUBLISHED / "agents" / "workflow-verifier.md").read_text(encoding="utf-8")
     assert "name: workflow-verifier" in agent
@@ -309,7 +314,7 @@ def test_claude_registry_lists_the_package() -> None:
         )
     )
     entry = next(p for p in registry["plugins"] if p["name"] == "attention-workflow")
-    assert entry["version"] == "0.14.0"
+    assert entry["version"] == "0.15.0"
 
 
 def test_verifier_agent_is_read_and_execute_only() -> None:
@@ -1446,3 +1451,57 @@ def test_the_vocabulary_check_stays_a_suggestion() -> None:
     assert "no `CONTEXT.md`, say nothing" in skill
     # The helper stays unaware of glossaries; a gate would need an accessor.
     assert "CONTEXT.md" not in HELPER.read_text(encoding="utf-8")
+
+
+# ---------------------------------------------------------------------------
+# Debrief: feedback leaves the machine, the change does not
+# ---------------------------------------------------------------------------
+
+
+def test_the_debrief_refuses_to_confabulate_a_run() -> None:
+    """Most runs happen where the state root cannot be carried home.
+
+    A debrief invented from the skill text reads like evidence and is not, so
+    the refusal has to be stated before the questions, not after them.
+    """
+    text = DEBRIEF.read_text(encoding="utf-8")
+    assert "Refuse rather than confabulate" in text
+    assert "compacted" in text
+
+
+def test_the_debrief_never_carries_the_change_itself() -> None:
+    """The workflow is public and the change is not — that split is the skill."""
+    text = DEBRIEF.read_text(encoding="utf-8")
+    # Free-text state fields are the change's content, and are named as such.
+    for field in ("`title`", "`promise`", "`route`", "`assumptions`"):
+        assert field in text
+    assert "Take no free text from them" in text
+    assert "When in doubt, drop the item" in text
+    # Sanitizing is a second pass over drafted text, not a filter while writing.
+    assert "Sanitize as a separate pass" in text
+
+
+def test_the_debrief_is_read_only_against_state_and_the_repository() -> None:
+    """Cards are helper-written; a report is not state and has no disk home."""
+    frontmatter = DEBRIEF.read_text(encoding="utf-8").split("---", 2)[1]
+    for forbidden in ("- Edit", "- Write", "- NotebookEdit"):
+        assert forbidden not in frontmatter
+    body = DEBRIEF.read_text(encoding="utf-8")
+    assert "Do not write anything under the state root" in body
+    assert "never write the report" in body.lower()
+
+
+def test_the_debrief_reports_friction_not_patches() -> None:
+    """One run is one data point; a fix drafted from it encodes its specifics."""
+    text = " ".join(DEBRIEF.read_text(encoding="utf-8").split())
+    assert "Report the friction, not the patch" in text
+    assert "One run is one data point" in text
+
+
+def test_close_offers_the_debrief_without_gating_on_it() -> None:
+    """ndr:v4wn6d — a structural trigger stays a suggestion until justified."""
+    skill = SKILL.read_text(encoding="utf-8")
+    assert "/debrief" in skill
+    assert "declined without discussion" in skill
+    # The helper gates Close on the capture item alone; debrief is not a gate.
+    assert "debrief" not in HELPER.read_text(encoding="utf-8").lower()
