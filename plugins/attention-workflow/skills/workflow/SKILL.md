@@ -152,7 +152,7 @@ python3 "$HELPER" grant-create --file /tmp/aw-basis.json
 | Key | Content |
 |---|---|
 | `operator_question` | What the finished change must let Jacob determine |
-| `promise` | Observable promised outcomes |
+| `promise` | Observable promised outcomes, each phrased as a rule (below) |
 | `exclusions` | What this change will not do |
 | `route` | The planned route at decision-relevant altitude only |
 | `assumptions` | `[{statement, falsifier}]` — load-bearing ones, each with what would disprove it |
@@ -164,6 +164,27 @@ python3 "$HELPER" grant-create --file /tmp/aw-basis.json
 | `enforcement` | `{hook_guarded, check_gated, agent_monitored, uncovered}` |
 | `delivery_authorized` | Delivery actions this grant covers (see below) |
 | `supersedes` | Prior grant id, when this replaces one |
+
+**Phrase each `promise` as a rule**: `<noun> MUST [NOT] <predicate>`, in domain
+nouns — no method names, columns, status codes, or file paths. One claim per
+line, and every line must be capable of being false. *A document MUST have no
+live children before it can be soft-deleted* names its own observation; *improve
+the delete guard* gives the verifier nothing to check. The mechanism — method,
+exception, status code — belongs in `route`, not here.
+
+`promise` takes the rules **this change enforces**. A rule that already holds is
+Design grounding, not a promise: where a ledger exists it is a decision head
+`/ground` returns. A rule identified but not decided is neither — it is out of
+scope, and belongs in `exclusions` or a tracker item.
+
+Rule form is also what makes the vocabulary check possible. If the repository
+has a root `CONTEXT.md`, read it and check each promise noun against its
+glossary and its flagged ambiguities. Report any noun that is absent, or that
+`CONTEXT.md` records as contested, on the authorization card — one line, and
+suggest `craft:grill-with-docs`. This is a suggestion, never a gate: Jacob may
+authorize over it. Where the repository has no `CONTEXT.md`, say nothing. A
+glossary is created lazily by the skill that owns it, and proposing one here
+would invent work outside the change.
 
 `assumption_coverage.residual_unlisted_risk` must be present and honest. Naming
 assumption areas is not proof the inventory is complete. Never present it as if
@@ -379,6 +400,10 @@ itself: a promise the outcome did not meet, an assumption that turned out
 load-bearing, a route abandoned mid-change. Present candidates as candidates
 and let Jacob decide. This helper never writes an atom — `/capture-decision`
 does, with him in it.
+
+A promise authored in rule form carries into the atom's `Decision` unchanged, so
+the rule the change enforced is already phrased for the ledger. Do not rewrite it
+into narrative on the way there.
 
 ```bash
 python3 "$HELPER" transition --phase close --owner jacob --condition active \

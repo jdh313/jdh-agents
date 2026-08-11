@@ -31,6 +31,7 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 SOURCE = REPO_ROOT / "plugins" / "attention-workflow"
 PUBLISHED = REPO_ROOT / "marketplaces" / "claude" / "plugins" / "attention-workflow"
 HELPER = SOURCE / "scripts" / "aw_state.py"
+SKILL = SOURCE / "skills" / "workflow" / "SKILL.md"
 SESSION_START_HOOK = SOURCE / "hooks" / "session_start.py"
 GUARD_HOOK = SOURCE / "hooks" / "authority_delivery_guard.py"
 
@@ -236,7 +237,7 @@ def test_source_package_declares_claude_only() -> None:
 def test_claude_publication_carries_every_declared_surface() -> None:
     manifest = json.loads((PUBLISHED / ".claude-plugin" / "plugin.json").read_text(encoding="utf-8"))
     assert manifest["name"] == "attention-workflow"
-    assert manifest["version"] == "0.13.0"
+    assert manifest["version"] == "0.14.0"
     # Experimental: installing the marketplace must not switch the lifecycle
     # out from under an in-flight spec-flow change.
     assert manifest["defaultEnabled"] is False
@@ -308,7 +309,7 @@ def test_claude_registry_lists_the_package() -> None:
         )
     )
     entry = next(p for p in registry["plugins"] if p["name"] == "attention-workflow")
-    assert entry["version"] == "0.13.0"
+    assert entry["version"] == "0.14.0"
 
 
 def test_verifier_agent_is_read_and_execute_only() -> None:
@@ -1425,3 +1426,23 @@ def test_the_helper_never_writes_an_atom() -> None:
     source = HELPER.read_text(encoding="utf-8")
     assert "ndr capture" not in source
     assert "decisions/" not in source
+
+
+def test_promise_is_authored_in_rule_form() -> None:
+    """A promise the verifier cannot falsify is the failure this shape closes."""
+    skill = SKILL.read_text(encoding="utf-8")
+    assert "`<noun> MUST [NOT] <predicate>`" in skill
+    assert "capable of being false" in skill
+
+
+def test_the_vocabulary_check_stays_a_suggestion() -> None:
+    """ndr:v4wn6d — a structural trigger stays a suggestion until justified.
+
+    The check is also silent where no glossary exists: a repository earns a
+    CONTEXT.md, and this workflow is not the skill that creates one.
+    """
+    skill = SKILL.read_text(encoding="utf-8")
+    assert "suggestion, never a gate" in skill
+    assert "no `CONTEXT.md`, say nothing" in skill
+    # The helper stays unaware of glossaries; a gate would need an accessor.
+    assert "CONTEXT.md" not in HELPER.read_text(encoding="utf-8")
