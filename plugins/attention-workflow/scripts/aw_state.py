@@ -8,6 +8,8 @@ because they have different write semantics:
   current.json       mutable projection of phase / owner / condition.
   runs/v<N>.json     verification runs, with terminal results that persist
                      independently of any agent notification.
+  config.json        project settings — which tracker, whose the terminal
+                     state. Says where and how, never whether.
 
 Standard library only. Every mutation is an atomic replace so a crashed write
 cannot leave a half-written record behind.
@@ -31,6 +33,7 @@ from typing import Any
 SCHEMA_CURRENT = "attention-workflow/current/v1"
 SCHEMA_GRANT = "attention-workflow/grant/v1"
 SCHEMA_RUN = "attention-workflow/run/v1"
+SCHEMA_CONFIG = "attention-workflow/config/v1"
 
 PHASES = ("frame", "design", "prepare", "implement", "verify", "deliver", "close")
 OWNERS = ("jacob", "execution", "verification", "delivery", "external")
@@ -52,11 +55,31 @@ DELIVERY_ACTIONS = (
     "pr-merge",
     "deploy",
     "migrate",
-    "tracker-in-progress",
+    # Tracker projections. `tracker-transition` covers only the reversible
+    # in-progress and in-review moves; a terminal state is never this
+    # workflow's to write (see `terminal_owner` in the project config).
+    "tracker-transition",
     "tracker-exception",
     "tracker-outcome",
-    "tracker-transition",
 )
+
+# Trackers with a host reference under `references/hosts/`. A host absent from
+# this tuple has no documented projection procedure and is not addressable.
+HOSTS = ("linear", "fibery", "github")
+
+# Who owns the terminal state on the tracker. The workflow never writes one
+# unless a project explicitly claims it, because delivery here is commit or
+# push, and a terminal state usually belongs to the merge.
+TERMINAL_OWNERS = ("merge-automation", "manual", "workflow")
+
+# What a failed projection does to the run. Local state stays canonical under
+# either, so the default keeps working and reports the projection as stale.
+FAILURE_MODES = ("continue", "pause")
+
+# Phases that project a tracker state, and the neutral name for each. A host
+# reference maps these onto that tracker's own vocabulary; a host with no
+# equivalent maps to nothing and the transition is reported unmapped.
+PROJECTED_PHASES = ("implement", "verify")
 
 GRANT_REQUIRED_KEYS = (
     "operator_question",
@@ -133,6 +156,10 @@ def runs_dir(state_root: Path) -> Path:
 
 def history_path(state_root: Path) -> Path:
     return state_root / "history.jsonl"
+
+
+def config_path(state_root: Path) -> Path:
+    return state_root / "config.json"
 
 
 # ---------------------------------------------------------------------------
@@ -265,6 +292,53 @@ def load_current(state_root: Path) -> dict[str, Any] | None:
     return data
 
 
+def default_config() -> dict[str, Any]:
+    """A project with no declared tracker. Local-only is the normal case."""
+    return {
+        "schema": SCHEMA_CONFIG,
+        "hosts": [],
+        "terminal_owner": "merge-automation",
+        "on_failure": "continue",
+        "states": {},
+        "updated_at": None,
+    }
+
+
+def load_config(state_root: Path) -> dict[str, Any]:
+    """Project config, falling back to the local-only default.
+
+    Config answers *where and how*; it never answers *whether*. A tracker write
+    still needs `tracker-transition` in the active grant, so an unreadable or
+    absent config degrades to local-only rather than to unguarded.
+    """
+    path = config_path(state_root)
+    if not path.is_file():
+        return default_config()
+    try:
+        data = read_json(path)
+    except (json.JSONDecodeError, UnicodeDecodeError):
+        return default_config()
+    if not isinstance(data, dict):
+        return default_config()
+    merged = default_config()
+    merged.update(data)
+    return merged
+
+
+def primary_host(config: dict[str, Any]) -> str | None:
+    hosts = config.get("hosts") or []
+    return hosts[0] if hosts else None
+
+
+def projected_state(config: dict[str, Any], host: str, phase: str) -> str | None:
+    """This project's name for *phase* on *host*, or None when unmapped.
+
+    Unmapped is a legitimate answer, not a failure: plain GitHub Issues has no
+    in-review state, and approximating one with a label would misreport it.
+    """
+    return ((config.get("states") or {}).get(host) or {}).get(phase) or None
+
+
 # ---------------------------------------------------------------------------
 # Evaluation — the fail-safe projection
 # ---------------------------------------------------------------------------
@@ -373,6 +447,7 @@ def evaluate(state_root: Path) -> dict[str, Any]:
         "title": raw.get("title"),
         "repository": raw.get("repository"),
         "issue": raw.get("issue"),
+        "config": load_config(state_root),
         "phase": phase,
         "owner": owner,
         "condition": condition,
@@ -531,6 +606,13 @@ def render_context(projection: dict[str, Any]) -> str:
         lines.append(
             f"ISSUE      {issue.get('host')} {issue.get('identity')} "
             f"(projection {issue.get('projection_status')}) - local state stays canonical"
+        )
+
+    config = projection.get("config") or {}
+    if config.get("hosts"):
+        lines.append(
+            f"TRACKER    {', '.join(config['hosts'])}; terminal state -> "
+            f"{config.get('terminal_owner')}"
         )
 
     last = projection.get("last_transition") or {}
@@ -1422,6 +1504,65 @@ def cmd_issue_set(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_config_show(args: argparse.Namespace) -> int:
+    _emit(load_config(_state_root_from_args(args)))
+    return 0
+
+
+def _parse_state_assignment(raw: str) -> tuple[str, str, str]:
+    """``host:phase=Name`` -> ``(host, phase, name)``."""
+    head, _, name = raw.partition("=")
+    host, _, phase = head.partition(":")
+    host, phase, name = host.strip(), phase.strip(), name.strip()
+    if not host or not phase:
+        raise StateError(f"malformed --state {raw!r}; expected host:phase=Name")
+    if host not in HOSTS:
+        raise StateError(f"unknown host {host!r}; known hosts: {', '.join(HOSTS)}")
+    if phase not in PROJECTED_PHASES:
+        raise StateError(
+            f"{phase!r} does not project a tracker state; "
+            f"projected phases: {', '.join(PROJECTED_PHASES)}"
+        )
+    return host, phase, name
+
+
+def cmd_config_set(args: argparse.Namespace) -> int:
+    state_root = _state_root_from_args(args)
+    config = load_config(state_root)
+
+    if args.host is not None:
+        unknown = [h for h in args.host if h not in HOSTS]
+        if unknown:
+            raise StateError(
+                f"unknown host(s) {', '.join(unknown)}; known hosts: {', '.join(HOSTS)}. "
+                "A host needs a reference under references/hosts/ before it is addressable."
+            )
+        config["hosts"] = list(args.host)
+    if args.terminal_owner:
+        config["terminal_owner"] = args.terminal_owner
+    if args.on_failure:
+        config["on_failure"] = args.on_failure
+    if args.clear_states:
+        config["states"] = {}
+    for assignment in args.state or []:
+        host, phase, name = _parse_state_assignment(assignment)
+        config.setdefault("states", {}).setdefault(host, {})[phase] = name or None
+
+    config["schema"] = SCHEMA_CONFIG
+    config["updated_at"] = _now()
+    atomic_write_json(config_path(state_root), config)
+    append_history(
+        state_root,
+        {
+            "event": "config-set",
+            "hosts": config["hosts"],
+            "terminal_owner": config["terminal_owner"],
+        },
+    )
+    _emit(config)
+    return 0
+
+
 def cmd_history(args: argparse.Namespace) -> int:
     path = history_path(_state_root_from_args(args))
     if not path.is_file():
@@ -1450,7 +1591,7 @@ def build_parser() -> argparse.ArgumentParser:
     p = sub.add_parser("init")
     p.add_argument("--change-id", required=True)
     p.add_argument("--title", required=True)
-    p.add_argument("--issue-host", choices=["linear", "fibery"])
+    p.add_argument("--issue-host", choices=list(HOSTS))
     p.add_argument("--issue-id")
     p.add_argument("--issue-url")
     p.add_argument("--force", action="store_true")
@@ -1534,13 +1675,25 @@ def build_parser() -> argparse.ArgumentParser:
     p.set_defaults(func=cmd_checkpoint_verify)
 
     p = sub.add_parser("issue-set")
-    p.add_argument("--host", required=True, choices=["linear", "fibery"])
+    p.add_argument("--host", required=True, choices=list(HOSTS))
     p.add_argument("--identity", required=True)
     p.add_argument("--url")
     p.add_argument("--status", required=True,
                    choices=["never-projected", "current", "stale"])
     p.add_argument("--stale-reason")
     p.set_defaults(func=cmd_issue_set)
+
+    sub.add_parser("config-show").set_defaults(func=cmd_config_show)
+
+    p = sub.add_parser("config-set")
+    p.add_argument("--host", action="append", choices=list(HOSTS),
+                   help="tracker host; repeat in priority order, primary first")
+    p.add_argument("--terminal-owner", dest="terminal_owner", choices=list(TERMINAL_OWNERS))
+    p.add_argument("--on-failure", dest="on_failure", choices=list(FAILURE_MODES))
+    p.add_argument("--state", action="append",
+                   help="host:phase=Name, e.g. linear:implement='In Progress'")
+    p.add_argument("--clear-states", action="store_true")
+    p.set_defaults(func=cmd_config_set)
 
     p = sub.add_parser("history")
     p.add_argument("--limit", type=int, default=0)

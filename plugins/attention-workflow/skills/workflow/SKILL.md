@@ -102,9 +102,10 @@ python3 "$HELPER" transition --phase design --owner execution \
   --next "Investigate the current behavior and choose the route."
 ```
 
-If Jacob supplied a Linear key, Fibery task, or issue URL, read it now and
-record the projection — see `references/issue-projections.md`. The issue is
-Frame *input*. It is never the authority.
+If Jacob supplied an issue key, task reference, or URL, read it now and record
+the projection — see `references/issue-projections.md`, then that tracker's
+`references/hosts/<host>.md`. The issue is Frame *input*. It is never the
+authority.
 
 ### Design
 
@@ -168,10 +169,10 @@ plugin does not actually intercept and test. Uncovered boundaries are disclosed
 as residual risk, not dressed as guardrails.
 
 `delivery_authorized` accepts only: `commit`, `git-push`, `jj-git-push`,
-`pr-open`, `pr-merge`, `deploy`, `migrate`, `tracker-in-progress`,
-`tracker-exception`, `tracker-outcome`, `tracker-transition`. Only the first
-three are enforced structurally; the rest are recorded authority the agent
-honors. Grant the smallest set.
+`pr-open`, `pr-merge`, `deploy`, `migrate`, `tracker-transition`,
+`tracker-exception`, `tracker-outcome`. Only the first three are enforced
+structurally; the rest are recorded authority the agent honors. Grant the
+smallest set.
 
 The authorization card is interactive. Present promise, route-that-matters,
 grounds, representative outcome, autonomy boundary with its honest enforcement
@@ -185,6 +186,11 @@ python3 "$HELPER" transition --phase implement --owner execution --condition act
   --reason "Jacob authorized the prepared basis" \
   --next "Candidate ready -> independent Verify"
 ```
+
+Then, if the change has an issue and the grant lists `tracker-transition`,
+project the **in-progress** state once — resolve the name per that host's
+reference, write it, and record the result with `issue-set`. An unmapped phase
+or a failed write is reported, never blocking.
 
 Then emit one short `GRANT REQUEST` receipt and go quiet. Never report status
 with a word the operator uses to authorize (`AUTHORIZE`, `READY`) — status
@@ -252,7 +258,10 @@ Verify begins at a **readiness handoff**, not when a test runs.
    candidate scope. **Do not pass** the implementer's success claim, narrative,
    claimed actual route, or deviation assessment. Record the implementer's own
    claim separately in your notes so it can be compared afterward.
-4. Emit one orienting `CANDIDATE SUBMITTED` receipt.
+4. If the change has an issue and the grant lists `tracker-transition`, project
+   the **in-review** state once. This is the moment work is done and awaiting a
+   second look, so it is where the tracker earns the state — not at Close.
+5. Emit one orienting `CANDIDATE SUBMITTED` receipt.
 
 **Resolve the run by identity, never by message.** Before starting fallback
 verification or reporting a result as unavailable:
@@ -356,6 +365,10 @@ represented as delivered. Durable residue goes to its usual home —
 `/capture-decision` for decisions, README/CLAUDE.md for behavior changes — not
 into the run state.
 
+Close projects an outcome **comment** under `tracker-outcome`, never a terminal
+state. The tracker's done state follows the merge, which is past this
+workflow's delivery boundary — see `references/issue-projections.md`.
+
 ## Supersession
 
 A material change to a promised outcome, exclusion, route commitment,
@@ -404,4 +417,7 @@ just said, it is ceremony; drop it.
 - `references/state-model.md` — record shapes, fail-safe rules, helper commands.
 - `references/enforcement-map.md` — what is hook-guarded, check-gated,
   agent-monitored, and uncovered, with known bypasses.
-- `references/issue-projections.md` — the optional Linear and Fibery projection.
+- `references/issue-projections.md` — the optional tracker projection: when it
+  fires, what config holds, and why the terminal state is never written here.
+- `references/hosts/<host>.md` — how to address one tracker (`linear`,
+  `fibery`, `github`). Read only the host in `issue.host`.

@@ -236,7 +236,7 @@ def test_source_package_declares_claude_only() -> None:
 def test_claude_publication_carries_every_declared_surface() -> None:
     manifest = json.loads((PUBLISHED / ".claude-plugin" / "plugin.json").read_text(encoding="utf-8"))
     assert manifest["name"] == "attention-workflow"
-    assert manifest["version"] == "0.11.0"
+    assert manifest["version"] == "0.12.0"
     # Experimental: installing the marketplace must not switch the lifecycle
     # out from under an in-flight spec-flow change.
     assert manifest["defaultEnabled"] is False
@@ -251,6 +251,9 @@ def test_claude_publication_carries_every_declared_surface() -> None:
         "references/state-model.md",
         "references/enforcement-map.md",
         "references/issue-projections.md",
+        "references/hosts/linear.md",
+        "references/hosts/fibery.md",
+        "references/hosts/github.md",
     ):
         published = PUBLISHED / relative
         assert published.is_file(), f"missing from the Claude publication: {relative}"
@@ -305,7 +308,7 @@ def test_claude_registry_lists_the_package() -> None:
         )
     )
     entry = next(p for p in registry["plugins"] if p["name"] == "attention-workflow")
-    assert entry["version"] == "0.11.0"
+    assert entry["version"] == "0.12.0"
 
 
 def test_verifier_agent_is_read_and_execute_only() -> None:
@@ -1245,3 +1248,86 @@ def test_expiry_is_stamped_once_and_never_rewritten(
     open_change(env, tmp_path)
     first = helper_json(env, "grant-show", "g1")["expires_at"]
     assert helper_json(env, "grant-show", "g1")["expires_at"] == first
+
+
+# ---------------------------------------------------------------------------
+# Project config — where and how, never whether
+# ---------------------------------------------------------------------------
+
+
+def test_a_project_with_no_config_runs_local_only(env: dict[str, str]) -> None:
+    """No declared tracker is the normal case, not a degraded one."""
+    config = helper_json(env, "config-show")
+    assert config["hosts"] == []
+    assert config["terminal_owner"] == "merge-automation"
+
+
+def test_config_records_hosts_in_priority_order(env: dict[str, str]) -> None:
+    """Homelab runs two trackers at once; the primary is first, not implied."""
+    config = helper_json(env, "config-set", "--host", "linear", "--host", "fibery")
+    assert config["hosts"] == ["linear", "fibery"]
+    assert aw_state.primary_host(config) == "linear"
+
+
+def test_config_never_grants_a_tracker_write(env: dict[str, str], tmp_path: Path) -> None:
+    """A configured host with no granted token writes nothing.
+
+    This is the whole reason config and authority are separate records.
+    """
+    helper(env, "config-set", "--host", "linear")
+    open_change(env, tmp_path, delivery_authorized=["commit"])
+    grant = helper_json(env, "grant-show", "g1")
+    assert "tracker-transition" not in grant["delivery_authorized"]
+
+
+def test_an_unmapped_phase_is_a_legitimate_answer(env: dict[str, str]) -> None:
+    """Plain GitHub Issues has no in-review state; approximating one lies."""
+    helper(env, "config-set", "--host", "github", "--state", "github:verify=")
+    config = helper_json(env, "config-show")
+    assert aw_state.projected_state(config, "github", "verify") is None
+
+
+def test_state_names_are_per_host_and_per_phase(env: dict[str, str]) -> None:
+    helper(
+        env,
+        "config-set",
+        "--host", "linear",
+        "--state", "linear:implement=In Progress",
+        "--state", "linear:verify=In Review",
+    )
+    config = helper_json(env, "config-show")
+    assert aw_state.projected_state(config, "linear", "implement") == "In Progress"
+    assert aw_state.projected_state(config, "linear", "verify") == "In Review"
+    assert aw_state.projected_state(config, "fibery", "implement") is None
+
+
+def test_an_undocumented_host_is_refused(env: dict[str, str]) -> None:
+    """A host without a reference under references/hosts/ is not addressable."""
+    proc = helper(env, "config-set", "--host", "jira", expect=2)
+    assert "jira" in (proc.stderr + proc.stdout)
+
+
+def test_a_phase_that_does_not_project_is_refused(env: dict[str, str]) -> None:
+    proc = helper(env, "config-set", "--state", "linear:close=Done", expect=2)
+    assert "does not project" in (proc.stderr + proc.stdout)
+
+
+def test_no_token_can_authorize_a_terminal_tracker_state(env: dict[str, str]) -> None:
+    """The done state follows the merge, past this workflow's boundary."""
+    assert "tracker-done" not in aw_state.DELIVERY_ACTIONS
+    assert "tracker-transition" in aw_state.DELIVERY_ACTIONS
+
+
+def test_unreadable_config_degrades_to_local_only_not_to_unguarded(
+    env: dict[str, str], state_root: Path
+) -> None:
+    aw_state.config_path(state_root).write_text("{ not json", encoding="utf-8")
+    config = helper_json(env, "config-show")
+    assert config["hosts"] == []
+
+
+def test_every_addressable_host_has_a_reference(env: dict[str, str]) -> None:
+    for host in aw_state.HOSTS:
+        path = SOURCE / "references" / "hosts" / f"{host}.md"
+        assert path.is_file(), f"host {host} is addressable with no reference file"
+        assert path.read_text(encoding="utf-8").strip()
