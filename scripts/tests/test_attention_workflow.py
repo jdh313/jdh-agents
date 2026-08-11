@@ -236,7 +236,7 @@ def test_source_package_declares_claude_only() -> None:
 def test_claude_publication_carries_every_declared_surface() -> None:
     manifest = json.loads((PUBLISHED / ".claude-plugin" / "plugin.json").read_text(encoding="utf-8"))
     assert manifest["name"] == "attention-workflow"
-    assert manifest["version"] == "0.12.0"
+    assert manifest["version"] == "0.13.0"
     # Experimental: installing the marketplace must not switch the lifecycle
     # out from under an in-flight spec-flow change.
     assert manifest["defaultEnabled"] is False
@@ -308,7 +308,7 @@ def test_claude_registry_lists_the_package() -> None:
         )
     )
     entry = next(p for p in registry["plugins"] if p["name"] == "attention-workflow")
-    assert entry["version"] == "0.12.0"
+    assert entry["version"] == "0.13.0"
 
 
 def test_verifier_agent_is_read_and_execute_only() -> None:
@@ -696,6 +696,8 @@ def test_sessionstart_collapses_a_closed_change_to_one_line(
     env: dict[str, str], tmp_path: Path, git_repo: Path
 ) -> None:
     open_change(env, tmp_path)
+    # This repository declares a ledger, so Close is gated on the capture item.
+    helper(env, "capture-note", "--disposition", "nothing-to-capture", "--note", "fixture")
     helper(
         env,
         "transition",
@@ -1331,3 +1333,95 @@ def test_every_addressable_host_has_a_reference(env: dict[str, str]) -> None:
         path = SOURCE / "references" / "hosts" / f"{host}.md"
         assert path.is_file(), f"host {host} is addressable with no reference file"
         assert path.read_text(encoding="utf-8").strip()
+
+
+# ---------------------------------------------------------------------------
+# The decision-capture item — a Close precondition, not a reminder
+# ---------------------------------------------------------------------------
+
+
+def _ledger_repo(tmp_path: Path) -> Path:
+    repo = tmp_path / "ledger-repo"
+    repo.mkdir()
+    (repo / ".ndr.toml").write_text('ledger = "./decisions"\n', encoding="utf-8")
+    return repo
+
+
+def test_a_repo_declaring_a_ledger_arms_the_capture_item(tmp_path: Path) -> None:
+    repo = _ledger_repo(tmp_path)
+    assert aw_state.repo_declares_a_ledger(repo) is True
+    assert aw_state.capture_item_armed({"ndr": "auto"}, repo) is True
+
+
+def test_a_home_catch_all_does_not_arm_every_repository(tmp_path: Path) -> None:
+    """A shared fallback ledger is a destination, not a claim about this repo."""
+    plain = tmp_path / "plain-repo"
+    plain.mkdir()
+    assert aw_state.repo_declares_a_ledger(plain) is False
+    assert aw_state.capture_item_armed({"ndr": "auto"}, plain) is False
+
+
+def test_the_item_can_be_forced_on_or_off_per_project(tmp_path: Path) -> None:
+    plain = tmp_path / "plain-repo"
+    plain.mkdir()
+    assert aw_state.capture_item_armed({"ndr": "on"}, plain) is True
+    assert aw_state.capture_item_armed({"ndr": "off"}, _ledger_repo(tmp_path)) is False
+
+
+def test_close_is_refused_while_the_capture_item_is_unanswered(
+    env: dict[str, str], tmp_path: Path
+) -> None:
+    repo = _ledger_repo(tmp_path)
+    helper(env, "init", "--change-id", "demo", "--title", "Demo change")
+    proc = helper(
+        env, "--repo", str(repo), "transition", "--phase", "close",
+        "--outcome", "delivered", "--reason", "closing", expect=2,
+    )
+    combined = proc.stdout + proc.stderr
+    assert "decision-capture item" in combined
+    # The refusal must carry its own escape, or it strands the run.
+    assert "nothing-to-capture" in combined
+
+
+def test_nothing_to_capture_is_a_real_answer_not_a_bypass(
+    env: dict[str, str], tmp_path: Path
+) -> None:
+    """The item forces the question, never the work."""
+    repo = _ledger_repo(tmp_path)
+    helper(env, "init", "--change-id", "demo", "--title", "Demo change")
+    helper(env, "capture-note", "--disposition", "nothing-to-capture",
+           "--note", "mechanical rename only")
+    helper(env, "--repo", str(repo), "transition", "--phase", "close",
+           "--outcome", "delivered", "--reason", "closing")
+    state = helper_json(env, "show")
+    assert state["decision_capture"]["disposition"] == "nothing-to-capture"
+    assert state["closed"] is True
+
+
+def test_the_answer_is_durable_and_names_its_atoms(
+    env: dict[str, str], tmp_path: Path
+) -> None:
+    helper(env, "init", "--change-id", "demo", "--title", "Demo change")
+    helper(env, "capture-note", "--disposition", "captured",
+           "--atom", "6x3v6p", "--atom", "kq7za5", "--note", "route reversal")
+    capture = helper_json(env, "show")["decision_capture"]
+    assert capture["atoms"] == ["6x3v6p", "kq7za5"]
+    assert capture["answered_at"]
+
+
+def test_a_repo_without_a_ledger_closes_without_the_item(
+    env: dict[str, str], tmp_path: Path
+) -> None:
+    plain = tmp_path / "plain-repo"
+    plain.mkdir()
+    helper(env, "init", "--change-id", "demo", "--title", "Demo change")
+    helper(env, "--repo", str(plain), "transition", "--phase", "close",
+           "--outcome", "delivered", "--reason", "closing")
+    assert helper_json(env, "show")["closed"] is True
+
+
+def test_the_helper_never_writes_an_atom() -> None:
+    """Capture stays /capture-decision, with Jacob in it."""
+    source = HELPER.read_text(encoding="utf-8")
+    assert "ndr capture" not in source
+    assert "decisions/" not in source

@@ -121,6 +121,12 @@ authority.
 Determine the intended outcomes and a route at the altitude that affects risk
 or future behavior.
 
+Where the repository declares a ledger, **ground the route before choosing it**
+— `/ground` with a short scope phrase. A resolved decision head is an
+assumption you do not have to make, so grounding shrinks `assumptions` and
+strengthens `assumption_coverage` rather than adding a step. Treat a returned
+head as current state; do not re-derive it from a README, a doc, or a comment.
+
 **Record the operator question separately from any proposed proxy.** The
 operator question is what the finished change must let Jacob determine. A
 taxonomy, report shape, schema, interface, or summary is a *proxy* for it. They
@@ -360,9 +366,28 @@ succeed.
 
 Reconcile the final outcome, preserve durable residue, release the thread.
 
-Close **may not begin** while the active candidate's verification is stale or
-while a required representative outcome probe remains unobserved. Passing
-checks against a proxy do not substitute for the promised operator outcome.
+Close **may not begin** while the active candidate's verification is stale,
+while a required representative outcome probe remains unobserved, or while the
+decision-capture item is unanswered in a repository that declares a ledger.
+Passing checks against a proxy do not substitute for the promised operator
+outcome.
+
+**The decision-capture item.** Where the repository has its own `.ndr.toml`,
+the helper refuses the close transition until an answer is recorded. What the
+item forces is the question, not the work — `nothing-to-capture` closes it, and
+is the common answer:
+
+```bash
+python3 "$HELPER" capture-note --disposition captured --atom 6x3v6p --note "..."
+python3 "$HELPER" capture-note --disposition nothing-to-capture --note "mechanical only"
+python3 "$HELPER" capture-note --disposition deferred --note "raised in TEAM-341"
+```
+
+Ask it with the reconciliation in hand, because that is where a decision shows
+itself: a promise the outcome did not meet, an assumption that turned out
+load-bearing, a route abandoned mid-change. Present candidates as candidates
+and let Jacob decide. This helper never writes an atom — `/capture-decision`
+does, with him in it.
 
 ```bash
 python3 "$HELPER" transition --phase close --owner jacob --condition active \

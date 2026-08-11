@@ -55,6 +55,10 @@ python3 "$HELPER" config-set --host linear --host fibery \
 - **`states`** — this project's name for each projected phase, per host.
   Optional; discovered at runtime and cached here after the first resolution.
 - **`on_failure`** — `continue` (default) or `pause`.
+- **`ndr`** — `auto` (default), `on`, or `off`. Under `auto` a repository-local
+  `.ndr.toml` arms the decision-capture item at Close. A home-level catch-all
+  does not: it is a fallback destination, not a claim that this repository
+  tracks decisions.
 
 Config says where and how. It never says whether: a tracker write still needs
 `tracker-transition` in the active grant, so a configured host with no granted

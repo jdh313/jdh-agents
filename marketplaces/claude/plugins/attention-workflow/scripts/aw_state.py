@@ -81,6 +81,17 @@ FAILURE_MODES = ("continue", "pause")
 # equivalent maps to nothing and the transition is reported unmapped.
 PROJECTED_PHASES = ("implement", "verify")
 
+# How the decision-capture item behaves. `auto` means: on when the repository
+# declares its own ledger. A home-level catch-all is a fallback destination,
+# not a statement that this repository tracks decisions, so it does not arm it.
+NDR_MODES = ("auto", "on", "off")
+
+# Answers to the capture question at Close. Every one of these closes the item;
+# what the item forces is the question, not the work. "Nothing here was
+# decision-shaped" is a legitimate and common answer, but it is now a recorded
+# one rather than an omission.
+CAPTURE_DISPOSITIONS = ("captured", "nothing-to-capture", "deferred")
+
 GRANT_REQUIRED_KEYS = (
     "operator_question",
     "promise",
@@ -300,6 +311,7 @@ def default_config() -> dict[str, Any]:
         "terminal_owner": "merge-automation",
         "on_failure": "continue",
         "states": {},
+        "ndr": "auto",
         "updated_at": None,
     }
 
@@ -323,6 +335,25 @@ def load_config(state_root: Path) -> dict[str, Any]:
     merged = default_config()
     merged.update(data)
     return merged
+
+
+def repo_declares_a_ledger(repo_root: Path) -> bool:
+    """True when *repo_root* carries its own `.ndr.toml`.
+
+    Deliberately ignores a home-level catch-all. That file routes repositories
+    without a ledger of their own into a shared one; treating it as arming the
+    capture item would arm it in every scratch repository on the machine.
+    """
+    return (repo_root / ".ndr.toml").is_file()
+
+
+def capture_item_armed(config: dict[str, Any], repo_root: Path | None) -> bool:
+    mode = config.get("ndr") or "auto"
+    if mode == "on":
+        return True
+    if mode == "off":
+        return False
+    return bool(repo_root) and repo_declares_a_ledger(repo_root)
 
 
 def primary_host(config: dict[str, Any]) -> str | None:
@@ -448,6 +479,7 @@ def evaluate(state_root: Path) -> dict[str, Any]:
         "repository": raw.get("repository"),
         "issue": raw.get("issue"),
         "config": load_config(state_root),
+        "decision_capture": raw.get("decision_capture"),
         "phase": phase,
         "owner": owner,
         "condition": condition,
@@ -614,6 +646,15 @@ def render_context(projection: dict[str, Any]) -> str:
             f"TRACKER    {', '.join(config['hosts'])}; terminal state -> "
             f"{config.get('terminal_owner')}"
         )
+
+    capture = projection.get("decision_capture")
+    if capture:
+        detail = capture.get("disposition")
+        if capture.get("atoms"):
+            detail += f" ({', '.join(capture['atoms'])})"
+        lines.append(f"DECISIONS  {detail}")
+    elif not projection.get("closed"):
+        lines.append("DECISIONS  unanswered; Close is gated on it where a ledger exists")
 
     last = projection.get("last_transition") or {}
     if last:
@@ -1158,6 +1199,35 @@ def cmd_transition(args: argparse.Namespace) -> int:
         updates["outcome"] = args.outcome
         updates["closed"] = True
 
+    # The decision-capture item is a precondition of Close, not a reminder
+    # after it. A checklist item that fires once the thread is already released
+    # is read by nobody. Any recorded answer satisfies it, including
+    # "nothing-to-capture" — what is forced is the question, not the work.
+    entering_close = updates.get("phase") == "close" or updates.get("closed")
+    if entering_close and not raw.get("decision_capture"):
+        # The change's own repository, not whatever directory the shell is in.
+        recorded = (raw.get("repository") or {}).get("root")
+        if args.repo:
+            repo_root = Path(args.repo).resolve()
+        elif recorded:
+            repo_root = Path(str(recorded))
+        else:
+            repo_root = resolve_repo_root()
+        if capture_item_armed(load_config(state_root), repo_root):
+            raise StateError(
+                "Close is gated on the decision-capture item, and this repository "
+                "declares a decision ledger.\n\n"
+                "A change that altered a durable choice and never recorded it leaves the "
+                "ledger describing a system that no longer exists. Reconciliation is where "
+                "that shows up — a promise the outcome did not meet, or an assumption that "
+                "turned out load-bearing.\n\n"
+                "Answer it, then retry:\n"
+                "  aw_state.py capture-note --disposition captured --atom <id> --note <what>\n"
+                "  aw_state.py capture-note --disposition nothing-to-capture --note <why>\n"
+                "  aw_state.py capture-note --disposition deferred --note <where it went>\n\n"
+                "Nothing here writes an atom; use /capture-decision for that."
+            )
+
     raw.update(updates)
     raw["last_transition"] = {
         "from_phase": before_phase,
@@ -1504,6 +1574,37 @@ def cmd_issue_set(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_capture_note(args: argparse.Namespace) -> int:
+    """Answer the decision-capture item.
+
+    Recording an answer is what closes the item. Nothing here writes an atom —
+    capture stays `/capture-decision`, with Jacob in it.
+    """
+    state_root = _state_root_from_args(args)
+    raw = load_current(state_root)
+    if raw is None or raw.get("__unreadable__"):
+        raise StateError("no readable current state")
+    raw["decision_capture"] = {
+        "disposition": args.disposition,
+        "note": args.note,
+        "atoms": list(args.atom or []),
+        "answered_at": _now(),
+    }
+    raw["updated_at"] = _now()
+    atomic_write_json(current_path(state_root), raw)
+    append_history(
+        state_root,
+        {
+            "event": "decision-capture",
+            "disposition": args.disposition,
+            "atoms": list(args.atom or []),
+            "note": args.note,
+        },
+    )
+    _emit(raw["decision_capture"])
+    return 0
+
+
 def cmd_config_show(args: argparse.Namespace) -> int:
     _emit(load_config(_state_root_from_args(args)))
     return 0
@@ -1542,6 +1643,8 @@ def cmd_config_set(args: argparse.Namespace) -> int:
         config["terminal_owner"] = args.terminal_owner
     if args.on_failure:
         config["on_failure"] = args.on_failure
+    if args.ndr:
+        config["ndr"] = args.ndr
     if args.clear_states:
         config["states"] = {}
     for assignment in args.state or []:
@@ -1693,7 +1796,15 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--state", action="append",
                    help="host:phase=Name, e.g. linear:implement='In Progress'")
     p.add_argument("--clear-states", action="store_true")
+    p.add_argument("--ndr", choices=list(NDR_MODES),
+                   help="decision-capture item: auto (a repo-local .ndr.toml arms it), on, off")
     p.set_defaults(func=cmd_config_set)
+
+    p = sub.add_parser("capture-note")
+    p.add_argument("--disposition", required=True, choices=list(CAPTURE_DISPOSITIONS))
+    p.add_argument("--note")
+    p.add_argument("--atom", action="append", help="atom id written; repeat for several")
+    p.set_defaults(func=cmd_capture_note)
 
     p = sub.add_parser("history")
     p.add_argument("--limit", type=int, default=0)
