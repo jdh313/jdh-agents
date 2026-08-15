@@ -96,6 +96,15 @@ Before asking the user anything, scan for:
 - **Protocol drift** — check-ins describe behavior diverging from the stated protocol
 - **Conflicting signals** — early positive, later negative (or vice versa) without stated cause
 - **Missing verdict context** — if `review_date` has arrived, is there enough in check-ins to decide? Name what's missing.
+- **Off-protocol adoption** — if check-ins are sparse or absent, do not
+  jump to `inconclusive`. Check whether the thing under test got used
+  anyway, outside the protocol: search project memory, the repo's
+  `CLAUDE.md`, recent commits, and related vault notes for real usage in
+  the experiment window. An experiment can be simultaneously *untested*
+  (its hypothesis never exercised) and *its subject adopted* (through
+  work the protocol wasn't watching). That combination is `modify`, not
+  `inconclusive` — the verdict narrows the scope to what was actually
+  proven and names what remains open.
 
 ### 5. Ask targeted follow-ups (inline)
 
@@ -171,3 +180,6 @@ it goes into the page in step 6 (via the agent).
 - Never overwrite user-authored `## Verdict` or `## Learnings` content — the agent appends.
 - If the user rejects the proposed verdict, record *their* verdict and reasoning.
 - `inconclusive` is a valid outcome. Don't force a decision from thin evidence; propose an extension or followup instead.
+- Before recording `inconclusive`, confirm the subject genuinely went
+  unused. Absent check-ins mean the protocol wasn't followed, not that
+  nothing happened — see "Off-protocol adoption" in step 4.
