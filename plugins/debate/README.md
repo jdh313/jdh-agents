@@ -1,5 +1,10 @@
 # debate
 
+> **Requires an Obsidian vault.** Skills in this plugin read and write notes in an
+> Obsidian vault, defaulting to `~/Loose Ends/`. That default is an example, not a
+> requirement — point it at your own vault by editing the paths in the skill bodies
+> (search for `Loose Ends`). Without a vault, the vault-writing skills will not work.
+
 Dialectical decision analysis. Instead of giving a single opinion, dispatch
 parallel advocate agents to research opposing perspectives, optionally verify
 claims and challenge the consensus, and synthesize an opinionated verdict
