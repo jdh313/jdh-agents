@@ -1,5 +1,10 @@
 # Coach
 
+> **Requires an Obsidian vault.** Skills in this plugin read and write notes in an
+> Obsidian vault, defaulting to `~/Loose Ends/`. That default is an example, not a
+> requirement — point it at your own vault by editing the paths in the skill bodies
+> (search for `Loose Ends`). Without a vault, the vault-writing skills will not work.
+
 ADHD-friendly productivity coaching for Claude Code. Fifteen coaching commands -- `/today`, `/checkin`, `/weekly`, `/plan-week`, `/reentry`, `/review`, `/align`, `/sunset`, `/decide`, `/triage`, `/intake`, `/spark`, `/dump`, `/breakdown`, `/energy` -- plus adaptive tone calibration, a project health scanner, an overdue pattern analyzer, and a historical pattern analysis engine.
 
 ## Skills
