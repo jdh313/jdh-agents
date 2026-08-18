@@ -4,12 +4,12 @@ _Upstream: `mattpocock/skills` · `skills/productivity/teach` · ledger current 
 
 Intentional divergences from upstream. Reviewed via `skillsmith:upstream-review` intake (2026-06-12); adapted for Obsidian-vault routing the same day. Do not re-flag these as findings. Read by `upstream-review` only; never referenced from `SKILL.md`.
 
-This adaptation routes the skill's durable markdown artifacts into the Obsidian vault (`~/Loose Ends/`) as typed notes, while keeping lessons and HTML cheat sheets as self-contained files inside the workspace folder. Design spec: `.docs/2026-06-12-teach-vault-routing.md`.
+This adaptation routes the skill's durable markdown artifacts into the Obsidian vault (`~/Loose Ends/`) as typed notes, while keeping lessons and HTML cheat sheets as self-contained files inside the workspace folder.
 
 ## Kept (verbatim or substantively equivalent)
 Lesson philosophy and beauty bar; fluency-vs-storage-strength; zone of proximal development; knowledge/skills/wisdom triad; community delegation for wisdom; citation discipline. The four FORMAT files retain their templates and rules; only the host (vault note vs flat file) and a frontmatter block were added.
 
-**Note (2026-08-10): lessons and reference cheat sheets as HTML is no longer kept** — see the "SUPERSEDED" markers on rows 29 and 37 below, and the new markdown-lessons block that follows the table. Design spec: `.docs/2026-08-10-teach-markdown-lessons.md`.
+**Note (2026-08-10): lessons and reference cheat sheets as HTML is no longer kept** — see the "SUPERSEDED" markers on rows 29 and 37 below, and the new markdown-lessons block that follows the table.
 
 ## Divergences
 
@@ -44,7 +44,7 @@ Pin advanced to `697d4ce9742d` on 2026-07-27 with no ledger change: the only ups
 
 ## 2026-08-10: markdown lessons — self-contained HTML retired
 
-Design spec: `.docs/2026-08-10-teach-markdown-lessons.md`. This forks hard from upstream's self-contained-HTML model — deliberately, not incidentally. Rows 29 and 37 above are marked SUPERSEDED rather than deleted so the earlier reasoning (and why it stopped applying) stays legible.
+This forks hard from upstream's self-contained-HTML model — deliberately, not incidentally. Rows 29 and 37 above are marked SUPERSEDED rather than deleted so the earlier reasoning (and why it stopped applying) stays legible.
 
 | Kind | What | Why |
 |------|------|-----|

@@ -1,8 +1,13 @@
 # teach
 
+> **Requires an Obsidian vault.** Skills in this plugin read and write notes in an
+> Obsidian vault, defaulting to `~/Loose Ends/`. That default is an example, not a
+> requirement — point it at your own vault by editing the paths in the skill bodies
+> (search for `Loose Ends`). Without a vault, the vault-writing skills will not work.
+
 A stateful, multi-session teaching workspace **routed into your Obsidian vault**. Each topic becomes a self-contained workspace folder under its best-fit context — mission, resources, glossary, and learning records live as vault notes, and so do the lessons themselves: markdown notes that transclude prose from the wiki and add a pure-CSS self-grading quiz on top. There is no HTML anywhere in this skill.
 
-> Adapted from [mattpocock/skills](https://github.com/mattpocock/skills) (`skills/productivity/teach`), MIT © 2026 Matt Pocock. The original treats the current directory as the workspace; this fork routes durable artifacts into the vault. Upstream provenance is pinned in the skill's frontmatter; divergences are tracked in `skills/teach/UPSTREAM.md` via `skillsmith:upstream-review`. Design spec: `.docs/2026-06-12-teach-vault-routing.md`.
+> Adapted from [mattpocock/skills](https://github.com/mattpocock/skills) (`skills/productivity/teach`), MIT © 2026 Matt Pocock. The original treats the current directory as the workspace; this fork routes durable artifacts into the vault. Upstream provenance is pinned in the skill's frontmatter; divergences are tracked in `skills/teach/UPSTREAM.md` via `skillsmith:upstream-review`.
 
 > **Requires** an Obsidian vault reachable via `obsidian-cli`.
 >
