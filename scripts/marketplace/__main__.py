@@ -5,6 +5,7 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import subprocess
 import sys
 from pathlib import Path
 
@@ -17,6 +18,7 @@ from marketplace.generation import (
     sync_publications,
 )
 from marketplace.lint import lint_plugins
+from marketplace.privacy import scan_paths
 from marketplace.validate import validate_manifest
 
 # ---------------------------------------------------------------------------
@@ -182,14 +184,57 @@ def _cmd_export(args: argparse.Namespace) -> int:
     return 0
 
 
+def _cmd_scan(args: argparse.Namespace) -> int:
+    """Repo-wide privacy gate: machine paths, secret-shaped strings, email/vault warnings.
+
+    Scans git-tracked files under the given root (default: repo root) unless
+    explicit paths are given. Used by the prek pre-push hook and by CI, so
+    both run the exact same scanner as `marketplace export`.
+    """
+    root = Path(args.root).resolve() if args.root else _REPO_ROOT
+
+    if args.paths:
+        targets = [Path(p).resolve() for p in args.paths]
+    else:
+        result = subprocess.run(  # noqa: S603
+            ["git", "-C", str(root), "ls-files", "-z"],  # noqa: S607
+            capture_output=True,
+            check=True,
+        )
+        targets = [
+            root / name.decode("utf-8")
+            for name in result.stdout.split(b"\x00")
+            if name and not name.decode("utf-8").startswith("scripts/tests/")
+        ]
+
+    hard, soft = scan_paths(targets)
+
+    for msg in soft:
+        print(f"  [privacy warn] {msg}")
+
+    if hard:
+        print("Privacy gate FAILED:", file=sys.stderr)
+        for e in hard:
+            print(f"  {e}", file=sys.stderr)
+        return 1
+
+    print(f"Privacy gate passed ({len(targets)} file(s) scanned, {len(soft)} warning(s)).")
+    return 0
+
+
 def _cmd_check(args: argparse.Namespace) -> int:  # noqa: ARG001
-    """CI entrypoint: generated drift + native validation + lint."""
+    """CI entrypoint: generated drift + native validation + lint + privacy gate."""
     rc = 0
 
     # 1. sync --check
     print("=== sync --check ===")
     sync_ns = argparse.Namespace(check=True)
     rc |= _cmd_sync(sync_ns)
+
+    # 1b. privacy gate — unskippable backstop for the prek pre-push hook
+    print("\n=== privacy scan ===")
+    scan_ns = argparse.Namespace(root=None, paths=[])
+    rc |= _cmd_scan(scan_ns)
 
     # 2. validate committed Claude publication
     print("\n=== validate Claude ===")
@@ -276,6 +321,15 @@ def _build_parser() -> argparse.ArgumentParser:
     exp_p.add_argument("--commit", action="store_true", help="Commit after export")
     exp_p.add_argument("--push", action="store_true", help="Push after commit")
 
+    # scan (privacy gate — repo-wide)
+    scan_p = sub.add_parser(
+        "scan", help="Repo-wide privacy gate: machine paths, secrets, email/vault warnings"
+    )
+    scan_p.add_argument("--root", metavar="PATH", help="Root to scan (default: repo root)")
+    scan_p.add_argument(
+        "paths", nargs="*", help="Explicit files to scan instead of the full git-tracked tree"
+    )
+
     # check (CI entrypoint)
     sub.add_parser(
         "check", help="Run manifest drift checks + native validation + lint"
@@ -298,6 +352,7 @@ def main() -> int:
         "validate": _cmd_validate,
         "lint": _cmd_lint,
         "export": _cmd_export,
+        "scan": _cmd_scan,
         "check": _cmd_check,
     }
 

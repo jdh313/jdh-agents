@@ -54,7 +54,7 @@ jobs:
         with:
           python-version: '3.13'
 
-      - name: Check Claude and Codex marketplaces (sync drift + schemas + lint)
+      - name: Check Claude and Codex marketplaces (sync drift + schemas + lint + privacy gate)
         run: uv run marketplace check
 
       - name: Unit tests
