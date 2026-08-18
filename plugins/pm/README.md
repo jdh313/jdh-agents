@@ -1,5 +1,10 @@
 # pm
 
+> **Requires an Obsidian vault.** Skills in this plugin read and write notes in an
+> Obsidian vault, defaulting to `~/Loose Ends/`. That default is an example, not a
+> requirement — point it at your own vault by editing the paths in the skill bodies
+> (search for `Loose Ends`). Without a vault, the vault-writing skills will not work.
+
 PM helpers for solo or small-team development on a Linear workspace. Skills for the weekly grooming loop, plan-to-tickets breakdown, and end-of-cycle retro notes.
 
 ## Premise
