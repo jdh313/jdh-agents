@@ -39,6 +39,13 @@ Claude sources instead of its own projection.
 
 ## Usage
 
+> **Consuming vs. authoring.** Installing and using these plugins needs nothing
+> but this repository — `marketplaces/` is compiled output and is committed, so
+> every plugin is ready to install as-is. *Authoring* (the `sync` step below)
+> additionally needs the AgentForge compiler, which is not yet public; until it
+> is, regenerating `marketplaces/` is a maintainer-only step. Everything else —
+> install, `validate`, `lint`, `pytest` — runs from a plain clone.
+
 ### Installing the Marketplace
 
 Each runtime is pointed at its own compiled publication, never at the
@@ -47,6 +54,7 @@ repository root.
 Claude Code:
 
 ```bash
+git clone https://github.com/jdh313/cc-marketplace
 /plugin marketplace add /path/to/cc-marketplace/marketplaces/claude
 ```
 
@@ -63,7 +71,9 @@ codex plugin add spec-flow@cc-marketplace
 Both publications keep the marketplace name `cc-marketplace`, so an existing
 install survives the repoint: only the path each runtime resolves changes.
 
-### Adding a New Plugin
+### Adding a New Plugin (maintainer-only)
+
+Step 3 requires the AgentForge compiler, which is not yet publicly available.
 
 1. Create plugin directory:
    ```bash
@@ -187,4 +197,14 @@ the next sync republishes the whole tree and silently discards the edit.
 
 ## License
 
-Apache-2.0
+Apache-2.0 (see [`LICENSE`](LICENSE)).
+
+Portions are derived from third-party work under other terms — notably twelve
+skills across `craft`, `pm`, `skillsmith`, and `teach` adapted from
+[`mattpocock/skills`](https://github.com/mattpocock/skills) (MIT), and the
+`langfuse` plugin, forked from
+[`langfuse/Claude-Observability-Plugin`](https://github.com/langfuse/Claude-Observability-Plugin)
+(MIT). Both upstreams' notices are reproduced in full. Required notices, the full MIT text, and a per-skill provenance table are in
+[`THIRD-PARTY-NOTICES.md`](THIRD-PARTY-NOTICES.md). Each adapted skill also
+carries `upstream:` provenance in its frontmatter and an `UPSTREAM.md` ledger of
+intentional divergences.

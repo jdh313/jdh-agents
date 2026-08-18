@@ -128,10 +128,10 @@ git commit -m "feat: add my-plugin"
 
 ### Two environment traps that produce false results
 
-**The PATH `agentforge` binary is not the pinned compiler.** `~/.local/bin/agentforge` symlinks into `~/Projects/agentforge/dist/`, and that checkout tracks whatever branch is being worked on. Running against it fails for reasons that have nothing to do with your change — it has rejected canonical keys the pinned revision accepts. Always compile through a worktree pinned to the recorded baseline:
+**The PATH `agentforge` binary is not the pinned compiler.** If `agentforge` is on your PATH it typically symlinks into a working AgentForge checkout's `dist/`, and that checkout tracks whatever branch is being worked on. Running against it fails for reasons that have nothing to do with your change — it has rejected canonical keys the pinned revision accepts. Always compile through a worktree pinned to the recorded baseline (`$AGENTFORGE_REPO` is wherever you cloned AgentForge):
 
 ```bash
-git -C ~/Projects/agentforge worktree add --detach /tmp/af-pin <pinned-sha>
+git -C "$AGENTFORGE_REPO" worktree add --detach /tmp/af-pin <pinned-sha>
 env AGENTFORGE_PROJECT=/tmp/af-pin uv run marketplace sync
 ```
 
@@ -248,7 +248,7 @@ Canonical tool names on `mcp__obsidian-mcp__*`:
 
 `patch_note` covers both surgical body replacement and append operations (use the `operation` arg).
 
-For shell access, default to `Bash(obsidian-cli *)` rather than bare `Bash` — see action audit `.docs/2026-05-31-obsidian-permission-audit.md` for rationale.
+For shell access, default to `Bash(obsidian-cli *)` rather than bare `Bash`.
 
 ### Plugin.json Metadata
 
