@@ -1,5 +1,10 @@
 # compass
 
+> **Requires an Obsidian vault.** Skills in this plugin read and write notes in an
+> Obsidian vault, defaulting to `~/Loose Ends/`. That default is an example, not a
+> requirement — point it at your own vault by editing the paths in the skill bodies
+> (search for `Loose Ends`). Without a vault, the vault-writing skills will not work.
+
 A suite of conversational thinking tools. The plugin name is the metaphor: it points, it doesn't command.
 
 Three **stance** skills sit on one axis — how much the agent commits. `reflect` always saves; `mull` saves only substantive sessions; `converge` picks its artifact by subject.
