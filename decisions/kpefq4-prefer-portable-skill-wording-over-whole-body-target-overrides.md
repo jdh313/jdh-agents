@@ -14,7 +14,7 @@ binds:
 supersedes: []
 superseded_by: []
 derived_from:
-  - https://app.shortcut.com/example/story/36
+  - shortcut:STORY-36
 informed_by:
   - 98f5vm
   - v0a3bm

@@ -13,7 +13,7 @@ binds: []
 supersedes: []
 superseded_by: []
 derived_from:
-  - https://linear.app/example/issue/TEAM-271
+  - linear:TEAM-271
 informed_by:
   - 3ve7bm
   - 1cpkrm

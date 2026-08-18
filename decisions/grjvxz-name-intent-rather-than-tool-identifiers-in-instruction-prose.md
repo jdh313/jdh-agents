@@ -14,7 +14,7 @@ binds:
 supersedes: []
 superseded_by: []
 derived_from:
-  - https://linear.app/example/issue/TEAM-354/agentforge-per-target-body-templating
+  - linear:TEAM-354
 informed_by:
   - kpefq4
 ---

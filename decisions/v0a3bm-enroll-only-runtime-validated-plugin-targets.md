@@ -15,7 +15,7 @@ binds:
 supersedes: []
 superseded_by: []
 derived_from:
-  - https://app.shortcut.com/example/story/35
+  - shortcut:STORY-35
 informed_by: []
 ---
 
