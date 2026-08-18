@@ -8,7 +8,7 @@ Some skills in this plugin (`meeting-notes`, `meeting-followup`, `meeting-restru
 
 Lives with the vault, not the plugin install. A vault clone or sync carries the config across machines; a plugin reinstall does not touch it.
 
-Use `~/Loose Ends/` consistently in skill bodies — the user has multiple machines with different home directories (`~` and `~`), and `~` resolves correctly on each.
+Use `~/Loose Ends/` consistently in skill bodies — the same vault may sit under different home directories on different machines, and `~` resolves correctly on each.
 
 ## Format
 
