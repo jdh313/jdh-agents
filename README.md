@@ -46,7 +46,47 @@ Claude sources instead of its own projection.
 > is, regenerating `marketplaces/` is a maintainer-only step. Everything else —
 > install, `validate`, `lint`, `pytest` — runs from a plain clone.
 
+### Prerequisites
+
+Nothing here is needed to *browse* the repo. These are what the plugins and the
+tooling expect at runtime.
+
+**For the marketplace tooling** (`validate`, `lint`, `check`, `pytest`):
+
+- [`uv`](https://docs.astral.sh/uv/) on `PATH`
+- Python >= 3.13 (`uv` will fetch it if missing)
+
+**Per plugin.** Most plugins are self-contained, but several are inert or
+misleading without an external account or binary. Check this table before
+installing one and wondering why it does nothing:
+
+| Plugin | Needs |
+|---|---|
+| `librarian`, `debate` | Obsidian vault + `obsidian-mcp` MCP server; `obsidian-cli` on `PATH` |
+| `coach` | Obsidian vault + `obsidian-cli`; Todoist (via the claude.ai connector) |
+| `compass` | Obsidian vault + `obsidian-cli`; Kagi MCP server (optional, for research) |
+| `teach` | Obsidian vault + `obsidian-cli`; DEVONthink MCP server (optional) |
+| `pm` | Obsidian vault; Linear MCP server; `ndr` on `PATH` |
+| `linear`, `spec-flow` | Linear MCP server (`spec-flow` also uses Context7) |
+| `attention-workflow` | Linear or Fibery MCP server |
+| `craft` | `gh`, `git`/`jj`, `ndr`; IaC skills additionally want `tflint`, `checkov`, `trivy`, `infracost` |
+| `langfuse` | A Langfuse account + `uv` on `PATH` (the Stop hook runs via `uv run`) |
+| `skillsmith` | `gh` on `PATH` (for upstream-review) |
+| `introspect` | Local Claude Code transcripts under `~/.claude/projects/` |
+| `shake-tune` | Klippain Shake Tune PNG output from a Klipper printer |
+| `commit`, `feedback` | Nothing beyond `git` (`commit` also supports `jj`) |
+
+Vault-backed plugins default to a vault named `Loose Ends`. That is an example,
+not a requirement — point them at your own vault by editing the paths in the
+skill bodies.
+
 ### Installing the Marketplace
+
+> **Local install only.** There is no `.claude-plugin/marketplace.json` at the
+> repository root, so the one-line `/plugin marketplace add jdh313/cc-marketplace`
+> form does **not** work. Clone the repo first and point your runtime at a local
+> path, as below. A root manifest is a possible future addition; until then the
+> clone is required.
 
 Each runtime is pointed at its own compiled publication, never at the
 repository root.
