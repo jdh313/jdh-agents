@@ -250,10 +250,10 @@ GitHub Actions runs on every push and pull request:
   using Claude Code `2.1.216`
 - `uv run marketplace validate --format codex` for the generated Codex publication
 
-Because AgentForge is private, the workflow requires an
-`AGENTFORGE_DEPLOY_KEY` repository secret with read access to
-`jdh313/agentforge`. The job fails explicitly if that credential is absent; it
-does not skip the acceptance gate.
+[`jdh313/agentforge`](https://github.com/jdh313/agentforge) is public, so the
+workflow checks the pinned compiler out with no credential. It previously
+required an `AGENTFORGE_DEPLOY_KEY` repository secret and failed closed without
+it.
 
 ## Metadata ownership
 
