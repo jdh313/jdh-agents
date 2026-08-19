@@ -13,6 +13,8 @@ ownership boundaries, runtime mappings, installation, and pilot acceptance.
 ```
 jdh-agents/
 ├── MARKETPLACE.yaml          # Canonical AgentForge collection definition
+├── .claude-plugin/           # Compiler output — the remote-install entry point
+│   └── marketplace.json      # Root copy of the Claude publication
 ├── plugins/                  # Authoring source — hand-edited, never installed from
 │   └── [plugin-name]/
 │       ├── PACKAGE.yaml      # Canonical AgentForge package definition
@@ -36,6 +38,11 @@ Each directory under `marketplaces/` is a complete marketplace root, so a
 runtime is pointed at that directory rather than at the repository. Pointing a
 runtime at the repository root is what previously let Codex resolve canonical
 Claude sources instead of its own projection.
+
+The one exception is `.claude-plugin/marketplace.json`, which exists so that
+Claude Code can install from the repository remotely -- see
+[Root manifest](#root-manifest). It is a compiled copy, not a hand-written one,
+and it resolves packages back into `marketplaces/claude/`.
 
 ## Usage
 
@@ -82,16 +89,18 @@ skill bodies.
 
 ### Installing the Marketplace
 
-> **Local install only.** There is no `.claude-plugin/marketplace.json` at the
-> repository root, so the one-line `/plugin marketplace add jdh313/jdh-agents`
-> form does **not** work. Clone the repo first and point your runtime at a local
-> path, as below. A root manifest is a possible future addition; until then the
-> clone is required.
+Claude Code installs remotely, with no clone:
 
-Each runtime is pointed at its own compiled publication, never at the
-repository root.
+```bash
+/plugin marketplace add jdh313/jdh-agents
+```
 
-Claude Code:
+That resolves `.claude-plugin/marketplace.json` at the repository root, which is
+a compiled copy of the Claude publication whose package sources point back into
+`marketplaces/claude/`. It is generated, never hand-written -- see
+[Root manifest](#root-manifest).
+
+A local clone still works, and is what Codex needs:
 
 ```bash
 git clone https://github.com/jdh313/jdh-agents
@@ -111,9 +120,29 @@ codex plugin add spec-flow@jdh-agents
 Both publications keep the marketplace name `jdh-agents`, so an existing
 install survives the repoint: only the path each runtime resolves changes.
 
+### Root manifest
+
+Claude Code's `marketplace add <owner>/<repo>` form reads
+`.claude-plugin/marketplace.json` at the repository root, so remote install
+needs a manifest there -- but the compiled Claude publication lives under
+`marketplaces/claude/`, and its package sources are relative to that directory.
+
+`MARKETPLACE.yaml`'s Claude publication therefore declares `root-manifest: true`.
+AgentForge writes a second copy of the same registry at the repository root and
+rewrites every package source from `./plugins/<name>` to
+`./marketplaces/claude/plugins/<name>`, so both copies enrol the same packages
+and resolve to the same bytes. The Codex publication does not declare it: Codex
+is installed from a local clone, and a second root file would collide with
+nothing useful.
+
+Like everything under `marketplaces/`, the root manifest is generated. Do not
+hand-edit it -- `uv run marketplace sync` rewrites it, and
+`uv run marketplace check` fails on drift in it, reporting the path relative to
+the repository root rather than to `marketplaces/`.
+
 ### Adding a New Plugin (maintainer-only)
 
-Step 3 requires the AgentForge compiler, which is not yet publicly available.
+Step 3 requires the [AgentForge compiler](https://github.com/jdh313/agentforge).
 
 1. Create plugin directory:
    ```bash
@@ -125,7 +154,7 @@ Step 3 requires the AgentForge compiler, which is not yet publicly available.
 
 3. Regenerate the committed native manifests with the pinned compiler:
    ```bash
-   env AGENTFORGE_PROJECT=/path/to/agentforge-at-0ebebbb \
+   env AGENTFORGE_PROJECT=/path/to/agentforge-at-1dba647 \
      uv run marketplace sync
    ```
 
@@ -138,7 +167,7 @@ Step 3 requires the AgentForge compiler, which is not yet publicly available.
    AgentForge checkout, then verify the committed tree with the native
    Claude validator:
    ```bash
-   export AGENTFORGE_PROJECT=/path/to/agentforge-at-0ebebbb
+   export AGENTFORGE_PROJECT=/path/to/agentforge-at-1dba647
    uv run pytest -q
    agentforge check MARKETPLACE.yaml --out marketplaces --claude-native
    ```
@@ -159,7 +188,7 @@ Codex pilot manifests. It never replaces maintained skills, agents, commands,
 hooks, references, or other source content.
 
 ```bash
-env AGENTFORGE_PROJECT=/path/to/agentforge-at-0ebebbb uv run marketplace sync
+env AGENTFORGE_PROJECT=/path/to/agentforge-at-1dba647 uv run marketplace sync
 # use `sync --check` to fail on drift without writing
 ```
 
@@ -215,7 +244,7 @@ uv run marketplace export --dry-run        # then --commit --push for the real e
 
 GitHub Actions runs on every push and pull request:
 - `uv run marketplace check` (Claude drift + Claude/Codex schemas + lint)
-- `uv run pytest` with AgentForge pinned to commit `0ebebbb`
+- `uv run pytest` with AgentForge pinned to commit `1dba647`
 - deterministic full-corpus compilation and read-only drift checks
 - `claude plugin validate --strict` for the generated Claude publication,
   using Claude Code `2.1.216`

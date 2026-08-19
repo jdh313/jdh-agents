@@ -29,6 +29,8 @@ See `docs/dual-agent-operating-model.md` for Claude/Codex ownership boundaries, 
 ```
 jdh-agents/
 ├── MARKETPLACE.yaml              # Authoritative collection metadata
+├── .claude-plugin/               # COMPILER OUTPUT — remote-install entry point
+│   └── marketplace.json          # Root copy of the Claude publication
 ├── .github/workflows/
 │   └── validate.yml              # CI/CD: validates + lints + checks drift
 ├── plugins/                      # AUTHORING SOURCE — edit here
@@ -52,7 +54,11 @@ jdh-agents/
 
 The split is the point: `plugins/` is what a human writes, `marketplaces/` is
 what a runtime loads. Nothing under `marketplaces/` survives a `sync` unless the
-compiler reproduces it, so an edit made there is discarded without warning.
+compiler reproduces it, so an edit made there is discarded without warning. The
+same holds for the root `.claude-plugin/marketplace.json`: it is a compiled copy
+of the Claude publication, emitted because the Claude publication declares
+`root-manifest: true`, and it exists so `marketplace add jdh313/jdh-agents`
+resolves remotely. Its package sources point into `marketplaces/claude/`.
 
 ### Core Concepts
 
@@ -92,13 +98,14 @@ Plugin entry schema (in marketplace.json):
 
 ### Public Export (private source-of-truth → public subset)
 
-> **Status: slated for retirement.** This repo is now public itself (history
-> scrubbed, force-pushed), so the private/public split below no longer describes
-> reality. The mechanism stays in place until `jdh-agents` supports remote
-> install — which needs a root `.claude-plugin/marketplace.json` so
-> `marketplace add jdh313/jdh-agents` resolves. Once that lands, retire
-> `export/public.json`, `.github/workflows/export-public.yml`, the `export`
-> subcommand and its tests, and this section.
+> **Status: ready to retire — the trigger has fired.** This repo is now public
+> itself (history scrubbed, force-pushed), so the private/public split below no
+> longer describes reality. The retirement was gated on `jdh-agents` supporting
+> remote install, which now works: the Claude publication declares
+> `root-manifest: true` and `marketplace add jdh313/jdh-agents` resolves. What
+> remains is the removal itself — `export/public.json`,
+> `.github/workflows/export-public.yml`, the `export` subcommand and its tests,
+> the `EXPORT_DEPLOY_KEY` repository secret, and this section.
 
 This repo was the **private source of truth** holding all plugins (marketplace name `jdh-agents`). A subset is published one-way to a separate **public** repo (`jdh313/shared-claude-plugins`, marketplace name `jdh`) — the "develop-all-in-one + export" / Copybara-lite pattern. Only the *current file state* of allowlisted plugins is copied out, so history never leaves.
 
@@ -109,7 +116,7 @@ This repo was the **private source of truth** holding all plugins (marketplace n
 
 | | Install command | Marketplace name | Plugins |
 |---|---|---|---|
-| This repo | local path only — no root manifest yet, see README | `jdh-agents` | all |
+| This repo | `marketplace add jdh313/jdh-agents` | `jdh-agents` | all |
 | Public (others) | `marketplace add jdh313/shared-claude-plugins` | `jdh` | allowlisted subset |
 
 ## Common Development Tasks
@@ -123,7 +130,7 @@ mkdir -p plugins/my-plugin
 # 2. Add authoritative metadata in plugins/my-plugin/PACKAGE.yaml
 # 3. Add plugin files (skills/, agents/, commands/, README.md, etc.)
 # 4. Regenerate committed native manifests with the pinned compiler
-env AGENTFORGE_PROJECT=/path/to/agentforge-at-0ebebbb uv run marketplace sync
+env AGENTFORGE_PROJECT=/path/to/agentforge-at-1dba647 uv run marketplace sync
 
 # 5. Validate schema and lint
 uv run marketplace validate
@@ -301,7 +308,8 @@ Full example with all optional fields:
 |------|---------|-----------------|
 | `MARKETPLACE.yaml` | Marketplace identity, publications, enrollment | Authoritative maintained metadata |
 | `plugins/[name]/PACKAGE.yaml` | Package metadata and target overlays | Authoritative maintained metadata |
-| `marketplaces/claude/` | Complete Claude marketplace root — the directory Claude is pointed at | Generated and committed by `marketplace sync` |
+| `.claude-plugin/marketplace.json` | Root copy of the Claude publication — what `marketplace add jdh313/jdh-agents` reads | Generated and committed by `marketplace sync` |
+| `marketplaces/claude/` | Complete Claude marketplace root — the directory a local install is pointed at | Generated and committed by `marketplace sync` |
 | `marketplaces/codex/` | Complete Codex marketplace root — the directory Codex is pointed at | Generated and committed by `marketplace sync` |
 | `scripts/marketplace/` | AgentForge orchestration, validation/lint, and public export | Single entrypoint for all automation (`uv run marketplace <command>`) |
 | `.github/workflows/validate.yml` | CI/CD pipeline | Automated validation on push/PR |

@@ -5,7 +5,7 @@ AgentForge collection definitions. Native Claude and Codex manifests remain
 committed at the repository paths consumed by both runtimes, but they are now
 generated outputs rather than independently maintained metadata.
 
-The compiler baseline for this enrollment is AgentForge commit `0ebebbb`
+The compiler baseline for this enrollment is AgentForge commit `1dba647`
 (`agentforge` 0.0.1).
 
 ## Acceptance-suite ownership
@@ -17,6 +17,12 @@ for validating all sixteen packages in this repository.
 
 The jdh-agents suite runs the pinned compiler twice in separate temporary
 output roots and compares paths, file types, bytes, and normalized permissions.
+Those compiles use a throwaway copy of the canonical definition with the Claude
+publication's `root-manifest` flag removed, because a publication declaring it
+requires `--out` to resolve inside the marketplace directory and writes its root
+copy beside `MARKETPLACE.yaml` -- neither of which a temporary output root can
+satisfy without overwriting the committed root manifest. Root-manifest
+publication has its own coverage in `scripts/tests/test_root_manifest.py`.
 It then runs AgentForge's read-only `check` command and exercises drift in five
 dimensions: changed content, a missing file, an extra file, changed registry
 metadata, and changed permissions. Every drift case fingerprints the generated
@@ -339,7 +345,7 @@ not behavioral equivalence.
 Use a checkout at the recorded compiler baseline:
 
 ```bash
-export AGENTFORGE_PROJECT=/path/to/agentforge-at-0ebebbb
+export AGENTFORGE_PROJECT=/path/to/agentforge-at-1dba647
 uv run marketplace sync
 uv run marketplace check
 uv run pytest -q
@@ -349,12 +355,12 @@ bun run "$AGENTFORGE_PROJECT/src/cli.ts" check \
   MARKETPLACE.yaml --out marketplaces --claude-native
 ```
 
-CI checks out `jdh313/agentforge` at full commit
-`0ebebbb8f0cf23f9223792a4b625ca302c9d655d`. Since that repository is private,
-the workflow requires the `AGENTFORGE_DEPLOY_KEY` repository secret with read
-access and fails closed when it is not configured. The runner toolchain pins
-Bun `1.3.14` and Claude Code `2.1.216`, the versions used for the local
-acceptance run.
+CI checks out [`jdh313/agentforge`](https://github.com/jdh313/agentforge) at
+full commit `1dba647fe872ef6422132cee82e03fb386f82eb8`. That repository is
+public, so the checkout needs no credential -- the workflow previously required
+an `AGENTFORGE_DEPLOY_KEY` secret and failed closed without it. The runner
+toolchain pins Bun `1.3.14` and Claude Code `2.1.216`, the versions used for the
+local acceptance run.
 
 Runtime references: [Claude plugin validation](https://code.claude.com/docs/en/plugin-marketplaces#validation-and-testing)
 and [Codex plugin and marketplace structure](https://developers.openai.com/codex/plugins/build/).

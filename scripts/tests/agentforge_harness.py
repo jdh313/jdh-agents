@@ -6,8 +6,13 @@ import os
 import shutil
 import stat
 import subprocess
+import tempfile
+from collections.abc import Iterator
+from contextlib import contextmanager
 from dataclasses import dataclass
 from pathlib import Path
+
+import yaml
 
 
 @dataclass(frozen=True)
@@ -87,6 +92,40 @@ class AgentForge:
             str(output_root),
             *extra_arguments,
         )
+
+
+@contextmanager
+def marketplace_without_root_manifest(marketplace: Path) -> Iterator[Path]:
+    """Yield a throwaway marketplace root with root-manifest publication off.
+
+    A publication that declares ``root-manifest`` forces ``--out`` to resolve
+    inside the marketplace directory and writes its root copy beside
+    ``MARKETPLACE.yaml``.  Tests that compile the corpus into a pytest tmpdir
+    want neither: the first is rejected outright, and the second would overwrite
+    the repository's committed root manifest from a test run.  Those tests cover
+    corpus compilation and target translation, not root-manifest publication, so
+    they compile an otherwise identical definition with the flag removed.
+
+    AgentForge requires the definition to be named exactly ``MARKETPLACE.yaml``,
+    so this is a whole directory rather than a sibling file.  ``plugins/`` is
+    copied so the compiler's package and artifact globs resolve.
+    """
+
+    definition = yaml.safe_load(marketplace.read_text(encoding="utf-8"))
+    for publication in definition.get("publications", []):
+        publication.pop("root-manifest", None)
+
+    source_root = marketplace.parent
+    with tempfile.TemporaryDirectory(prefix="agentforge-no-root-manifest-") as temporary:
+        root = Path(temporary)
+        (root / marketplace.name).write_text(
+            yaml.safe_dump(definition, sort_keys=False), encoding="utf-8"
+        )
+        # The package and artifact globs do not descend through symlinks at any
+        # depth, so the corpus is copied rather than linked.  At ~2 MB it is
+        # cheap; the callers hold the copy for a whole module where they can.
+        shutil.copytree(source_root / "plugins", root / "plugins", symlinks=True)
+        yield root / marketplace.name
 
 
 def require_agentforge_project(repo_root: Path) -> Path:

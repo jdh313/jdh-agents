@@ -12,6 +12,10 @@ publications:
   - id: claude
     target: claude
     destination: .claude-plugin/marketplace.json
+    # Publish a second copy of this registry at the repository root so
+    # `/plugin marketplace add jdh313/jdh-agents` resolves remotely. Sources in
+    # the root copy are rewritten to ./marketplaces/claude/plugins/<name>.
+    root-manifest: true
     enrollment:
       mode: all-compatible
     native:

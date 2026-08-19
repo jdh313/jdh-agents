@@ -14,7 +14,7 @@ from __future__ import annotations
 import re
 from pathlib import Path
 
-from tests.agentforge_harness import resolve_agentforge
+from tests.agentforge_harness import marketplace_without_root_manifest, resolve_agentforge
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 MARKETPLACE = REPO_ROOT / "MARKETPLACE.yaml"
@@ -26,10 +26,11 @@ ALLOW_IMPLICIT_INVOCATION_FALSE = re.compile(
 
 
 def test_compass_skills_each_get_a_codex_explicit_only_policy_sidecar(tmp_path: Path) -> None:
-    agentforge = resolve_agentforge(REPO_ROOT, MARKETPLACE)
-    output_root = tmp_path / "compiled"
+    with marketplace_without_root_manifest(MARKETPLACE) as definition:
+        agentforge = resolve_agentforge(REPO_ROOT, definition)
+        output_root = tmp_path / "compiled"
 
-    result = agentforge.compile(output_root)
+        result = agentforge.compile(output_root)
 
     diagnostics = result.stdout + result.stderr
     assert "[codex/compass] declared-loss" not in diagnostics, (

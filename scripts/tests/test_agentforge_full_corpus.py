@@ -4,11 +4,17 @@ from __future__ import annotations
 
 import json
 import re
+from collections.abc import Iterator
 from pathlib import Path
 
 import pytest
 
-from tests.agentforge_harness import AgentForge, resolve_agentforge, snapshot_tree
+from tests.agentforge_harness import (
+    AgentForge,
+    marketplace_without_root_manifest,
+    resolve_agentforge,
+    snapshot_tree,
+)
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 MARKETPLACE = REPO_ROOT / "MARKETPLACE.yaml"
@@ -53,8 +59,9 @@ CODEX_PACKAGE_IDS = CLAUDE_PACKAGE_IDS - CODEX_ONLY_EXCLUSIONS
 
 
 @pytest.fixture(scope="module")
-def agentforge() -> AgentForge:
-    return resolve_agentforge(REPO_ROOT, MARKETPLACE)
+def agentforge() -> Iterator[AgentForge]:
+    with marketplace_without_root_manifest(MARKETPLACE) as definition:
+        yield resolve_agentforge(REPO_ROOT, definition)
 
 
 def test_full_corpus_compilation_is_deterministic_and_clean(

@@ -83,9 +83,9 @@ def _cmd_sync(args: argparse.Namespace) -> int:
         print(f"Compiled publications are up-to-date ({result.file_count} files).")
         return 0
 
-    print(f"Compiled publications in {root}/ are OUT OF SYNC:", file=sys.stderr)
+    print(f"Compiled publications for {root}/ are OUT OF SYNC:", file=sys.stderr)
     for issue in result.drift:
-        print(f"  {issue.kind}: {root}/{issue.path.as_posix()}", file=sys.stderr)
+        print(f"  {issue.kind}: {issue.path.as_posix()}", file=sys.stderr)
     print("Run `uv run marketplace sync` to regenerate.", file=sys.stderr)
     return 1
 

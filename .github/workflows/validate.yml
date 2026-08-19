@@ -19,22 +19,12 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Require AgentForge deploy key
-        env:
-          AGENTFORGE_DEPLOY_KEY: ${{ secrets.AGENTFORGE_DEPLOY_KEY }}
-        run: |
-          if [ -z "$AGENTFORGE_DEPLOY_KEY" ]; then
-            echo "AGENTFORGE_DEPLOY_KEY is required for the full-corpus acceptance gate." >&2
-            exit 1
-          fi
-
       - name: Checkout pinned AgentForge compiler
         uses: actions/checkout@v4
         with:
           repository: jdh313/agentforge
-          ref: 0ebebbb8f0cf23f9223792a4b625ca302c9d655d
+          ref: 1dba647fe872ef6422132cee82e03fb386f82eb8
           path: agentforge
-          ssh-key: ${{ secrets.AGENTFORGE_DEPLOY_KEY }}
           persist-credentials: false
 
       - name: Set up Bun
