@@ -5,7 +5,7 @@ defaults:
   description: Personal dual-runtime plugin marketplace
   owner:
     name: Jacob Hoehler
-    email: jacob@example.com
+    email: jacob@jdh.onl
 packages:
   - plugins/*/PACKAGE.yaml
 publications:
