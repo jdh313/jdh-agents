@@ -2,10 +2,11 @@
 
 ## Status
 
-Codex support is private and limited to the pilot plugins `commit`, `craft`,
-`linear`, and `spec-flow`. Claude Code remains the default surface for every
-other plugin. Public export policy is unchanged; exported pilot directories may
-contain Codex manifests, but the public registry remains Claude-native.
+Codex support is limited to the pilot plugins `commit`, `craft`, `linear`, and
+`spec-flow`. Claude Code remains the default surface for every other plugin.
+The repository publishes both runtimes from one source: `marketplaces/claude/`
+is what a Claude install resolves (remotely, via the root manifest) and
+`marketplaces/codex/` is what a Codex install resolves from a local clone.
 
 ## Ownership model
 

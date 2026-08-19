@@ -1,8 +1,0 @@
-{
-  "name": "jdh",
-  "description": "Shared Claude Code skills: commit, spec-flow, linear, pm, feedback, introspect",
-  "owner": { "name": "Jacob Hoehler", "email": "jacob@jdh.onl" },
-  "homepage": "https://github.com/jdh313/shared-claude-plugins",
-  "metadataVersion": "1.0.0",
-  "allowlist": ["commit", "spec-flow", "linear", "pm", "feedback", "introspect"]
-}
