@@ -59,13 +59,13 @@ Point each runtime at its own publication root, never at the repository.
 Claude Code:
 
 ```bash
-/plugin marketplace add /path/to/cc-marketplace/marketplaces/claude
+/plugin marketplace add /path/to/agent-marketplace/marketplaces/claude
 ```
 
 Codex local development marketplace:
 
 ```bash
-codex plugin marketplace add /path/to/cc-marketplace/marketplaces/codex
+codex plugin marketplace add /path/to/agent-marketplace/marketplaces/codex
 codex plugin add commit@cc-marketplace
 codex plugin add craft@cc-marketplace
 codex plugin add linear@cc-marketplace

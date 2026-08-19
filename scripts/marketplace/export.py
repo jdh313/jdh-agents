@@ -142,10 +142,10 @@ def _export_commit_message(
 
     n = len(added) + len(removed) + len(bumped) + len(touched)
     if n:
-        subject = f"export: sync {n} plugin(s) from cc-marketplace ({today})"
+        subject = f"export: sync {n} plugin(s) from agent-marketplace ({today})"
         body = "\n".join(lines)
     else:
-        subject = f"export: refresh manifest from cc-marketplace ({today})"
+        subject = f"export: refresh manifest from agent-marketplace ({today})"
         body = "Manifest/metadata refresh; no plugin file changes."
     return subject, body
 

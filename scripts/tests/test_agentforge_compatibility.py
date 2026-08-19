@@ -22,7 +22,7 @@ def test_codex_enrolled_argument_instructions_are_portable(relative_path: str) -
 
 # TEAM-341, bullet 1: commit's PreToolUse guard must appear in generated Codex
 # output, and the committed `.codex-plugin` baseline in this repo must reflect
-# it. `manifest.hooks` is the field cc-marketplace's Codex validator already
+# it. `manifest.hooks` is the field agent-marketplace's Codex validator already
 # checks generically for any plugin (`codex_validate._validate_plugin` scans
 # "skills", "mcpServers", "apps", "hooks"), so a translated hook configuration
 # is expected to surface there, pointing at a materialized file.

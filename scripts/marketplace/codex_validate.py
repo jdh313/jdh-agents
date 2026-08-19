@@ -1,7 +1,7 @@
-"""Validate cc-marketplace's generated local Codex publication layout.
+"""Validate agent-marketplace's generated local Codex publication layout.
 
 Codex does not currently expose a non-interactive ``plugin validate`` command,
-so cc-marketplace validates the generated local publication shape it owns. This
+so agent-marketplace validates the generated local publication shape it owns. This
 module deliberately validates only packages declared by the supplied
 marketplace; it does not infer support from unrelated canonical packages or
 attempt to validate every Codex marketplace source form.
@@ -48,7 +48,7 @@ _COMPANION_REFERENCES = (
 
 
 def validate_codex_marketplace(manifest: Any, plugins_root: Path) -> list[str]:
-    """Return errors for cc-marketplace's materialized local Codex publication.
+    """Return errors for agent-marketplace's materialized local Codex publication.
 
     ``plugins_root`` is the publication's ``plugins/`` directory.  Local
     marketplace sources are resolved relative to its parent, matching Codex's

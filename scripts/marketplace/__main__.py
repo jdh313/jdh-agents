@@ -267,7 +267,7 @@ def _cmd_check(args: argparse.Namespace) -> int:  # noqa: ARG001
 def _build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         prog="marketplace",
-        description="cc-marketplace plugin registry tooling",
+        description="agent-marketplace plugin registry tooling",
     )
     sub = parser.add_subparsers(dest="command", required=True)
 

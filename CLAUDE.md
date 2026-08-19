@@ -14,7 +14,7 @@ Do not rely solely on this CLAUDE.md or existing plugin examples — they may be
 
 ## Project Overview
 
-**cc-marketplace** is a personal Claude Code and Codex plugin marketplace with automated validation and synchronization. It provides:
+**agent-marketplace** is a personal Claude Code and Codex plugin marketplace with automated validation and synchronization. It provides:
 - Authoritative AgentForge marketplace/package definitions in `MARKETPLACE.yaml` and `plugins/*/PACKAGE.yaml`
 - Committed generated native manifests for Claude and the five declared Codex pilots
 - Schema validation, generated-output drift detection, and plugin linting
@@ -27,7 +27,7 @@ See `docs/dual-agent-operating-model.md` for Claude/Codex ownership boundaries, 
 ### Directory Structure
 
 ```
-cc-marketplace/
+agent-marketplace/
 ├── MARKETPLACE.yaml              # Authoritative collection metadata
 ├── .github/workflows/
 │   └── validate.yml              # CI/CD: validates + lints + checks drift
@@ -94,9 +94,9 @@ Plugin entry schema (in marketplace.json):
 
 > **Status: slated for retirement.** This repo is now public itself (history
 > scrubbed, force-pushed), so the private/public split below no longer describes
-> reality. The mechanism stays in place until `cc-marketplace` supports remote
+> reality. The mechanism stays in place until `agent-marketplace` supports remote
 > install — which needs a root `.claude-plugin/marketplace.json` so
-> `marketplace add jdh313/cc-marketplace` resolves. Once that lands, retire
+> `marketplace add jdh313/agent-marketplace` resolves. Once that lands, retire
 > `export/public.json`, `.github/workflows/export-public.yml`, the `export`
 > subcommand and its tests, and this section.
 
