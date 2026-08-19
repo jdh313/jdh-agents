@@ -4,13 +4,11 @@ from __future__ import annotations
 
 import argparse
 import json
-import os
 import subprocess
 import sys
 from pathlib import Path
 
 from marketplace.codex_validate import validate_codex_marketplace
-from marketplace.export import run_export
 from marketplace.generation import (
     COMPILED_ROOT,
     GenerationError,
@@ -32,7 +30,6 @@ from marketplace.validate import validate_manifest
 _THIS_FILE = Path(__file__).resolve()
 _REPO_ROOT = _THIS_FILE.parents[2]
 _CANONICAL_MARKETPLACE = _REPO_ROOT / "MARKETPLACE.yaml"
-_DEFAULT_EXPORT_CONFIG = _REPO_ROOT / "export" / "public.json"
 
 # Authoring source. `lint` reads this, because lint grades what a human wrote;
 # every other consumer below reads a compiled publication instead.
@@ -151,45 +148,12 @@ def _cmd_lint(args: argparse.Namespace) -> int:
     return 0
 
 
-def _cmd_export(args: argparse.Namespace) -> int:
-    config_path = Path(args.config) if args.config else _DEFAULT_EXPORT_CONFIG
-
-    public_dir_str = args.public_dir or os.environ.get("PUBLIC_REPO_DIR")
-    if not public_dir_str:
-        print(
-            "Error: --public-dir or PUBLIC_REPO_DIR env var required for export.",
-            file=sys.stderr,
-        )
-        return 1
-
-    public_root = Path(public_dir_str).expanduser().resolve()
-    do_commit = args.commit
-    do_push = args.push
-    # dry_run is default-true unless --commit or --push given
-    do_dry_run = args.dry_run or (not do_commit and not do_push)
-
-    try:
-        run_export(
-            private_root=_REPO_ROOT,
-            public_root=public_root,
-            config_path=config_path,
-            dry_run=do_dry_run,
-            commit=do_commit,
-            push=do_push,
-        )
-    except (ValueError, RuntimeError) as exc:
-        print(f"Export failed: {exc}", file=sys.stderr)
-        return 1
-
-    return 0
-
-
 def _cmd_scan(args: argparse.Namespace) -> int:
     """Repo-wide privacy gate: machine paths, secret-shaped strings, email/vault warnings.
 
     Scans git-tracked files under the given root (default: repo root) unless
     explicit paths are given. Used by the prek pre-push hook and by CI, so
-    both run the exact same scanner as `marketplace export`.
+    both run the exact same scanner.
     """
     root = Path(args.root).resolve() if args.root else _REPO_ROOT
 
@@ -305,22 +269,6 @@ def _build_parser() -> argparse.ArgumentParser:
     lint_p = sub.add_parser("lint", help="Lint plugin files")
     lint_p.add_argument("--plugins-root", metavar="PATH", help="Path to plugins/ dir")
 
-    # export
-    exp_p = sub.add_parser("export", help="Export allowlisted plugins to a public repo dir")
-    exp_p.add_argument("--public-dir", metavar="PATH", help="Public repo root directory")
-    exp_p.add_argument(
-        "--config", metavar="PATH", help="Export config JSON (default: export/public.json)"
-    )
-    exp_p.add_argument(
-        "--dry-run",
-        action="store_true",
-        default=False,
-        help="Show git diff/status without committing (the default when neither "
-        "--commit nor --push is given)",
-    )
-    exp_p.add_argument("--commit", action="store_true", help="Commit after export")
-    exp_p.add_argument("--push", action="store_true", help="Push after commit")
-
     # scan (privacy gate — repo-wide)
     scan_p = sub.add_parser(
         "scan", help="Repo-wide privacy gate: machine paths, secrets, email/vault warnings"
@@ -351,7 +299,6 @@ def main() -> int:
         "sync": _cmd_sync,
         "validate": _cmd_validate,
         "lint": _cmd_lint,
-        "export": _cmd_export,
         "scan": _cmd_scan,
         "check": _cmd_check,
     }

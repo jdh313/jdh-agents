@@ -27,9 +27,7 @@ jdh-agents/
 │       ├── .agents/plugins/marketplace.json
 │       └── plugins/[name]/
 ├── scripts/                  # Automation tooling
-│   └── marketplace/          # `marketplace` CLI: sync, validate, lint, export, check
-├── export/                   # Public export config
-│   └── public.json           # Allowlist + public ("jdh") marketplace identity
+│   └── marketplace/          # `marketplace` CLI: sync, validate, lint, scan, check
 └── .github/workflows/        # CI/CD automation
     └── validate.yml          # GitHub Actions workflow
 ```
@@ -230,14 +228,6 @@ read-only and is the CI entrypoint:
 
 ```bash
 uv run marketplace check
-```
-
-### Export
-
-Copies the allowlisted subset (`export/public.json`) to the public marketplace repo:
-
-```bash
-uv run marketplace export --dry-run        # then --commit --push for the real export
 ```
 
 ## CI/CD
