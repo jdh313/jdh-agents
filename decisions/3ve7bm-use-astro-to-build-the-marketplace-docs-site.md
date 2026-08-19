@@ -5,7 +5,7 @@ status: current
 decision_date: 2026-07-11
 author: Jacob Hoehler
 conviction: tentative
-project: agent-marketplace
+project: jdh-agents
 labels:
   - tooling
 binds: []
@@ -19,7 +19,7 @@ informed_by: []
 
 ## Decision
 
-The cc-marketplace documentation site will be built with Astro.
+The jdh-agents documentation site will be built with Astro.
 
 ## Scope
 

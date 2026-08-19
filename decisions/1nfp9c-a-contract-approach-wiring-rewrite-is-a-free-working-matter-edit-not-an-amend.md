@@ -5,7 +5,7 @@ status: current
 decision_date: 2026-07-10
 author: Jacob Hoehler
 conviction: tentative
-project: agent-marketplace
+project: jdh-agents
 labels:
   - process
   - write-side

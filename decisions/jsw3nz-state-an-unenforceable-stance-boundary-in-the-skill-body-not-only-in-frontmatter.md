@@ -6,7 +6,7 @@ status: current
 decision_date: 2026-08-03
 author: Jacob Hoehler
 conviction: strong
-project: agent-marketplace
+project: jdh-agents
 labels:
   - architecture
   - write-side

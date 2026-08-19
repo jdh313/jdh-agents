@@ -295,7 +295,7 @@ life-areas --(reference: /review)--
 ## Installation
 
 ```bash
-/install coach@cc-marketplace
+/install coach@jdh-agents
 ```
 
 ## Future

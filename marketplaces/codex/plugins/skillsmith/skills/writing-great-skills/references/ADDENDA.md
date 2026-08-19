@@ -1,4 +1,4 @@
-# Addenda — authoring in cc-marketplace
+# Addenda — authoring in jdh-agents
 
 Repo-specific conventions that [`SKILL.md`](SKILL.md)'s generic reference doesn't cover. Reach here when authoring or editing a skill **in this marketplace**; the vocabulary and principles in SKILL.md still govern — this only adds the local mechanics.
 

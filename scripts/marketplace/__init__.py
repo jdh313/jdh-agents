@@ -1,1 +1,1 @@
-# marketplace package — installable as agent-marketplace-tools
+# marketplace package — installable as jdh-agents-tools

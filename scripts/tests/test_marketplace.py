@@ -387,7 +387,7 @@ def test_commit_message_bump_add_remove():
     new = {"commit": "3.1.0", "spec-flow": "0.12.0", "newp": "1.0.0"}
     changed = {"spec-flow", "newp", "gone"}
     subject, body = _export_commit_message(old, new, changed, "2026-06-24")
-    assert subject == "export: sync 3 plugin(s) from agent-marketplace (2026-06-24)"
+    assert subject == "export: sync 3 plugin(s) from jdh-agents (2026-06-24)"
     assert "+ newp 1.0.0 (added)" in body
     assert "- gone (removed)" in body
     assert "* spec-flow 0.11.0 -> 0.12.0" in body
@@ -406,5 +406,5 @@ def test_commit_message_manifest_only_refresh():
     old = {"pm": "0.3.0"}
     new = {"pm": "0.3.0"}
     subject, body = _export_commit_message(old, new, set(), "2026-06-24")
-    assert subject == "export: refresh manifest from agent-marketplace (2026-06-24)"
+    assert subject == "export: refresh manifest from jdh-agents (2026-06-24)"
     assert "no plugin file changes" in body

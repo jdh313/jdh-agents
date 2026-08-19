@@ -1,4 +1,4 @@
-"""AgentForge-backed publication compilation for agent-marketplace.
+"""AgentForge-backed publication compilation for jdh-agents.
 
 AgentForge owns deterministic publication compilation, including atomic
 materialization and total pruning of stale files.  This module owns only the
@@ -82,7 +82,7 @@ def sync_publications(repo_root: Path, marketplace: Path) -> CompilationResult:
 def check_publications(repo_root: Path, marketplace: Path) -> CheckResult:
     """Compile to a throwaway root and diff it against the committed tree."""
 
-    with tempfile.TemporaryDirectory(prefix="agent-marketplace-agentforge-") as temporary:
+    with tempfile.TemporaryDirectory(prefix="jdh-agents-agentforge-") as temporary:
         candidate = Path(temporary) / COMPILED_ROOT.name
         stdout, stderr = _run_compile(repo_root, marketplace, candidate)
         expected = snapshot_tree(candidate)

@@ -1,4 +1,4 @@
-"""Tests for agent-marketplace's Codex-native publication validator."""
+"""Tests for jdh-agents's Codex-native publication validator."""
 
 from __future__ import annotations
 

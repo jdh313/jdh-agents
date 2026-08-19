@@ -55,8 +55,8 @@ The design package this implements lives in `.docs/attention-workflow/`
 The two lifecycles compete for the same trigger phrases. Run one.
 
 ```bash
-/plugin disable spec-flow@cc-marketplace
-/plugin enable attention-workflow@cc-marketplace
+/plugin disable spec-flow@jdh-agents
+/plugin enable attention-workflow@jdh-agents
 /plugin                     # confirm exactly one lifecycle plugin is enabled
 ```
 
@@ -71,8 +71,8 @@ change.
 ### Rollback
 
 ```bash
-/plugin disable attention-workflow@cc-marketplace
-/plugin enable spec-flow@cc-marketplace
+/plugin disable attention-workflow@jdh-agents
+/plugin enable spec-flow@jdh-agents
 rm -rf "$(python3 <plugin>/scripts/aw_state.py state-root)"   # after preserving evidence
 ```
 

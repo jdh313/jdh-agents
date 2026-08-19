@@ -10,12 +10,12 @@ The compiler baseline for this enrollment is AgentForge commit `0ebebbb`
 
 ## Acceptance-suite ownership
 
-agent-marketplace owns full-corpus acceptance and drift detection against its real
+jdh-agents owns full-corpus acceptance and drift detection against its real
 canonical `MARKETPLACE.yaml`. AgentForge retains its focused five-package
 compiler fixture as compiler-level coverage; that fixture is not a substitute
 for validating all sixteen packages in this repository.
 
-The agent-marketplace suite runs the pinned compiler twice in separate temporary
+The jdh-agents suite runs the pinned compiler twice in separate temporary
 output roots and compares paths, file types, bytes, and normalized permissions.
 It then runs AgentForge's read-only `check` command and exercises drift in five
 dimensions: changed content, a missing file, an extra file, changed registry
@@ -32,7 +32,7 @@ The merge gate also applies the runtime-native checks that are available:
   resolution, manifest identity and semantic versions, required skill metadata,
   explicit-only sidecars, and exact agreement between declared and materialized
   package directories. Codex currently provides marketplace management but no
-  non-interactive `plugin validate` command, so this is agent-marketplace's native
+  non-interactive `plugin validate` command, so this is jdh-agents's native
   Codex validation boundary.
 
 Generated publication roots are committed, not disposable. `uv run marketplace
@@ -54,7 +54,7 @@ declares `disable-model-invocation: true`, the Codex projection generates a
 skill-local `agents/openai.yaml` containing
 `policy.allow_implicit_invocation: false`. Supplied sidecars remain subject to
 AgentForge's normal collision policy and cannot silently replace generated
-policy. agent-marketplace owns verifying those compiler results across the real
+policy. jdh-agents owns verifying those compiler results across the real
 16-package corpus and validating the seven declared Codex packages; it does not
 duplicate the translation in repository tooling.
 
@@ -139,7 +139,7 @@ namespace at runtime, so `skills/today` declares `name: today` and is invoked as
 
 ## Codex compatibility
 
-The fourteen-package publication compiles and passes agent-marketplace's
+The fourteen-package publication compiles and passes jdh-agents's
 Codex-native validator. Compilation diagnostics are reviewed limitations, not
 parity claims:
 
@@ -326,7 +326,7 @@ other capability fact is held to. The set is accurate as of codex 0.146.0,
 verified against the binary's embedded JSON schemas, but nothing structural
 keeps it that way.
 
-Both are AgentForge gaps rather than agent-marketplace ones, and both are tracked
+Both are AgentForge gaps rather than jdh-agents ones, and both are tracked
 separately. They are recorded here because a reader auditing this document's
 dispositions would otherwise reasonably conclude that a construct absent from
 the gated list is a construct that does not exist.

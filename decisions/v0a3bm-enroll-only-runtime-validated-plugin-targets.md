@@ -5,7 +5,7 @@ status: current
 decision_date: 2026-07-20
 author: Jacob Hoehler
 conviction: strong
-project: agent-marketplace
+project: jdh-agents
 labels:
   - scope
   - deployment

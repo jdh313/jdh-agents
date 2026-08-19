@@ -1,4 +1,4 @@
-# agent-marketplace
+# jdh-agents
 
 Personal plugin marketplace shared by Claude Code and Codex, with canonical
 AgentForge definitions, native runtime manifests, and automated validation.
@@ -11,7 +11,7 @@ ownership boundaries, runtime mappings, installation, and pilot acceptance.
 ## Directory Structure
 
 ```
-agent-marketplace/
+jdh-agents/
 ├── MARKETPLACE.yaml          # Canonical AgentForge collection definition
 ├── plugins/                  # Authoring source — hand-edited, never installed from
 │   └── [plugin-name]/
@@ -83,7 +83,7 @@ skill bodies.
 ### Installing the Marketplace
 
 > **Local install only.** There is no `.claude-plugin/marketplace.json` at the
-> repository root, so the one-line `/plugin marketplace add jdh313/agent-marketplace`
+> repository root, so the one-line `/plugin marketplace add jdh313/jdh-agents`
 > form does **not** work. Clone the repo first and point your runtime at a local
 > path, as below. A root manifest is a possible future addition; until then the
 > clone is required.
@@ -94,21 +94,21 @@ repository root.
 Claude Code:
 
 ```bash
-git clone https://github.com/jdh313/agent-marketplace
-/plugin marketplace add /path/to/agent-marketplace/marketplaces/claude
+git clone https://github.com/jdh313/jdh-agents
+/plugin marketplace add /path/to/jdh-agents/marketplaces/claude
 ```
 
 Codex local marketplace and pilots:
 
 ```bash
-codex plugin marketplace add /path/to/agent-marketplace/marketplaces/codex
-codex plugin add commit@cc-marketplace
-codex plugin add craft@cc-marketplace
-codex plugin add linear@cc-marketplace
-codex plugin add spec-flow@cc-marketplace
+codex plugin marketplace add /path/to/jdh-agents/marketplaces/codex
+codex plugin add commit@jdh-agents
+codex plugin add craft@jdh-agents
+codex plugin add linear@jdh-agents
+codex plugin add spec-flow@jdh-agents
 ```
 
-Both publications keep the marketplace name `cc-marketplace`, so an existing
+Both publications keep the marketplace name `jdh-agents`, so an existing
 install survives the repoint: only the path each runtime resolves changes.
 
 ### Adding a New Plugin (maintainer-only)
@@ -181,7 +181,7 @@ is the native merge gate for the declared Codex publication.
 
 AgentForge owns the cross-runtime translation from Claude
 `disable-model-invocation: true` metadata to Codex
-`policy.allow_implicit_invocation: false` skill sidecars. agent-marketplace's
+`policy.allow_implicit_invocation: false` skill sidecars. jdh-agents's
 full-corpus suite verifies that translation against the real canonical corpus;
 it does not reimplement the compiler rule.
 

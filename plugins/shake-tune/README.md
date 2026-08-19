@@ -18,7 +18,7 @@ The `/shake-tune` skill orchestrates — detects test types, loads printer-profi
 
 ## Quick Start
 
-1. Install: `/plugin install shake-tune@cc-marketplace`
+1. Install: `/plugin install shake-tune@jdh-agents`
 2. Run: `/shake-tune`
 3. Provide the path to your Shake Tune results directory
 4. Follow the guided analysis flow

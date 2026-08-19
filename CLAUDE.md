@@ -14,7 +14,7 @@ Do not rely solely on this CLAUDE.md or existing plugin examples — they may be
 
 ## Project Overview
 
-**agent-marketplace** is a personal Claude Code and Codex plugin marketplace with automated validation and synchronization. It provides:
+**jdh-agents** is a personal Claude Code and Codex plugin marketplace with automated validation and synchronization. It provides:
 - Authoritative AgentForge marketplace/package definitions in `MARKETPLACE.yaml` and `plugins/*/PACKAGE.yaml`
 - Committed generated native manifests for Claude and the five declared Codex pilots
 - Schema validation, generated-output drift detection, and plugin linting
@@ -27,7 +27,7 @@ See `docs/dual-agent-operating-model.md` for Claude/Codex ownership boundaries, 
 ### Directory Structure
 
 ```
-agent-marketplace/
+jdh-agents/
 ├── MARKETPLACE.yaml              # Authoritative collection metadata
 ├── .github/workflows/
 │   └── validate.yml              # CI/CD: validates + lints + checks drift
@@ -94,13 +94,13 @@ Plugin entry schema (in marketplace.json):
 
 > **Status: slated for retirement.** This repo is now public itself (history
 > scrubbed, force-pushed), so the private/public split below no longer describes
-> reality. The mechanism stays in place until `agent-marketplace` supports remote
+> reality. The mechanism stays in place until `jdh-agents` supports remote
 > install — which needs a root `.claude-plugin/marketplace.json` so
-> `marketplace add jdh313/agent-marketplace` resolves. Once that lands, retire
+> `marketplace add jdh313/jdh-agents` resolves. Once that lands, retire
 > `export/public.json`, `.github/workflows/export-public.yml`, the `export`
 > subcommand and its tests, and this section.
 
-This repo was the **private source of truth** holding all plugins (marketplace name `cc-marketplace`). A subset is published one-way to a separate **public** repo (`jdh313/shared-claude-plugins`, marketplace name `jdh`) — the "develop-all-in-one + export" / Copybara-lite pattern. Only the *current file state* of allowlisted plugins is copied out, so history never leaves.
+This repo was the **private source of truth** holding all plugins (marketplace name `jdh-agents`). A subset is published one-way to a separate **public** repo (`jdh313/shared-claude-plugins`, marketplace name `jdh`) — the "develop-all-in-one + export" / Copybara-lite pattern. Only the *current file state* of allowlisted plugins is copied out, so history never leaves.
 
 - **Control surface:** `export/public.json` — the allowlist of public plugin names plus the public marketplace identity (name `jdh`, owner, homepage). Promote a plugin by adding its name; demote by removing it (the next export drops it).
 - **Run it:** `uv run marketplace export --dry-run` (populates the public working tree, prints the diff, no commit) → then `--commit --push` for the real export. The public repo is a **derived artifact** — never commit to it directly; the export overwrites it (append-only history, no force-push).
@@ -109,7 +109,7 @@ This repo was the **private source of truth** holding all plugins (marketplace n
 
 | | Install command | Marketplace name | Plugins |
 |---|---|---|---|
-| This repo | local path only — no root manifest yet, see README | `cc-marketplace` | all |
+| This repo | local path only — no root manifest yet, see README | `jdh-agents` | all |
 | Public (others) | `marketplace add jdh313/shared-claude-plugins` | `jdh` | allowlisted subset |
 
 ## Common Development Tasks
@@ -147,9 +147,9 @@ The pinned SHA is in `docs/agentforge-compatibility.md` and in `.github/workflow
 
 **The two runtimes disagree about whether the working tree is live, and the disagreement runs opposite ways.**
 
-`~/.claude/plugins/known_marketplaces.json` points `cc-marketplace` at `<repo>/marketplaces/claude`, and Claude resolves installed plugins straight out of that directory rather than a version-bucketed cache. So **an uncommitted change under `marketplaces/claude/` is immediately live to every Claude session on the machine** — including one produced by a `uv run marketplace sync` you ran to test something. Checking out a branch re-points every installed plugin. `--plugin-dir` is the honest way to name what you are testing, but it is not what isolates you.
+`~/.claude/plugins/known_marketplaces.json` points `jdh-agents` at `<repo>/marketplaces/claude`, and Claude resolves installed plugins straight out of that directory rather than a version-bucketed cache. So **an uncommitted change under `marketplaces/claude/` is immediately live to every Claude session on the machine** — including one produced by a `uv run marketplace sync` you ran to test something. Checking out a branch re-points every installed plugin. `--plugin-dir` is the honest way to name what you are testing, but it is not what isolates you.
 
-Codex is the inverse. `codex plugin add` **copies** into `~/.codex/plugins/cache/cc-marketplace/<plugin>/<version>/`, so the working tree is *not* live there — and because the cache is keyed by version, an unchanged version number means it is never invalidated. A Codex plugin can serve months-old bytes while `codex plugin list` prints the current marketplace path for it, which is indistinguishable from being up to date. Re-run `codex plugin add <name>@cc-marketplace` after any change you expect Codex to see.
+Codex is the inverse. `codex plugin add` **copies** into `~/.codex/plugins/cache/jdh-agents/<plugin>/<version>/`, so the working tree is *not* live there — and because the cache is keyed by version, an unchanged version number means it is never invalidated. A Codex plugin can serve months-old bytes while `codex plugin list` prints the current marketplace path for it, which is indistinguishable from being up to date. Re-run `codex plugin add <name>@jdh-agents` after any change you expect Codex to see.
 
 The trap that follows from the pair: a smoke test that passes under Claude proves nothing about Codex, because Claude read your edit and Codex read its cache.
 
@@ -317,7 +317,7 @@ Full example with all optional fields:
    ```
 2. Check if cache exists and has all components:
    ```bash
-   ls -laR ~/.claude/plugins/cache/cc-marketplace/[plugin-name]/
+   ls -laR ~/.claude/plugins/cache/jdh-agents/[plugin-name]/
    ```
 
 **Common Causes:**
@@ -336,13 +336,13 @@ Full example with all optional fields:
    - Fix: Remove entry from `~/.claude/plugins/installed_plugins.json`
 
 4. **Incomplete cache (only plugin.json, missing skills/agents/commands)**
-   - Check with: `tree ~/.claude/plugins/cache/cc-marketplace/[plugin-name]/`
+   - Check with: `tree ~/.claude/plugins/cache/jdh-agents/[plugin-name]/`
    - Fix: Delete cache dir and remove registry entry
 
 **Full Reset Procedure:**
 ```bash
 # 1. Delete the broken cache
-rm -rf ~/.claude/plugins/cache/cc-marketplace/[plugin-name]
+rm -rf ~/.claude/plugins/cache/jdh-agents/[plugin-name]
 
 # 2. Remove from registry (edit JSON to remove the plugin entry)
 # File: ~/.claude/plugins/installed_plugins.json
@@ -350,7 +350,7 @@ rm -rf ~/.claude/plugins/cache/cc-marketplace/[plugin-name]
 # 3. Restart Claude Code
 
 # 4. Reinstall fresh
-/plugin install [plugin-name]@cc-marketplace
+/plugin install [plugin-name]@jdh-agents
 ```
 
 ### Generated plugin.json rules
