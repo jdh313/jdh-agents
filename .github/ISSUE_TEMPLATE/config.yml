@@ -1,0 +1,11 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Security vulnerability
+    url: https://github.com/jdh313/jdh-agents/security/advisories/new
+    about: Report privately. Never open a public issue for a security problem.
+  - name: Installation prerequisites
+    url: https://github.com/jdh313/jdh-agents#prerequisites
+    about: Several plugins need a specific vault, MCP server, or binary. Check here before filing.
+  - name: Contributing guide
+    url: https://github.com/jdh313/jdh-agents/blob/main/CONTRIBUTING.md
+    about: What lands, what does not, and the install trap behind most "my copy is stale" reports.

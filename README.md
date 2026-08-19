@@ -47,9 +47,9 @@ and it resolves packages back into `marketplaces/claude/`.
 > **Consuming vs. authoring.** Installing and using these plugins needs nothing
 > but this repository — `marketplaces/` is compiled output and is committed, so
 > every plugin is ready to install as-is. *Authoring* (the `sync` step below)
-> additionally needs the AgentForge compiler, which is not yet public; until it
-> is, regenerating `marketplaces/` is a maintainer-only step. Everything else —
-> install, `validate`, `lint`, `pytest` — runs from a plain clone.
+> additionally needs the [AgentForge compiler](https://github.com/jdh313/agentforge),
+> which is public, at the pinned revision. Everything else — install,
+> `validate`, `lint`, `pytest` — runs from a plain clone.
 
 ### Prerequisites
 
@@ -253,6 +253,24 @@ source of plugin content. Everything under `marketplaces/` is committed
 compiler output — manifests and bodies alike. Edit the source and run
 `uv run marketplace sync`; never hand-edit a file under `marketplaces/`, because
 the next sync republishes the whole tree and silently discards the edit.
+
+## Support
+
+This is a personal marketplace maintained by one person, published so others can
+install it. There is no service-level agreement, and new plugin submissions are
+unlikely to be merged — forking is a first-class answer.
+
+- **Something is broken:** open an issue with the
+  [Plugin bug](https://github.com/jdh313/jdh-agents/issues/new?template=plugin-bug.yml)
+  or [Marketplace tooling bug](https://github.com/jdh313/jdh-agents/issues/new?template=tooling-bug.yml)
+  template.
+- **Something is unsafe:** report it privately — see [`SECURITY.md`](SECURITY.md).
+  Read the threat model there before installing; plugins are instructions and
+  scripts your agent executes with your permissions, and three of them ship
+  hooks that run automatically.
+- **You want to change something:** [`CONTRIBUTING.md`](CONTRIBUTING.md) covers
+  what lands, the pinned-compiler workflow, and the install trap behind most
+  "my copy is stale" reports.
 
 ## License
 
