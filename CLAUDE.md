@@ -92,7 +92,15 @@ Plugin entry schema (in marketplace.json):
 
 ### Public Export (private source-of-truth → public subset)
 
-This repo is the **private source of truth** holding all plugins (marketplace name `cc-marketplace`). A subset is published one-way to a separate **public** repo (`jdh313/shared-claude-plugins`, marketplace name `jdh`) — the "develop-all-in-one + export" / Copybara-lite pattern. The private repo is never published; only the *current file state* of allowlisted plugins is copied out, so private history never leaves.
+> **Status: slated for retirement.** This repo is now public itself (history
+> scrubbed, force-pushed), so the private/public split below no longer describes
+> reality. The mechanism stays in place until `cc-marketplace` supports remote
+> install — which needs a root `.claude-plugin/marketplace.json` so
+> `marketplace add jdh313/cc-marketplace` resolves. Once that lands, retire
+> `export/public.json`, `.github/workflows/export-public.yml`, the `export`
+> subcommand and its tests, and this section.
+
+This repo was the **private source of truth** holding all plugins (marketplace name `cc-marketplace`). A subset is published one-way to a separate **public** repo (`jdh313/shared-claude-plugins`, marketplace name `jdh`) — the "develop-all-in-one + export" / Copybara-lite pattern. Only the *current file state* of allowlisted plugins is copied out, so history never leaves.
 
 - **Control surface:** `export/public.json` — the allowlist of public plugin names plus the public marketplace identity (name `jdh`, owner, homepage). Promote a plugin by adding its name; demote by removing it (the next export drops it).
 - **Run it:** `uv run marketplace export --dry-run` (populates the public working tree, prints the diff, no commit) → then `--commit --push` for the real export. The public repo is a **derived artifact** — never commit to it directly; the export overwrites it (append-only history, no force-push).
@@ -101,7 +109,7 @@ This repo is the **private source of truth** holding all plugins (marketplace na
 
 | | Install command | Marketplace name | Plugins |
 |---|---|---|---|
-| Private (me) | `marketplace add jdh313/cc-marketplace` | `cc-marketplace` | all |
+| This repo | local path only — no root manifest yet, see README | `cc-marketplace` | all |
 | Public (others) | `marketplace add jdh313/shared-claude-plugins` | `jdh` | allowlisted subset |
 
 ## Common Development Tasks
