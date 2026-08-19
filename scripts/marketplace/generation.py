@@ -1,4 +1,4 @@
-"""AgentForge-backed publication compilation for cc-marketplace.
+"""AgentForge-backed publication compilation for jdh-agents.
 
 AgentForge owns deterministic publication compilation, including atomic
 materialization and total pruning of stale files.  This module owns only the
@@ -17,13 +17,13 @@ pointed at its own publication root.
 from __future__ import annotations
 
 import os
+import re
 import shutil
 import subprocess
-import tempfile
 from dataclasses import dataclass
 from pathlib import Path
 
-PINNED_AGENTFORGE_REVISION = "0ebebbb8f0cf23f9223792a4b625ca302c9d655d"
+PINNED_AGENTFORGE_REVISION = "1dba647fe872ef6422132cee82e03fb386f82eb8"
 
 # Repository-relative root holding every compiled publication.  Each immediate
 # child is a self-contained marketplace root for one target runtime.
@@ -80,14 +80,21 @@ def sync_publications(repo_root: Path, marketplace: Path) -> CompilationResult:
 
 
 def check_publications(repo_root: Path, marketplace: Path) -> CheckResult:
-    """Compile to a throwaway root and diff it against the committed tree."""
+    """Compare the committed tree against a fresh plan without writing anything.
 
-    with tempfile.TemporaryDirectory(prefix="cc-marketplace-agentforge-") as temporary:
-        candidate = Path(temporary) / COMPILED_ROOT.name
-        stdout, stderr = _run_compile(repo_root, marketplace, candidate)
-        expected = snapshot_tree(candidate)
-        drift = compare_trees(expected, snapshot_tree(repo_root / COMPILED_ROOT))
-    return CheckResult(len(expected), stdout, stderr, tuple(drift))
+    This delegates to AgentForge's own ``check``, which diffs the compilation
+    plan against the committed output in memory.  A throwaway compile is not an
+    option once a publication declares ``root-manifest``: the compiler requires
+    ``--out`` to resolve inside the marketplace directory, and it writes the root
+    copy to the marketplace root itself -- so a temp-directory compile is
+    rejected outright, and an in-tree one would clobber the committed root
+    manifest during what is supposed to be a read-only check.  Delegating also
+    covers the root manifest, which lives outside ``marketplaces/`` and is
+    therefore invisible to a tree snapshot rooted there.
+    """
+
+    stdout, stderr, drift = _run_check(repo_root, marketplace, repo_root / COMPILED_ROOT)
+    return CheckResult(_count_files(repo_root / COMPILED_ROOT), stdout, stderr, drift)
 
 
 def snapshot_tree(root: Path) -> dict[Path, FileState]:
@@ -150,6 +157,70 @@ def _run_compile(repo_root: Path, marketplace: Path, output_root: Path) -> tuple
             f"AgentForge compile reported success but wrote no tree at {output_root}"
         )
     return result.stdout, result.stderr
+
+
+def _run_check(
+    repo_root: Path,
+    marketplace: Path,
+    output_root: Path,
+) -> tuple[str, str, tuple[PublicationDrift, ...]]:
+    """Run AgentForge's read-only drift check and parse its findings."""
+
+    command = _resolve_agentforge_command()
+    result = subprocess.run(
+        [*command, "check", str(marketplace.resolve()), "--out", str(output_root)],
+        cwd=repo_root,
+        check=False,
+        capture_output=True,
+        text=True,
+    )
+    if result.returncode == 0:
+        return result.stdout, result.stderr, ()
+
+    drift = tuple(parse_drift(result.stdout, result.stderr))
+    if drift:
+        return result.stdout, result.stderr, drift
+
+    # A non-zero exit with no parsable drift line is a compile or load failure,
+    # not an out-of-date tree; surfacing it as drift would tell the user to run
+    # `sync`, which would fail the same way.
+    details = "\n".join(part.strip() for part in (result.stdout, result.stderr) if part.strip())
+    suffix = f"\n{details}" if details else ""
+    raise GenerationError(f"AgentForge check exited {result.returncode}{suffix}")
+
+
+# AgentForge stands this token in for the marketplace root in reported paths.
+_ROOT_TOKEN = "<root>"
+
+# `error [<publication>] <kind>: <path>: <message>` -- the compiler's drift line.
+_DRIFT_LINE = re.compile(r"^error \[(?P<publication>[^\]]+)\] (?P<kind>[\w-]+): (?P<path>[^:]+):")
+
+
+def parse_drift(stdout: str, stderr: str) -> list[PublicationDrift]:
+    """Extract drift findings from AgentForge's diagnostic stream."""
+
+    issues: list[PublicationDrift] = []
+    for line in f"{stdout}\n{stderr}".splitlines():
+        match = _DRIFT_LINE.match(line.strip())
+        if match is None:
+            continue
+        issues.append(PublicationDrift(match["kind"], _repo_relative(match["path"].strip())))
+    return sorted(issues, key=lambda issue: (issue.path.as_posix(), issue.kind))
+
+
+def _repo_relative(reported: str) -> Path:
+    """Normalise a reported drift path to be relative to the repository root.
+
+    AgentForge reports nested output relative to ``--out`` (``claude/...``) but
+    prefixes the root manifest with a literal ``<root>`` token, because that file
+    lives beside ``MARKETPLACE.yaml`` rather than under the output tree.  Both
+    are rendered against the repository root so the printed path is one a user
+    can actually open.
+    """
+
+    if reported == _ROOT_TOKEN or reported.startswith(f"{_ROOT_TOKEN}/"):
+        return Path(reported[len(_ROOT_TOKEN) :].lstrip("/"))
+    return COMPILED_ROOT / reported
 
 
 def _count_files(root: Path) -> int:

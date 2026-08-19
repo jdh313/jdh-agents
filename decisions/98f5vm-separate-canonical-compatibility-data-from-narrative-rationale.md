@@ -5,7 +5,7 @@ status: current
 decision_date: 2026-07-20
 author: Jacob Hoehler
 conviction: tentative
-project: cc-marketplace
+project: jdh-agents
 labels:
   - architecture
   - write-side
@@ -15,7 +15,7 @@ binds:
 supersedes: []
 superseded_by: []
 derived_from:
-  - https://app.shortcut.com/example/story/35
+  - shortcut:STORY-35
 informed_by: []
 ---
 

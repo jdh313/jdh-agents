@@ -57,3 +57,9 @@ htmlcov/
 .a5c/cache/
 .a5c/node_modules/
 # --- end babysitter managed ---
+
+# Local-only: machine/account-specific, never published.
+# (.a5c/ and .envrc were stripped from history before this repo went public.)
+.a5c/
+.envrc
+.claude/settings.local.json

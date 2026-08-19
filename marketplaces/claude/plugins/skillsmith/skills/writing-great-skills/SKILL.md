@@ -10,7 +10,7 @@ A skill exists to wrangle determinism out of a stochastic system. **Predictabili
 
 **Bold terms** are defined in [`GLOSSARY.md`](references/GLOSSARY.md); look them up there for the full meaning.
 
-When authoring or editing a skill **in this marketplace** (cc-marketplace), the repo-specific conventions this generic reference doesn't cover — provenance blocks, `allowed-tools` vs agent `tools:` semantics, auto-discovery layout, commit format — are in [`ADDENDA.md`](references/ADDENDA.md).
+When authoring or editing a skill **in this marketplace** (jdh-agents), the repo-specific conventions this generic reference doesn't cover — provenance blocks, `allowed-tools` vs agent `tools:` semantics, auto-discovery layout, commit format — are in [`ADDENDA.md`](references/ADDENDA.md).
 
 ## Invocation
 

@@ -5,7 +5,7 @@ status: current
 decision_date: 2026-07-11
 author: Jacob Hoehler
 conviction: tentative
-project: cc-marketplace
+project: jdh-agents
 labels:
   - architecture
   - tooling
@@ -13,7 +13,7 @@ binds: []
 supersedes: []
 superseded_by: []
 derived_from:
-  - https://linear.app/example/issue/TEAM-271
+  - linear:TEAM-271
 informed_by:
   - 3ve7bm
   - 1cpkrm
@@ -23,7 +23,7 @@ informed_by:
 
 ## Decision
 
-The cc-marketplace docs site is built on plain Astro. Starlight, Astro's docs
+The jdh-agents docs site is built on plain Astro. Starlight, Astro's docs
 theme, is not layered on top; the site's chrome is hand-built.
 
 ## Scope

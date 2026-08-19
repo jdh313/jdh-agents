@@ -1,7 +1,7 @@
 import json
 import os
 import shutil
-from collections.abc import Callable
+from collections.abc import Callable, Iterator
 from pathlib import Path
 
 import pytest
@@ -9,6 +9,7 @@ import pytest
 from tests.agentforge_harness import (
     AgentForge,
     age_tree_mtimes,
+    marketplace_without_root_manifest,
     resolve_agentforge,
     snapshot_tree,
     snapshot_write_observations,
@@ -25,18 +26,23 @@ CODEX_PACKAGES = set(CODEX_PACKAGE_IDS)
 
 
 @pytest.fixture(scope="module")
-def clean_compilation(tmp_path_factory: pytest.TempPathFactory) -> tuple[AgentForge, Path]:
-    agentforge = resolve_agentforge(REPO_ROOT, MARKETPLACE)
-    output_root = tmp_path_factory.mktemp("agentforge-clean-output")
-    result = agentforge.compile(output_root)
+def clean_compilation(
+    tmp_path_factory: pytest.TempPathFactory,
+) -> Iterator[tuple[AgentForge, Path]]:
+    # The definition must outlive every drift case: they re-run `check` against
+    # this same compilation, which reads the marketplace file each time.
+    with marketplace_without_root_manifest(MARKETPLACE) as definition:
+        agentforge = resolve_agentforge(REPO_ROOT, definition)
+        output_root = tmp_path_factory.mktemp("agentforge-clean-output")
+        result = agentforge.compile(output_root)
 
-    assert result.returncode == 0, result.stdout + result.stderr
-    registry = json.loads(
-        (output_root / "codex/.agents/plugins/marketplace.json").read_text(encoding="utf-8")
-    )
-    assert {plugin["name"] for plugin in registry["plugins"]} == CODEX_PACKAGES
+        assert result.returncode == 0, result.stdout + result.stderr
+        registry = json.loads(
+            (output_root / "codex/.agents/plugins/marketplace.json").read_text(encoding="utf-8")
+        )
+        assert {plugin["name"] for plugin in registry["plugins"]} == CODEX_PACKAGES
 
-    return agentforge, output_root
+        yield agentforge, output_root
 
 
 def mutate_content(output_root: Path) -> tuple[str, str]:

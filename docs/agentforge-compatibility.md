@@ -5,18 +5,24 @@ AgentForge collection definitions. Native Claude and Codex manifests remain
 committed at the repository paths consumed by both runtimes, but they are now
 generated outputs rather than independently maintained metadata.
 
-The compiler baseline for this enrollment is AgentForge commit `0ebebbb`
+The compiler baseline for this enrollment is AgentForge commit `1dba647`
 (`agentforge` 0.0.1).
 
 ## Acceptance-suite ownership
 
-cc-marketplace owns full-corpus acceptance and drift detection against its real
+jdh-agents owns full-corpus acceptance and drift detection against its real
 canonical `MARKETPLACE.yaml`. AgentForge retains its focused five-package
 compiler fixture as compiler-level coverage; that fixture is not a substitute
-for validating all fifteen packages in this repository.
+for validating all sixteen packages in this repository.
 
-The cc-marketplace suite runs the pinned compiler twice in separate temporary
+The jdh-agents suite runs the pinned compiler twice in separate temporary
 output roots and compares paths, file types, bytes, and normalized permissions.
+Those compiles use a throwaway copy of the canonical definition with the Claude
+publication's `root-manifest` flag removed, because a publication declaring it
+requires `--out` to resolve inside the marketplace directory and writes its root
+copy beside `MARKETPLACE.yaml` -- neither of which a temporary output root can
+satisfy without overwriting the committed root manifest. Root-manifest
+publication has its own coverage in `scripts/tests/test_root_manifest.py`.
 It then runs AgentForge's read-only `check` command and exercises drift in five
 dimensions: changed content, a missing file, an extra file, changed registry
 metadata, and changed permissions. Every drift case fingerprints the generated
@@ -32,11 +38,11 @@ The merge gate also applies the runtime-native checks that are available:
   resolution, manifest identity and semantic versions, required skill metadata,
   explicit-only sidecars, and exact agreement between declared and materialized
   package directories. Codex currently provides marketplace management but no
-  non-interactive `plugin validate` command, so this is cc-marketplace's native
+  non-interactive `plugin validate` command, so this is jdh-agents's native
   Codex validation boundary.
 
 Generated publication roots are committed, not disposable. `uv run marketplace
-sync` compiles complete publications into `marketplaces/claude/` (174 files, 15
+sync` compiles complete publications into `marketplaces/claude/` (196 files, 16
 packages) and `marketplaces/codex/` (120 files, 7 packages), and each root is
 self-contained enough for its runtime to be pointed directly at it. `sync
 --check` recompiles into a temporary root and diffs the whole tree — content and
@@ -54,18 +60,19 @@ declares `disable-model-invocation: true`, the Codex projection generates a
 skill-local `agents/openai.yaml` containing
 `policy.allow_implicit_invocation: false`. Supplied sidecars remain subject to
 AgentForge's normal collision policy and cannot silently replace generated
-policy. cc-marketplace owns verifying those compiler results across the real
-15-package corpus and validating the seven declared Codex packages; it does not
+policy. jdh-agents owns verifying those compiler results across the real
+16-package corpus and validating the seven declared Codex packages; it does not
 duplicate the translation in repository tooling.
 
 ## Target enrollment
 
-- Claude enrolls all fifteen packages with `all-compatible`.
+- Claude enrolls all sixteen packages with `all-compatible`.
 - Codex enrolls fourteen: `coach`, `commit`, `compass`, `craft`, `debate`,
   `feedback`, `introspect`, `librarian`, `linear`, `pm`, `shake-tune`,
   `skillsmith`, `spec-flow`, and `teach`.
-- `langfuse` is the sole package that does not declare Codex support, and its
-  omission is deliberate rather than pending. See the entry below.
+- `langfuse` and `attention-workflow` are the two packages that do not declare
+  Codex support, and both omissions are deliberate rather than pending. See the
+  entries below.
 
 `feedback` carries a **native mapping but not yet fresh-runtime acceptance**.
 Its Codex projection compiles, validates, and is drift-clean, and its report
@@ -109,7 +116,8 @@ an empty or untested package merely because its definition validates.
   types. Claude preserves those artifacts directly.
 - Package-root references, `craft/CONTEXT.md`, and arbitrary skill sidecars are
   supplied payloads.
-- The commit guard and Langfuse hook companions are Claude-only payloads.
+- The commit guard, Langfuse hook companions, and the attention-workflow hooks
+  and state helper are Claude-only payloads.
 - Native plugin manifests are represented by canonical defaults and target
   overlays, never copied as payloads.
 - Plugin READMEs stay in the source repository but are intentionally excluded
@@ -117,13 +125,15 @@ an empty or untested package merely because its definition validates.
 - Symbolic links are not supported as package payload sources. The enrolled
   inventory contains none.
 
-AgentForge derives executable intent from source mode. The commit guard and
-Langfuse tripwire are the only executable payloads and compile as `0755`; all
-other compiled files normalize to `0644`.
+AgentForge derives executable intent from source mode. The commit guard, the
+Langfuse tripwire, and the two attention-workflow hook scripts are the
+executable payloads and compile as `0755`; all other compiled files normalize to
+`0644`. `attention-workflow`'s `scripts/aw_state.py` is invoked as
+`python3 <path>` by the skill and the verifier agent, so it is a plain payload.
 
 ## Claude compatibility
 
-All fifteen packages compile for Claude and pass `claude plugin validate
+All sixteen packages compile for Claude and pass `claude plugin validate
 --strict`. The canonical marketplace omits three legacy generated metadata
 fields—`metadata.homepage`, `metadata.totalPlugins`, and
 `metadata.lastUpdated`—because current strict validation reports them as
@@ -135,7 +145,7 @@ namespace at runtime, so `skills/today` declares `name: today` and is invoked as
 
 ## Codex compatibility
 
-The fourteen-package publication compiles and passes cc-marketplace's
+The fourteen-package publication compiles and passes jdh-agents's
 Codex-native validator. Compilation diagnostics are reviewed limitations, not
 parity claims:
 
@@ -322,7 +332,7 @@ other capability fact is held to. The set is accurate as of codex 0.146.0,
 verified against the binary's embedded JSON schemas, but nothing structural
 keeps it that way.
 
-Both are AgentForge gaps rather than cc-marketplace ones, and both are tracked
+Both are AgentForge gaps rather than jdh-agents ones, and both are tracked
 separately. They are recorded here because a reader auditing this document's
 dispositions would otherwise reasonably conclude that a construct absent from
 the gated list is a construct that does not exist.
@@ -335,7 +345,7 @@ not behavioral equivalence.
 Use a checkout at the recorded compiler baseline:
 
 ```bash
-export AGENTFORGE_PROJECT=/path/to/agentforge-at-0ebebbb
+export AGENTFORGE_PROJECT=/path/to/agentforge-at-1dba647
 uv run marketplace sync
 uv run marketplace check
 uv run pytest -q
@@ -345,12 +355,12 @@ bun run "$AGENTFORGE_PROJECT/src/cli.ts" check \
   MARKETPLACE.yaml --out marketplaces --claude-native
 ```
 
-CI checks out `jdh313/agentforge` at full commit
-`0ebebbb8f0cf23f9223792a4b625ca302c9d655d`. Since that repository is private,
-the workflow requires the `AGENTFORGE_DEPLOY_KEY` repository secret with read
-access and fails closed when it is not configured. The runner toolchain pins
-Bun `1.3.14` and Claude Code `2.1.216`, the versions used for the local
-acceptance run.
+CI checks out [`jdh313/agentforge`](https://github.com/jdh313/agentforge) at
+full commit `1dba647fe872ef6422132cee82e03fb386f82eb8`. That repository is
+public, so the checkout needs no credential -- the workflow previously required
+an `AGENTFORGE_DEPLOY_KEY` secret and failed closed without it. The runner
+toolchain pins Bun `1.3.14` and Claude Code `2.1.216`, the versions used for the
+local acceptance run.
 
 Runtime references: [Claude plugin validation](https://code.claude.com/docs/en/plugin-marketplaces#validation-and-testing)
 and [Codex plugin and marketplace structure](https://developers.openai.com/codex/plugins/build/).

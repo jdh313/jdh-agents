@@ -5,7 +5,7 @@ status: current
 decision_date: 2026-08-03
 author: Jacob Hoehler
 conviction: strong
-project: cc-marketplace
+project: jdh-agents
 labels:
   - scope
   - write-side
@@ -16,7 +16,7 @@ superseded_by: []
 derived_from:
   - linear:TEAM-352
   - linear:TEAM-350
-  - https://github.com/jdh313/cc-marketplace/pull/26
+  - https://github.com/jdh313/jdh-agents/pull/26
 informed_by: []
 ---
 

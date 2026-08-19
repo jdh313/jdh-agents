@@ -1,5 +1,10 @@
 # librarian
 
+> **Requires an Obsidian vault.** Skills in this plugin read and write notes in an
+> Obsidian vault, defaulting to `~/Loose Ends/`. That default is an example, not a
+> requirement — point it at your own vault by editing the paths in the skill bodies
+> (search for `Loose Ends`). Without a vault, the vault-writing skills will not work.
+
 Curates, catalogs, retrieves, and maintains your library of notes and
 knowledge in an Obsidian vault.
 Workflow-shaped (Capture → Process → Retrieve → Maintain), agent-mediated

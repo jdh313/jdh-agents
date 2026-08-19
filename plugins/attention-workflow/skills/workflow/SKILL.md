@@ -1,0 +1,478 @@
+---
+name: workflow
+description: Run a code change through the attention-regulating lifecycle — Frame, Design, Prepare, authorize, Implement, Verify, Deliver, Close — with versioned authority, local run state, and an independent verifier whose verdict stays withheld until you have committed your own judgment. Use when starting, resuming, authorizing, verifying, or closing a change under this workflow, when the SessionStart card shows an active change, or when the user says "frame this change", "authorize", "candidate ready", "reconcile", "where does this change stand", "supersede the grant", or "close this out". Experimental; supersedes spec-flow while enabled.
+argument-hint: "[what you want to do, or nothing to report state]"
+allowed-tools:
+  - Read
+  - Glob
+  - Grep
+  - Edit
+  - Write
+  - Bash
+---
+
+# attention-workflow
+
+One skill spans the whole lifecycle. There is no command per phase, and no
+turn per phase.
+
+```text
+Frame -> Design -> Prepare --authorize--> Implement -> Verify -> Deliver -> Close
+```
+
+These are **semantic states**, not mandatory user turns. A five-minute change
+may traverse Frame, Design, and Prepare in one message and combine
+reconciliation with Close. Compression removes ceremony; it never erases which
+phase an event occurred in, because the same evidence means different things in
+different phases.
+
+## The state helper is the only writer
+
+All state lives outside the target repository's tracked tree, under a
+Claude-local root keyed by repository root. `AW_STATE_ROOT` overrides it.
+
+```bash
+HELPER=<absolute path to the plugin's scripts/aw_state.py>
+python3 "$HELPER" show          # the projection to act on
+python3 "$HELPER" state-root    # where it lives
+```
+
+The SessionStart card prints the helper's absolute path — take it from there.
+If no card was injected (this repository has no active change yet), the helper
+sits at `scripts/aw_state.py` inside this plugin's installed directory; locate
+it once and reuse the absolute path for the rest of the change.
+
+Never hand-edit anything under the state root. Grants are create-only and the
+guard hook denies direct writes on the declared tool surfaces.
+
+## Never write a card yourself
+
+Cards are **rendered by the helper**, not composed by you:
+
+```bash
+python3 "$HELPER" card authorize     # after the grant is created
+python3 "$HELPER" card ready         # at the readiness handoff
+python3 "$HELPER" card reconcile     # instead of run-evidence, at reconciliation
+python3 "$HELPER" card exception     # at handback
+python3 "$HELPER" card closed        # at close
+python3 "$HELPER" card status        # on demand
+```
+
+Each renders a fixed field set in a fixed order, prints it, and saves it to
+`<state root>/cards/NNN-<kind>.txt` so it stays readable after the chat scrolls
+or compacts. Show the rendered block verbatim in a fenced code block. Do not
+paraphrase it, reorder it, summarize it, or expand it into paragraphs — a card
+restated as prose is not a card, and the operator loses the one artifact they
+can return to an hour later.
+
+Cards that demand an action (`authorize`, `reconcile`, `exception`) go inline.
+Purely orienting ones (`ready`, `closed`) may be reduced to a one-line receipt
+plus the saved path.
+
+## Three interaction classes — choose deliberately every time
+
+| Class | When | Shape |
+|---|---|---|
+| **Interactive** | Jacob must decide, authorize, correct a material misunderstanding, resolve an exception, reconcile verification, or approve an ungranted delivery | One bounded question, why now, what each answer changes, a recommendation — *except* at reconciliation — and an immediate visible state change after he answers |
+| **Orienting** | A meaningful transfer of responsibility or a trust-relevant condition change | A short receipt. No reply requested |
+| **Suppressed** | Everything else | Recorded in state if useful; not shown |
+
+Suppressed means: individual tool calls, expected red/green iterations,
+commit-by-commit narration, percentage estimates, elapsed time, routine
+`Verify -> Implement` corrections, retries inside tolerance. Elapsed time never
+produces a message on its own.
+
+Promotion is monotonic. A structural rule sets the minimum class; judgment may
+promote an unforeseen event but may never demote a fired hook, a failed
+deterministic check, or a recognized authority failure. Uncertainty about
+whether authority still covers what you are about to do promotes to handback.
+
+## Phase by phase
+
+### Frame
+
+Convert the request into a bounded change: the trigger, the intended boundary,
+why it matters, obvious exclusions. A precise request traverses Frame with an
+orienting receipt; an ambiguous one needs one bounded question.
+
+```bash
+python3 "$HELPER" init --change-id <slug> --title "<one line>"
+python3 "$HELPER" transition --phase design --owner execution \
+  --reason "request was precise enough to frame directly" \
+  --next "Investigate the current behavior and choose the route."
+```
+
+If Jacob supplied an issue key, task reference, or URL, read it now and record
+the projection — see `references/issue-projections.md`, then that tracker's
+`references/hosts/<host>.md`. The issue is Frame *input*. It is never the
+authority.
+
+### Design
+
+Determine the intended outcomes and a route at the altitude that affects risk
+or future behavior.
+
+Where the repository declares a ledger, **ground the route before choosing it**
+— `/ground` with a short scope phrase. A resolved decision head is an
+assumption you do not have to make, so grounding shrinks `assumptions` and
+strengthens `assumption_coverage` rather than adding a step. Treat a returned
+head as current state; do not re-derive it from a README, a doc, or a comment.
+
+**Record the operator question separately from any proposed proxy.** The
+operator question is what the finished change must let Jacob determine. A
+taxonomy, report shape, schema, interface, or summary is a *proxy* for it. They
+are not the same object, and this is the failure this workflow exists to catch:
+a proxy can be implemented exactly, pass every test written for it, and leave
+the operator question unanswered.
+
+When a proxy could mask the outcome, run **one representative probe before
+authorization**: take a real or seeded input, produce the artifact the proposed
+shape would produce, and check whether it answers the operator question.
+
+- Probe passes → carry on; no interaction.
+- Probe fails and exactly one viable correction exists → revise the proposal
+  silently and re-probe. Do not spend a turn on it.
+- Probe fails and materially different product choices remain → one bounded
+  decision.
+
+A test proving the proposed proxy was implemented is not evidence that the
+operator question is answered. Say so explicitly if anyone offers it as such.
+
+### Prepare
+
+Risk-reduction work, not a formatting pass over Design. Build the prepared
+basis, then present it as one compact authorization card.
+
+Write the basis to a temporary JSON file with these keys, then create the grant:
+
+```bash
+python3 "$HELPER" grant-create --file /tmp/aw-basis.json
+```
+
+| Key | Content |
+|---|---|
+| `operator_question` | What the finished change must let Jacob determine |
+| `promise` | Observable promised outcomes, each phrased as a rule (below) |
+| `exclusions` | What this change will not do |
+| `route` | The planned route at decision-relevant altitude only |
+| `assumptions` | `[{statement, falsifier}]` — load-bearing ones, each with what would disprove it |
+| `assumption_coverage` | `{areas_considered, known_unknowns, residual_unlisted_risk}` |
+| `tolerances` | `{permitted: [...], stop_before: [...]}` |
+| `baseline` | `{description, classified}` — `classified: false` means adverse context cannot later be called pre-existing |
+| `representative_probe` | `{question, probe}` or `{waived_reason}` |
+| `planned_observations` | How each promise will be observed at Verify |
+| `enforcement` | `{hook_guarded, check_gated, agent_monitored, uncovered}` |
+| `delivery_authorized` | Delivery actions this grant covers (see below) |
+| `supersedes` | Prior grant id, when this replaces one |
+
+**Phrase each `promise` as a rule**: `<noun> MUST [NOT] <predicate>`, in domain
+nouns — no method names, columns, status codes, or file paths. One claim per
+line, and every line must be capable of being false. *A document MUST have no
+live children before it can be soft-deleted* names its own observation; *improve
+the delete guard* gives the verifier nothing to check. The mechanism — method,
+exception, status code — belongs in `route`, not here.
+
+`promise` takes the rules **this change enforces**. A rule that already holds is
+Design grounding, not a promise: where a ledger exists it is a decision head
+`/ground` returns. A rule identified but not decided is neither — it is out of
+scope, and belongs in `exclusions` or a tracker item.
+
+Rule form is also what makes the vocabulary check possible. If the repository
+has a root `CONTEXT.md`, read it and check each promise noun against its
+glossary and its flagged ambiguities. Report any noun that is absent, or that
+`CONTEXT.md` records as contested, on the authorization card — one line, and
+suggest `craft:grill-with-docs`. This is a suggestion, never a gate: Jacob may
+authorize over it. Where the repository has no `CONTEXT.md`, say nothing. A
+glossary is created lazily by the skill that owns it, and proposing one here
+would invent work outside the change.
+
+`assumption_coverage.residual_unlisted_risk` must be present and honest. Naming
+assumption areas is not proof the inventory is complete. Never present it as if
+it were.
+
+**`enforcement` must be accurate, not reassuring.** Copy the classes from
+`references/enforcement-map.md`. Do not label anything hook-guarded that this
+plugin does not actually intercept and test. Uncovered boundaries are disclosed
+as residual risk, not dressed as guardrails.
+
+`delivery_authorized` accepts only: `commit`, `git-push`, `jj-git-push`,
+`pr-open`, `pr-merge`, `deploy`, `migrate`, `tracker-transition`,
+`tracker-exception`, `tracker-outcome`. Only the first three are enforced
+structurally; the rest are recorded authority the agent honors. Grant the
+smallest set.
+
+The authorization card is interactive. Present promise, route-that-matters,
+grounds, representative outcome, autonomy boundary with its honest enforcement
+split, and one question: authorize, revise, or stop?
+
+On "authorize":
+
+```bash
+python3 "$HELPER" transition --phase implement --owner execution --condition active \
+  --active-grant g1 --clear-attention \
+  --reason "Jacob authorized the prepared basis" \
+  --next "Candidate ready -> independent Verify"
+```
+
+Then, if the change has an issue and the grant lists `tracker-transition`,
+project the **in-progress** state once — resolve the name per that host's
+reference, write it, and record the result with `issue-set`. An unmapped phase
+or a failed write is reported, never blocking.
+
+Then emit one short `GRANT REQUEST` receipt and go quiet. Never report status
+with a word the operator uses to authorize (`AUTHORIZE`, `READY`) — status
+language and authorization language stay lexically disjoint.
+
+### Implement
+
+Adapt ordinary mechanics, iterate through expected failures, and correct
+implementation defects without interaction while the grounds hold. Emit
+nothing.
+
+On demand, report **checkable state** — loaded grant, active guards, changed
+files, last check run, recorded findings — from `show`. Never assert that work
+"remains on course"; that is a conclusion from the agent the grant constrains.
+
+**Stop and hand back before material departure** when: a promised outcome or
+explicit exclusion cannot be preserved; a named load-bearing assumption or
+tolerance is falsified; continuing needs an ungranted destructive or external
+action; continuing adds or materially changes a public API, dependency, data
+model, security boundary, compatibility promise, or migration; planned
+verification would be weakened; or you cannot determine whether the grant
+covers the departure.
+
+Ordinary difficulty, expected test iteration, and choices inside permitted
+adaptation are **not** exceptions.
+
+A handback carries: the failed ground; direct evidence; why authority no longer
+suffices; work preserved and its safe state; what you deliberately did not do;
+one bounded decision with materially distinct options; a recommendation and its
+consequence.
+
+```bash
+python3 "$HELPER" transition --phase prepare --owner jacob --condition exception \
+  --attention-kind exception --attention-summary "<failed ground>" \
+  --safe-point "<what is preserved and where>" \
+  --reason "load-bearing assumption falsified: <statement>"
+```
+
+Depth scales with accumulated context distance — unobserved material
+transitions, changed boundaries, new context, lost safe-point detail. Time away
+is a conservative hint that the gap may be larger. It never adds content by
+itself.
+
+### Verify
+
+Verify begins at a **readiness handoff**, not when a test runs.
+
+1. Identify the candidate and confirm its scope from actual repository state.
+   If anything claims a VCS checkpoint or isolated boundary, verify the
+   postcondition: `python3 "$HELPER" checkpoint-verify`. Agent prose is not
+   evidence that a checkpoint exists. If it does not, say so and repair it
+   without claiming it previously existed.
+2. Create the run **before** dispatching, so its identity exists independently
+   of any message:
+
+   ```bash
+   python3 "$HELPER" run-create --grant g1 --candidate c2
+   python3 "$HELPER" transition --phase verify --owner verification \
+     --active-candidate c2 --active-verification-run v1 \
+     --reason "implementation presented candidate c2 as ready" \
+     --next "independent verification result"
+   ```
+3. Dispatch `workflow-verifier` with: run id, helper path, the grant's promise,
+   exclusions, route, planned observations, representative probe, baseline, and
+   candidate scope. **Do not pass** the implementer's success claim, narrative,
+   claimed actual route, or deviation assessment. Record the implementer's own
+   claim separately in your notes so it can be compared afterward.
+4. If the change has an issue and the grant lists `tracker-transition`, project
+   the **in-review** state once. This is the moment work is done and awaiting a
+   second look, so it is where the tracker earns the state — not at Close.
+5. Emit one orienting `CANDIDATE SUBMITTED` receipt.
+
+**Resolve the run by identity, never by message.** Before starting fallback
+verification or reporting a result as unavailable:
+
+```bash
+python3 "$HELPER" run-list
+python3 "$HELPER" show
+```
+
+If the run holds a terminal result, use it — regardless of whether a completion
+message arrived, arrived twice, or arrived out of order. A duplicate or delayed
+notification produces no operator message and no state change. Never launch a
+second verification while a completed run exists for the same grant and
+candidate, and never record independent verification as inline.
+
+**Ordinary defect → back to Implement, silently.** A defect plainly inside the
+promise, route, and verification plan does not touch Jacob and does not
+supersede authority. Record the move as a real phase change — do **not** leave
+the change sitting in Verify while implementation edits code, or the record
+cannot distinguish "the verifier is judging" from "the implementer is fixing":
+
+```bash
+python3 "$HELPER" transition --phase implement --owner execution \
+  --reason "ordinary defect returned to implementation under g1: <what failed>"
+```
+
+Then correct it, present a **new** candidate, and mint a **new** verification
+run bound to the same grant. A corrected candidate is a new candidate; it never
+reuses the prior run's identity. The final evidence keeps both the failed and
+the corrected observation.
+
+### Reconciliation — the one place recommendation-first is forbidden
+
+```bash
+python3 "$HELPER" card reconcile      # verdict and recommendation stripped
+```
+
+The card opens with the operator question and the exclusions before any
+evidence — an hour after authorization, that frame is what has gone missing,
+and eight promise bullets will not restore it. Then it shows:
+
+- each promised outcome against the observation actually performed, the command,
+  and the result;
+- the representative outcome: what the artifact lets him determine;
+- planned route versus the **verifier-derived** actual route, then the
+  implementer's account, and whether they agree — a discrepancy is itself a
+  finding;
+- adverse context split into new, pre-existing, and unclassified;
+- limitations of the observations.
+
+Then ask him to judge — **with no verdict, no recommendation, no preselected
+option, no PASS/FAIL labels, and no agreement cue anywhere above the question**:
+
+> Based on the observations: ready, not ready, or do you need one named
+> inspection? Name the decisive observation or mismatch in one sentence.
+
+A bare "yes" does not satisfy this. Record it, then reveal:
+
+```bash
+python3 "$HELPER" run-judge v1 --judgment ready --decisive "<his sentence>"
+python3 "$HELPER" run-reveal v1
+```
+
+`run-reveal` refuses until a judgment is recorded — the ordering is structural,
+not a promise. Show agreement or disagreement explicitly. **Disagreement keeps
+the change in Verify** and opens a bounded investigation; it is never averaged
+away and the verifier never outranks his evidence-based objection.
+
+### Deliver
+
+Make the verified change real. Every delivery action must appear in the active
+grant's `delivery_authorized`; otherwise stop and return one bounded decision
+naming the exact action, target, evidence, reversibility, and consequence of
+approval. `git push` and `jj git push` are denied by the guard hook when
+unauthorized, so an attempt is a stop, not a slip.
+
+Declining delivery may close the run as **verified but not delivered**, or
+leave it explicitly waiting.
+
+A delivery that fails without changing external state stays in Deliver with the
+actual outcome recorded. An equivalent retry inside existing authority needs no
+new decision; a corrective action that changes risk, target, or rollback
+behavior creates an exception first. Close never claims a delivery that did not
+succeed.
+
+### Close
+
+Reconcile the final outcome, preserve durable residue, release the thread.
+
+Close **may not begin** while the active candidate's verification is stale,
+while a required representative outcome probe remains unobserved, or while the
+decision-capture item is unanswered in a repository that declares a ledger.
+Passing checks against a proxy do not substitute for the promised operator
+outcome.
+
+**The decision-capture item.** Where the repository has its own `.ndr.toml`,
+the helper refuses the close transition until an answer is recorded. What the
+item forces is the question, not the work — `nothing-to-capture` closes it, and
+is the common answer:
+
+```bash
+python3 "$HELPER" capture-note --disposition captured --atom 6x3v6p --note "..."
+python3 "$HELPER" capture-note --disposition nothing-to-capture --note "mechanical only"
+python3 "$HELPER" capture-note --disposition deferred --note "raised in TEAM-341"
+```
+
+Ask it with the reconciliation in hand, because that is where a decision shows
+itself: a promise the outcome did not meet, an assumption that turned out
+load-bearing, a route abandoned mid-change. Present candidates as candidates
+and let Jacob decide. This helper never writes an atom — `/capture-decision`
+does, with him in it.
+
+A promise authored in rule form carries into the atom's `Decision` unchanged, so
+the rule the change enforced is already phrased for the ledger. Do not rewrite it
+into narrative on the way there.
+
+```bash
+python3 "$HELPER" transition --phase close --owner jacob --condition active \
+  --outcome delivered --reason "delivered as authorized" --clear-attention
+```
+
+While this workflow is an experiment, offer `/debrief` once after the closed
+card — one line, declined without discussion. It asks what the *workflow* cost
+and emits a sanitized block the operator can carry off the machine; a run that
+went badly is worth debriefing before Close rather than after.
+
+`--outcome` is `delivered`, `stopped`, or `abandoned`. Abandoned work is never
+represented as delivered. Durable residue goes to its usual home —
+`/capture-decision` for decisions, README/CLAUDE.md for behavior changes — not
+into the run state.
+
+Close projects an outcome **comment** under `tracker-outcome`, never a terminal
+state. The tracker's done state follows the merge, which is past this
+workflow's delivery boundary — see `references/issue-projections.md`.
+
+## Supersession
+
+A material change to a promised outcome, exclusion, route commitment,
+load-bearing assumption, tolerance, planned observation, or delivery boundary
+creates a **new grant** that supersedes the old one. Old grants are never
+rewritten; the guard hook denies attempts on the declared surfaces.
+
+`grant-create` with `supersedes` set automatically marks every non-stale
+verification run stale. Prior candidates and evidence stay inspectable and may
+not authorize readiness, delivery, or closure. Return to Design when the
+outcome or route choice is open, to Prepare when the revised basis is known.
+After re-authorization, resume at the smallest point that can produce fresh
+evidence and bind a **new** run to the new grant.
+
+A clarification that changes no authority and no planned observation may retain
+evidence — only with a recorded reason saying why it is non-material.
+
+## Resumption
+
+The SessionStart hook injects the state card. Trust it over chat history, git
+state, and issue status.
+
+If the projection reports `status: fail-safe`, the record is incomplete or
+contradictory. Do not continue implementation, verification, or delivery, and
+do not reconstruct authority optimistically. Preserve the existing candidate,
+mark it explicitly untrusted, name exactly what authority is missing, and
+return the smallest decision that restores it.
+
+If it reports `status: no-state`, this repository has no active change. Say so
+and offer to frame one.
+
+## Proportionality
+
+- A five-minute, precise, low-risk change: one authorization, one combined
+  reconciliation-and-close. Phases still exist in state and history.
+- A two-hour on-course implementation: no additional interaction at all.
+- Messages are justified by consequential decisions, ownership transfers,
+  trust-relevant condition changes, and exceptions — never by duration.
+
+No points, streaks, timers, periodic updates, percentage estimates, cockpit
+terminology, or phase-per-turn ceremony. If a receipt only echoes what Jacob
+just said, it is ceremony; drop it.
+
+## References
+
+- `references/state-model.md` — record shapes, fail-safe rules, helper commands.
+- `references/enforcement-map.md` — what is hook-guarded, check-gated,
+  agent-monitored, and uncovered, with known bypasses.
+- `references/issue-projections.md` — the optional tracker projection: when it
+  fires, what config holds, and why the terminal state is never written here.
+- `references/hosts/<host>.md` — how to address one tracker (`linear`,
+  `fibery`, `github`). Read only the host in `issue.host`.

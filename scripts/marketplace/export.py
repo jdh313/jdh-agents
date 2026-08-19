@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import json
-import re
 import shutil
 import subprocess
 import sys
@@ -13,51 +12,12 @@ from typing import Any
 
 from marketplace.generation import COMPILED_ROOT
 from marketplace.manifest import build_public
+from marketplace.privacy import scan_file as _scan_privacy  # noqa: F401 (re-exported for tests)
+from marketplace.privacy import scan_paths
 from marketplace.validate import validate_manifest
 
 # Repository-relative plugins tree of the compiled Claude publication.
 COMPILED_CLAUDE_PLUGINS = COMPILED_ROOT / "claude" / "plugins"
-
-# ---------------------------------------------------------------------------
-# Privacy gate patterns
-# ---------------------------------------------------------------------------
-
-# Absolute machine-home paths — fail hard
-_ABSOLUTE_HOME_RE = re.compile(r"(?:Users|home)/[A-Za-z0-9._-]+/")
-
-# Secret-ish assignments — fail hard
-_SECRET_RE = re.compile(
-    r"(?i)(api[_-]?key|secret|token|passwd|password)\s*[:=]\s*['\"][^'\"]{8,}['\"]"
-)
-
-# Bare vault-name mentions — warn only (intentional configurable-default examples)
-_VAULT_WARN_RE = re.compile(r"Loose Ends")
-
-
-def _scan_privacy(file_path: Path) -> tuple[list[str], list[str]]:
-    """Return (hard_errors, soft_warnings) for one file.
-
-    Skips binary files gracefully.
-    """
-    hard: list[str] = []
-    soft: list[str] = []
-
-    try:
-        text = file_path.read_text(encoding="utf-8", errors="strict")
-    except UnicodeDecodeError:
-        # Binary file — skip
-        return hard, soft
-
-    for lineno, line in enumerate(text.splitlines(), start=1):
-        loc = f"{file_path}:{lineno}"
-        if _ABSOLUTE_HOME_RE.search(line):
-            hard.append(f"Absolute home path in {loc}: {line.strip()!r}")
-        if _SECRET_RE.search(line):
-            hard.append(f"Secret-ish value in {loc}: {line.strip()!r}")
-        if _VAULT_WARN_RE.search(line):
-            soft.append(f"Vault name mention in {loc} (intentional default, OK)")
-
-    return hard, soft
 
 
 def _privacy_gate(plugins_dir: Path, allowlist: list[str]) -> None:
@@ -70,22 +30,19 @@ def _privacy_gate(plugins_dir: Path, allowlist: list[str]) -> None:
     Raises ``ValueError`` with all hard errors concatenated if any are found.
     Prints soft warnings to stdout (does NOT raise).
     """
-    all_hard: list[str] = []
-
+    files: list[Path] = []
     for name in allowlist:
         plugin_dir = plugins_dir / name
         if not plugin_dir.exists():
             continue
-        for fpath in sorted(plugin_dir.rglob("*")):
-            if not fpath.is_file():
-                continue
-            hard, soft = _scan_privacy(fpath)
-            all_hard.extend(hard)
-            for msg in soft:
-                print(f"  [privacy warn] {msg}")
+        files.extend(fpath for fpath in plugin_dir.rglob("*") if fpath.is_file())
 
-    if all_hard:
-        detail = "\n".join(f"  {e}" for e in all_hard)
+    hard, soft = scan_paths(files)
+    for msg in soft:
+        print(f"  [privacy warn] {msg}")
+
+    if hard:
+        detail = "\n".join(f"  {e}" for e in hard)
         raise ValueError(f"Privacy gate FAILED:\n{detail}")
 
 
@@ -185,10 +142,10 @@ def _export_commit_message(
 
     n = len(added) + len(removed) + len(bumped) + len(touched)
     if n:
-        subject = f"export: sync {n} plugin(s) from cc-marketplace ({today})"
+        subject = f"export: sync {n} plugin(s) from jdh-agents ({today})"
         body = "\n".join(lines)
     else:
-        subject = f"export: refresh manifest from cc-marketplace ({today})"
+        subject = f"export: refresh manifest from jdh-agents ({today})"
         body = "Manifest/metadata refresh; no plugin file changes."
     return subject, body
 

@@ -5,7 +5,7 @@ status: current
 decision_date: 2026-07-11
 author: Jacob Hoehler
 conviction: tentative
-project: cc-marketplace
+project: jdh-agents
 labels:
   - repo-shape
 binds: []
@@ -19,7 +19,7 @@ informed_by: []
 
 ## Decision
 
-The documentation site lives inside the cc-marketplace repository as a subdirectory, not in a separate repository.
+The documentation site lives inside the jdh-agents repository as a subdirectory, not in a separate repository.
 
 ## Scope
 
@@ -37,7 +37,7 @@ The documentation site lives inside the cc-marketplace repository as a subdirect
 
 ## Context
 
-- cc-marketplace is the private source of truth holding all plugins; a subset is exported one-way to a public repo.
+- jdh-agents is the private source of truth holding all plugins; a subset is exported one-way to a public repo.
 - The generator's input (marketplace.json, plugin.json) lives in this repo.
 - The internal build's audience is personal and documents the full private plugin set.
 - The export gate copies only allowlisted plugins/<name>/ plus a regenerated manifest, never a top-level non-plugin directory.

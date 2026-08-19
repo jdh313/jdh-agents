@@ -218,7 +218,7 @@
 </table>
 
 <div class="note fork">
-  <strong>One thing to know before the Validation page.</strong> There are <em>two</em> implementations in play. The Claude Code <strong>plugin</strong> (skills + agents + <code>persist.py</code>, Python) is what runs the live capture workflow today. The standalone <strong><code>~/Projects/ndr</code></strong> repo is a TypeScript reimplementation whose <em>read</em> side is complete (<code>ndr resolve / search / lineage / current</code>) but whose <em>write</em> verb (<code>ndr capture</code>) is still a future slice. They agree on the atom shape; they enforce it at different points. The <a href="validation.html">Validation</a> page keeps them distinct rather than blurring them.
+  <strong>One thing to know before the Validation page.</strong> There are <em>two</em> implementations in play. The Claude Code <strong>plugin</strong> (skills + agents + <code>persist.py</code>, Python) is what runs the live capture workflow today. The standalone <strong><code>ndr</code></strong> repo is a TypeScript reimplementation whose <em>read</em> side is complete (<code>ndr resolve / search / lineage / current</code>) but whose <em>write</em> verb (<code>ndr capture</code>) is still a future slice. They agree on the atom shape; they enforce it at different points. The <a href="validation.html">Validation</a> page keeps them distinct rather than blurring them.
 </div>
 
 <h2>The one idea that matters</h2>
@@ -226,7 +226,7 @@
 <p>The failure mode this prevents — and the single biggest way to misuse NDR — is <strong>reading a stale starting atom directly</strong>. A ticket cites <code>ndr:0070</code>; you open <code>0070</code>; it says "swamp is canonical." But <code>0070</code> was superseded twice. The head says the opposite. Every read path exists to walk that chain for you. <a href="supersession.html">Why this matters →</a></p>
 
 <footer>
-  NDR explainers · sourced from the <code>ndr</code> plugin (skills, agents, <code>persist.py</code>), the standalone <code>~/Projects/ndr</code> TypeScript repo (<code>schema.ts</code>), and live atoms in <code>~/Loose&nbsp;Ends/Decisions/</code>. Self-contained HTML — no external assets.
+  NDR explainers · sourced from the <code>ndr</code> plugin (skills, agents, <code>persist.py</code>), the standalone <code>ndr</code> TypeScript repo (<code>schema.ts</code>), and live atoms in <code>~/Loose&nbsp;Ends/Decisions/</code>. Self-contained HTML — no external assets.
 </footer>
 
 </div>

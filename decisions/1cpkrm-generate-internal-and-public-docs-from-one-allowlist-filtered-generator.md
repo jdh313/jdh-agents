@@ -5,7 +5,7 @@ status: current
 decision_date: 2026-07-11
 author: Jacob Hoehler
 conviction: tentative
-project: cc-marketplace
+project: jdh-agents
 labels:
   - architecture
   - scope

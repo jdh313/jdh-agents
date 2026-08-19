@@ -23,7 +23,7 @@ jobs:
   export:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout cc-marketplace (private source of truth)
+      - name: Checkout jdh-agents (source of truth)
         uses: actions/checkout@v4
 
       - name: Checkout public target (shared-claude-plugins)
@@ -41,7 +41,7 @@ jobs:
 
       - name: Configure export commit identity
         run: |
-          git -C _public config user.name "cc-marketplace-export[bot]"
+          git -C _public config user.name "jdh-agents-export[bot]"
           git -C _public config user.email "export@users.noreply.github.com"
           git -C _public config commit.gpgsign false
 

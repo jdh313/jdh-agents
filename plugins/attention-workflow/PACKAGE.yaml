@@ -1,0 +1,28 @@
+schema: agentforge.package/v1
+id: attention-workflow
+defaults: {"name": "attention-workflow", "version": "0.15.0", "description": "EXPERIMENTAL, Claude-only. An attention-regulating development lifecycle — Frame, Design, Prepare, authorize, Implement, Verify, Deliver, Close — carried by one orchestration skill over local run state. Versioned grants are create-only and supersede rather than rewrite; an independent verifier derives the actual route itself and its verdict stays withheld until the operator commits a judgment; narrow PreToolUse guards deny grant rewrites and unauthorized pushes. Supersedes spec-flow while enabled.", "author": {"name": "Jacob Hoehler"}, "license": "Apache-2.0", "keywords": ["experimental", "sdlc", "attention", "adhd", "authority", "autonomy", "verification", "resumption", "ai-assisted-dev"]}
+artifacts:
+  - {type: skill, pattern: 'skills/*/SKILL.md'}
+  - {type: agent, pattern: 'agents/*.md'}
+  - {type: hook, pattern: hooks/hooks.json}
+payloads:
+  include:
+    - {source: references/}
+# Claude only, deliberately. The experiment's central claim is about
+# plugin-bundled hook behavior on a fresh runtime, and this repository's Codex
+# publication skips bundled hooks until the user separately reviews and trusts
+# them. A Codex projection could not exercise the default structural-guard
+# behavior at all, so enrolling it would publish a package whose load-bearing
+# guarantee is silently absent — the same reasoning that keeps `langfuse` out
+# (ndr:7gf4vb, ndr:v0a3bm). Revisit only with fresh-runtime acceptance evidence.
+targets:
+  claude:
+    native:
+      # Experimental. Installing the marketplace must not silently switch the
+      # lifecycle out from under an in-flight spec-flow change.
+      defaultEnabled: false
+    payloads:
+      include:
+        - {source: hooks/session_start.py}
+        - {source: hooks/authority_delivery_guard.py}
+        - {source: scripts/aw_state.py}

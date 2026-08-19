@@ -162,9 +162,9 @@
 </details>
 
 <h2>A third gate, on the read side</h2>
-<p>The two gates above live in the <strong>plugin</strong> (Python). There is a second implementation — the standalone <code>~/Projects/ndr</code> repo — and it enforces the same atom shape at a <em>different</em> moment: when an atom is <strong>read</strong>. Its parse pipeline is <code>fence-split → YAML → Zod</code>, and the Zod <code>FrontmatterSchema</code> is the gate:</p>
+<p>The two gates above live in the <strong>plugin</strong> (Python). There is a second implementation — the standalone <code>ndr</code> repo — and it enforces the same atom shape at a <em>different</em> moment: when an atom is <strong>read</strong>. Its parse pipeline is <code>fence-split → YAML → Zod</code>, and the Zod <code>FrontmatterSchema</code> is the gate:</p>
 
-<pre><code>// ~/Projects/ndr · src/domain/schema.ts (excerpt)
+<pre><code>// ndr · src/domain/schema.ts (excerpt)
 export const FrontmatterSchema = z.object({
   id:            z.string().regex(/^\d{4}$/),   // quoted 4-digit; "0128" not 128
   title:         z.string().min(1),
@@ -186,7 +186,7 @@ export const FrontmatterSchema = z.object({
   <p style="margin:0 0 10px"><strong>The mechanics live in two places, and they are not the same code.</strong></p>
   <ul style="margin:0">
     <li><strong>Plugin (Python).</strong> <code>scripts/persist.py</code> is the <em>live write enforcement</em> today — the capture pipeline pipes drafts to it and it owns ID assignment, the taxonomy gate, and the supersession transaction.</li>
-    <li><strong>Standalone <code>~/Projects/ndr</code> (TypeScript).</strong> Its <em>read</em> side is complete — <code>ndr resolve / search / lineage / current</code>, with the Zod schema above as the read-time gate. Its <em>write</em> verb, <code>ndr capture</code>, is explicitly "a later slice" — not built yet.</li>
+    <li><strong>Standalone <code>ndr</code> (TypeScript).</strong> Its <em>read</em> side is complete — <code>ndr resolve / search / lineage / current</code>, with the Zod schema above as the read-time gate. Its <em>write</em> verb, <code>ndr capture</code>, is explicitly "a later slice" — not built yet.</li>
   </ul>
   <p style="margin:10px 0 0">So right now: <strong>writes are validated by <code>persist.py</code>; reads (in the standalone CLI) are validated by Zod.</strong> When <code>ndr capture</code> lands, the write gate is expected to move into the TypeScript domain layer alongside the schema. Until then, treat <code>persist.py</code> as authoritative for what actually gets written, and <code>schema.ts</code> as authoritative for the canonical field contract.</p>
 </div>
@@ -223,7 +223,7 @@ export const FrontmatterSchema = z.object({
 </div>
 
 <footer>
-  Soft checks per <code>agents/ndr-reviewer.md</code>; hard checks and exit codes per <code>scripts/persist.py</code>; read-side schema per <code>~/Projects/ndr/src/domain/schema.ts</code> and that repo's <code>README.md</code>. Field-variance observations from live atoms in <code>~/Loose&nbsp;Ends/Decisions/</code>.
+  Soft checks per <code>agents/ndr-reviewer.md</code>; hard checks and exit codes per <code>scripts/persist.py</code>; read-side schema per <code>ndr/src/domain/schema.ts</code> and that repo's <code>README.md</code>. Field-variance observations from live atoms in <code>~/Loose&nbsp;Ends/Decisions/</code>.
 </footer>
 
 </div>

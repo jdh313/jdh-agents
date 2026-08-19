@@ -1,0 +1,18 @@
+# Managed by prek (https://github.com/j178/prek), a Rust reimplementation of
+# the pre-commit framework. Install: `nix shell nixpkgs#prek`, then run
+# `prek install --hook-type pre-push` once per clone.
+#
+# The privacy-gate hook is deliberately pre-push, not pre-commit: it exists to
+# stop a leak before it reaches GitHub, and a pre-commit hook only protects
+# commits, not the push that publishes them. It scans the current working
+# tree (git-tracked files), not history — see scripts/marketplace/privacy.py
+# for what that does and does not catch.
+repos:
+  - repo: local
+    hooks:
+      - id: privacy-gate
+        name: privacy gate (machine paths, secrets, PII)
+        entry: uv run marketplace scan
+        language: system
+        pass_filenames: false
+        stages: [pre-push]

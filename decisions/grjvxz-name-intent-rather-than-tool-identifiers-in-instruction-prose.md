@@ -5,7 +5,7 @@ status: current
 decision_date: 2026-07-31
 author: Jacob Hoehler
 conviction: tentative
-project: cc-marketplace
+project: jdh-agents
 labels:
   - process
   - write-side
@@ -14,7 +14,7 @@ binds:
 supersedes: []
 superseded_by: []
 derived_from:
-  - https://linear.app/example/issue/TEAM-354/agentforge-per-target-body-templating
+  - linear:TEAM-354
 informed_by:
   - kpefq4
 ---
