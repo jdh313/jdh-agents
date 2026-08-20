@@ -1,0 +1,44 @@
+name: Marketplace tooling bug
+description: "`marketplace sync`, `check`, `validate`, `lint`, or `scan` misbehaves."
+labels: [bug, tooling]
+body:
+  - type: dropdown
+    id: command
+    attributes:
+      label: Command
+      options:
+        - sync
+        - check
+        - validate
+        - lint
+        - scan
+        - pytest
+        - other
+    validations:
+      required: true
+
+  - type: textarea
+    id: output
+    attributes:
+      label: Command and output
+      description: The full invocation and its output. Redact any absolute home paths.
+      render: shell
+    validations:
+      required: true
+
+  - type: input
+    id: agentforge
+    attributes:
+      label: AgentForge revision
+      description: "`git -C <checkout> rev-parse HEAD`, or \"not used\" for read-only commands."
+      placeholder: not used
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: pinned
+    attributes:
+      label: Before filing
+      options:
+        - label: If this involved `sync` or `check`, I used a checkout pinned to the recorded SHA — not an `agentforge` binary on my PATH.
+          required: true

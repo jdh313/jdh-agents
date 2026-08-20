@@ -1,0 +1,68 @@
+name: Plugin bug
+description: A plugin behaves incorrectly, errors, or fails to install.
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Security problems do not belong here — use
+        [private vulnerability reporting](https://github.com/jdh313/jdh-agents/security/advisories/new).
+
+  - type: input
+    id: plugin
+    attributes:
+      label: Plugin and component
+      description: Name the specific skill, agent, command, or hook — not just the plugin.
+      placeholder: librarian:vault-reader
+    validations:
+      required: true
+
+  - type: dropdown
+    id: runtime
+    attributes:
+      label: Runtime
+      description: The two resolve plugins differently; a bug in one often does not exist in the other.
+      options:
+        - Claude Code
+        - Codex
+        - Both
+    validations:
+      required: true
+
+  - type: input
+    id: version
+    attributes:
+      label: Plugin version
+      description: From `plugins/<name>/PACKAGE.yaml`, or `/plugin` (Claude) / `codex plugin list` (Codex).
+      placeholder: 0.3.1
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: What you expected, and what happened instead
+      description: Include the exact error text if there was one.
+    validations:
+      required: true
+
+  - type: textarea
+    id: repro
+    attributes:
+      label: Steps to reproduce
+      description: The invocation that triggers it, and anything about your setup that matters.
+      placeholder: |
+        1. Invoke `/decisions` with ...
+        2. ...
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: freshness
+    attributes:
+      label: Before filing
+      options:
+        - label: I re-installed after the last change (Codex caches by version and will otherwise serve stale bytes).
+          required: true
+        - label: I checked the prerequisites table in the README for this plugin's required vault/MCP server/binary.
+          required: true

@@ -355,12 +355,16 @@ bun run "$AGENTFORGE_PROJECT/src/cli.ts" check \
   MARKETPLACE.yaml --out marketplaces --claude-native
 ```
 
-CI checks out [`jdh313/agentforge`](https://github.com/jdh313/agentforge) at
-full commit `1dba647fe872ef6422132cee82e03fb386f82eb8`. That repository is
-public, so the checkout needs no credential -- the workflow previously required
-an `AGENTFORGE_DEPLOY_KEY` secret and failed closed without it. The runner
-toolchain pins Bun `1.3.14` and Claude Code `2.1.216`, the versions used for the
-local acceptance run.
+CI no longer checks out and builds [`jdh313/agentforge`](https://github.com/jdh313/agentforge)
+from source. It downloads the pinned `agentforge-linux-x64` release binary
+(`AGENTFORGE_VERSION` / `AGENTFORGE_SHA256` in
+[`.github/workflows/validate.yml`](../.github/workflows/validate.yml)) and
+verifies it against a recorded SHA256 checksum before placing it on `PATH` as
+`agentforge`. That repository is public, so the download needs no credential
+-- the workflow previously required an `AGENTFORGE_DEPLOY_KEY` secret to check
+out the source and failed closed without it; that requirement is gone now
+that nothing is checked out. The runner toolchain pins Claude Code `2.1.216`,
+the version used for the local acceptance run.
 
 Runtime references: [Claude plugin validation](https://code.claude.com/docs/en/plugin-marketplaces#validation-and-testing)
 and [Codex plugin and marketplace structure](https://developers.openai.com/codex/plugins/build/).

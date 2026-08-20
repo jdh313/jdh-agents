@@ -145,7 +145,7 @@ git -C "$AGENTFORGE_REPO" worktree add --detach /tmp/af-pin <pinned-sha>
 env AGENTFORGE_PROJECT=/tmp/af-pin uv run marketplace sync
 ```
 
-The pinned SHA is in `docs/agentforge-compatibility.md` and in `.github/workflows/validate.yml`; CI checks out that revision, so a local run against anything else is not the merge gate.
+The pinned SHA is in `docs/agentforge-compatibility.md`; CI itself now installs the release binary pinned in `.github/workflows/validate.yml` (`AGENTFORGE_VERSION` / `AGENTFORGE_SHA256`), verified by SHA256, rather than checking out and building from source. A local run against anything else is not the merge gate.
 
 **The two runtimes disagree about whether the working tree is live, and the disagreement runs opposite ways.**
 
