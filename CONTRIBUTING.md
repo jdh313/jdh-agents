@@ -92,10 +92,12 @@ git -C "$AGENTFORGE_REPO" worktree add --detach /tmp/af-pin <pinned-sha>
 env AGENTFORGE_PROJECT=/tmp/af-pin uv run marketplace sync
 ```
 
-The pinned SHA lives in [`docs/agentforge-compatibility.md`](docs/agentforge-compatibility.md)
-and in [`.github/workflows/validate.yml`](.github/workflows/validate.yml). CI
-checks out that exact revision, so a run against anything else is not the merge
-gate.
+The pinned SHA lives in [`docs/agentforge-compatibility.md`](docs/agentforge-compatibility.md).
+CI itself no longer checks out and builds that revision — it downloads and
+SHA256-verifies the release binary pinned in
+[`.github/workflows/validate.yml`](.github/workflows/validate.yml)
+(`AGENTFORGE_VERSION` / `AGENTFORGE_SHA256`). A local run against anything else
+is not the merge gate.
 
 **Do not use an `agentforge` binary on your `PATH`.** It typically symlinks into
 a working checkout that tracks whatever branch is being developed, and it has

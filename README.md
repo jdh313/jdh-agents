@@ -234,16 +234,18 @@ uv run marketplace check
 
 GitHub Actions runs on every push and pull request:
 - `uv run marketplace check` (Claude drift + Claude/Codex schemas + lint)
-- `uv run pytest` with AgentForge pinned to commit `1dba647`
+- `uv run pytest` with AgentForge pinned to release `v0.2.0`
 - deterministic full-corpus compilation and read-only drift checks
 - `claude plugin validate --strict` for the generated Claude publication,
   using Claude Code `2.1.216`
 - `uv run marketplace validate --format codex` for the generated Codex publication
 
-[`jdh313/agentforge`](https://github.com/jdh313/agentforge) is public, so the
-workflow checks the pinned compiler out with no credential. It previously
-required an `AGENTFORGE_DEPLOY_KEY` repository secret and failed closed without
-it.
+[`jdh313/agentforge`](https://github.com/jdh313/agentforge) publishes
+per-platform release binaries, so the workflow downloads the pinned
+`agentforge-linux-x64` binary and verifies it against a recorded SHA256
+checksum instead of checking out and building the compiler from source. It
+previously required an `AGENTFORGE_DEPLOY_KEY` repository secret and failed
+closed without it; that requirement is gone now that nothing is checked out.
 
 ## Metadata ownership
 
