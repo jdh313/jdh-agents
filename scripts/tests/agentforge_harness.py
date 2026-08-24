@@ -13,6 +13,7 @@ from dataclasses import dataclass
 from pathlib import Path
 
 import yaml
+from marketplace.generation import ensure_pinned_agentforge
 
 
 @dataclass(frozen=True)
@@ -168,14 +169,12 @@ def resolve_agentforge(repo_root: Path, marketplace: Path) -> AgentForge:
             project=require_agentforge_project(repo_root),
         )
 
-    installed = shutil.which("agentforge")
-    if installed:
-        return AgentForge(marketplace=marketplace, executable=Path(installed).resolve())
-
-    raise RuntimeError(
-        "AgentForge acceptance tests require `agentforge` on PATH, AGENTFORGE_BIN, "
-        "or AGENTFORGE_PROJECT"
-    )
+    # Fall through to the same pinned release the merge gate compiles with, fetched
+    # and sha256-verified on demand.  Deliberately NOT `shutil.which("agentforge")`:
+    # a PATH binary is whatever happens to be installed (0.1.0 on at least one dev
+    # machine while the pin is 0.2.0), so resolving it here would let the acceptance
+    # tests grade a different compiler than `marketplace check` runs.
+    return AgentForge(marketplace=marketplace, executable=ensure_pinned_agentforge())
 
 
 def _resolve_executable(command: str) -> Path | None:
