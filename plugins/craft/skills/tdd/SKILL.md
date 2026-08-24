@@ -33,7 +33,7 @@ See [tests.md](tests.md) for examples and [mocking.md](mocking.md) for mocking g
 
 ## Seams — where tests go
 
-Tests live at **seams** — the interface where you observe behavior without reaching inside — never against internals. The seam / interface / depth vocabulary lives in the shared `craft:codebase-design` skill; run it when you need to decide where a seam goes or design an interface for testability.
+Tests live at **seams** — the interface where you observe behavior without reaching inside — never against internals. Use the plugin's architecture terms exactly — **module**, **interface**, **depth**, **seam**, **adapter** — and don't drift into "component," "service," "API," or "boundary." The full glossary is [`../../CODEBASE-DESIGN.md`](../../CODEBASE-DESIGN.md); read it when you need to decide where a seam goes or design an interface for testability.
 
 **Test only at pre-agreed seams.** Before writing any test, write down the seams under test and confirm them with the user. No test is written at an unconfirmed seam. You can't test everything — agreeing the seams up front is how testing effort lands on the critical paths and complex logic instead of every edge case.
 

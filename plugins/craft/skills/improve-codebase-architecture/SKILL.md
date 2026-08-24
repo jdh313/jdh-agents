@@ -25,7 +25,7 @@ Surface architectural friction and propose **deepening opportunities** — refac
 
 ## Architecture vocabulary
 
-Run `Skill(craft:codebase-design)` for the architecture vocabulary — **module**, **interface**, **depth**, **seam**, **adapter**, **leverage**, **locality** — and its principles: the deletion test, "the interface is the test surface," "one adapter = hypothetical seam, two = real." Use these terms exactly in every suggestion — don't drift into "component," "service," "API," or "boundary."
+Read [`../../CODEBASE-DESIGN.md`](../../CODEBASE-DESIGN.md) for the architecture vocabulary — **module**, **interface**, **depth**, **seam**, **adapter**, **leverage**, **locality** — and its principles: the deletion test, "the interface is the test surface," "one adapter = hypothetical seam, two = real." Use these terms exactly in every suggestion — don't drift into "component," "service," "API," or "boundary."
 
 This skill is _informed_ by the project's domain model. The domain language gives names to good seams; NDR atoms record decisions this skill should not re-litigate.
 
@@ -67,7 +67,7 @@ For each candidate, rendered as a markdown section (`### Candidate N: <title>`):
 
 End the report with a **Top recommendation** section: which candidate you'd tackle first and why.
 
-**Use CONTEXT.md vocabulary for the domain, and the `codebase-design` skill's vocabulary for the architecture.** If `CONTEXT.md` defines "Order," talk about "the Order intake module" — not "the FooBarHandler," and not "the Order service."
+**Use CONTEXT.md vocabulary for the domain, and `../../CODEBASE-DESIGN.md`'s vocabulary for the architecture.** If `CONTEXT.md` defines "Order," talk about "the Order intake module" — not "the FooBarHandler," and not "the Order service."
 
 **NDR conflicts**: if a candidate contradicts an existing NDR atom, only surface it when the friction is real enough to warrant revisiting the decision. Mark it clearly in the candidate section (e.g. a note callout: _"contradicts ndr:area/topic/NNNN-slug — but worth reopening because…"_). Don't list every theoretical refactor a decision forbids.
 
@@ -82,4 +82,5 @@ Once the user picks a candidate, run `Skill(craft:grill)` to walk the decision t
 Side effects happen inline as decisions crystallize:
 
 - **Domain model needs updating** — a deepened module named after a concept not in `CONTEXT.md`, a fuzzy term getting sharpened, or a rejected candidate carrying a load-bearing reason worth recording? Run `Skill(craft:domain-modeling)` to keep the domain model current. It already encodes the NDR capture-decision routing (hard-to-reverse / surprising-without-context / real-trade-off) — don't re-specify decision handling here.
-- **Want to explore alternative interfaces for the deepened module?** Run `Skill(craft:codebase-design)` and use its design-it-twice parallel sub-agent pattern.
+- **Want to explore alternative interfaces for the deepened module?** Follow [DESIGN-IT-TWICE.md](DESIGN-IT-TWICE.md) — the parallel sub-agent pattern for designing the interface several radically different ways, then comparing on depth, locality, and seam placement.
+- **Deepening a cluster with tangled dependencies?** Follow [DEEPENING.md](DEEPENING.md) — dependency categories, seam discipline, and replace-don't-layer testing.

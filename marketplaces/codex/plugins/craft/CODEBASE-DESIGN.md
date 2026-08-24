@@ -1,26 +1,10 @@
----
-name: codebase-design
-description: >-
-  Shared vocabulary for designing deep modules. Use when the user wants to
-  design or improve a module's interface, find deepening opportunities, decide
-  where a seam goes, make code more testable or AI-navigable, or when another
-  craft skill needs the deep-module vocabulary. Adapted from mattpocock/skills
-  (MIT, © 2026 Matt Pocock).
-allowed-tools:
-  - Read
-  - Grep
-  - Glob
-  - Agent
----
-
-Apply the subagent mapping in [`../../RUNTIME.md`](../../RUNTIME.md) when using
-the Design It Twice procedure.
-
-# Codebase Design
+# Codebase design vocabulary
 
 Design **deep modules**: a lot of behaviour behind a small interface, placed at a clean seam, testable through that interface. Use this language and these principles wherever code is being designed or restructured. The aim is leverage for callers, locality for maintainers, and testability for everyone.
 
-This is the shared architecture vocabulary for the `craft` plugin. `craft:tdd`, `craft:improve-codebase-architecture`, and `craft:grill-with-docs` all name things with these terms — use them exactly, don't substitute "component," "service," "API," or "boundary." If a skill needs a new architectural term, add it here rather than defining it locally.
+This is the shared architecture vocabulary for the `craft` plugin. `craft:tdd`, `craft:improve-codebase-architecture`, and `craft:grok` all name things with these terms — use them exactly, don't substitute "component," "service," "API," or "boundary." If a skill needs a new architectural term, add it here rather than defining it locally.
+
+This file is reference, not a workflow: it defines terms and principles and has no procedure of its own. The procedures that use it live with their callers — see **Going deeper** at the end.
 
 ## Glossary
 
@@ -136,5 +120,11 @@ Good interfaces make testing natural:
 
 ## Going deeper
 
-- **Deepening a cluster given its dependencies** — see [DEEPENING.md](DEEPENING.md): dependency categories, seam discipline, and replace-don't-layer testing.
-- **Exploring alternative interfaces** — see [DESIGN-IT-TWICE.md](DESIGN-IT-TWICE.md): spin up parallel sub-agents to design the interface several radically different ways, then compare on depth, locality, and seam placement.
+Both procedures that build on this vocabulary live with `craft:improve-codebase-architecture`, their only caller:
+
+- **Deepening a cluster given its dependencies** — [`skills/improve-codebase-architecture/DEEPENING.md`](skills/improve-codebase-architecture/DEEPENING.md): dependency categories, seam discipline, and replace-don't-layer testing.
+- **Exploring alternative interfaces** — [`skills/improve-codebase-architecture/DESIGN-IT-TWICE.md`](skills/improve-codebase-architecture/DESIGN-IT-TWICE.md): spin up parallel sub-agents to design the interface several radically different ways, then compare on depth, locality, and seam placement.
+
+## Provenance
+
+Adapted from [`mattpocock/skills`](https://github.com/mattpocock/skills) (MIT, © 2026 Matt Pocock), `skills/engineering/codebase-design`, reviewed at `697d4ce9742d` (2026-07-27). Divergence records live with the two consuming skills — see `skills/improve-codebase-architecture/UPSTREAM.md` and `skills/tdd/UPSTREAM.md`.

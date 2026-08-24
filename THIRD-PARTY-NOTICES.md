@@ -15,7 +15,7 @@ Derived skills, by plugin:
 
 | Plugin | Skill | Upstream path | Reviewed at |
 |---|---|---|---|
-| `craft` | `codebase-design` | `skills/engineering/codebase-design` | `697d4ce9742d` |
+| `craft` | `CODEBASE-DESIGN.md` (plugin-root reference, formerly the `codebase-design` skill) | `skills/engineering/codebase-design` | `697d4ce9742d` |
 | `craft` | `diagnose` | `skills/engineering/diagnosing-bugs` | `697d4ce9742d` |
 | `craft` | `domain-modeling` | `skills/engineering/domain-modeling` | `697d4ce9742d` |
 | `craft` | `grill` | `skills/productivity/grilling` | `697d4ce9742d` |
