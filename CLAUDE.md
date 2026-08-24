@@ -125,7 +125,7 @@ mkdir -p plugins/my-plugin
 # 2. Add authoritative metadata in plugins/my-plugin/PACKAGE.yaml
 # 3. Add plugin files (skills/, agents/, commands/, README.md, etc.)
 # 4. Regenerate committed native manifests with the pinned compiler
-env AGENTFORGE_PROJECT=/path/to/agentforge-at-1dba647 uv run marketplace sync
+uv run marketplace sync
 
 # 5. Validate schema and lint
 uv run marketplace validate
@@ -136,16 +136,13 @@ git add MARKETPLACE.yaml plugins/ marketplaces/
 git commit -m "feat: add my-plugin"
 ```
 
-### Two environment traps that produce false results
+### The compiler pin, and one environment trap
 
-**The PATH `agentforge` binary is not the pinned compiler.** If `agentforge` is on your PATH it typically symlinks into a working AgentForge checkout's `dist/`, and that checkout tracks whatever branch is being worked on. Running against it fails for reasons that have nothing to do with your change — it has rejected canonical keys the pinned revision accepts. Always compile through a worktree pinned to the recorded baseline (`$AGENTFORGE_REPO` is wherever you cloned AgentForge):
+**`uv run marketplace sync` fetches its own pinned compiler — there is nothing to set up.** The pin lives in `scripts/marketplace/generation.py` as `AGENTFORGE_VERSION` plus a per-platform `AGENTFORGE_SHA256` map taken from the release's own `SHA256SUMS`. On first use it downloads the matching release binary, verifies the hash before executing a single byte, and caches it under `.cache/agentforge/<version>/` (gitignored). The hash is re-verified on every run, so a corrupted or tampered cache is replaced rather than trusted. CI runs this same code path — there is no separate CI pin, and no worktree dance.
 
-```bash
-git -C "$AGENTFORGE_REPO" worktree add --detach /tmp/af-pin <pinned-sha>
-env AGENTFORGE_PROJECT=/tmp/af-pin uv run marketplace sync
-```
+To bump the compiler: change `AGENTFORGE_VERSION`, replace the hash map from the new release's `SHA256SUMS`, re-run `sync`, and commit the regenerated tree.
 
-The pinned SHA is in `docs/agentforge-compatibility.md`; CI itself now installs the release binary pinned in `.github/workflows/validate.yml` (`AGENTFORGE_VERSION` / `AGENTFORGE_SHA256`), verified by SHA256, rather than checking out and building from source. A local run against anything else is not the merge gate.
+**`AGENTFORGE_PROJECT` is for working *on* AgentForge, and is never the merge gate.** It runs a source checkout as-is via `bun`, deliberately without asserting any revision — that is the point of the escape hatch. It prints a warning naming the checked-out revision every time, because a compile from unreleased source can succeed or fail for reasons that have nothing to do with your change. `AGENTFORGE_BIN` similarly names an arbitrary executable and skips verification. Neither is what CI runs. If a result surprises you, re-run with both unset.
 
 **The two runtimes disagree about whether the working tree is live, and the disagreement runs opposite ways.**
 

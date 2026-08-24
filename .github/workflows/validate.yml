@@ -12,21 +12,15 @@ permissions:
 jobs:
   validate:
     runs-on: ubuntu-latest
-    env:
-      AGENTFORGE_VERSION: 0.2.0
-      AGENTFORGE_SHA256: 47f06c4f1baf7bed04e137ab6c2ca1a4fbab10a7c6f93a34db74f4e94d8c337b
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Install pinned AgentForge
-        run: |
-          curl -fsSLO "https://github.com/jdh313/agentforge/releases/download/v${AGENTFORGE_VERSION}/agentforge-linux-x64"
-          echo "${AGENTFORGE_SHA256}  agentforge-linux-x64" | sha256sum -c
-          chmod +x agentforge-linux-x64
-          mkdir -p "$HOME/.local/bin" && mv agentforge-linux-x64 "$HOME/.local/bin/agentforge"
-          echo "$HOME/.local/bin" >> "$GITHUB_PATH"
+      # AgentForge is no longer installed here. The compiler is pinned by version
+      # + per-platform sha256 in `scripts/marketplace/generation.py`, which fetches
+      # and verifies it on first use and caches it under `.cache/agentforge/`.
+      # One pin, one code path, identical bytes in CI and on a laptop.
 
       - name: Install Claude Code validator
         run: npm install --global @anthropic-ai/claude-code@2.1.216
