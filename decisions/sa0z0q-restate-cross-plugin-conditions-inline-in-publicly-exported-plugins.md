@@ -1,7 +1,7 @@
 ---
 id: "sa0z0q"
 title: Restate cross-plugin conditions inline in publicly exported plugins
-status: current
+status: retracted
 decision_date: 2026-07-27
 author: Jacob Hoehler
 conviction: tentative
@@ -10,7 +10,6 @@ labels:
   - architecture
   - scope
 binds:
-  - export/public.json
   - plugins/spec-flow/skills/**
 supersedes: []
 superseded_by: []
@@ -21,6 +20,17 @@ informed_by:
 ---
 
 # sa0z0q — Restate cross-plugin conditions inline in publicly exported plugins
+
+> **Retracted 2026-08-24.** The situation this decision governed no longer
+> exists. Commit `73c5149` retired the public-export mechanism and made the whole
+> repository public, so there is no allowlist, no non-allowlisted plugin, and no
+> file copy that a cross-plugin reference could fail to survive. Retracted rather
+> than superseded because nothing replaces it: the question stopped being asked.
+>
+> The inline restatements in `plugins/spec-flow/skills/draft/` are still present
+> and still correct as prose. They are simply no longer required — collapsing
+> them back into a reference to `craft` would now resolve fine, since both
+> plugins ship together.
 
 ## Decision
 
