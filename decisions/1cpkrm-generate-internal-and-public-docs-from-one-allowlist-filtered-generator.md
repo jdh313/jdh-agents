@@ -1,7 +1,7 @@
 ---
 id: "1cpkrm"
 title: Generate internal and public docs from one allowlist-filtered generator
-status: current
+status: retracted
 decision_date: 2026-07-11
 author: Jacob Hoehler
 conviction: tentative
@@ -17,6 +17,18 @@ informed_by: []
 ---
 
 # 1cpkrm — Generate internal and public docs from one allowlist-filtered generator
+
+> **Retracted 2026-08-24.** Commit `73c5149` retired the public-export
+> mechanism and made the whole repository public, which removes this decision's
+> premise rather than changing its answer. There is no `export/public.json`, no
+> allowlist to filter on, and no private/public split — so there are not two
+> docs audiences, and the dual-scope generator has no second scope to build.
+>
+> Retracted rather than superseded: nothing replaces it. The docs-site decisions
+> that still stand are `ndr:3ve7bm` (built with Astro) and `ndr:efbfr7` (plain
+> Astro, not Starlight); neither depended on the allowlist. `efbfr7` cites this
+> atom under `informed_by`, which carries no supersession semantics and needs no
+> repair.
 
 ## Decision
 
