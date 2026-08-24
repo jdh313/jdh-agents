@@ -63,3 +63,6 @@ htmlcov/
 .a5c/
 .envrc
 .claude/settings.local.json
+
+# Pinned AgentForge compiler, fetched on demand and verified by sha256.
+.cache/

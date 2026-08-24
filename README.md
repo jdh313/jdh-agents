@@ -152,22 +152,22 @@ Step 3 requires the [AgentForge compiler](https://github.com/jdh313/agentforge).
 
 3. Regenerate the committed native manifests with the pinned compiler:
    ```bash
-   env AGENTFORGE_PROJECT=/path/to/agentforge-at-1dba647 \
-     uv run marketplace sync
+   uv run marketplace sync
    ```
+   The pinned compiler is fetched and sha256-verified on first use; nothing to
+   install or configure.
 
 4. Validate the committed publications (read-only drift + schema + lint):
    ```bash
    uv run marketplace check
    ```
 
-5. Run the full-corpus acceptance suite against the pinned compatible
-   AgentForge checkout, then verify the committed tree with the native
-   Claude validator:
+5. Run the full-corpus acceptance suite, then verify the committed tree with
+   the native Claude validator:
    ```bash
-   export AGENTFORGE_PROJECT=/path/to/agentforge-at-1dba647
    uv run pytest -q
-   agentforge check MARKETPLACE.yaml --out marketplaces --claude-native
+   ./.cache/agentforge/*/agentforge-* check \
+     MARKETPLACE.yaml --out marketplaces --claude-native
    ```
 
 See [`docs/agentforge-compatibility.md`](docs/agentforge-compatibility.md) for
@@ -186,7 +186,7 @@ Codex pilot manifests. It never replaces maintained skills, agents, commands,
 hooks, references, or other source content.
 
 ```bash
-env AGENTFORGE_PROJECT=/path/to/agentforge-at-1dba647 uv run marketplace sync
+uv run marketplace sync
 # use `sync --check` to fail on drift without writing
 ```
 

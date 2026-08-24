@@ -5,8 +5,12 @@ AgentForge collection definitions. Native Claude and Codex manifests remain
 committed at the repository paths consumed by both runtimes, but they are now
 generated outputs rather than independently maintained metadata.
 
-The compiler baseline for this enrollment is AgentForge commit `1dba647`
-(`agentforge` 0.0.1).
+The compiler baseline for this enrollment is the AgentForge **v0.2.0** release
+binary, pinned by version and per-platform sha256 in
+[`scripts/marketplace/generation.py`](../scripts/marketplace/generation.py).
+The pin is a release identity rather than a source revision so that CI and a
+local run execute the same bytes; a source build at the equivalent commit is
+not byte-identical to the published asset.
 
 ## Acceptance-suite ownership
 
@@ -345,26 +349,29 @@ not behavioral equivalence.
 Use a checkout at the recorded compiler baseline:
 
 ```bash
-export AGENTFORGE_PROJECT=/path/to/agentforge-at-1dba647
 uv run marketplace sync
 uv run marketplace check
 uv run pytest -q
 
 # Verify the committed publications, not a throwaway compile.
-bun run "$AGENTFORGE_PROJECT/src/cli.ts" check \
+./.cache/agentforge/*/agentforge-* check \
   MARKETPLACE.yaml --out marketplaces --claude-native
 ```
 
-CI no longer checks out and builds [`jdh313/agentforge`](https://github.com/jdh313/agentforge)
-from source. It downloads the pinned `agentforge-linux-x64` release binary
-(`AGENTFORGE_VERSION` / `AGENTFORGE_SHA256` in
-[`.github/workflows/validate.yml`](../.github/workflows/validate.yml)) and
-verifies it against a recorded SHA256 checksum before placing it on `PATH` as
-`agentforge`. That repository is public, so the download needs no credential
--- the workflow previously required an `AGENTFORGE_DEPLOY_KEY` secret to check
-out the source and failed closed without it; that requirement is gone now
-that nothing is checked out. The runner toolchain pins Claude Code `2.1.216`,
-the version used for the local acceptance run.
+No environment variable is needed. `marketplace sync` fetches the pinned
+release binary on first use, verifies it against the per-platform sha256 map in
+`scripts/marketplace/generation.py`, and caches it under `.cache/agentforge/`.
+
+CI neither builds [`jdh313/agentforge`](https://github.com/jdh313/agentforge)
+from source nor installs it itself. It runs `uv run marketplace check`, and the
+same fetch-and-verify path described above supplies the compiler. There is one
+pin, in `generation.py`, rather than a source revision for local runs and a
+separate release pin in the workflow -- two pins that could drift apart. That
+repository is public, so the download needs no credential; the workflow
+previously required an `AGENTFORGE_DEPLOY_KEY` secret to check out the source
+and failed closed without it, and that requirement is gone. The runner
+toolchain pins Claude Code `2.1.216`, the version used for the local
+acceptance run.
 
 Runtime references: [Claude plugin validation](https://code.claude.com/docs/en/plugin-marketplaces#validation-and-testing)
 and [Codex plugin and marketplace structure](https://developers.openai.com/codex/plugins/build/).
