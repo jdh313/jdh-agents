@@ -166,8 +166,8 @@ Step 3 requires the [AgentForge compiler](https://github.com/jdh313/agentforge).
    the native Claude validator:
    ```bash
    uv run pytest -q
-   ./.cache/agentforge/*/agentforge-* check \
-     MARKETPLACE.yaml --out marketplaces --claude-native
+   "$(uv run marketplace agentforge-path)" \
+     check MARKETPLACE.yaml --out marketplaces --claude-native
    ```
 
 See [`docs/agentforge-compatibility.md`](docs/agentforge-compatibility.md) for

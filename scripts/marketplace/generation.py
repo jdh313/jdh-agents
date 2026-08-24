@@ -49,8 +49,11 @@ AGENTFORGE_RELEASE_URL = (
 )
 
 # Downloaded compilers live here, keyed by version so a pin bump never reuses
-# stale bytes.  Gitignored.
-AGENTFORGE_CACHE = Path(".cache") / "agentforge"
+# stale bytes.  Gitignored.  Anchored to the repository root rather than the
+# process CWD: callers run the compiler with `cwd=` set elsewhere (the test
+# harness compiles from a tmpdir), and a relative path would resolve to nothing
+# there while still looking correct in a repo-root run.
+AGENTFORGE_CACHE = Path(__file__).resolve().parents[2] / ".cache" / "agentforge"
 
 # Repository-relative root holding every compiled publication.  Each immediate
 # child is a self-contained marketplace root for one target runtime.
@@ -292,7 +295,7 @@ def _resolve_agentforge_command() -> list[str]:
         )
         return [bun, "run", str(cli)]
 
-    return [str(_ensure_pinned_agentforge())]
+    return [str(ensure_pinned_agentforge())]
 
 
 def _agentforge_platform() -> str:
@@ -316,7 +319,7 @@ def _sha256(path: Path) -> str:
     return digest.hexdigest()
 
 
-def _ensure_pinned_agentforge() -> Path:
+def ensure_pinned_agentforge() -> Path:
     """Return the pinned compiler, downloading it on first use.
 
     Cached under ``.cache/agentforge/<version>/`` and verified by sha256 on every

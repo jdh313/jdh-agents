@@ -354,8 +354,8 @@ uv run marketplace check
 uv run pytest -q
 
 # Verify the committed publications, not a throwaway compile.
-./.cache/agentforge/*/agentforge-* check \
-  MARKETPLACE.yaml --out marketplaces --claude-native
+"$(uv run marketplace agentforge-path)" \
+  check MARKETPLACE.yaml --out marketplaces --claude-native
 ```
 
 No environment variable is needed. `marketplace sync` fetches the pinned

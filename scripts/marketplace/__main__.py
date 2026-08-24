@@ -13,6 +13,7 @@ from marketplace.generation import (
     COMPILED_ROOT,
     GenerationError,
     check_publications,
+    ensure_pinned_agentforge,
     sync_publications,
 )
 from marketplace.lint import lint_plugins
@@ -186,6 +187,22 @@ def _cmd_scan(args: argparse.Namespace) -> int:
     return 0
 
 
+def _cmd_agentforge_path(args: argparse.Namespace) -> int:  # noqa: ARG001
+    """Print the absolute path of the pinned compiler, fetching it if absent.
+
+    Exists so a caller that needs to run AgentForge directly -- the workflow's
+    native-validation step, a doc example -- names the same pinned, verified
+    binary the rest of this tool uses, instead of a bare `agentforge` off PATH
+    (whatever version that happens to be) or a shell glob into the cache.
+    """
+    try:
+        print(ensure_pinned_agentforge())
+    except GenerationError as exc:
+        print(f"Error: {exc}", file=sys.stderr)
+        return 1
+    return 0
+
+
 def _cmd_check(args: argparse.Namespace) -> int:  # noqa: ARG001
     """CI entrypoint: generated drift + native validation + lint + privacy gate."""
     rc = 0
@@ -283,6 +300,12 @@ def _build_parser() -> argparse.ArgumentParser:
         "check", help="Run manifest drift checks + native validation + lint"
     )
 
+    # agentforge-path
+    sub.add_parser(
+        "agentforge-path",
+        help="Print the path of the pinned AgentForge binary, fetching it if absent",
+    )
+
     return parser
 
 
@@ -301,6 +324,7 @@ def main() -> int:
         "lint": _cmd_lint,
         "scan": _cmd_scan,
         "check": _cmd_check,
+        "agentforge-path": _cmd_agentforge_path,
     }
 
     handler = dispatch.get(args.command)

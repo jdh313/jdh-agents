@@ -39,4 +39,6 @@ jobs:
       # The publications are committed, so the merge gate validates the exact
       # bytes both runtimes will load rather than a fresh temporary compile.
       - name: Validate committed publications
-        run: agentforge check MARKETPLACE.yaml --out marketplaces --claude-native
+        run: |
+          "$(uv run marketplace agentforge-path)" \
+            check MARKETPLACE.yaml --out marketplaces --claude-native
