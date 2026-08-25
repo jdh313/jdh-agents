@@ -115,8 +115,8 @@
     },
     {
       "name": "craft",
-      "version": "0.12.0",
-      "description": "Software craftsmanship discipline skills: grill (the interview primitive — walk a decision tree one question at a time, facts looked up rather than asked, no acting until shared understanding), grill-with-docs (that loop applied to vocabulary, against per-repo CONTEXT.md glossaries), diagnose, prototype, tdd, improve-codebase-architecture, grok (stateful multi-session codebase comprehension with supersession-aware understanding records), zoom-out (adapted in part from mattpocock/skills, MIT), infra-review (architecture/security review of Terraform+Atlantis PRs), quiz-me (opt-in active-recall comprehension check after a code explanation), interrogate-model (holistic representability review of a domain model — the legitimate scenarios and personas it cannot express), design-by-stories (design an artifact's shape — schema, template, data model, config — by modeling its actors and user stories first, then deriving the shape from the stories), and lucid-architecture-diagram (drive AWS cloud architecture diagrams in Lucid, including the two silent-failure modes of its API). Composes with spec-flow and ndr plugins.",
+      "version": "0.13.0",
+      "description": "Software craftsmanship discipline skills: grill (the interview primitive — walk a decision tree one question at a time, facts looked up rather than asked, no acting until shared understanding), grill-with-docs (that loop applied to vocabulary, against per-repo CONTEXT.md glossaries), diagnose, prototype, tdd, improve-codebase-architecture, grok (stateful multi-session codebase comprehension with supersession-aware understanding records), zoom-out (adapted in part from mattpocock/skills, MIT), infra-review (architecture/security review of Terraform+Atlantis PRs), quiz-me (opt-in active-recall comprehension check after a code explanation), interrogate-model (holistic representability review of a domain model — the legitimate scenarios and personas it cannot express), design-by-stories (design an artifact's shape — schema, template, data model, config — by modeling its actors and user stories first, then deriving the shape from the stories), and lucid-architecture-diagram (drive AWS cloud architecture diagrams in Lucid, including the two silent-failure modes of its API). derive-conventions (derive a repo's unwritten house style from its own code, adjudicate each inferred rule with the human, and write the approved set to CONVENTIONS.md so the review agents stop re-deriving it). Three read-only post-edit review agents ride along, each deriving the host repository's conventions rather than importing preferences: house-style-reviewer (a diff against the repo's own unlinted conventions, skipping whatever its linters already enforce), comment-reviewer (docstrings against the code they describe, including comments left unchanged while the code beneath them moved), and copy-reviewer (user-facing strings against the voice the product already uses). Composes with spec-flow and ndr plugins.",
       "author": {
         "name": "Jacob Hoehler"
       },
@@ -125,6 +125,10 @@
         "engineering",
         "craft",
         "discipline",
+        "code-review",
+        "conventions",
+        "comments",
+        "copy",
         "vocabulary",
         "context",
         "glossary",
