@@ -1,6 +1,6 @@
 # Upstream divergences — teach
 
-_Upstream: `mattpocock/skills` · `skills/productivity/teach` · ledger current as of `reviewed_sha: 697d4ce9742d`_
+_Upstream: `mattpocock/skills` · `skills/productivity/teach` · ledger current as of `reviewed_sha: 321658273cb1`_
 
 Intentional divergences from upstream. Reviewed via `skillsmith:upstream-review` intake (2026-06-12); adapted for Obsidian-vault routing the same day. Do not re-flag these as findings. Read by `upstream-review` only; never referenced from `SKILL.md`.
 
