@@ -1,63 +1,36 @@
 ---
-name: wayfinder
+name: chart
 description: >-
   Chart an effort too large to see the end of — more than one agent session can
   hold, and still fogged — as a shared map of decision tickets in Linear, then
-  resolve them one per session until the route to the destination is clear.
-  This skill should be used when the user invokes `/pm:wayfinder`, says "chart
-  this", "map this out", "I don't know where to start on this", "this is too
-  big to plan", "work the map", "what's next on the map", or hands over a loose
-  idea whose shape isn't visible yet. Names the destination first, publishes a
-  map ticket plus `Decision` / `Spike` / `Chore` question tickets in dependency
+  resolve them one per session until the route to the destination is clear. This
+  skill should be used when the user invokes `/pm:chart`, says "chart this",
+  "map this out", "I don't know where to start on this", "this is too big to
+  plan", "work the map", "what's next on the map", or hands over a loose idea
+  whose shape isn't visible yet. Names the destination first, publishes a map
+  ticket plus `Decision` / `Spike` / `Chore` question tickets in dependency
   order via the linear plugin, and routes each resolution to an ndr atom via
   `/capture-decision`. Charts questions, not work — once the route is clear,
   `pm:breakdown` slices it. Adapted from mattpocock/skills (MIT, © 2026 Matt
   Pocock).
-argument-hint: "[loose idea to chart, or a TEAM-N map ticket to work]"
-allowed-tools:
-  # Linear — publish the map, its tickets, relations, and resolution comments
-  - mcp__linear-server__list_issues
-  - mcp__linear-server__get_issue
-  - mcp__linear-server__list_issue_labels
-  - mcp__linear-server__list_issue_statuses
-  - mcp__linear-server__list_projects
-  - mcp__linear-server__save_issue
-  - mcp__linear-server__save_comment
-  # Obsidian — read source context if the idea starts as a vault note
-  - mcp__obsidian-mcp__search_notes
-  - mcp__obsidian-mcp__read_multiple_notes
-  # ndr atoms + codebase exploration
-  - Read
-  - Grep
-  - Glob
-  - Bash(ndr *)
-  # Compose with craft:grill, craft:domain-modeling, craft:prototype, ndr, linear
-  - Skill
-  - Agent
-upstream:
-  repo: mattpocock/skills
-  path: skills/engineering/wayfinder
-  reviewed_sha: 321658273cb1
-  reviewed: 2026-08-29
-  status: reviewed
 ---
 
-# wayfinder
+# chart
 
 ## Overview
 
-A loose idea has arrived that is too big for one agent session and still wrapped in fog: the way from here to the **destination** is not visible yet. Wayfinding is about finding that way, not charging at the destination. This skill charts the way as a **shared map** in Linear, then works its **decision tickets** — questions whose resolution is a decision, not slices of a build to execute — one at a time until the route is clear.
+A loose idea has arrived that is too big for one agent session and still wrapped in fog: the way from here to the **destination** is not visible yet. Charting is about finding that way, not charging at the destination. This skill charts the way as a **shared map** in Linear, then works its **decision tickets** — questions whose resolution is a decision, not slices of a build to execute — one at a time until the route is clear.
 
 The destination varies per effort, and naming it is the first act of charting: it shapes every ticket. It might be a spec to hand off, a decision to lock before planning starts, or a change made in place like a data-structure migration. The map is domain-agnostic — engineering work, vault restructuring, whatever fits the shape.
 
 ## Where this sits (the handoff chain)
 
 ```
-wayfinder  →  pm:breakdown  →  spec-flow / clearance
- charts        slices              implements
+pm:chart  →  pm:breakdown  →  spec-flow / clearance
+ charts       slices              implements
 ```
 
-- **`pm:wayfinder` charts a goal you cannot yet see.** Its tickets are *questions*. It produces decisions, not deliverables. It is done when nothing is left to decide.
+- **`pm:chart` charts a goal you cannot yet see.** Its tickets are *questions*. It produces decisions, not deliverables. It is done when nothing is left to decide.
 - **`pm:breakdown` slices a goal you can already see.** Its tickets are *vertical slices of a build* — tracer bullets through every layer. It assumes the route is known.
 - **`spec-flow` / `clearance` implement a slice.**
 
@@ -67,7 +40,7 @@ The reverse direction is also live: when the map's last ticket closes, the desti
 
 ## Plan, don't do
 
-Wayfinder is **planning** by default: each ticket resolves a decision, and the map is done when the way is clear, with nothing left to decide before someone goes and does the thing. The pull to just do the work is usually the signal you have reached the edge of the map and it is time to hand off. An effort can override this in its `## Notes`, carrying execution into the map itself, but absent that, produce decisions, not deliverables.
+Charting is **planning** by default: each ticket resolves a decision, and the map is done when the way is clear, with nothing left to decide before someone goes and does the thing. The pull to just do the work is usually the signal you have reached the edge of the map and it is time to hand off. An effort can override this in its `## Notes`, carrying execution into the map itself, but absent that, produce decisions, not deliverables.
 
 ## Refer by name
 
@@ -78,7 +51,7 @@ Every map and ticket is a Linear issue, so it has a **name**: its title. In ever
 The map is a **single Linear issue**, and it is the canonical artifact.
 
 - **Shape: the map is the parent.** A map clears `references/layer-policy.md`'s earn-it bar by construction — it holds a design substrate, it generates cross-ticket discussion, and it fans out past five tickets. Declare that the tickets hang off the map; **how** that link is expressed is the `linear` skill's call against the layer policy, not this skill's. Do not name a Linear relation type here.
-- **Identity: the `wayfinder:map` marker label.** Give the map the `wayfinder:map` marker, plus Type `Decision` and the surface its destination touches — the marker is a third, ungrouped dimension additive to that pair (`references/issue-shape.md`), so maps are found by query rather than by title search. Still title it `Map: <destination noun-phrase>`: the prefix keeps a map legible in a flat list where the label is not rendered.
+- **Identity: the `chart:map` marker label.** Give the map the `chart:map` marker, plus Type `Decision` and the surface its destination touches — the marker is a third, ungrouped dimension additive to that pair (`references/issue-shape.md`), so maps are found by query rather than by title search. Still title it `Map: <destination noun-phrase>`: the prefix keeps a map legible in a flat list where the label is not rendered.
 - **The map is an index, not a store.** It lists the decisions made and points at the tickets that hold their detail. A decision lives in exactly one place — its ticket, and its ndr atom — so the map never restates it, only gists it and links.
 
 ### The map body
@@ -127,7 +100,7 @@ Each ticket is a **question**, sized to one fresh agent session. Body per `refer
 
 Ticket mechanics:
 
-- **Labels:** one surface + one type, per the `linear` skill. Type comes from the ticket's mode (next section). Map *tickets* take no marker — `wayfinder:map` belongs to the map itself, not to the tickets hanging off it — and the mode is recorded in the body, not in the label set.
+- **Labels:** one surface + one type, per the `linear` skill. Type comes from the ticket's mode (next section). Map *tickets* take no marker — `chart:map` belongs to the map itself, not to the tickets hanging off it — and the mode is recorded in the body, not in the label set.
 - **Claiming:** a session claims a ticket by **assigning it to the driver first**, before any work, so a concurrent session skips it. That assignee *is* the claim; an open unassigned ticket is unclaimed. (This is the `linear` skill's accept ritual, applied at map scale.)
 - **Blocking:** use Linear's **native** blocks / blocked-by relation. This is essential, not cosmetic: it renders the frontier visually in Linear's own UI, so the human sees what is takeable without opening the map. A ticket is **unblocked** when every ticket blocking it is closed; the **frontier** is the open, unblocked, unclaimed tickets — the edge of the known.
 - **The answer is not in the body.** It is recorded on resolution (see *Work through the map*). Assets produced while resolving are linked from the ticket, not pasted into it.
