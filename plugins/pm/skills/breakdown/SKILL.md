@@ -64,7 +64,7 @@ When the source is a spec-flow contract, breakdown grows it into a **nested cont
 - **Source (optional argument):** A `TEAM-N` ticket (parent), vault note path, `ndr:<atom-id>`, or file path. Falls back to conversation context.
 - **Linear team:** `TEAM` — substitute your team key.
 - **Issue shape spec:** `../../references/issue-shape.md` — body template each child ticket conforms to.
-- **Layer policy:** `../../references/layer-policy.md` — decides milestone assignment for each child ticket. Defaults to an existing milestone; only proposes a new milestone if the slice is a genuinely new capability with a "done as a unit" moment. Subissue nesting and epic parents are off by default per this policy.
+- **Layer policy:** `../../references/layer-policy.md` — decides milestone assignment for each child ticket. Defaults to an existing milestone; only proposes a new milestone if the slice is a genuinely new capability with a "done as a unit" moment. Subissue nesting and epic parents are off by default per this policy, and this skill does not override it: parent *linking* is declared here, parent *shape* is resolved by `linear` against the policy.
 - **ndr atoms root:** `~/Loose Ends/Decisions/` — grounded via `ndr:ground` before slicing. Skip without the external `ndr` plugin.
 - **Codebase root:** the current working repo — for optional exploration when slices touch tracked areas.
 
@@ -114,7 +114,7 @@ When the source is a spec-flow contract, breakdown grows it into a **nested cont
 
    Iterate until the user approves the breakdown.
 
-6. **Confirm parent linking.** If the source was a `TEAM-N` ticket, each child will get a Linear `parent` relation pointing at it. Confirm the parent ID once before publishing. If the source was vault/ndr/conversation, no Linear parent — each child's `## Context` describes the goal directly (link to vault note or ndr atom if applicable).
+6. **Confirm parent linking.** If the source was a `TEAM-N` ticket, every child is linked to it as its parent. State the intent, not the mechanism: **how** that link is expressed in the tracker — a native subissue relation or a sibling-parent link — is the `linear` skill's call, made against `references/layer-policy.md`. Confirm the parent ID once before publishing. If the source was vault/ndr/conversation, there is no parent to link — each child's `## Context` describes the goal directly (link to vault note or ndr atom if applicable).
 
 7. **Publish in dependency order via `linear`.** Save blockers first so children can reference real `TEAM-N` IDs in the Linear blocks/blocked-by relation. For each slice:
 
@@ -123,7 +123,7 @@ When the source is a spec-flow contract, breakdown grows it into a **nested cont
    - Set labels: one Surface, one Type. Defaults: `Feature` type unless decision-shaped (`Decision`). Surface comes from the slice's primary layer.
    - Set priority: `medium` (Backlog default per the `linear` skill). Bump to `high` only when the user explicitly committed to the slice this cycle.
    - Set project: the active phase project (lookup in Linear, take the non-completed one).
-   - Set parent relation if applicable.
+   - Declare the parent ticket if applicable, and let `linear` wire the relation.
    - **Assignee:** Omit `assignee` by default — breakdown produces independently-grabbable slices that either person can pull from the shared team queue. Set `assignee` only for slices the user explicitly pre-assigned during the quiz. (See the `linear` skill's collaboration conventions for the accept ritual.)
    - After save, capture the returned `TEAM-N` for downstream blocks/blocked-by references.
 
