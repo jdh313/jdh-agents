@@ -66,7 +66,9 @@ Avoid:
 
 ### Labels
 
-Exactly **one surface + one type** per ticket.
+Exactly **one surface + one type** per ticket, plus **at most one marker** (below).
+
+**Marker labels** are a third, deliberately thin dimension: ungrouped, opt-in, and used only where a skill needs its artifacts queryable and neither surface nor type can carry the distinction. Today the only marker is `wayfinder:map`, which makes maps findable by query instead of by title search. A marker never replaces a surface or type — a marked ticket still carries both. Adding a marker is a workspace schema change: propose it, don't mint one mid-task.
 
 | Dimension | Values | Casing |
 |---|---|---|
@@ -106,6 +108,18 @@ Labels are not static:
 
 - A `Decision` may convert to `Spike` on pickup, when making the call turns out to need evidence first (TEAM-124 is the live example of this pressure).
 - A `Spike`'s finding often feeds a `Decision` — wire a blocks relation (Spike blocks Decision).
+
+### Parent linking
+
+A caller (`pm:breakdown`, `pm:wayfinder`) declares **that** a ticket has a parent; this skill decides **how** the link is expressed. Callers must not name a Linear relation type — that is a tracker mechanism, and it lives here.
+
+Resolve the shape against `pm`'s `references/layer-policy.md`:
+
+- **Default: sibling parent.** A regular ticket linked to its children via `relatedTo` or `blocks`. Issues stay flat siblings under their milestone.
+- **Native subissue nesting (`parentId`) is deferred**, not merely discouraged — the policy holds the question open. Do not reach for it because a caller's tree happens to look nested; a parent that earns its keep still takes the sibling shape.
+- **Epic / parent tickets are earn-it**, per the policy's three-part test. A caller declaring a parent is not itself evidence the test passed.
+
+If a caller's intent cannot be expressed under the current policy, say so and stop rather than silently promoting to `parentId` — the deferral is a decision someone made, and quietly reversing it in a save call is how a policy dies.
 
 ### Status flow
 
