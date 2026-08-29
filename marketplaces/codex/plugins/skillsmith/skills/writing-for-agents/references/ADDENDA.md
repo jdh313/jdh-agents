@@ -1,10 +1,10 @@
 # Addenda — authoring in jdh-agents
 
-Repo-specific conventions that [`SKILL.md`](SKILL.md)'s generic reference doesn't cover. Reach here when authoring or editing a skill **in this marketplace**; the vocabulary and principles in SKILL.md still govern — this only adds the local mechanics.
+Repo-specific conventions that [`SKILL.md`](../SKILL.md)'s generic reference doesn't cover. Reach here when authoring or editing a skill **in this marketplace**; the vocabulary and principles in SKILL.md still govern — this only adds the local mechanics.
 
 ## Layout & discovery
 
-- A skill is a directory `plugins/<plugin>/skills/<skill-name>/` with a `SKILL.md`. Disclosed **reference** (glossaries, format files, addenda) sits beside it as sibling `.md` files.
+- A skill is a directory `plugins/<plugin>/skills/<skill-name>/` with a `SKILL.md`. Disclosed **reference** (glossaries, format files, addenda) lives in its `references/` subdirectory, not beside `SKILL.md` — the compiler publishes `SKILL.md` plus the recognized resource subdirs (`references/`, `scripts/`, `assets/`); a sibling `.md` at the skill root is not copied.
 - **Auto-discovery** finds `skills/`, `agents/`, `commands/`, `hooks/hooks.json` — do **not** list explicit component paths in `plugin.json` (e.g. `"skills": "./skills/"`), and never add a `category` field. Both break installation.
 - Paths in a skill are relative to the skill directory, not `.claude-plugin/`.
 
