@@ -115,8 +115,8 @@
     },
     {
       "name": "craft",
-      "version": "0.14.0",
-      "description": "Software craftsmanship discipline skills: grill (the interview primitive — walk a design tree one question at a time, facts looked up by subagent rather than asked, no acting until shared understanding), grill-with-docs (that loop applied to vocabulary, against per-repo CONTEXT.md glossaries), diagnose, prototype, tdd, improve-codebase-architecture, grok (stateful multi-session codebase comprehension with supersession-aware understanding records), zoom-out (adapted in part from mattpocock/skills, MIT), infra-review (architecture/security review of Terraform+Atlantis PRs), quiz-me (opt-in active-recall comprehension check after a code explanation), interrogate-model (holistic representability review of a domain model — the legitimate scenarios and personas it cannot express), design-by-stories (design an artifact's shape — schema, template, data model, config — by modeling its actors and user stories first, then deriving the shape from the stories), and lucid-architecture-diagram (drive AWS cloud architecture diagrams in Lucid, including the two silent-failure modes of its API). derive-conventions (derive a repo's unwritten house style from its own code, adjudicate each inferred rule with the human, and write the approved set to CONVENTIONS.md so the review agents stop re-deriving it). Three read-only post-edit review agents ride along, each deriving the host repository's conventions rather than importing preferences: house-style-reviewer (a diff against the repo's own unlinted conventions, skipping whatever its linters already enforce), comment-reviewer (docstrings against the code they describe, including comments left unchanged while the code beneath them moved), and copy-reviewer (user-facing strings against the voice the product already uses). Composes with spec-flow and ndr plugins.",
+      "version": "0.15.0",
+      "description": "Software craftsmanship discipline skills: grill (the interview primitive — walk a design tree one question at a time, facts looked up by subagent rather than asked, no acting until shared understanding), grill-with-docs (that loop applied to vocabulary, against per-repo CONTEXT.md glossaries), diagnose, prototype, tdd, improve-codebase-architecture, grok (stateful multi-session codebase comprehension with supersession-aware understanding records), zoom-out (adapted in part from mattpocock/skills, MIT), infra-review (architecture/security review of Terraform+Atlantis PRs), quiz-me (opt-in active-recall comprehension check after a code explanation), interrogate-model (holistic representability review of a domain model — the legitimate scenarios and personas it cannot express), design-by-stories (design an artifact's shape — schema, template, data model, config — by modeling its actors and user stories first, then deriving the shape from the stories), and lucid-architecture-diagram (drive AWS cloud architecture diagrams in Lucid, including the two silent-failure modes of its API). derive-conventions (derive a repo's unwritten house style from its own code, adjudicate each inferred rule with the human, and write the approved set to CONVENTIONS.md so the review agents stop re-deriving it). wizard (author an interactive bash wizard that walks a human through the steps only they can perform — third-party dashboards, credentials, CI secrets, one-off cutovers — from a hardened template), resolve-conflicts (recover each side's intent from commits, PRs, tickets and NDR heads before resolving a merge, rebase, or jj conflict; detects git vs jj and follows that VCS's own mechanics), and wait-what (user-invoked: re-pitch a message that did not land, in Simplified Technical English using the repo's own vocabulary) — all three adapted from mattpocock/skills, MIT. Three read-only post-edit review agents ride along, each deriving the host repository's conventions rather than importing preferences: house-style-reviewer (a diff against the repo's own unlinted conventions, skipping whatever its linters already enforce), comment-reviewer (docstrings against the code they describe, including comments left unchanged while the code beneath them moved), and copy-reviewer (user-facing strings against the voice the product already uses). Composes with spec-flow and ndr plugins.",
       "author": {
         "name": "Jacob Hoehler"
       },
@@ -148,7 +148,12 @@
         "diagram",
         "architecture",
         "aws",
-        "cloud"
+        "cloud",
+        "wizard",
+        "setup",
+        "merge-conflicts",
+        "git",
+        "jj"
       ],
       "source": "./marketplaces/claude/plugins/craft"
     },
@@ -292,7 +297,7 @@
     },
     {
       "name": "linear",
-      "version": "0.4.2",
+      "version": "0.5.0",
       "description": "Linear workflow conventions for a small two-person team. Owns ticket creation defaults (including assignee), status flow semantics, label set, title shape, collaboration conventions, and MCP call patterns. Composes with spec-flow (which uses Linear as a contract host but defers to this plugin for the conventions). Includes a doctor skill for workspace setup validation.",
       "author": {
         "name": "Jacob Hoehler"
@@ -311,8 +316,8 @@
     },
     {
       "name": "pm",
-      "version": "0.8.0",
-      "description": "PM helpers for team Linear workflows. Skills for the weekly grooming loop (per-person WIP), plan-to-tickets breakdown (assignee-aware), and end-of-cycle retro notes (attribution + Linear-first output). Composes with the linear plugin; ndr and librarian integrations are optional externals.",
+      "version": "0.9.0",
+      "description": "PM helpers for team Linear workflows. Skills for the weekly grooming loop (per-person WIP), plan-to-tickets breakdown (assignee-aware), wayfinder charting of efforts too large to plan in one session, questionnaires that pull a blocking decision out of someone else's head, and end-of-cycle retro notes (attribution + Linear-first output). Composes with the linear plugin; ndr and librarian integrations are optional externals.",
       "author": {
         "name": "Jacob Hoehler"
       },
@@ -323,6 +328,8 @@
         "linear",
         "grooming",
         "breakdown",
+        "wayfinder",
+        "questionnaire",
         "cycle",
         "retro"
       ],
@@ -350,7 +357,7 @@
     },
     {
       "name": "skillsmith",
-      "version": "2.0.0",
+      "version": "2.1.0",
       "description": "Craft and upkeep of skills. Authoring reference (the vocabulary and principles that make any agent-consumed document predictable — a skill, an AGENTS.md/CLAUDE.md, a rules file, a doc reached by a pointer) plus provenance tracking for borrowed work: compares an adapted skill to its pinned upstream, flags behavioral drift and fabricated attributions, and refreshes the reviewed commit SHA. Houses writing-for-agents and upstream-review.",
       "author": {
         "name": "Jacob Hoehler"
