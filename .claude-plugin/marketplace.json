@@ -416,7 +416,7 @@
     },
     {
       "name": "teardown",
-      "version": "0.1.0",
+      "version": "0.1.1",
       "description": "Study foreign open-source projects to extract transferable architectural lessons into the Obsidian vault. `/teardown` runs a study session over a required local clone, dispatching a read-only `surveyor` agent per project through two ordered phases (current structure, then history/rationale) and writing findings into one of two note types: a single-concern QUESTION note that accretes comparison rows across projects over time, or a whole-system PROJECT note anchored on a mental model. Both carry `projects_surveyed:` frontmatter pinning the repo, commit SHA, and date read — the index and the read log in one place. `/teardown-recheck` audits that pin against the corpus's current HEAD, diffing cited files since the recorded SHA and verifying that cited line numbers still point at what the note claims, so drift is caught instead of trusted. A reference instrument for lookup, not a learning exercise. Composes with librarian (graduation, refresh) and ndr (decisions about the user's own projects); distinct from craft:grok, which studies repos the user owns and intends to change.",
       "author": {
         "name": "Jacob Hoehler"
