@@ -1,11 +1,10 @@
 ---
 name: domain-modeling
 description: >-
-  Build and sharpen a project's domain model. Use when the user wants to pin
-  down domain terminology or a ubiquitous language, capture an architectural
-  decision that surfaces while modelling, or when another craft skill needs to
-  maintain the domain model. Adapted from mattpocock/skills (MIT, © 2026 Matt
-  Pocock).
+  Build and sharpen a project's domain model. Use when discussing codebase
+  terminology, writing or editing a CONTEXT.md, or recording or editing an NDR
+  decision that surfaces while modelling. Adapted from mattpocock/skills (MIT, ©
+  2026 Matt Pocock).
 ---
 
 Apply the skill-composition mapping in [`../../RUNTIME.md`](../../RUNTIME.md).
