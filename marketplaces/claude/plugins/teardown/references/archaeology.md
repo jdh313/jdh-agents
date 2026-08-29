@@ -72,6 +72,21 @@ budget there instead of re-checking for a decisions directory every time a
 search comes up empty. A project with no ADR directory isn't a project with
 no rationale; it's a project whose rationale lives in a different place.
 
+**Check for a sibling architecture repo before concluding there are no ADRs.**
+A large project often splits governance out of the code repository, so the
+find above returns nothing while a full ADR corpus exists one repo over. Home
+Assistant is the worked example: `home-assistant/core` has no ADR directory,
+and a survey that stopped there reported "no ADR corpus, all rationale lives
+in commit messages" — wrong. The ADRs live in `home-assistant/architecture`,
+and they carried better rationale than pickaxe would have found, including
+ADR 0010's reason for retiring YAML config for device integrations, which is
+partly a contributor-retention argument no commit message would ever state.
+
+So when the in-repo search is empty, spend one `WebSearch` on
+`<owner>/architecture`, `<owner>/rfcs`, `<owner>/decisions`, or
+`<project> ADR` before falling back. The cost is one search; the miss costs
+you the best-cited section of the teardown.
+
 ## Beware false-positive filename history
 
 A file's full history can span unrelated eras. A path like `manifest.json`

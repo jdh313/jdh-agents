@@ -67,6 +67,14 @@ If both return candidates, or neither returns anything and you suspect a near-mi
 
 Record the **exact SHA read** (`git rev-parse --short HEAD`) for every project. It goes into `projects_surveyed:` and it is what `/teardown-recheck` later re-verifies against.
 
+**If `git` is refused, it is a guard hook, not a broken repo — adapt, don't work around.** A `destructive-vcs-guard` style hook keys on the *session's* working directory, so once the cwd is any jj repo — this marketplace, or the vault itself — it rejects status-shaped `git` commands aimed anywhere, including a plain git clone in `~/upstream`. It reports "This is a jj repo," which is false about the clone and true about the cwd. `allowed-tools` pre-approves a call; it cannot override a hook that refuses one, so the `Bash(git status *)` entry above helps only when no such hook is active.
+
+When that happens:
+
+- Substitute what still runs. `git -C <clone> rev-parse --short HEAD` and `git -C <clone> log` have gone through; `status`, `diff`, and `ls-files -m` are the shapes that get refused. Get the SHA, skip the dirtiness check, and say in the note that you skipped it.
+- **Never obfuscate a command to get past the hook** — no Python `subprocess` wrapper, no aliasing, no string-splitting. A surveyor that routes around a safety hook is a worse failure than a teardown missing its archaeology.
+- Tell the user, once, that local history digging is degraded and that the GitHub path (issues, PRs, the sibling architecture repo) is carrying that weight instead. It genuinely can — see `references/archaeology.md` — but the note's `## Unverified` section must say so.
+
 **The web is in scope, narrowly.** A clone does not contain the argument that produced the code. Issues, pull requests, discussions, releases, and the project's own documentation are legitimate sources of rationale and are often the only place a maintainer says *why*. Keep to that whitelist. Blog posts, aggregator threads, and third-party explainers are out — they carry no more authority than your own inference and cost more to check.
 
 ## Dispatch surveyors
@@ -112,7 +120,11 @@ The cost is asymmetric by design: the eleventh project is more expensive than th
 
 Templates, exact frontmatter (including the `projects_surveyed:` shape), section skeletons, a worked comparison-table example, and the evidence standards are in [`../../references/note-shapes.md`](../../references/note-shapes.md). Load it before the first write of a session.
 
-Honor the vault's own conventions (`~/Loose Ends/.claude/CLAUDE.md`): `owner: ai`, `type: wiki`, no H1 title, `date created` / `date_modified` left to the Linter plugin, kebab-case hierarchical tags, wikilinks on first mention of anything with its own page. Create and edit with `obsidian-cli` (`create`, `append`, `property:set`); use `mcp__obsidian-mcp__patch_note` for surgical in-body replacement, and hand a restructure to `librarian:note-editor`.
+Honor the vault's own conventions (`~/Loose Ends/.claude/CLAUDE.md`): `owner: ai`, `type: wiki`, no H1 title, `date created` / `date_modified` left to the Linter plugin, kebab-case hierarchical tags, wikilinks on first mention of anything with its own page.
+
+**Write a new page as a file; use the tools for everything after.** `obsidian-cli create` takes its body through `content=`, which is an escaped single-argument string (`\n` for newlines) — workable for a stub, unusable for a teardown, whose whole substance is pipe tables, code spans, and quoted rationale. Write the file directly to `~/Loose Ends/Reference/Developer/<Title>.md`; Obsidian watches the folder, so the result is identical and the escaping risk disappears. Two related traps: `obsidian-cli create --help` does not print help, it *creates a note named "Untitled"* (the CLI takes `key=value` pairs, not flags) — check `obsidian-cli --help` at the top level instead; and `create` silently does nothing useful if the file exists, so confirm the path is new.
+
+For everything after the first write, use the tools: `obsidian-cli append` and `property:set` for accretion (a new `projects_surveyed:` entry, a new table row), `mcp__obsidian-mcp__patch_note` for surgical in-body replacement when a claim is rewritten, and `librarian:note-editor` for a restructure.
 
 Close by giving the user the note's Obsidian URI, plus one line naming what changed in the derived claims — that is what they came for.
 

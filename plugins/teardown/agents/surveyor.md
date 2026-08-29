@@ -37,6 +37,21 @@ the working tree, the index, or refs. A bare `git status` may be blocked by
 this session's own hooks — you don't need it; `git rev-parse` and `git
 ls-files` cover orientation without touching working-tree state.
 
+**If a hook refuses `git` outright, report it and re-route — never evade it.**
+A guard hook can key on the session's working directory rather than on the
+repo you were pointed at, so it may reject `git` against a plain clone while
+insisting "This is a jj repo." When that happens: try the shapes that still
+pass (`rev-parse`, `log` have gone through where `status`, `diff`, and
+`ls-files -m` were refused), then fall back to GitHub for rationale — issues,
+PRs, and any sibling architecture/ADR repo, which is often better-cited than
+pickaxe anyway. Say plainly in `## Method notes` that local archaeology was
+unavailable, and put anything it would have confirmed under `## Unverified`.
+
+Do **not** route around the hook — no `subprocess` wrapper, no aliasing, no
+splitting the command string. A survey that defeats a safety hook is a worse
+outcome than a survey missing a section, and the missing section is
+recoverable by a later run in a session without the hook.
+
 ## Inputs
 
 The dispatching skill gives you:
