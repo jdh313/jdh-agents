@@ -1,8 +1,10 @@
-# Glossary — Building Great Skills
+# Glossary — Writing for Agents
 
-The domain model for what makes a skill great. A skill exists to wrangle determinism out of a stochastic system; the root virtue is **Predictability**, and every term below is a lever on it. This is the disclosed reference for [`writing-great-skills`](SKILL.md).
+The domain model for what makes any agent-consumed document predictable — a skill, an `AGENTS.md` or `CLAUDE.md`, a rules file, a doc reached by a pointer. Such a document exists to wrangle determinism out of a stochastic system; the root virtue is **Predictability**, and every term below is a lever on it. This is the disclosed reference for [`writing-for-agents`](../SKILL.md); the **Invocation** axis below is skill-specific mechanics — see also [`SKILL-MECHANICS.md`](SKILL-MECHANICS.md).
 
-The terms are grouped by axis: **Invocation** (how a skill is reached), **Information Hierarchy** (how its content is arranged), **Steering** (how the agent's runtime behaviour is shaped), and **Pruning** (how it is kept lean). Each **failure mode** lives beside the lever that cures it, tagged _failure mode_.
+The terms are grouped by axis: **Invocation** (how a skill is reached), **Information Hierarchy** (how a document's content is arranged), **Steering** (how the agent's runtime behaviour is shaped), and **Pruning** (how a document is kept lean). Each **failure mode** lives beside the lever that cures it, tagged _failure mode_.
+
+_Local enrichment: each entry below carries an `_Avoid_:` line — near-synonyms that read as this term but blur its distinction. This glossary predates upstream's restructure and keeps these lists as house convention; upstream's current version does not carry them._
 
 **Bold terms** in any definition are themselves defined in this glossary; find them by their heading.
 
@@ -18,7 +20,7 @@ How a skill is reached — and the two loads you pay for the choice.
 
 ### Model-Invoked
 
-A skill that keeps its **description** field, so the agent can see it and fire it autonomously — and the human can still type its name, so model-invocation always _includes_ user reach. There is no model-only state: a description only ever _adds_ agent discovery, never removes the human's. Pays a permanent **context load** on every turn in exchange for that discoverability. Reachable by other skills, because the description that makes it agent-discoverable makes it invocable. A model-invoked skill whose content is all **reference** is also one home for shared reference: another skill can invoke it, so reference needed by several skills lives in one place. Pick model-invocation only when the agent must reach the skill on its own; if it never fires except by hand, drop the description and pay no context load.
+A skill that keeps its **description** field, so the agent can see it and fire it autonomously — and the human can still type its name, so model-invocation always _includes_ user reach. There is no model-only state: a description only ever _adds_ agent discovery, never removes the human's. Pays a permanent **context load** on every turn in exchange for that discoverability. Reachable by other skills, because the description that makes it agent-discoverable makes it invocable. A model-invoked skill whose content is all **reference** is also one home for shared reference: another skill can invoke it, so reference needed by several skills lives in one place. Pick model-invocation only when the agent must reach the skill on its own — a distinct **leading word** you actually use in your prompts is the signal a split into its own model-invoked skill is worth the added **context load** — or when another skill must reach it; if it never fires except by hand, drop the description and pay no context load.
 
 _Avoid_: ability, tool, capability
 
@@ -58,12 +60,6 @@ A **user-invoked** skill whose job is to point at your other user-invoked skills
 
 _Avoid_: dispatcher, menu, registry, index, router procedure
 
-### Granularity
-
-How finely you divide skills. Finer division spends one of the two loads: more **model-invoked** skills spend **context load** (more descriptions crowding the window and competing for attention); more **user-invoked** skills spend **cognitive load** (more for the human to remember and reach for). Two cuts guide the division. By **invocation**, split off a model-invoked skill where you have a distinct **leading word** to trigger it — a trigger word you actually use in your prompts. By **sequence**, split a run of **steps** where a step's **post-completion steps** need hiding, since isolating it in its own context clears what follows. Beware the reverse: merging sequences exposes each step's post-completion steps to what follows, inviting premature completion.
-
-_Avoid_: chunking, modularity
-
 ## Information Hierarchy
 
 How a skill's content is arranged, and how far down the ladder each piece sits.
@@ -72,9 +68,9 @@ How a skill's content is arranged, and how far down the ladder each piece sits.
 
 A skill's content ranked by how immediately the agent needs it — a single ladder, produced by two cuts: in-file or behind a pointer, and step or reference. The rungs:
 
-- **Steps** — in-file, primary
-- **Reference**, in-file — secondary
-- **Reference**, disclosed — behind a **context pointer**
+- **In-File Step** — primary
+- **In-File Reference** — secondary
+- **Disclosed Reference** — behind a **context pointer**
 
 A skill with no **steps** uses just the bottom two rungs — often a legitimately flat peer-set (e.g. every rule of a review on one rung), which is a fine arrangement, not a smell. The hierarchy is independent of invocation: a skill can be model- or user-invoked whether it is all steps, all reference, or both. When a skill has steps, in-file reference that should be disclosed buries them and turns attending to them into a coin-flip — a variance lever, not just a legibility one. Keep the top of the ladder legible; push down it whatever you can.
 
@@ -92,9 +88,15 @@ Material the agent refers to on demand — definitions, facts, parameters, examp
 
 _Avoid_: supporting material, docs, background
 
+### Disclosed Reference
+
+**Reference** pushed out of the main file and reached only through a **context pointer** — the bottom rung of the **information hierarchy**, loaded only when the pointer fires. Spans a sibling file in the same skill through fully **external reference** that lives anywhere and any document can point at.
+
+_Avoid_: linked reference, external doc, appendix
+
 ### External Reference
 
-**Reference** that lives outside the skill system — a plain file, no **description**, no **steps**, not invocable — that any skill can point at. The home for shared reference that needn't fire on its own, and the only shared home two **user-invoked** skills can use, since neither has a description and so neither can fire the other.
+A subtype of **disclosed reference** that lives outside the skill system entirely — a plain file, no **description**, no **steps**, not invocable — that any skill (or non-skill document) can point at. The home for shared reference that needn't fire on its own, and the only shared home two **user-invoked** skills can use, since neither has a description and so neither can fire the other.
 
 _Avoid_: doc, resource, knowledge base
 
@@ -179,6 +181,12 @@ _Avoid_: home, canonical location
 _Failure mode._ The same meaning given more than one **single source of truth**. It costs maintenance (change one place, you must change the others), costs tokens, and inflates prominence — repeating a meaning weights it on the ladder past its real rank. The accidental inverse of a **leading word**, which raises attention on purpose by repeating a token, never the meaning.
 
 _Avoid_: repetition, redundancy
+
+### Cache
+
+Material that restates a fact the **environment** already carries as its own **single source of truth** — a `package.json` script, a config file, a directory layout, `--help` output — copied into a document instead of left for the agent to look up. A cache earns its load only when the lookup itself is expensive; a one-file, one-command lookup left to the environment cannot go stale, where the same fact copied into a document can. Cache the unwritten convention, the reason behind a choice, the gotcha no config confesses — not what the environment already answers on request.
+
+_Avoid_: restated fact, copied config, mirrored lookup
 
 ### Relevance
 
