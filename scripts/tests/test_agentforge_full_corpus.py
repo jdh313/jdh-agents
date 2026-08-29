@@ -38,6 +38,7 @@ CLAUDE_PACKAGE_IDS = frozenset(
         "spec-flow",
         "teach",
         "teardown",
+        "workspaces",
     }
 )
 # Codex enrolls every package except two, and both exclusions are reviewed
