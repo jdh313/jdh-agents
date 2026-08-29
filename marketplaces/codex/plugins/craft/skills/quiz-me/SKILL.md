@@ -1,12 +1,9 @@
 ---
 name: quiz-me
-description: >
-  Opt-in active-recall comprehension check on code or a concept that was just
-  explained (or one the user names). This skill should be used when the user
-  says "/quiz-me", "quiz me on this", "check my understanding", "test me on X",
-  or asks to verify a mental model after an explanation. Predict-then-verify
-  style, one question at a time, pitched at model-level depth (the why + mental
-  model), not syntax recall. Always user-pulled — never invoke automatically.
+description: >-
+  Opt-in active-recall comprehension check on code or a concept just explained.
+  Predict-then-verify, one question at a time, pitched at the why and the mental
+  model rather than syntax recall.
 ---
 
 Apply the user-input mapping in [`../../RUNTIME.md`](../../RUNTIME.md).

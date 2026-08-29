@@ -1,5 +1,0 @@
-interface:
-  display_name: Grok
-  short_description: Build durable codebase understanding
-policy:
-  allow_implicit_invocation: false
