@@ -29,11 +29,11 @@ Derived skills, by plugin:
 | `craft` | `zoom-out` | `skills/engineering/zoom-out` | `7afa86d3a5dd` |
 | `pm` | `breakdown` | `skills/engineering/to-tickets` | `321658273cb1` |
 | `pm` | `to-questionnaire` | `skills/productivity/to-questionnaire` | `321658273cb1` |
-| `pm` | `wayfinder` | `skills/engineering/wayfinder` | `321658273cb1` |
+| `pm` | `chart` (renamed from upstream's `wayfinder`) | `skills/engineering/wayfinder` | `321658273cb1` |
 | `skillsmith` | `writing-for-agents` | `skills/productivity/writing-for-agents` | `321658273cb1` |
 | `teach` | `teach` | `skills/productivity/teach` | `321658273cb1` |
 
-Additionally, and separately from the `pm:wayfinder` port above, the
+Additionally, and separately from the `pm:chart` port above, the
 `Not yet specified` section of
 `plugins/spec-flow/references/contract-template.md` adapts the "fog of war"
 model from that repository's `wayfinder` skill -- the idea only, predating

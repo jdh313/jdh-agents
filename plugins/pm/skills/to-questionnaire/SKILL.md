@@ -9,7 +9,7 @@ description: >-
   questions", "I'm blocked on someone else's knowledge", or when a decision
   stalls because the facts live in another person's head. Interviews the user
   only about the send — who it goes to, what they need back — then writes
-  questions aimed at the gap. Pairs with `pm:wayfinder`, whose blocked tickets
+  questions aimed at the gap. Pairs with `pm:chart`, whose blocked tickets
   are the common source. Adapted from mattpocock/skills (MIT, © 2026 Matt
   Pocock).
 argument-hint: "[topic, or a TEAM-N ticket blocked on someone else's knowledge]"
@@ -97,7 +97,7 @@ The questionnaire exists to unblock a decision, so route what comes back rather 
 
 - **A decision the answers now settle** — dispatch `Skill(ndr:capture-decision)` so the call lands in the durable layer, not in a Markdown file nobody rereads.
 - **Work the answers reveal** — `Skill(spec-flow:capture)` for a single thing, `Skill(pm:breakdown)` if it is a goal with several slices in it.
-- **A `pm:wayfinder` ticket this unblocked** — post the answers as the resolution comment on that ticket and close it, per that skill's resolution step. The questionnaire file is the linked asset, not the resolution.
+- **A `pm:chart` ticket this unblocked** — post the answers as the resolution comment on that ticket and close it, per that skill's resolution step. The questionnaire file is the linked asset, not the resolution.
 - **Answers that raise new questions** — that is a normal outcome. A second questionnaire to the same person is cheaper than a guess.
 
 ## Rules
@@ -109,7 +109,7 @@ The questionnaire exists to unblock a decision, so route what comes back rather 
 
 ## Composes with
 
-- **`pm:wayfinder`** (this plugin) — its `Chore` tickets are the common source: manual work blocked on another person's knowledge is a questionnaire.
+- **`pm:chart`** (this plugin) — its `Chore` tickets are the common source: manual work blocked on another person's knowledge is a questionnaire.
 - **`pm:breakdown`** (this plugin) — for answers that turn out to be a whole goal rather than a single fact.
 - **`ndr:capture-decision`** (external ndr plugin) — captures the decision the answers unblock.
 - **`spec-flow:capture`** (spec-flow plugin) — files a single piece of revealed work without ceremony.
@@ -117,4 +117,4 @@ The questionnaire exists to unblock a decision, so route what comes back rather 
 
 ## See also
 
-- **`wayfinder`** skill in this plugin — the upstream half of the common flow.
+- **`chart`** skill in this plugin — the upstream half of the common flow.

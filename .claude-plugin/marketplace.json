@@ -297,7 +297,7 @@
     },
     {
       "name": "linear",
-      "version": "0.5.0",
+      "version": "0.5.1",
       "description": "Linear workflow conventions for a small two-person team. Owns ticket creation defaults (including assignee), status flow semantics, label set, title shape, collaboration conventions, and MCP call patterns. Composes with spec-flow (which uses Linear as a contract host but defers to this plugin for the conventions). Includes a doctor skill for workspace setup validation.",
       "author": {
         "name": "Jacob Hoehler"
@@ -316,8 +316,8 @@
     },
     {
       "name": "pm",
-      "version": "0.9.1",
-      "description": "PM helpers for team Linear workflows. Skills for the weekly grooming loop (per-person WIP), plan-to-tickets breakdown (assignee-aware), wayfinder charting of efforts too large to plan in one session, questionnaires that pull a blocking decision out of someone else's head, and end-of-cycle retro notes (attribution + Linear-first output). Composes with the linear plugin; ndr and librarian integrations are optional externals.",
+      "version": "0.10.0",
+      "description": "PM helpers for team Linear workflows. Skills for the weekly grooming loop (per-person WIP), plan-to-tickets breakdown (assignee-aware), chart-first mapping of efforts too large to plan in one session, questionnaires that pull a blocking decision out of someone else's head, and end-of-cycle retro notes (attribution + Linear-first output). Composes with the linear plugin; ndr and librarian integrations are optional externals.",
       "author": {
         "name": "Jacob Hoehler"
       },
@@ -328,7 +328,8 @@
         "linear",
         "grooming",
         "breakdown",
-        "wayfinder",
+        "chart",
+        "mapping",
         "questionnaire",
         "cycle",
         "retro"

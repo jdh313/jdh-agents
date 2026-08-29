@@ -13,7 +13,7 @@ On a solo or small-team project you act as your own project manager. The PM work
 
 ## Scope
 
-- **Owns:** Grooming bucket taxonomy, retro note structure, breakdown slicing rules, the wayfinder map shape and its charting/working loop, the discovery-questionnaire document shape, ticket-body template with done-when + optional `ndr:` refs.
+- **Owns:** Grooming bucket taxonomy, retro note structure, breakdown slicing rules, the chart map shape and its charting/working loop, the discovery-questionnaire document shape, ticket-body template with done-when + optional `ndr:` refs.
 - **Does NOT own:** Linear ticket creation conventions (defers to the `linear` plugin), decision atoms (defers to the external `ndr` plugin), vault writes (defers to the external `librarian` setup when present).
 - **Currently scoped to:** a single Linear team, written as `TEAM` throughout.
 
@@ -22,17 +22,17 @@ On a solo or small-team project you act as your own project manager. The PM work
 - **`groom`** — Weekly backlog grooming sweep. Scans active cycle + backlog, optionally cross-refs ndr atoms and vault session notes, outputs a bucketed punch list and archives it to the cycle's recurring grooming child issue. Forward-looking.
 - **`retro`** — End-of-cycle retro note. Pulls the just-closed cycle, classifies tickets (shipped / carried / canceled / added-mid-cycle), surfaces patterns across recent cycles, and writes a retro to a Linear document by default (shared visibility), with an optional personal vault copy. Backward-looking. Pairs with `groom` on the same weekly cadence.
 - **`breakdown`** — Decompose a goal / plan / spec into independently-grabbable Linear tickets using tracer-bullet vertical slices. Grounds against current ndr heads when the ndr plugin is present, publishes in dependency order with native Linear blocks/blocked-by relations, recommends a spec-flow contract for large slices. Parent-aware. Slices land in Backlog — cycle assignment is `groom`'s job.
-- **`wayfinder`** — Chart an effort too large to see the end of as a map ticket plus `Decision` / `Spike` / `Chore` question tickets in Linear, then resolve them one per session until the route is clear. Names the destination first, wires native blocks/blocked-by so the frontier renders in Linear's UI, and routes each resolution to an ndr atom. Charts *questions*; `breakdown` slices *work*.
-- **`to-questionnaire`** — Turn a decision you cannot answer alone into a Markdown questionnaire for one person to fill in async. Interviews you only about the send — who it goes to, what you need back — then writes questions aimed at the gap, and routes the answers back to a decision atom, a ticket, or the wayfinder ticket they unblocked.
+- **`chart`** — Chart an effort too large to see the end of as a map ticket plus `Decision` / `Spike` / `Chore` question tickets in Linear, then resolve them one per session until the route is clear. Names the destination first, wires native blocks/blocked-by so the frontier renders in Linear's UI, and routes each resolution to an ndr atom. Charts *questions*; `breakdown` slices *work*.
+- **`to-questionnaire`** — Turn a decision you cannot answer alone into a Markdown questionnaire for one person to fill in async. Interviews you only about the send — who it goes to, what you need back — then writes questions aimed at the gap, and routes the answers back to a decision atom, a ticket, or the `chart` ticket they unblocked.
 
 ### How they chain
 
 ```
-wayfinder  →  breakdown  →  spec-flow / clearance
+chart  →  breakdown  →  spec-flow / clearance
  charts        slices          implements
 ```
 
-`wayfinder` handles a goal whose shape is still fogged; `breakdown` handles one you can already name the parts of. The boundary test is whether you can list the work, or only the questions. `to-questionnaire` sits off to the side of both: it is what you reach for when the blocker is another person's knowledge.
+`chart` handles a goal whose shape is still fogged; `breakdown` handles one you can already name the parts of. The boundary test is whether you can list the work, or only the questions. `to-questionnaire` sits off to the side of both: it is what you reach for when the blocker is another person's knowledge.
 
 Planned for later versions:
 
@@ -46,9 +46,9 @@ Planned for later versions:
 
 ## Composes with
 
-- **[linear](../linear/README.md)** — `pm` skills propose; `linear` applies any approved transitions. `linear` also owns the Spike-vs-Decision boundary test that `wayfinder` uses to type its map tickets.
-- **craft** (`../craft/`) — `pm:wayfinder` resolves its tickets through `craft:grill`, `craft:domain-modeling`, `craft:grill-with-docs`, and `craft:prototype`. Without craft, wayfinder still charts and publishes, but each ticket is resolved by plain conversation.
-- **[spec-flow](../spec-flow/README.md)** — owns the canonical fog-of-war definition (`references/contract-template.md`) that `wayfinder` and `breakdown` both apply, and receives the handoff once a map's route is clear.
+- **[linear](../linear/README.md)** — `pm` skills propose; `linear` applies any approved transitions. `linear` also owns the Spike-vs-Decision boundary test that `chart` uses to type its map tickets.
+- **craft** (`../craft/`) — `pm:chart` resolves its tickets through `craft:grill`, `craft:domain-modeling`, `craft:grill-with-docs`, and `craft:prototype`. Without craft, `chart` still charts and publishes, but each ticket is resolved by plain conversation.
+- **[spec-flow](../spec-flow/README.md)** — owns the canonical fog-of-war definition (`references/contract-template.md`) that `chart` and `breakdown` both apply, and receives the handoff once a map's route is clear.
 - **ndr** (external — ships from its own separate marketplace) — `pm:groom` calls `ndr:decisions` for supersession checks on tickets that reference ndr atoms. Optional: without it, the NDR-moot bucket and grounding passes are skipped.
 - **librarian** (external — personal setup, not published) — `pm:retro`'s primary output is a Linear document; when librarian is present, an optional personal vault copy is written via its `note-editor` agent. Without librarian, that optional copy stays in chat for you to file manually.
 
@@ -63,7 +63,7 @@ Like `linear` and `spec-flow`, this plugin assumes a particular environment and 
 ## Credits
 
 - **`breakdown`** — Adapted from the `to-issues` skill in [`mattpocock/skills`](https://github.com/mattpocock/skills); upstream has since merged `to-issues` with `to-plan` into `to-tickets`. Adaptations applied during port: ndr grounding pre-pass, body template conforming to `references/issue-shape.md`, native Linear blocks/blocked-by relations, the parent-ticket-linking mechanic (Linear `parent` relation + confirm-before-publish), `Decision`-type slice handling with a capture-decision follow-up, and optional spec-flow handoff for contract-shaped slices. The HITL/AFK label split from the source skill was considered and deferred. Reconciled against `to-tickets` on 2026-07-09 (see `skills/breakdown/UPSTREAM.md`): adopted wide-refactor (expand-contract) sequencing and re-added a dropped prefactoring line.
-- **`wayfinder`** — Adapted from the `wayfinder` skill in [`mattpocock/skills`](https://github.com/mattpocock/skills) (MIT, © 2026 Matt Pocock), first intake 2026-08-29. Adaptations applied: Linear as the fixed tracker (upstream is tracker-agnostic), the map as a sibling parent per `references/layer-policy.md` rather than a subissue tree, upstream's four ticket types mapped onto the existing `Spike` / `Decision` / `Chore` label set instead of bespoke `wayfinder:*` labels, resolutions routed to ndr atoms, a confirm-before-publish gate, and an explicit map-close step that hands remaining fog to the successor contract. The fog-of-war model is **cited, not re-imported** — this marketplace already adopted it into `spec-flow`'s contract template (v2.2) ahead of the skill itself. See `skills/wayfinder/UPSTREAM.md`.
+- **`wayfinder`** — Adapted from the `wayfinder` skill in [`mattpocock/skills`](https://github.com/mattpocock/skills) (MIT, © 2026 Matt Pocock), first intake 2026-08-29. Adaptations applied: Linear as the fixed tracker (upstream is tracker-agnostic), the map as a sibling parent per `references/layer-policy.md` rather than a subissue tree, upstream's four ticket types mapped onto the existing `Spike` / `Decision` / `Chore` label set instead of bespoke `wayfinder:*` labels, resolutions routed to ndr atoms, a confirm-before-publish gate, and an explicit map-close step that hands remaining fog to the successor contract. The fog-of-war model is **cited, not re-imported** — this marketplace already adopted it into `spec-flow`'s contract template (v2.2) ahead of the skill itself. See `skills/chart/UPSTREAM.md`.
 - **`to-questionnaire`** — Adapted from the `to-questionnaire` skill in [`mattpocock/skills`](https://github.com/mattpocock/skills) (MIT, © 2026 Matt Pocock), first intake 2026-08-29. The send interview and document template are kept as upstream wrote them; adaptations are the `.docs/` output path, an optional shared Linear/vault copy, and routing of returned answers to `ndr:capture-decision`, `spec-flow:capture`, `pm:breakdown`, or the `wayfinder` ticket they unblocked. See `skills/to-questionnaire/UPSTREAM.md`.
 
 Both new skills are **model-invocable here**, where upstream marks them explicit-invocation-only — pm skills in this marketplace are reachable by sibling skills by convention, and the restraint is carried by explicit confirm gates instead. Recorded in each skill's ledger.

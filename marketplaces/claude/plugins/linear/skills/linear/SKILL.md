@@ -81,7 +81,7 @@ Avoid:
 
 Exactly **one surface + one type** per ticket, plus **at most one marker** (below).
 
-**Marker labels** are a third, deliberately thin dimension: ungrouped, opt-in, and used only where a skill needs its artifacts queryable and neither surface nor type can carry the distinction. Today the only marker is `wayfinder:map`, which makes maps findable by query instead of by title search. A marker never replaces a surface or type — a marked ticket still carries both. Adding a marker is a workspace schema change: propose it, don't mint one mid-task.
+**Marker labels** are a third, deliberately thin dimension: ungrouped, opt-in, and used only where a skill needs its artifacts queryable and neither surface nor type can carry the distinction. Today the only marker is `chart:map`, which makes maps findable by query instead of by title search. A marker never replaces a surface or type — a marked ticket still carries both. Adding a marker is a workspace schema change: propose it, don't mint one mid-task.
 
 | Dimension | Values | Casing |
 |---|---|---|
@@ -124,7 +124,7 @@ Labels are not static:
 
 ### Parent linking
 
-A caller (`pm:breakdown`, `pm:wayfinder`) declares **that** a ticket has a parent; this skill decides **how** the link is expressed. Callers must not name a Linear relation type — that is a tracker mechanism, and it lives here.
+A caller (`pm:breakdown`, `pm:chart`) declares **that** a ticket has a parent; this skill decides **how** the link is expressed. Callers must not name a Linear relation type — that is a tracker mechanism, and it lives here.
 
 Resolve the shape against `pm`'s `references/layer-policy.md`:
 
