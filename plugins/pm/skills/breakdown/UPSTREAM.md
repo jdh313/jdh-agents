@@ -1,11 +1,12 @@
 # Upstream divergences — breakdown
 
-_Upstream: `mattpocock/skills` · `skills/engineering/to-tickets` · ledger current as of `reviewed_sha: ed37663cc5fb`_
+_Upstream: `mattpocock/skills` · `skills/engineering/to-tickets` · ledger current as of `reviewed_sha: 321658273cb1`_
 
 Intentional divergences from upstream. Reviewed via `skillsmith:upstream-review` (2026-07-09, re-reviewed 2026-07-27) — do not re-flag these as findings. Read by `upstream-review` only; never referenced from `SKILL.md`. Upstream's `to-issues` skill (this port's original source) has since been merged with `to-plan` into `to-tickets`; this is the first formal reconciliation pass against the merged skill.
 
 | Kind | What | Why |
 |------|------|-----|
+| adopted | Upstream's slice-sizing criterion "each slice is sized to fit in a single fresh context window" and its "use the project's domain glossary vocabulary" instruction on the ticket-writing step. **Ported 2026-08-29.** | Both were silent drops caught by drift review, not intentional. The sizing rule is the concrete test our softer "when in doubt, split" only gestured at; the glossary rule has extra force here because `craft:domain-modeling` and `craft:grill-with-docs` maintain `CONTEXT.md` glossaries this marketplace actually consumes. Upstream pairs the glossary line with "respect ADRs in the area you're touching"; that half is already covered by the ndr-grounding pre-pass (step 2). |
 | added | ndr grounding pre-pass before slicing | Surfaces relevant NDR decision atoms so slices don't contradict a standing architectural decision. |
 | changed | body template conforms to `references/issue-shape.md` | Aligns generated ticket bodies with this workspace's issue-shape convention instead of upstream's generic template. |
 | added | native Linear blocks/blocked-by relations | Wires dependency order using Linear's native relation fields rather than prose-only sequencing. |
