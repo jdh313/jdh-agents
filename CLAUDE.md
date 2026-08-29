@@ -240,6 +240,29 @@ These two fields look similar but behave differently. Getting them wrong causes 
 
 Source: https://code.claude.com/docs/en/sub-agents.md, https://code.claude.com/docs/en/skills.md (verified 2026-05-25).
 
+### Renaming an adapted skill
+
+A skill adapted from upstream carries **two** names: its local identity, and
+upstream's name for the skill it came from. A rename changes only the first.
+Upstream's name is load-bearing in four kinds of place, and must survive:
+
+- the `upstream:` block's `path:` — the provenance link, and what drift review
+  resolves against
+- `UPSTREAM.md` — every row describing what *upstream* does
+- `THIRD-PARTY-NOTICES.md` — the attribution row, which is a license notice
+- any credit for a borrowed idea (e.g. spec-flow's contract template)
+
+**A bulk find-and-replace across those files is the hazard**, because they
+legitimately contain both names. A sweep rewrites the sentences describing
+upstream too, silently turning a true statement into a fabricated attribution —
+the exact failure `skillsmith:upstream-review` exists to catch, arriving via the
+tool used to do the rename. This is not hypothetical; it happened during the
+`wayfinder` -> `chart` rename and had to be repaired.
+
+Rename by hand, protect the upstream path with a sentinel if you must script it,
+and re-read every ledger row afterwards asking: does this still say what upstream
+actually does?
+
 ### Canonical Obsidian tooling
 
 Plugins that touch the Obsidian vault should converge on these names:
