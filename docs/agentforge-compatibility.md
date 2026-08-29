@@ -265,8 +265,10 @@ parity claims:
   recorded in the plugin's loss note as prose rather than declared. Neither
   boundary is restated in agent body prose; both rode entirely on frontmatter.
 - `skillsmith`: `upstream-review` strips `allowed-tools`, `disallowed-tools`,
-  and `effort`; `writing-great-skills`'s `disable-model-invocation: true` is
-  translated to a skill-local `agents/openai.yaml`, keeping it explicit-only.
+  and `effort`. `writing-for-agents` (renamed from `writing-great-skills`,
+  2026-08-29) no longer carries `disable-model-invocation: true` — it follows
+  upstream in being model-invocable — so the skill-local `agents/openai.yaml`
+  that translated that flag to explicit-only is no longer emitted for it.
   Disposition: **accepted.** The `upstream-reviewer` agent projects as a role
   procedure and loses its `Read, Grep, Glob, Bash(gh api *), Bash(base64 *)`
   allowlist as a declared `agent-tools-filter` loss, but its read-only boundary

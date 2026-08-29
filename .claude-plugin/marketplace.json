@@ -115,8 +115,8 @@
     },
     {
       "name": "craft",
-      "version": "0.13.0",
-      "description": "Software craftsmanship discipline skills: grill (the interview primitive — walk a decision tree one question at a time, facts looked up rather than asked, no acting until shared understanding), grill-with-docs (that loop applied to vocabulary, against per-repo CONTEXT.md glossaries), diagnose, prototype, tdd, improve-codebase-architecture, grok (stateful multi-session codebase comprehension with supersession-aware understanding records), zoom-out (adapted in part from mattpocock/skills, MIT), infra-review (architecture/security review of Terraform+Atlantis PRs), quiz-me (opt-in active-recall comprehension check after a code explanation), interrogate-model (holistic representability review of a domain model — the legitimate scenarios and personas it cannot express), design-by-stories (design an artifact's shape — schema, template, data model, config — by modeling its actors and user stories first, then deriving the shape from the stories), and lucid-architecture-diagram (drive AWS cloud architecture diagrams in Lucid, including the two silent-failure modes of its API). derive-conventions (derive a repo's unwritten house style from its own code, adjudicate each inferred rule with the human, and write the approved set to CONVENTIONS.md so the review agents stop re-deriving it). Three read-only post-edit review agents ride along, each deriving the host repository's conventions rather than importing preferences: house-style-reviewer (a diff against the repo's own unlinted conventions, skipping whatever its linters already enforce), comment-reviewer (docstrings against the code they describe, including comments left unchanged while the code beneath them moved), and copy-reviewer (user-facing strings against the voice the product already uses). Composes with spec-flow and ndr plugins.",
+      "version": "0.14.0",
+      "description": "Software craftsmanship discipline skills: grill (the interview primitive — walk a design tree one question at a time, facts looked up by subagent rather than asked, no acting until shared understanding), grill-with-docs (that loop applied to vocabulary, against per-repo CONTEXT.md glossaries), diagnose, prototype, tdd, improve-codebase-architecture, grok (stateful multi-session codebase comprehension with supersession-aware understanding records), zoom-out (adapted in part from mattpocock/skills, MIT), infra-review (architecture/security review of Terraform+Atlantis PRs), quiz-me (opt-in active-recall comprehension check after a code explanation), interrogate-model (holistic representability review of a domain model — the legitimate scenarios and personas it cannot express), design-by-stories (design an artifact's shape — schema, template, data model, config — by modeling its actors and user stories first, then deriving the shape from the stories), and lucid-architecture-diagram (drive AWS cloud architecture diagrams in Lucid, including the two silent-failure modes of its API). derive-conventions (derive a repo's unwritten house style from its own code, adjudicate each inferred rule with the human, and write the approved set to CONVENTIONS.md so the review agents stop re-deriving it). Three read-only post-edit review agents ride along, each deriving the host repository's conventions rather than importing preferences: house-style-reviewer (a diff against the repo's own unlinted conventions, skipping whatever its linters already enforce), comment-reviewer (docstrings against the code they describe, including comments left unchanged while the code beneath them moved), and copy-reviewer (user-facing strings against the voice the product already uses). Composes with spec-flow and ndr plugins.",
       "author": {
         "name": "Jacob Hoehler"
       },
@@ -311,7 +311,7 @@
     },
     {
       "name": "pm",
-      "version": "0.7.0",
+      "version": "0.8.0",
       "description": "PM helpers for team Linear workflows. Skills for the weekly grooming loop (per-person WIP), plan-to-tickets breakdown (assignee-aware), and end-of-cycle retro notes (attribution + Linear-first output). Composes with the linear plugin; ndr and librarian integrations are optional externals.",
       "author": {
         "name": "Jacob Hoehler"
@@ -350,8 +350,8 @@
     },
     {
       "name": "skillsmith",
-      "version": "1.2.0",
-      "description": "Craft and upkeep of skills. Authoring reference (the vocabulary and principles that make a skill predictable) plus provenance tracking for borrowed work: compares an adapted skill to its pinned upstream, flags behavioral drift and fabricated attributions, and refreshes the reviewed commit SHA. Houses writing-great-skills and upstream-review.",
+      "version": "2.0.0",
+      "description": "Craft and upkeep of skills. Authoring reference (the vocabulary and principles that make any agent-consumed document predictable — a skill, an AGENTS.md/CLAUDE.md, a rules file, a doc reached by a pointer) plus provenance tracking for borrowed work: compares an adapted skill to its pinned upstream, flags behavioral drift and fabricated attributions, and refreshes the reviewed commit SHA. Houses writing-for-agents and upstream-review.",
       "author": {
         "name": "Jacob Hoehler"
       },
@@ -391,7 +391,7 @@
     },
     {
       "name": "teach",
-      "version": "0.11.0",
+      "version": "0.11.1",
       "description": "A stateful, multi-session teaching workspace routed into the Obsidian vault. The /teach skill grounds learning in the user's documented learning style and high-trust sources, builds a mission, resources, glossary, and learning records as vault notes under the topic's best-fit context, and writes lessons as markdown notes that transclude the wiki's prose and add a pure-CSS self-grading quiz (via a shipped snippet, no plugin or JS). Cheat sheets and reference material live as ordinary wiki pages, not HTML. Entry altitude is set by question altitude and graph density, with learning records as the only gate on mastery claims. Grounds in owned textbooks via DEVONthink when available and pins live-code citations to immutable refs. Requires an Obsidian vault (obsidian-cli); optionally surfaces owned textbooks from DEVONthink. Adapted from mattpocock/skills (MIT, © 2026 Matt Pocock).",
       "author": {
         "name": "Jacob Hoehler"
