@@ -68,11 +68,18 @@ _Upstream: `<repo>` · `<path>` · ledger current as of `reviewed_sha: <sha>`_
 | dropped | <upstream behavior we deliberately removed> | <rationale> |
 | added | <local-only behavior not in upstream> | <rationale> |
 | changed | <upstream behavior we altered (renamed / rescoped / re-routed)> | <rationale> |
+| adopted | <upstream behavior we newly took on, where a drift review caught it as a silent drop> | <rationale> |
+| kept-deliberately | <upstream behavior we match on purpose, where the match is a live question someone will re-raise> | <rationale> |
 ```
 
 **Critical: never reference `UPSTREAM.md` from the target skill's `SKILL.md`.** A skill's body loads on every invocation; a referenced sibling loads with it; an *unreferenced* sibling never loads (verified against the skills docs — on-demand loading happens *because* SKILL.md references a file). The ledger is review-time meta, irrelevant to anyone using the skill — keep it out of the skill's runtime context. `upstream-review` reads it by explicit path; the target skill stays oblivious.
 
-`Kind` mirrors the comparison classes (`dropped` / `added` / `changed`). Don't record `kept` — equivalence is the default and needs no entry.
+`Kind` mirrors the comparison classes (`dropped` / `added` / `changed`), plus two rows that record an adjudication rather than a divergence:
+
+- **`adopted`** — we took on upstream behavior we had been missing. Reserve it for a *silent drop* a drift review caught, not for ordinary intake: the row exists so a later reviewer can see the gap was real and is now closed, rather than re-deriving why the two sides suddenly agree.
+- **`kept-deliberately`** — we match upstream on purpose, and the match is a question someone will otherwise re-raise every review (an invocation policy, a scope boundary). Use it sparingly.
+
+Don't record plain `kept` — equivalence is the default and needs no entry. The two Kinds above are the exception precisely because the *reasoning* is not recoverable from the diff: a reviewer reading agreement cannot tell adjudicated agreement from coincidence, which is the whole cost these rows buy off.
 
 ## Procedure
 
