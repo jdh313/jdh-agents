@@ -1,13 +1,15 @@
 # Upstream divergences — diagnose
 
-_Upstream: `mattpocock/skills` · `skills/engineering/diagnosing-bugs` (renamed from `diagnose`) · ledger current as of `reviewed_sha: 697d4ce9742d`_
+_Upstream: `mattpocock/skills` · `skills/engineering/diagnosing-bugs` (renamed from `diagnose`) · ledger current as of `reviewed_sha: 321658273cb1`_
 
-Intentional divergences from upstream. Reviewed via `skillsmith:upstream-review` (2026-07-09) — do not re-flag these as findings. Read by `upstream-review` only; never referenced from `SKILL.md`.
+Intentional divergences from upstream. Reviewed via `skillsmith:upstream-review` (2026-07-09; drift review 2026-08-29) — do not re-flag these as findings. Read by `upstream-review` only; never referenced from `SKILL.md`.
 
 All six diagnosis phases and the HITL loop script track upstream. The divergences are the decision-layer re-routes and wording adaptations below.
 
 | Kind | What | Why |
 |------|------|-----|
+| adopted | Upstream's `## Redact` section, the two `redacted` qualifiers (Phase 1 completion criterion; the "cannot build a loop" artifact fallback), and the `capture`-vs-`step` comment in `scripts/hitl-loop.template.sh` — all from `efce423018fc` + `bda79a3c3ca2`. **Ported verbatim 2026-08-29.** | Not a divergence; recorded because it was a *silent drop* caught by drift review, not by intake. The skill routinely surfaces curl invocations, HAR files and log dumps, so the omission was a live secret-leak path. Logged here so a future reviewer can see the gap existed and is closed. |
+| changed | Cross-skill invocation: upstream `1dab98299c3b` adopted a repo-wide rule that a skill must never call another user-invoked skill, and deleted Phase 6's hand-off to `improve-codebase-architecture` (reverting the heading to "Phase 6 — Cleanup"). We **keep** both the hand-off and the "+ post-mortem" heading. | Upstream's rule follows from its own layout, where every skill is user-invoked and marked `disable-model-invocation: true`. This marketplace does not share that constraint: craft skills are model-invocable and chain deliberately — the `/ground` call in this same file is already a ledgered intentional cross-invocation, and `craft:grill-with-docs` dispatches `craft:grill` and `craft:domain-modeling` by design. Adopting the rule here would break the wiring the plugin exists to provide, and would leave `/ground` an unexplained exception. |
 | changed | Codebase-grounding step: upstream "read `CONTEXT.md` (if it exists) ... check ADRs in the area you're touching" → "read `CONTEXT.md` (if it exists) ... invoke `/ground` to surface relevant NDR atoms in the area" | NDR ledger replaces in-repo ADRs; same intent (surface prior decisions in the touched area), different tool. The `CONTEXT.md` half now matches upstream verbatim — previously paraphrased here as "the project's domain glossary". |
 | changed | Phase 6 post-mortem capture: added "or captured as an NDR atom via `/capture-decision`" alongside the upstream commit/PR-message path (additive — commit/PR path retained) | Routes the durable correct-hypothesis learning into the NDR ledger. |
 | added | Phase 1 "Completion criterion — a tight loop that goes red" gate: named, already-run command + red-capable/deterministic/fast/agent-runnable checklist + explicit "stop before hypothesising" warning | Ported verbatim-in-substance from upstream's tightened Phase 1 exit gate. Forces proof (paste the invocation and its output) that a red-capable loop exists before Phase 2, closing the failure mode of jumping straight to a hypothesis. |

@@ -1,6 +1,6 @@
 # Upstream divergences — grill-with-docs
 
-_Upstream: `mattpocock/skills` · `skills/engineering/grill-with-docs` · ledger current as of `reviewed_sha: 697d4ce9742d`_
+_Upstream: `mattpocock/skills` · `skills/engineering/grill-with-docs` · ledger current as of `reviewed_sha: 447ca7087202`_
 
 Intentional divergences from upstream. Reviewed via `skillsmith:upstream-review` — do not re-flag these as findings. Read by `upstream-review` only; never referenced from `SKILL.md`.
 

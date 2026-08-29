@@ -1,8 +1,8 @@
 # Upstream divergences — prototype
 
-_Upstream: `mattpocock/skills` · `skills/engineering/prototype` · ledger current as of `reviewed_sha: 697d4ce9742d`_
+_Upstream: `mattpocock/skills` · `skills/engineering/prototype` · ledger current as of `reviewed_sha: 321658273cb1`_
 
-Intentional divergences from upstream. Reviewed via `skillsmith:upstream-review` (2026-07-27) — do not re-flag these as findings. Read by `upstream-review` only; never referenced from `SKILL.md`.
+Intentional divergences from upstream. Reviewed via `skillsmith:upstream-review` (2026-07-27; drift review 2026-08-29) — do not re-flag these as findings. Read by `upstream-review` only; never referenced from `SKILL.md`.
 
 The LOGIC/UI branch routing, the six shared rules, `LOGIC.md`, and `UI.md` are kept verbatim (modulo the capture lines below). No fabricated attributions, no silent drops.
 
@@ -10,6 +10,7 @@ Adopted from upstream at `697d4ce9742d` (2026-07-27), now equivalent and needing
 
 | Kind | What | Why |
 |------|------|-----|
+| changed | LOGIC branch artifact: upstream `6bcbcb09e2f1` replaced the terminal TUI with a single shareable HTML file (free-play buttons + tabbed guided walkthroughs). **Adopted 2026-08-29** — `LOGIC.md` now describes the HTML shape, and `SKILL.md`'s branch bullet and rule 2 follow it. | The shareable-file shape is strictly better for the branch's purpose: a logic prototype exists to be driven by whoever owns the domain question, and a double-clickable file reaches a PM or designer that a `pnpm run` TUI does not. Retained locally on top of upstream: the AFK `NOTES.md` affordance in step 5, and this marketplace's em-dash house punctuation. |
 | changed | Answer capture (SKILL.md "Capturing the answer" + `LOGIC.md` §7 + `UI.md` §6) routes load-bearing answers to an NDR atom via `/capture-decision`, with commit message / tracking ticket / `NOTES.md` as fallback. Upstream listed commit / ADR / issue / `NOTES.md`, and at `697d4ce9742d` lists only "the issue or a commit". | NDR is this ecosystem's durable-decision home; `ADR` is a non-concept here. The `NOTES.md`-for-AFK affordance is deliberately preserved even though upstream dropped it in the primary-source rewrite — running AFK is common here and the placeholder is the only thing that survives an unattended session. |
 | changed | Rule 6's context pointer targets "the tracking ticket or spec-flow contract"; upstream says "the implementation issue". | Names this ecosystem's actual hosts (Linear ticket via the `pm`/`linear` plugins, or a `spec-flow` contract) instead of a generic issue. |
 | added | SKILL.md keeps a short "Capturing the answer" section; upstream collapsed its "When done" section into rule 6 (`0375c88`). | The NDR routing plus the AFK `NOTES.md` fallback are too long to read cleanly as a rule bullet. Same content, different placement. |

@@ -1,13 +1,14 @@
 # Upstream divergences — domain-modeling
 
-_Upstream: `mattpocock/skills` · `skills/engineering/domain-modeling` · ledger current as of `reviewed_sha: 697d4ce9742d`_
+_Upstream: `mattpocock/skills` · `skills/engineering/domain-modeling` · ledger current as of `reviewed_sha: 321658273cb1`_
 
-Intentional divergences from upstream. Reviewed via `skillsmith:upstream-review` (2026-07-09) — do not re-flag these as findings. Read by `upstream-review` only; never referenced from `SKILL.md`.
+Intentional divergences from upstream. Reviewed via `skillsmith:upstream-review` (2026-07-09; drift review 2026-08-29) — do not re-flag these as findings. Read by `upstream-review` only; never referenced from `SKILL.md`.
 
 The active-discipline framing, the four conversation moves (challenge against the glossary / sharpen fuzzy language / discuss concrete scenarios / cross-reference with code), the update-inline / don't-batch rule, the "CONTEXT.md is a glossary and nothing else" constraint, and the 3-part decision-worthiness gate (hard-to-reverse / surprising-without-context / real-trade-off) are upstream discipline, kept. Only the decision *destination* and the CONTEXT.md format details diverge.
 
 | Kind | What | Why |
 |------|------|-----|
+| adopted | Description retriggering from `bd8e81baafe4` / `e12e7ec6a749` / `54bc6b604075`: dropped the "or when another craft skill needs to maintain the domain model" caveat, took upstream's plainer "discussing codebase terminology" wording, and added the explicit write trigger. **Applied 2026-08-29.** | Recorded because the caveat's retention was *accidental*, not intentional — drift review confirmed upstream's stated rationale holds here verbatim: `craft:grill-with-docs` and `craft:improve-codebase-architecture` both already name-invoke this skill directly, so the caveat bought nothing. Upstream's write trigger is `recording or editing an ADR`; ours says NDR decision, per the ADR→NDR swap already rowed below. |
 | changed | Decision records re-routed from in-repo ADRs (`docs/adr/*.md` + `ADR-FORMAT.md`) to NDR atoms via `/capture-decision`; the skill never writes decision records directly. Upstream's "Offer ADRs sparingly" section became "Route capture-worthy decisions"; `docs/adr/` dropped from the file-structure diagram. | NDR is this ecosystem's durable decision layer. Same 3-part capture gate — only the destination and write-authority change. Mirrors the identical swap already documented in `grill-with-docs/UPSTREAM.md`; kept consistent with it. |
 | changed | `ADR-FORMAT.md` sibling not carried over | Its role (how to write the decision record) belongs to the NDR ledger and `/capture-decision`, not this skill. The 3-part *gate* survives inline; the ADR *template* does not. |
 | changed | Multi-context `CONTEXT-MAP.md` demoted from a first-class feature to "work-only, future"; personal repos use vault wiki pages as the cross-cutting authority instead | Personal repos aren't bounded-context monorepos; CONTEXT-MAP is overhead they don't earn. Consistent with `grill-with-docs`. |

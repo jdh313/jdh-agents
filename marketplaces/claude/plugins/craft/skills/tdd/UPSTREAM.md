@@ -1,6 +1,6 @@
 # Upstream divergences — tdd
 
-_Upstream: `mattpocock/skills` · `skills/engineering/tdd` · ledger current as of `reviewed_sha: 697d4ce9742d`_
+_Upstream: `mattpocock/skills` · `skills/engineering/tdd` · ledger current as of `reviewed_sha: 321658273cb1`_
 
 Intentional divergences from upstream. Reviewed via `skillsmith:upstream-review` (2026-07-09) — do not re-flag these as findings. Read by `upstream-review` only; never referenced from `SKILL.md`.
 

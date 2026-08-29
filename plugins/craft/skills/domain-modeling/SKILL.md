@@ -1,11 +1,11 @@
 ---
 name: domain-modeling
-description: Build and sharpen a project's domain model. Use when the user wants to pin down domain terminology or a ubiquitous language, capture an architectural decision that surfaces while modelling, or when another craft skill needs to maintain the domain model. Adapted from mattpocock/skills (MIT, © 2026 Matt Pocock).
+description: Build and sharpen a project's domain model. Use when discussing codebase terminology, writing or editing a CONTEXT.md, or recording or editing an NDR decision that surfaces while modelling. Adapted from mattpocock/skills (MIT, © 2026 Matt Pocock).
 upstream:
   repo: mattpocock/skills
   path: skills/engineering/domain-modeling
-  reviewed_sha: 697d4ce9742d
-  reviewed: 2026-07-27
+  reviewed_sha: 321658273cb1
+  reviewed: 2026-08-29
   status: reviewed
 allowed-tools:
   - Read
