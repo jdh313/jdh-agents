@@ -432,6 +432,27 @@
         "research"
       ],
       "source": "./plugins/teardown"
+    },
+    {
+      "name": "workspaces",
+      "version": "0.1.0",
+      "description": "Teaches agents that isolated per-agent checkouts exist in jj-colocated repos via `jjx` (jj's equivalent of a git worktree), and how to drive it: `jjx add --name <slug>` creates or idempotently resumes a workspace and prints its path on stdout, `--from <revset>` bases it on an explicit revision instead of the caller's uncommitted state, `--unique` forces a fresh workspace for fan-out, and `jjx rm <path>` cleans up without discarding unsaved work. The single skill exists to be found by the failure it prevents — an agent about to conclude that parallel isolated work isn't possible in a jj repo, or reaching for a plain git worktree instead.",
+      "author": {
+        "name": "Jacob Hoehler"
+      },
+      "license": "Apache-2.0",
+      "keywords": [
+        "jj",
+        "jujutsu",
+        "jjx",
+        "worktree",
+        "workspace",
+        "parallel",
+        "subagents",
+        "isolation",
+        "fan-out"
+      ],
+      "source": "./plugins/workspaces"
     }
   ],
   "metadata": {
