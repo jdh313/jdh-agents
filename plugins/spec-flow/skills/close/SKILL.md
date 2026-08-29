@@ -264,7 +264,7 @@ Brief summary to the user, wording differs by host:
 
 ### 8a. Offer to graduate parent fog (breakdown slices only)
 
-When the contract just closed is a **child slice** of a breakdown parent, read `## Not yet specified` in the parent's companion. Ask whether resolving this slice sharpened any patch — a patch graduates when its question can now be *stated*, which is not the same as answered.
+When the contract just closed is a **child slice** of a breakdown parent, read `## Not yet specified` in the parent's companion. Ask whether resolving this slice sharpened any patch, by the phrase-it-now test the contract template defines (`references/contract-template.md`).
 
 If one has, don't spawn the slice here. Say what sharpened and route:
 
