@@ -22,15 +22,22 @@ Derived skills, by plugin:
 | `craft` | `grill-with-docs` | `skills/engineering/grill-with-docs` | `447ca7087202` |
 | `craft` | `improve-codebase-architecture` | `skills/engineering/improve-codebase-architecture` | `321658273cb1` |
 | `craft` | `prototype` | `skills/engineering/prototype` | `321658273cb1` |
+| `craft` | `resolve-conflicts` | `skills/engineering/resolving-merge-conflicts` | `321658273cb1` |
 | `craft` | `tdd` | `skills/engineering/tdd` | `321658273cb1` |
+| `craft` | `wait-what` | `skills/productivity/wait-what` | `5c89081d4bbe` |
+| `craft` | `wizard` | `skills/engineering/wizard` | `321658273cb1` |
 | `craft` | `zoom-out` | `skills/engineering/zoom-out` | `7afa86d3a5dd` |
 | `pm` | `breakdown` | `skills/engineering/to-tickets` | `321658273cb1` |
+| `pm` | `to-questionnaire` | `skills/productivity/to-questionnaire` | `321658273cb1` |
+| `pm` | `wayfinder` | `skills/engineering/wayfinder` | `321658273cb1` |
 | `skillsmith` | `writing-for-agents` | `skills/productivity/writing-for-agents` | `321658273cb1` |
 | `teach` | `teach` | `skills/productivity/teach` | `321658273cb1` |
 
-Additionally, the `Not yet specified` section of
+Additionally, and separately from the `pm:wayfinder` port above, the
+`Not yet specified` section of
 `plugins/spec-flow/references/contract-template.md` adapts the "fog of war"
-model from that repository's `wayfinder` skill.
+model from that repository's `wayfinder` skill -- the idea only, predating
+and independent of the skill's own adoption.
 
 ### License
 
