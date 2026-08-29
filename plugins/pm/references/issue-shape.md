@@ -11,6 +11,7 @@ A ticket is "well-formed" when it has all six:
 3. **Priority** — set to one of `urgent` / `high` / `medium` / `low`; not `None`
 4. **Surface label** — exactly one of `pipeline`, `backend`, `frontend`, `infra`, `database`
 5. **Type label** — exactly one of `Feature`, `Improvement`, `Docs`, `Chore`, `Decision`
+6. **Marker label** *(optional, at most one)* — currently only `wayfinder:map`. Ungrouped, and additive to the surface + type pair rather than a substitute for either. See the `linear` skill for the rule on minting new markers.
 6. **Description body** — with the sections below
 
 A ticket missing any of #1–6 lands in `pm:groom`'s Missing-fields bucket. The body-section requirements (see next section) are checked as part of #6.
