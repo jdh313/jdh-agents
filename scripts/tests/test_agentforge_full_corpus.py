@@ -37,6 +37,7 @@ CLAUDE_PACKAGE_IDS = frozenset(
         "shake-tune",
         "spec-flow",
         "teach",
+        "teardown",
     }
 )
 # Codex enrolls every package except two, and both exclusions are reviewed
@@ -45,6 +46,11 @@ CLAUDE_PACKAGE_IDS = frozenset(
 #
 #   langfuse            its Stop hook parses Claude Code's transcript schema and
 #                       resolves zero turns against a Codex rollout (TEAM-350).
+#   teardown            PENDING ACCEPTANCE, not a reviewed rejection. The
+#                       native mapping exists, but no projection has been
+#                       exercised on a fresh Codex runtime, and Codex would not
+#                       enforce the surveyor's read-only allowlist over clones
+#                       backing running services. Enroll once accepted.
 #   attention-workflow  its load-bearing guarantee is plugin-bundled hook
 #                       enforcement, and Codex skips bundled hooks until the
 #                       user separately reviews and trusts them, so the Codex
@@ -54,7 +60,7 @@ CLAUDE_PACKAGE_IDS = frozenset(
 # Deriving the set here keeps a new package enrolled-by-default in this
 # assertion, so forgetting to update it fails loudly rather than silently
 # under-checking the catalog.
-CODEX_ONLY_EXCLUSIONS = frozenset({"langfuse", "attention-workflow"})
+CODEX_ONLY_EXCLUSIONS = frozenset({"langfuse", "attention-workflow", "teardown"})
 CODEX_PACKAGE_IDS = CLAUDE_PACKAGE_IDS - CODEX_ONLY_EXCLUSIONS
 
 
