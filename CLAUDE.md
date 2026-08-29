@@ -400,52 +400,10 @@ rm -rf ~/.claude/plugins/cache/jdh-agents/[plugin-name]
 - **Parallelizing plugin work:** Give each agent its own worktree, not just its own plugin directory. `agentforge compile` reads the *whole* marketplace and hard-fails (exit 2) on any package's undeclared loss, so agents editing disjoint `plugins/<name>/` directories in one checkout still fail each other's compile probes — and each failure looks like the agent's own bug. Disjoint file ownership is not enough when the verification command is whole-tree. Merge the branches at the end; the diffs genuinely are disjoint.
 - **One `sync` per batch:** `marketplace sync` regenerates all of `marketplaces/`. Parallel agents must never run it; the orchestrator runs it once after collecting their changes.
 
-<!-- babysitter:start -->
-## Babysitter
+## Commit format
 
-This project is onboarded for babysitter-assisted workflows. The block below is managed by the `cradle/project-install` flow — edit by re-running install, not by hand.
-
-### Methodology: Everything Claude Code
-
-Compose Claude Code primitives directly. No external methodology (no TDD, no spec-driven, no agile) is imposed — iterate via `/plugin install` locally, run `uv run marketplace check` plus `uv run pytest`, commit in the documented format, and let CI confirm. The merge gate already lives in `.github/workflows/validate.yml`; babysitter wraps the authoring/update flow around it, it does not replace it.
-
-### Recommended workflows
-
-- `cradle/project-install` — already run for this project; do not re-run unless re-onboarding.
-- `custom/plugin-author` — author a new plugin (planned, not yet built). Composes plan -> scaffold -> verify -> commit around `plugins/<name>/`.
-- `custom/plugin-update` — update an existing plugin (planned, not yet built). Edit -> bump `plugin.json` version -> sync -> verify -> commit.
-
-### Recommended skills
-
-- `commits` — encodes the `type[scope]: subject (vX.Y.Z)` commit format used throughout this repo.
-- `plugin-dev:plugin-structure` — authoritative on plugin layout, `plugin.json` schema, and auto-discovery rules.
-- `plugin-dev:skill-development` — skill frontmatter and `allowed-tools` pre-approval semantics.
-- `plugin-dev:agent-development` — agent frontmatter and `tools:` allowlist filter semantics (see the sharp-edge note above).
-- `plugin-dev:command-development` — slash-command frontmatter, dynamic args, bash exec.
-- `methodologies/gsd/skills/verification-suite` — wraps `uv run marketplace check` (sync drift + schema + lint) into a single verify step.
-- `methodologies/gsd/skills/template-scaffolding` — boilerplate for `plugin.json`, `SKILL.md`, agent frontmatter.
-- `methodologies/gsd/skills/git-integration` — plain git repo (jj was removed during the marketplace merge); the `commit` plugin's destructive-vcs-guard still applies.
-
-### Recommended agents
-
-- `claude-code-guide` — fetches current upstream plugin schema/frontmatter; CLAUDE.md mandates this lookup before editing `plugin.json`.
-- `tech-lead` — coordinator when a plugin spans multiple components (skills + agents + commands + hooks).
-- `general-purpose` — exploratory tasks (surveying existing plugins, comparing implementations) that don't fit a specialized agent.
-
-### Verify loop / merge gate
-
-```bash
-uv run marketplace check
-```
-
-CI re-runs the same checks (plus `uv run pytest`) on push/PR. A clean local run is the merge gate.
-
-### Commit format
-
-`type[scope]: subject (vX.Y.Z)` — e.g. `feat[ndr]: worthiness rubric for capture-decision skill (v0.6.0)`. Version suffix is mandatory on plugin-changing commits and tracks the plugin's own `plugin.json` version (no repo-level tags). The `commits` skill encodes this style.
-
-### Project profile and run history
-
-- Profile: `.a5c/project-profile.json` — durable project facts (goals, tech stack, conventions, pain points). Read this before substantive work; update via re-running `cradle/project-install` rather than hand-editing.
-- Run history: `.a5c/runs/` — per-run artifacts (profiles, tool selections, journals). Both `.a5c/project-profile.json` and `.a5c/runs/` should be gitignored.
-<!-- babysitter:end -->
+`type[scope]: subject (vX.Y.Z)` — e.g. `feat[ndr]: worthiness rubric for
+capture-decision skill (v0.6.0)`. The version suffix is mandatory on
+plugin-changing commits and tracks that plugin's own `PACKAGE.yaml` version;
+there are no repo-level tags. The `commit` plugin's `commits` skill encodes
+this style.
