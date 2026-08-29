@@ -9,8 +9,8 @@ disallowed-tools: Edit, Bash(rm *), Bash(trash *), Bash(git push *), Bash(jj aba
 upstream:
   repo: mattpocock/skills
   path: skills/productivity/teach
-  reviewed_sha: 697d4ce9742d
-  reviewed: 2026-07-27
+  reviewed_sha: 321658273cb1
+  reviewed: 2026-08-29
   status: reviewed
 ---
 
