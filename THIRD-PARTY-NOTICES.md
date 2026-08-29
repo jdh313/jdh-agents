@@ -16,17 +16,17 @@ Derived skills, by plugin:
 | Plugin | Skill | Upstream path | Reviewed at |
 |---|---|---|---|
 | `craft` | `CODEBASE-DESIGN.md` (plugin-root reference, formerly the `codebase-design` skill) | `skills/engineering/codebase-design` | `697d4ce9742d` |
-| `craft` | `diagnose` | `skills/engineering/diagnosing-bugs` | `697d4ce9742d` |
-| `craft` | `domain-modeling` | `skills/engineering/domain-modeling` | `697d4ce9742d` |
-| `craft` | `grill` | `skills/productivity/grilling` | `697d4ce9742d` |
-| `craft` | `grill-with-docs` | `skills/engineering/grill-with-docs` | `697d4ce9742d` |
-| `craft` | `improve-codebase-architecture` | `skills/engineering/improve-codebase-architecture` | `697d4ce9742d` |
-| `craft` | `prototype` | `skills/engineering/prototype` | `697d4ce9742d` |
-| `craft` | `tdd` | `skills/engineering/tdd` | `697d4ce9742d` |
+| `craft` | `diagnose` | `skills/engineering/diagnosing-bugs` | `321658273cb1` |
+| `craft` | `domain-modeling` | `skills/engineering/domain-modeling` | `321658273cb1` |
+| `craft` | `grill` | `skills/productivity/grilling` | `85f83d3fde1d` |
+| `craft` | `grill-with-docs` | `skills/engineering/grill-with-docs` | `447ca7087202` |
+| `craft` | `improve-codebase-architecture` | `skills/engineering/improve-codebase-architecture` | `321658273cb1` |
+| `craft` | `prototype` | `skills/engineering/prototype` | `321658273cb1` |
+| `craft` | `tdd` | `skills/engineering/tdd` | `321658273cb1` |
 | `craft` | `zoom-out` | `skills/engineering/zoom-out` | `7afa86d3a5dd` |
-| `pm` | `breakdown` | `skills/engineering/to-tickets` | `ed37663cc5fb` |
-| `skillsmith` | `writing-great-skills` | `skills/productivity/writing-great-skills` | `697d4ce9742d` |
-| `teach` | `teach` | `skills/productivity/teach` | `697d4ce9742d` |
+| `pm` | `breakdown` | `skills/engineering/to-tickets` | `321658273cb1` |
+| `skillsmith` | `writing-for-agents` | `skills/productivity/writing-for-agents` | `321658273cb1` |
+| `teach` | `teach` | `skills/productivity/teach` | `321658273cb1` |
 
 Additionally, the `Not yet specified` section of
 `plugins/spec-flow/references/contract-template.md` adapts the "fog of war"
