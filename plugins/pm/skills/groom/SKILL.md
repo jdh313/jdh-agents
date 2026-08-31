@@ -47,7 +47,7 @@ The bet: classification is mechanical (rule-based) and tedious, so the skill doe
 - **Vault project root:** `~/Loose Ends/Projects/<project>/` — adjust to your vault layout. Skip the vault-unfiled bucket if you don't keep a vault.
 - **ndr atoms root:** `~/Loose Ends/Decisions/` — filter to atoms whose `project:` frontmatter matches the active project. Skip the NDR-moot bucket if you don't use the external `ndr` plugin.
 - **Cycle cadence:** weekly, per your Linear workspace settings. Examples in this skill assume Thu→Wed — cycle closes Wed EOD, the new cycle starts Thursday, and grooming runs Thursday morning.
-- **Issue shape spec:** `../../references/issue-shape.md` (plugin reference). Defines what counts as a well-formed ticket. Load when classifying for the Missing-fields or NDR-moot buckets.
+- **Issue shape spec:** `../../references/issue-shape.md` (plugin reference). Defines what counts as a well-formed ticket; `../../references/issue-body.md` defines the body it points at. Load when classifying for the Missing-fields or NDR-moot buckets.
 - **Layer policy:** `../../references/layer-policy.md` (plugin reference). Defines the active layers (project / milestone / issue / cycle), the default-off ones (epic, subissue, initiative), and the legal states for a ticket. Load when flagging orphans (no milestone, in cycle) or evaluating whether a proposed parent ticket earns its keep.
 
 ## Procedure
@@ -71,7 +71,7 @@ A ticket lands in exactly one bucket per session. Precedence when multiple match
 | **Pull-in** | Not in active cycle, no blockers, has done-when in description, priority ∈ {urgent, high} |
 | **Push-out** | In active cycle, blocked OR needs spec OR missing done-when |
 | **Stale** | Backlog, no updates in >14 days, priority ∈ {low, none} |
-| **Missing fields** | Per `references/issue-shape.md` #1–6: any required field absent (no priority, no project, no surface label, no type label, or — for status ≥ Todo — no `## Done when:` section in description) |
+| **Missing fields** | Per `references/issue-shape.md` #1–6: any required field absent (no priority, no project, no surface label, no type label, or — for status ≥ Todo — no `## Done when` section in description) |
 | **NDR-moot** | References a superseded ndr atom (confirmed via `Skill(ndr:decisions)`) |
 | **Vault-unfiled** | Work named in vault session notes (last 7 days) with no corresponding ticket |
 

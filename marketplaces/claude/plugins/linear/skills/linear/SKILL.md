@@ -43,8 +43,9 @@ tell the user the integration is unavailable.
 
 ## Scope
 
-- **Owns:** Ticket creation defaults, label set, status flow, title shape, description templates, status transitions, priority semantics.
+- **Owns:** Ticket creation defaults, label set, status flow, title shape, status transitions, priority semantics — everything specific to Linear.
 - **Does NOT own:**
+  - The body of a ticket. That is the `pm` plugin's `references/issue-body.md`, which is tracker-agnostic on purpose; this plugin carries no template of its own.
   - The decision of *whether* to open a ticket — that's the project agent-guidance floor rule.
   - The spec-flow contract lifecycle — that's the spec-flow plugin. When a contract is hosted in Linear, spec-flow writes the contract body; this skill governs the ticket's other fields.
 - **Currently scoped to:** one Linear team, two collaborators. Each person uses their own agent runtime with their own Linear auth, so `assignee="me"` resolves per-person automatically.
@@ -86,11 +87,11 @@ Exactly **one surface + one type** per ticket, plus **at most one marker** (belo
 | Dimension | Values | Casing |
 |---|---|---|
 | Surface | `backend`, `frontend`, `infra`, `database`, `pipeline` | bare lowercase |
-| Type | `Feature`, `Improvement`, `Docs`, `Chore`, `Decision`, `Spike` | Capitalized |
+| Type | `Bug`, `Feature`, `Improvement`, `Docs`, `Chore`, `Decision`, `Spike` | Capitalized |
 
 Rules:
 - Surface labels live under a **`surface` label group** in Linear (group name `surface`, children `pipeline` / `backend` / `frontend` / `infra` / `database`). The MCP `save_issue` tool does NOT resolve colon-prefixed strings like `"surface:backend"` — pass the **bare child name** (`"backend"`). If you pass the colon form, `save_issue` returns silently with `labels: []`. Stable label IDs from `list_issue_labels` also work; bare child names are more readable. See `../../references/mcp-gotchas.md` § 2 for full details.
-- `Bug` is unused — do not add tickets with it. If a defect comes up, it's a `Feature` regression or a `Chore` cleanup depending on framing.
+- `Bug` marks a defect in behavior that was already accepted as done. A defect found in work that hasn't shipped yet is part of finishing that work, not its own ticket. See the `pm` plugin's `references/issue-body.md` § Defects for what the body carries.
 - `Decision` is for tickets that mark a decision point (formerly written as `D# — ...` titles). The decision content itself becomes an ndr atom; the ticket tracks the work of making the call.
 - `Spike` is for timeboxed empirical investigations — see "Spike vs Decision" below.
 
@@ -174,42 +175,29 @@ Look up the current milestone set via `mcp__linear-server__list_milestones` agai
 
 ### Description
 
-Two templates depending on what the ticket is for.
+**This plugin does not define the body.** Ticket bodies follow the `pm`
+plugin's `references/issue-body.md`, which is tracker-agnostic by design — the
+same five slots apply in Linear, Fibery, or anywhere else. This plugin owns
+only what is specific to Linear: labels, status flow, priority semantics,
+milestones, and MCP call patterns.
 
-**Lightweight template (default for most tickets):**
+The slots, in order, for orientation:
 
-```markdown
-## Goal
+1. an unlabeled one-line aim as the first line of the body
+2. `## Why now`
+3. `## Sketch`
+4. `## Done when`
+5. `## Context`
 
-<one paragraph: what this ticket is for, why it exists>
+Only the aim and `## Done when` carry obligation, and `## Done when` is
+expected at status `Todo` or beyond rather than at creation. Read
+`issue-body.md` for the per-type fill guidance before writing a body; do not
+reconstruct it from the list above.
 
-## Done when
-
-- <observable outcome>
-- <observable outcome>
-```
-
-`Goal` + `Done when` is the de facto house template across the existing ticket corpus. The `Done when` heading matches spec-flow's contract template — same vocabulary, lower altitude.
-
-**Spike template (for `Spike`-labeled tickets):**
-
-```markdown
-## Question
-
-<the unknown, stated as a question>
-
-Timebox: <e.g. 2h, half a day>
-
-## Done when
-
-- Question answered; finding written up (vault note; ndr atom only if it resolves a decision)
-```
-
-`## Question` replaces `## Goal` — a spike exists to answer something, not to ship something. State the timebox in the description. "Done when" is always the finding, never "code merged" — spike code is throwaway by definition.
-
-**Full spec-flow contract template (when the ticket *is* the contract):**
-
-The six-section template from `spec-flow:draft` (`What we're doing` / `Why` / `Out of scope` / `Done when` / `Approach / wiring` / `Decision log`). Used when the ticket is being created or written by `spec-flow:draft` against a Linear host. A breakdown parent carries a seventh, `Not yet specified` — written by `pm:breakdown`, not by draft. spec-flow handles writing this — this skill governs the surrounding fields (labels, priority, state, milestone).
+**Exception — spec-flow contracts.** When a ticket *is* a spec-flow contract,
+spec-flow writes the body using its own six-section template and this
+five-slot shape does not apply. This plugin still governs the surrounding
+fields.
 
 ## MCP gotchas
 

@@ -41,7 +41,8 @@ Planned for later versions:
 
 ## References
 
-- **`references/issue-shape.md`** — what counts as a well-formed Linear ticket (required fields + description body structure + anti-conventions). Shared across all PM skills: `groom` uses it for the Missing-fields and NDR-moot buckets; `triage` and `author` will use it for proposals and templates. Defers to `linear` for title/label/priority/status mechanics.
+- **`references/issue-body.md`** — what goes *inside* a ticket body: five slots (a one-line aim, then `## Why now`, `## Sketch`, `## Done when`, `## Context`), with per-type fill guidance. Tracker-agnostic by construction — the same slots apply in Linear, Fibery, or anywhere else — and it is the single source of truth for ticket bodies across this marketplace. The `linear` plugin carries no template of its own.
+- **`references/issue-shape.md`** — what a well-formed ticket carries *around* the body (required fields + anti-conventions). `groom` uses it for the Missing-fields and NDR-moot buckets. Defers to `linear` for title/label/priority/status mechanics.
 - **`references/layer-policy.md`** — what organizational layers the workspace uses (project / milestone / issue / cycle), what layers are deliberately off by default (epic / parent ticket, subissue, initiative), and the decision criteria for promoting work between layers. Used by `groom` to flag orphan tickets, by `breakdown` to decide milestone assignment, and by `retro` to surface layer-policy adherence.
 
 ## Composes with
