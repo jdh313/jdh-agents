@@ -47,7 +47,7 @@ upstream:
 
 Decompose a goal / plan / spec / vault note into independently-grabbable Linear tickets using **vertical slices** — tracer bullets that cut through every layer end-to-end, not horizontal slices of one layer. Optionally grounds the breakdown against current ndr heads first so slices don't conflict with settled architecture. Publishes in dependency order via the linear plugin with native Linear blocks/blocked-by relations.
 
-This is the multi-ticket-from-a-plan skill. For one-shot single-ticket drafting, use `pm:author` (when it ships).
+This is the multi-ticket-from-a-plan skill. For one-shot single-ticket drafting, use `pm:author`.
 
 ## The parent is a mutable contract (spec-flow interop)
 

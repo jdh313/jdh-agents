@@ -1,8 +1,9 @@
 schema: agentforge.package/v1
 id: linear
-defaults: {"name": "linear", "version": "0.6.0", "description": "Linear workflow conventions for a small two-person team. Owns ticket creation defaults (including assignee), status flow semantics, label set, title shape, collaboration conventions, and MCP call patterns. Composes with spec-flow (which uses Linear as a contract host but defers to this plugin for the conventions). Includes a doctor skill for workspace setup validation.", "author": {"name": "Jacob Hoehler"}, "license": "Apache-2.0", "keywords": ["linear", "issue-tracking", "workflow", "conventions", "tickets", "mcp", "spec-flow"]}
+defaults: {"name": "linear", "version": "0.7.0", "description": "Linear workflow conventions for a small two-person team. Owns ticket creation defaults (including assignee), status flow semantics, label set, title shape, collaboration conventions, and MCP call patterns. Composes with spec-flow (which uses Linear as a contract host but defers to this plugin for the conventions). Includes a doctor skill for workspace setup validation, and a linear-ops agent that executes decided ticket writes in isolated context — resolving identifiers, applying the MCP silent-failure workarounds, and verifying what landed.", "author": {"name": "Jacob Hoehler"}, "license": "Apache-2.0", "keywords": ["linear", "issue-tracking", "workflow", "conventions", "tickets", "mcp", "spec-flow"]}
 artifacts:
   - {type: skill, pattern: 'skills/*/SKILL.md'}
+  - {type: agent, pattern: 'agents/*.md'}
 payloads:
   include:
     - {source: references/}
@@ -13,6 +14,15 @@ targets:
       - construct: mcp-tool-reference
         state: retained-unenforced
         note: Skills name mcp__linear-server__* tools that do not exist on Codex; the ticket conventions still apply to whatever Linear access the user has configured.
+      - construct: agent-tools-filter
+        state: stripped
+        note: >-
+          The linear-ops agent's tools: allowlist is the only mechanical guard
+          keeping it to Linear operations, and the Codex build strips the filter
+          entirely. Its Boundary section states the same limits in body prose per
+          ndr:6x3v6p, so the constraint survives as an instruction on any runtime
+          — but on Codex nothing enforces it, and the agent reaches whatever the
+          user's configured Linear access exposes.
     native:
       interface:
         displayName: Linear
