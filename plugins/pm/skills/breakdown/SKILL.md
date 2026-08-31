@@ -8,7 +8,7 @@ description: >-
   "make tickets for this", or signals that a larger goal needs to become a
   set of smaller actionable tickets. Optionally grounds against current ndr
   heads before slicing, conforms each ticket body to
-  `references/issue-shape.md`, publishes in dependency order via the linear
+  `references/issue-body.md`, publishes in dependency order via the linear
   plugin with native Linear blocks/blocked-by relations, and optionally
   recommends a spec-flow contract for slices large enough to merit one.
   Slices land in Backlog with default priority — cycle assignment is
@@ -63,7 +63,8 @@ When the source is a spec-flow contract, breakdown grows it into a **nested cont
 
 - **Source (optional argument):** A `TEAM-N` ticket (parent), vault note path, `ndr:<atom-id>`, or file path. Falls back to conversation context.
 - **Linear team:** `TEAM` — substitute your team key.
-- **Issue shape spec:** `../../references/issue-shape.md` — body template each child ticket conforms to.
+- **Issue body spec:** `../../references/issue-body.md` — body slots each child ticket conforms to.
+- **Issue shape spec:** `../../references/issue-shape.md` — required fields each child ticket carries.
 - **Layer policy:** `../../references/layer-policy.md` — decides milestone assignment for each child ticket. Defaults to an existing milestone; only proposes a new milestone if the slice is a genuinely new capability with a "done as a unit" moment. Subissue nesting and epic parents are off by default per this policy, and this skill does not override it: parent *linking* is declared here, parent *shape* is resolved by `linear` against the policy.
 - **ndr atoms root:** `~/Loose Ends/Decisions/` — grounded via `ndr:ground` before slicing. Skip without the external `ndr` plugin.
 - **Codebase root:** the current working repo — for optional exploration when slices touch tracked areas.
@@ -114,11 +115,11 @@ When the source is a spec-flow contract, breakdown grows it into a **nested cont
 
    Iterate until the user approves the breakdown.
 
-6. **Confirm parent linking.** If the source was a `TEAM-N` ticket, every child is linked to it as its parent. State the intent, not the mechanism: **how** that link is expressed in the tracker — a native subissue relation or a sibling-parent link — is the `linear` skill's call, made against `references/layer-policy.md`. Confirm the parent ID once before publishing. If the source was vault/ndr/conversation, there is no parent to link — each child's `## Context` describes the goal directly (link to vault note or ndr atom if applicable).
+6. **Confirm parent linking.** If the source was a `TEAM-N` ticket, every child is linked to it as its parent. State the intent, not the mechanism: **how** that link is expressed in the tracker — a native subissue relation or a sibling-parent link — is the `linear` skill's call, made against `references/layer-policy.md`. Confirm the parent ID once before publishing. If the source was vault/ndr/conversation, there is no parent to link — each child's aim line describes the goal directly (link to vault note or ndr atom if applicable).
 
 7. **Publish in dependency order via `linear`.** Save blockers first so children can reference real `TEAM-N` IDs in the Linear blocks/blocked-by relation. For each slice:
 
-   - Compose body per `references/issue-shape.md`: `## Context`, `## Done when:`, `## NDR references` (if any), `## Notes` (if any).
+   - Compose body per `references/issue-body.md`: a one-line aim, then `## Why now`, `## Sketch`, `## Done when`, `## Context` — omitting every slot that has nothing to say.
    - **Write the title and body in the project's domain glossary vocabulary.** If the repo has a `CONTEXT.md` glossary, use its terms rather than inventing synonyms — a ticket that renames the domain costs the implementer a translation step, and drifts the glossary by example.
    - Set labels: one Surface, one Type. Defaults: `Feature` type unless decision-shaped (`Decision`). Surface comes from the slice's primary layer.
    - Set priority: `medium` (Backlog default per the `linear` skill). Bump to `high` only when the user explicitly committed to the slice this cycle.
@@ -198,7 +199,8 @@ Granularity right? Dependencies correct? Anything to merge or split? Anyone to p
 
 ## See also
 
-- **`references/issue-shape.md`** — body template each published ticket conforms to.
+- **`references/issue-body.md`** — body slots each published ticket conforms to.
+- **`references/issue-shape.md`** — required fields each published ticket carries.
 - **`references/layer-policy.md`** — milestone-assignment criteria; epic-parent earn-it rule; subissue default-off stance.
 - **`groom`** skill in this plugin — pulls breakdown's Backlog output into the cycle later.
 - **Project `CLAUDE.md`** — repo conventions; the codebase shape that informs which layers a vertical slice touches.

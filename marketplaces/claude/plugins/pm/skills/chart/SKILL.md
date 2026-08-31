@@ -103,14 +103,16 @@ it before choosing a ticket.>
 
 ### Tickets
 
-Each ticket is a **question**, sized to one fresh agent session. Body per `references/issue-shape.md`:
+Each ticket is a **question**, sized to one fresh agent session. Body per `references/issue-body.md`:
 
 ```markdown
-## Context
+<the question, stated in one line>
 
-<the map it belongs to, and why this question is live>
+## Why now
 
-## Done when:
+<the map it belongs to, and what stays blocked while this stays open>
+
+## Done when
 
 - <the decision or investigation this ticket resolves> is captured and linked here
 ```
@@ -218,7 +220,8 @@ The map is done when no open tickets remain and `## Not yet specified` holds not
 
 ## See also
 
-- **`references/issue-shape.md`** — body template and required fields each map ticket conforms to.
+- **`references/issue-body.md`** — body slots each map ticket conforms to.
+- **`references/issue-shape.md`** — required fields each map ticket conforms to.
 - **`references/layer-policy.md`** — the earn-it criteria and the sibling-parent shape the map uses.
 - **`references/contract-template.md`** in the `spec-flow` plugin — the canonical definition of the fog-of-war model this skill applies to the map.
 - **`breakdown`** skill in this plugin — slices the route once wayfinding has cleared it.
