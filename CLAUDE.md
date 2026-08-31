@@ -132,9 +132,14 @@ uv run marketplace validate
 uv run marketplace lint
 
 # 6. Commit PACKAGE.yaml, source content, and the regenerated publications
-git add MARKETPLACE.yaml plugins/ marketplaces/
-git commit -m "feat: add my-plugin"
+#    This is a jj repo -- there is no staging area, so the working copy is
+#    already the change. Describe it and start a new one.
+jj commit -m "feat[my-plugin]: add my-plugin (v0.1.0)"
 ```
+
+Canonical source and the regenerated `marketplaces/` tree belong in the **same**
+commit. Splitting them leaves a revision where the compiled output disagrees
+with its source, which is exactly the drift `marketplace check` exists to catch.
 
 ### The compiler pin, and one environment trap
 
