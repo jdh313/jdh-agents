@@ -20,8 +20,6 @@ allowed-tools:
   - mcp__linear-server__list_issue_labels
   - mcp__linear-server__list_issue_statuses
   - mcp__linear-server__list_projects
-  - mcp__linear-server__save_issue
-  - mcp__linear-server__save_comment
   - mcp__obsidian-mcp__search_notes
   - mcp__obsidian-mcp__read_multiple_notes
   - Read
@@ -167,11 +165,13 @@ The user invokes with a loose idea.
 
 4. **Confirm the chart before publishing.** Show the destination, the tickets you can specify now (title, mode, type label, blocked-by), and the fog patches as a numbered list. Ask: is the destination right, is anything here actually out of scope, is any ticket really a fog patch (or vice versa). Iterate until the user approves. Publishing is the only destructive step in this skill.
 
-5. **Create the map** — Destination and Notes filled in, `## Decisions so far` empty, the fog sketched into `## Not yet specified`. Set project, milestone (per `references/layer-policy.md`), priority, and labels per the `linear` skill.
+5. **Create the map** — Destination and Notes filled in, `## Decisions so far` empty, the fog sketched into `## Not yet specified`. Compose the body, then dispatch `linear-ops` (linear plugin) with a `create` intent block naming project, milestone (per `references/layer-policy.md`), priority, and labels per the `linear` skill. Pass the body verbatim; the agent authors no prose. Capture the returned `TEAM-N` — every ticket below links to it.
 
-6. **Create the tickets, then wire in a second pass.** Save the tickets first so they have real `TEAM-N` IDs, then have `linear` link each one to the map and wire the blocks / blocked-by edges between them — issues need IDs before they can reference each other. Wiring sorts them into the frontier and the blocked; everything you cannot yet specify stays in `## Not yet specified`.
+6. **Create the tickets, then wire in a second pass.** **One `linear-ops` dispatch per ticket** — the agent takes a single intent block and returns a single ticket. Publish them all first so they have real `TEAM-N` IDs, then dispatch again to link each one to the map and wire the blocks / blocked-by edges via `## Relations` — issues need IDs before they can reference each other. Wiring sorts them into the frontier and the blocked; everything you cannot yet specify stays in `## Not yet specified`. Surface any `## Discrepancies` block the agent returns verbatim.
 
-7. **Fire the research subagents.** For each research-mode ticket just created, dispatch a subagent in parallel — `Explore` for questions answerable inside the repo, a web-research agent for anything outside it. Each posts its findings as a resolution comment on its own ticket.
+   **Structural fallback:** if the `linear-ops` agent is not available — the linear plugin is not installed — do not reimplement the write. Say the agent is missing, and hand the composed map and tickets to the `linear` skill's create operation, or to the user to paste. Cross-plugin references resolve only when both plugins are installed (`ndr:m7pd8d`).
+
+7. **Fire the research subagents.** For each research-mode ticket just created, dispatch a subagent in parallel — `Explore` for questions answerable inside the repo, a web-research agent for anything outside it. Each returns its findings to this session; you post them as a resolution comment via a `linear-ops` `comment` dispatch. Research agents have no Linear write access of their own.
 
 8. **Stop.** Charting is one session's work; it hand-resolves nothing.
 
@@ -180,10 +180,10 @@ The user invokes with a loose idea.
 The user invokes with a map (`TEAM-N` or URL). A ticket argument is **optional**: without one, you pick the next decision, not the user.
 
 1. **Load the map** — the low-resolution view, not every ticket body.
-2. **Choose the ticket.** If the user named one, use it. Otherwise take the first frontier ticket in order. **Claim it**: assign it before any work.
+2. **Choose the ticket.** If the user named one, use it. Otherwise take the first frontier ticket in order. **Claim it**: dispatch `linear-ops` with an `update` intent assigning it, before any work.
 3. **Resolve it.** **Zoom as needed** — fetch the full body of any related or closed ticket on demand; dispatch whichever skills `## Notes` names. If in doubt, `Skill(craft:grill)` plus `Skill(craft:domain-modeling)`.
 4. **Capture the decision.** A `Decision`-mode resolution is an ndr atom: dispatch `Skill(ndr:capture-decision)` and put the returned `ndr:` reference in the resolution. A `Spike` resolution is a **finding** — a vault note or a comment — and becomes an atom only if the finding itself resolves a decision (the `linear` skill's rule). A `Chore` resolution records what was done and the facts later tickets depend on.
-5. **Record the resolution.** Post the answer as a comment on the ticket, move the ticket to a completed state, and append one line to the map's `## Decisions so far` — the ticket's name as a link, a one-line gist, and the `ndr:` reference if one was captured.
+5. **Record the resolution.** Dispatch `linear-ops` with a `comment` intent block — a `## Target` naming the ticket, the answer as the body — then a `transition` to move the ticket to a completed state, and append one line to the map's `## Decisions so far` — the ticket's name as a link, a one-line gist, and the `ndr:` reference if one was captured.
 6. **Advance the frontier.** Add newly-surfaced tickets (create, then wire). Graduate any fog the answer made specifiable, clearing each graduated patch from `## Not yet specified` so it lives only as its new ticket. If the answer reveals that a ticket — this one or another — sits beyond the destination, **rule it out of scope** rather than resolving it on the route. If the decision invalidates other parts of the map, update or cancel those tickets and say so.
 
 The user may run unblocked tickets in parallel, so expect other sessions to be editing Linear concurrently. Re-read the map before writing to it.
@@ -212,7 +212,8 @@ The map is done when no open tickets remain and `## Not yet specified` holds not
 - **`craft:prototype`** (craft plugin) — resolves a prototype-mode ticket.
 - **`ndr:ground`** (external ndr plugin) — grounding pass before charting, so the map does not re-decide settled architecture.
 - **`ndr:capture-decision`** (external ndr plugin) — captures each `Decision`-mode resolution as an atom.
-- **`linear`** (linear plugin) — performs the issue saves, and owns the Spike-vs-Decision boundary test, the label set, the status flow, and the accept ritual this skill claims tickets with.
+- **`linear-ops`** (linear plugin agent) — performs every Linear write this skill makes: the map, each ticket, the relation wiring, the resolution comments, and the completed-state transitions. One dispatch per operation.
+- **`linear`** (linear plugin) — owns the Spike-vs-Decision boundary test, the label set, the status flow, and the accept ritual this skill claims tickets with.
 - **`pm:to-questionnaire`** (this plugin) — turns a `Chore` ticket blocked on someone else's knowledge into a document they can fill in async.
 - **`pm:breakdown`** (this plugin) — the downstream half of the handoff chain, once the route is clear.
 - **`spec-flow:draft`** (spec-flow plugin) — the alternative handoff when the destination is a single contract-shaped change.

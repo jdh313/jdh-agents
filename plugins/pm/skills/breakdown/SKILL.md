@@ -15,13 +15,12 @@ description: >-
   `pm:groom`'s job.
 argument-hint: "[source — TEAM-N ticket, vault note path, ndr:atom-id, file path; falls back to conversation]"
 allowed-tools:
-  # Linear — read parent + publish children + wire relations
+  # Linear — read-side only; every write goes through the `linear-ops` agent
   - mcp__linear-server__list_issues
   - mcp__linear-server__get_issue
   - mcp__linear-server__list_issue_labels
   - mcp__linear-server__list_issue_statuses
   - mcp__linear-server__list_projects
-  - mcp__linear-server__save_issue
   # Obsidian — read source if it's a vault note
   - mcp__obsidian-mcp__search_notes
   - mcp__obsidian-mcp__read_multiple_notes
@@ -30,7 +29,7 @@ allowed-tools:
   - Grep
   - Glob
   - Bash(ndr *)
-  # Compose with ndr:ground, linear, spec-flow:draft
+  # Compose with ndr:ground, spec-flow:draft; publish via `linear-ops`
   - Skill
   - Agent
 upstream:
@@ -117,16 +116,18 @@ When the source is a spec-flow contract, breakdown grows it into a **nested cont
 
 6. **Confirm parent linking.** If the source was a `TEAM-N` ticket, every child is linked to it as its parent. State the intent, not the mechanism: **how** that link is expressed in the tracker — a native subissue relation or a sibling-parent link — is the `linear` skill's call, made against `references/layer-policy.md`. Confirm the parent ID once before publishing. If the source was vault/ndr/conversation, there is no parent to link — each child's aim line describes the goal directly (link to vault note or ndr atom if applicable).
 
-7. **Publish in dependency order via `linear`.** Save blockers first so children can reference real `TEAM-N` IDs in the Linear blocks/blocked-by relation. For each slice:
+7. **Publish in dependency order via `linear-ops`.** Save blockers first so children can reference real `TEAM-N` IDs in the Linear blocks/blocked-by relation. **One dispatch per slice** — the agent takes a single intent block and returns a single ticket, so the loop is sequential: publish a slice, capture its returned `TEAM-N`, then name it in the next slice's `## Relations`. Compose each intent block as `linear-ops`'s own definition specifies (operation, team, fields, body, relations) and pass the body verbatim — the agent does not author prose, and anything you leave for it to fill in comes back blocked. For each slice:
 
    - Compose body per `references/issue-body.md`: a one-line aim, then `## Why now`, `## Sketch`, `## Done when`, `## Context` — omitting every slot that has nothing to say.
    - **Write the title and body in the project's domain glossary vocabulary.** If the repo has a `CONTEXT.md` glossary, use its terms rather than inventing synonyms — a ticket that renames the domain costs the implementer a translation step, and drifts the glossary by example.
    - Set labels: one Surface, one Type. Defaults: `Feature` type unless decision-shaped (`Decision`). Surface comes from the slice's primary layer.
    - Set priority: `medium` (Backlog default per the `linear` skill). Bump to `high` only when the user explicitly committed to the slice this cycle.
    - Set project: the active phase project (lookup in Linear, take the non-completed one).
-   - Declare the parent ticket if applicable, and let `linear` wire the relation.
+   - Declare the parent ticket if applicable in `## Relations`, and let `linear-ops` wire it. Its **shape** — native subissue or sibling-parent link — remains the `linear` skill's call against `references/layer-policy.md`.
    - **Assignee:** Omit `assignee` by default — breakdown produces independently-grabbable slices that either person can pull from the shared team queue. Set `assignee` only for slices the user explicitly pre-assigned during the quiz. (See the `linear` skill's collaboration conventions for the accept ritual.)
-   - After save, capture the returned `TEAM-N` for downstream blocks/blocked-by references.
+   - From the agent's `## Result` block, capture the returned `TEAM-N` for downstream blocks/blocked-by references. Surface its `## Discrepancies` block verbatim when non-empty — a silently dropped label is exactly the failure the agent's verify step exists to catch, and swallowing it here defeats it.
+
+   **Structural fallback:** if the `linear-ops` agent is not available — the linear plugin is not installed — do not reimplement the write. Say the agent is missing, and hand the composed slices to the `linear` skill's create operation, or to the user to paste. Cross-plugin references resolve only when both plugins are installed (`ndr:m7pd8d`).
 
 7a. **Write the fog to the parent** (parent-hosted breakdowns only). Anything the quiz surfaced that failed the phrase-it-now test goes to the parent's `## Not yet specified` — one line per patch, as loose as the view allows. Write it in the parent's own words, not sharpened; sharpening it here is the same mistake as ticketing it.
 
@@ -192,7 +193,8 @@ Granularity right? Dependencies correct? Anything to merge or split? Anyone to p
 - **`ndr:ground`** (external ndr plugin — ships from its own separate marketplace) — grounding pass before slicing. Surfaces current decision heads relevant to the goal's area. Optional: without it, slice from the source + conversation alone.
 - **`ndr:decisions`** (external ndr plugin) — used when the source argument is an `ndr:` reference.
 - **`ndr:capture-decision`** (external ndr plugin) — recommended after a `Decision`-type slice's call is made.
-- **`linear`** (linear plugin) — performs the actual ticket saves with team conventions (labels, priority semantics, title shape).
+- **`linear-ops`** (linear plugin agent) — performs the actual ticket saves. Resolves team/project/label/state/milestone identifiers and applies this integration's silent-failure workarounds, one dispatch per slice.
+- **`linear`** (linear plugin) — owns the team conventions the slices are composed against (labels, priority semantics, title shape, parent shape).
 - **`spec-flow:draft`** (spec-flow plugin) — optional handoff for slices that warrant a contract-tracked workflow, via `/spec-flow draft`.
 - **`spec-flow:close`** (spec-flow plugin) — the other half of the fog loop. On a slice close it notices sharpened fog and recommends the graduation pass back here; at parent-close it drains whatever never graduated. This skill never closes anything.
 - **`Explore` agent** (built-in) — optional codebase exploration in step 3.
