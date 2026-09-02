@@ -59,8 +59,8 @@ workspace) by design. Grant them access deliberately.
 - A plugin in this repository that induces an agent to take a destructive or
   exfiltrating action outside what its documentation describes.
 - Credentials, tokens, or private paths committed to this repository. The
-  `marketplace scan` privacy gate is meant to prevent this; a leak that slipped
-  past it is a finding about the gate as well.
+  privacy gate (`scripts/privacy-scan.sh`) is meant to prevent this; a leak
+  that slipped past it is a finding about the gate as well.
 - A hook or script here that escalates beyond the permission the user granted.
 - Supply-chain problems in the compiled `marketplaces/` tree — output that does
   not correspond to the committed source in `plugins/`.
@@ -83,16 +83,45 @@ workspace) by design. Grant them access deliberately.
 
 ## What the privacy gate does and does not cover
 
-`python3 scripts/privacy_scan.py` runs on every push via a `prek` pre-push hook
-and again in CI. It hard-fails on absolute machine-home paths and secret-shaped
-assignments, and warns on a few softer signals.
+`scripts/privacy-scan.sh` runs in CI on every push and pull request, and locally
+via a `prek` pre-push hook. It runs
+[Betterleaks](https://github.com/betterleaks/betterleaks) -- pinned by version
+and sha256, verified before execution -- over the repository's **committed
+history**, with its maintained default ruleset plus two repository rules:
+absolute machine-home paths, and generic secret-shaped assignments. Every
+finding fails the run; there is no advisory tier.
+
+It scans history rather than the working tree because this repository is public,
+so its history is public. A machine path committed and then deleted three
+commits later is still served by GitHub forever, and a working-tree scan reports
+that repository clean — it has no way to see it. Scanning commits also means the
+gate never reads gitignored files, because those were never committed, so its
+scope cannot drift from `.gitignore`.
+
+`scripts/tests/test_privacy_gate.sh` plants known violations — including one
+deleted in a later commit — and requires the gate to reject them, because a scan
+that silently matches nothing is indistinguishable from a clean repository.
 
 It is deliberately separate from `agentforge check`, and cannot be folded into
 it: AgentForge only ever sees files a publication declares, so a leak in an
-undeclared file — a doc, a workflow, a decision atom — is invisible to it. This
-scanner walks the whole git-tracked tree.
+undeclared file — a doc, a workflow, a decision atom — is invisible to it.
 
-It scans the **working tree, not git history** — it stops a leak from shipping,
-it does not find one that was introduced and later reverted. And its coverage is
-necessarily pattern-based: a person's name, an employer, or an internal slug are
-not mechanically detectable. Nothing in it replaces reading a diff.
+Two limits worth stating plainly. `jj git push` does not run git hooks, so in a
+jj workflow the local hook fires only through a wrapper that invokes prek; CI is
+the enforcing gate either way. And coverage is necessarily pattern-based: a
+person's name, an employer, or an internal slug are not mechanically detectable.
+Nothing in it replaces reading a diff.
+
+Findings that predate the gate live in `.betterleaks-baseline.json`. Those ten
+are deliberate fixtures in two test files that have since been deleted; their
+commits are immutable, so a baseline entry is the only way to accept them. The
+file is not expected to grow — a violation caught before pushing should be fixed
+by rewriting the commit, and a deliberate fixture should carry a
+`betterleaks:allow` comment in the same commit that introduces it.
+
+Findings that predate the gate live in `.betterleaks-baseline.json`. Those ten
+are deliberate fixtures in two test files that have since been deleted; their
+commits are immutable, so a baseline entry is the only way to accept them. The
+file is not expected to grow -- a violation caught before pushing should be
+fixed by rewriting the commit, and a deliberate fixture should carry a
+`betterleaks:allow` comment in the same commit that introduces it.

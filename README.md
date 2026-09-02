@@ -26,9 +26,12 @@ jdh-agents/
 │   └── codex/                # Self-contained Codex marketplace root (7 pilots)
 │       ├── .agents/plugins/marketplace.json
 │       └── plugins/[name]/
+├── .betterleaks.toml         # Privacy-gate rules
+├── .betterleaks-baseline.json  # Pre-existing findings, accepted once
 ├── scripts/                  # Automation tooling
 │   ├── agentforge.sh         # Fetches + sha256-verifies the pinned compiler
-│   └── privacy_scan.py       # Repo-wide secret/privacy gate (stdlib only)
+│   ├── privacy-scan.sh       # History secret/privacy gate (pinned Betterleaks)
+│   └── tests/                # Gate self-test + attention-workflow behavior
 └── .github/workflows/        # CI/CD automation
     └── validate.yml          # GitHub Actions workflow
 ```
@@ -61,8 +64,8 @@ tooling expect at runtime.
 
 - `bash` and `curl` — `scripts/agentforge.sh` fetches the pinned compiler binary
   and verifies it against a per-platform sha256 before executing it
-- `python3` — for `scripts/privacy_scan.py`, which is stdlib-only and needs no
-  virtualenv or package manager
+- `git` — `scripts/privacy-scan.sh` scans committed history, so it needs the
+  repository's commits (in CI, `actions/checkout` with `fetch-depth: 0`)
 - [`uv`](https://docs.astral.sh/uv/) — only to run
   `scripts/tests/test_attention_workflow.py`, which declares its own `pytest`
   dependency in a PEP 723 header. The repo declares no project, so there is
@@ -171,7 +174,7 @@ Step 3 requires the [AgentForge compiler](https://github.com/jdh313/agentforge).
 
 5. Run the privacy gate over the whole tree:
    ```bash
-   python3 scripts/privacy_scan.py
+   scripts/privacy-scan.sh
    ```
 
 See [`docs/agentforge-compatibility.md`](docs/agentforge-compatibility.md) for
@@ -220,12 +223,13 @@ AgentForge owns the cross-runtime translation from Claude
 ### Privacy gate
 
 ```bash
-python3 scripts/privacy_scan.py
+scripts/privacy-scan.sh
 ```
 
 Hard-fails on absolute machine-home paths and secret-shaped assignments across
-the whole git-tracked tree; warns on softer signals. Stdlib-only, so the prek
-pre-push hook can run it with no environment to set up.
+the repository's committed history. Every finding fails; there is no advisory
+tier. The pinned Betterleaks binary fetches and sha256-verifies itself on first
+use, so there is nothing to install.
 
 This is the one gate AgentForge cannot own: AgentForge only ever sees files a
 publication declares, so a leak in an undeclared file — a doc, a workflow, a
@@ -234,7 +238,7 @@ decision atom — is invisible to it.
 ## CI/CD
 
 GitHub Actions runs on every push and pull request:
-- `python3 scripts/privacy_scan.py` over the whole git-tracked tree
+- `scripts/tests/test_privacy_gate.sh`, then `scripts/privacy-scan.sh` over committed history
 - `agentforge check --claude-native` with AgentForge pinned to release `v0.4.0`
 - `claude plugin validate --strict` for the generated Claude publication,
   using Claude Code `2.1.216`

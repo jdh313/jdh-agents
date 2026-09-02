@@ -49,7 +49,8 @@ jdh-agents/
 │       └── plugins/[name]/       # Compiled manifest + bodies + agents/openai.yaml
 ├── scripts/                      # Automation utilities
 │   ├── agentforge.sh             # Pinned-compiler wrapper (version + sha256)
-│   └── privacy_scan.py           # Repo-wide privacy gate (stdlib only)
+│   ├── privacy-scan.sh           # History privacy gate (pinned Betterleaks)
+│   └── tests/                    # Gate self-test + attention-workflow behavior
 └── README.md
 ```
 
@@ -110,7 +111,7 @@ serves all packages. The export mechanism -- `export/public.json`, the
 allowlist-manifest builder behind it -- has been removed.
 
 The privacy scanner it introduced outlived it, and is now the repo-wide gate:
-`python3 scripts/privacy_scan.py`, run by the prek pre-push hook and by CI.
+`scripts/privacy-scan.sh`, run by the prek pre-push hook and by CI.
 
 `jdh313/shared-claude-plugins` still exists and no longer receives updates.
 Prefer `marketplace add jdh313/jdh-agents`.
@@ -130,7 +131,7 @@ scripts/agentforge.sh compile MARKETPLACE.yaml --out marketplaces
 
 # 5. Verify the committed tree
 scripts/agentforge.sh check MARKETPLACE.yaml --out marketplaces --claude-native
-python3 scripts/privacy_scan.py
+scripts/privacy-scan.sh
 
 # 6. Commit PACKAGE.yaml, source content, and the regenerated publications
 #    This is a jj repo -- there is no staging area, so the working copy is
@@ -164,7 +165,7 @@ Before pushing, always run the full validation suite:
 
 ```bash
 scripts/agentforge.sh check MARKETPLACE.yaml --out marketplaces --claude-native
-python3 scripts/privacy_scan.py
+scripts/privacy-scan.sh
 ```
 
 `check` covers output drift, managed-output content, managed `.json` parsing,
@@ -215,7 +216,7 @@ Then re-run `scripts/agentforge.sh compile MARKETPLACE.yaml --out marketplaces` 
 
 **Workflow:** `.github/workflows/validate.yml` runs on every push and PR:
 1. Checks out code
-2. Runs `python3 scripts/privacy_scan.py` over the whole git-tracked tree
+2. Runs `scripts/tests/test_privacy_gate.sh`, then `scripts/privacy-scan.sh` over committed history (checkout needs `fetch-depth: 0`)
 3. Runs `scripts/agentforge.sh check MARKETPLACE.yaml --out marketplaces --claude-native`
 
 **Common CI failures:**
@@ -336,7 +337,10 @@ Full example with all optional fields:
 | `marketplaces/claude/` | Complete Claude marketplace root — the directory a local install is pointed at | Generated and committed by `agentforge compile` |
 | `marketplaces/codex/` | Complete Codex marketplace root — the directory Codex is pointed at | Generated and committed by `agentforge compile` |
 | `scripts/agentforge.sh` | Pinned-compiler wrapper: version + per-platform sha256, fetch, verify, exec | The only way to run the compiler; CI runs this same script |
-| `scripts/privacy_scan.py` | Repo-wide privacy gate over the git-tracked tree | Stdlib-only; run by the prek pre-push hook and by CI |
+| `.betterleaks.toml` | Privacy-gate rules: inherited default ruleset + two repo rules | Top-level keys must stay above every `[table]` header |
+| `scripts/privacy-scan.sh` | Privacy gate over committed history | Pinned Betterleaks; `--log-opts HEAD` is load-bearing in a jj repo |
+| `.betterleaks-baseline.json` | Ten pre-existing findings, accepted once | Should not grow; fix or `betterleaks:allow` instead |
+| `scripts/tests/test_privacy_gate.sh` | Plants violations, requires rejection | Guards against a silently-inert gate |
 | `.github/workflows/validate.yml` | CI/CD pipeline | Automated validation on push/PR |
 
 ## Troubleshooting Broken Plugins

@@ -60,13 +60,15 @@ your edit and Codex read its cache.
 
 ## Development setup
 
-Everything runs from a plain clone. There is nothing to install: the compiler
-fetches itself on first use, and the privacy gate is stdlib-only Python.
+Everything runs from a plain clone. There is nothing to install: both the
+compiler and the secret scanner are pinned binaries that fetch and verify
+themselves on first use.
 
 ```bash
 git clone https://github.com/jdh313/jdh-agents
 cd jdh-agents
-python3 scripts/privacy_scan.py
+scripts/tests/test_privacy_gate.sh   # proves the gate is not silently inert
+scripts/privacy-scan.sh
 scripts/agentforge.sh check MARKETPLACE.yaml --out marketplaces --claude-native
 ```
 
@@ -79,8 +81,11 @@ prek install --hook-type pre-push
 
 `prek` is a Rust reimplementation of the pre-commit framework
 ([j178/prek](https://github.com/j178/prek)); the hook runs
-`python3 scripts/privacy_scan.py` over the working tree. It scans what is about
-to ship, not git history.
+`scripts/privacy-scan.sh` over the repository's committed history.
+
+Note that `jj git push` does **not** run git hooks -- jj has no native hook
+support -- so in a jj workflow the hook only fires if you push through a wrapper
+that invokes prek explicitly. CI runs the same gate regardless.
 
 ### Regenerating `marketplaces/` (needs the compiler)
 
@@ -141,12 +146,13 @@ Then re-run `compile` so the compiled manifests carry the new version.
 ## Before you open a pull request
 
 ```bash
-python3 scripts/privacy_scan.py
+scripts/tests/test_privacy_gate.sh
+scripts/privacy-scan.sh
 scripts/agentforge.sh check MARKETPLACE.yaml --out marketplaces --claude-native
 ```
 
-Both must pass. CI re-runs exactly these against the pinned compiler; a clean
-local run is the merge gate.
+All three must pass. CI re-runs exactly these against the pinned binaries; a
+clean local run is the merge gate.
 
 Commit messages follow `type[scope]: subject (vX.Y.Z)`, e.g.
 `feat[librarian]: vault-reader handles empty folders (v0.4.0)`. The version

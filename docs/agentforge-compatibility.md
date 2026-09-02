@@ -349,7 +349,7 @@ not behavioral equivalence.
 Use a checkout at the recorded compiler baseline:
 
 ```bash
-python3 scripts/privacy_scan.py
+scripts/privacy-scan.sh
 
 # Verify the committed publications, not a throwaway compile.
 scripts/agentforge.sh check MARKETPLACE.yaml \
