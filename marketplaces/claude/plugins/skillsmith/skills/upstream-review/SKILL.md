@@ -128,10 +128,12 @@ Don't record plain `kept` — equivalence is the default and needs no entry. The
    - Update the `upstream:` block: `reviewed_sha` → the SHA from step 2, `reviewed` → today, `status` → `reviewed`. For intake, write the block for the first time.
    - Append any newly-confirmed intentional divergences to `UPSTREAM.md` and update its "ledger current as of `reviewed_sha`" line. Create the ledger if this is the first full review (e.g. promoting a `baseline`).
 
-10. **Run the marketplace verify loop** if any file changed — bump the plugin's `plugin.json` version, then:
+10. **Run the marketplace verify loop** if any file changed — bump the plugin's `plugin.json` version, then recompile and verify:
    ```bash
-   uv run marketplace check
+   scripts/agentforge.sh compile MARKETPLACE.yaml --out marketplaces
+   scripts/agentforge.sh check MARKETPLACE.yaml --out marketplaces --claude-native
    ```
+   Commit the regenerated `marketplaces/` tree along with your source change.
 
 ## Non-goals
 
