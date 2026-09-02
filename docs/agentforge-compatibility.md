@@ -5,53 +5,51 @@ AgentForge collection definitions. Native Claude and Codex manifests remain
 committed at the repository paths consumed by both runtimes, but they are now
 generated outputs rather than independently maintained metadata.
 
-The compiler baseline for this enrollment is the AgentForge **v0.2.0** release
+The compiler baseline for this enrollment is the AgentForge **v0.4.0** release
 binary, pinned by version and per-platform sha256 in
-[`scripts/marketplace/generation.py`](../scripts/marketplace/generation.py).
+[`scripts/agentforge.sh`](../scripts/agentforge.sh).
 The pin is a release identity rather than a source revision so that CI and a
 local run execute the same bytes; a source build at the equivalent commit is
 not byte-identical to the published asset.
 
-## Acceptance-suite ownership
+## Gate ownership
 
-jdh-agents owns full-corpus acceptance and drift detection against its real
-canonical `MARKETPLACE.yaml`. AgentForge retains its focused five-package
-compiler fixture as compiler-level coverage; that fixture is not a substitute
-for validating all sixteen packages in this repository.
+Acceptance and drift detection are AgentForge's, run against this repository's
+real canonical `MARKETPLACE.yaml`. `agentforge check` diffs the compilation plan
+against the committed tree in memory and reports missing, extra, changed, and
+permission drift, plus managed-output content, managed `.json` parsing, skill
+frontmatter, manifest parity, and plugin path resolution. It never writes, so it
+cannot repair or rewrite output while checking.
 
-The jdh-agents suite runs the pinned compiler twice in separate temporary
-output roots and compares paths, file types, bytes, and normalized permissions.
-Those compiles use a throwaway copy of the canonical definition with the Claude
-publication's `root-manifest` flag removed, because a publication declaring it
-requires `--out` to resolve inside the marketplace directory and writes its root
-copy beside `MARKETPLACE.yaml` -- neither of which a temporary output root can
-satisfy without overwriting the committed root manifest. Root-manifest
-publication has its own coverage in `scripts/tests/test_root_manifest.py`.
-It then runs AgentForge's read-only `check` command and exercises drift in five
-dimensions: changed content, a missing file, an extra file, changed registry
-metadata, and changed permissions. Every drift case fingerprints the generated
-tree before and after the check to prove that checking does not repair or
-rewrite output.
+A throwaway compile is not an option once a publication declares
+`root-manifest`: the compiler requires `--out` to resolve inside the marketplace
+directory and writes the root copy beside `MARKETPLACE.yaml`, so a
+temp-directory compile is rejected outright and an in-tree one would clobber the
+committed root manifest during what is supposed to be a read-only check.
+Delegating to `check` also covers that root manifest, which lives outside
+`marketplaces/` and is therefore invisible to a tree snapshot rooted there.
 
 The merge gate also applies the runtime-native checks that are available:
 
-- `claude plugin validate --strict` validates the complete generated Claude
-  publication.
-- `uv run marketplace validate --format codex` validates the generated Codex
-  marketplace and only its seven declared packages. It checks local source
-  resolution, manifest identity and semantic versions, required skill metadata,
-  explicit-only sidecars, and exact agreement between declared and materialized
-  package directories. Codex currently provides marketplace management but no
-  non-interactive `plugin validate` command, so this is jdh-agents's native
-  Codex validation boundary.
+- `claude plugin validate --strict`, via `agentforge check --claude-native`,
+  validates the complete generated Claude publication.
+- Codex has **no** non-interactive `plugin validate` command, and this
+  repository no longer carries a hand-written substitute for one. The Codex
+  publication is gated by `agentforge check` alone: manifest parity, declared
+  plugin path resolution, and skill frontmatter against the Codex schema.
+  Deeper materialized-tree assertions that a previous repository-owned
+  validator made — declared-vs-materialized package parity, companion-script
+  reference resolution, hook event names, the `SessionEnd` timeout cap — are
+  **not** currently re-verified independently of the compiler. Closing that gap
+  belongs upstream in AgentForge, not here.
 
-Generated publication roots are committed, not disposable. `uv run marketplace
-sync` compiles complete publications into `marketplaces/claude/` (196 files, 16
-packages) and `marketplaces/codex/` (120 files, 7 packages), and each root is
-self-contained enough for its runtime to be pointed directly at it. `sync
---check` recompiles into a temporary root and diffs the whole tree — content and
-executable bits — against the committed one; it never writes. The acceptance
-suite likewise never updates checked-in output.
+Generated publication roots are committed, not disposable.
+`agentforge compile MARKETPLACE.yaml --out marketplaces` compiles complete
+publications into `marketplaces/claude/` (224 managed files, 16 packages) and
+`marketplaces/codex/` (212 managed files, 14 packages), and each root is
+self-contained enough for its runtime to be pointed directly at it. `check`
+diffs the whole tree — content and executable bits — against the committed one;
+it never writes.
 
 An earlier revision projected only the native manifest files back into the
 source tree and discarded every compiled body. That left the repository root
@@ -351,23 +349,21 @@ not behavioral equivalence.
 Use a checkout at the recorded compiler baseline:
 
 ```bash
-uv run marketplace sync
-uv run marketplace check
-uv run pytest -q
+python3 scripts/privacy_scan.py
 
 # Verify the committed publications, not a throwaway compile.
-"$(uv run marketplace agentforge-path)" \
-  check MARKETPLACE.yaml --out marketplaces --claude-native
+scripts/agentforge.sh check MARKETPLACE.yaml \
+  --out marketplaces --claude-native
 ```
 
-No environment variable is needed. `marketplace sync` fetches the pinned
+No environment variable is needed. `scripts/agentforge.sh` fetches the pinned
 release binary on first use, verifies it against the per-platform sha256 map in
-`scripts/marketplace/generation.py`, and caches it under `.cache/agentforge/`.
+that same script, and caches it under `.cache/agentforge/`.
 
 CI neither builds [`jdh313/agentforge`](https://github.com/jdh313/agentforge)
-from source nor installs it itself. It runs `uv run marketplace check`, and the
-same fetch-and-verify path described above supplies the compiler. There is one
-pin, in `generation.py`, rather than a source revision for local runs and a
+from source nor installs it itself. It runs `scripts/agentforge.sh` directly, so
+the same fetch-and-verify path described above supplies the compiler. There is
+one pin, in that script, rather than a source revision for local runs and a
 separate release pin in the workflow -- two pins that could drift apart. That
 repository is public, so the download needs no credential; the workflow
 previously required an `AGENTFORGE_DEPLOY_KEY` secret to check out the source

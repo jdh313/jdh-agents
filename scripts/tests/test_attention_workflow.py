@@ -1,17 +1,35 @@
-"""Behavioral tests for the attention-workflow plugin.
+#!/usr/bin/env python3
+# /// script
+# requires-python = ">=3.13"
+# dependencies = ["pytest>=8.0"]
+# ///
+"""Behavioral tests for the attention-workflow plugin: state and guards.
 
-Two layers, kept apart on purpose:
+This file used to carry two layers. The **publication** layer — that the
+committed Claude publication really carries the skill, agent, hooks,
+references, and executable payloads, and really carries no Codex projection —
+is gone from here, because `scripts/agentforge.sh check` now covers it. Drift
+between canonical source and the committed `marketplaces/` tree, missing or
+extra managed outputs, the executable bit on a payload, manifest parity, and
+skill front-matter are all structural facts the compiler already knows; a
+hand-written assertion restating them is a second, weaker copy that goes stale
+on its own schedule.
 
-* **Publication** — the committed Claude publication really carries the skill,
-  agent, hooks, references, and executable payloads, and really carries no
-  Codex projection.
-* **State and guards** — grant immutability, supersession, fail-safe
-  evaluation, judgment-before-verdict ordering, terminal-once verification
-  runs, and the two PreToolUse guards, exercised as subprocesses against
-  isolated state roots and real temporary repositories.
+What remains is the **state and guards** layer, and it is not structural. Grant
+immutability, supersession preserving the old grant, amendment staling the
+evidence, atomic current-state writes, fail-safe evaluation of a contradictory
+or unreadable record, judgment-before-verdict ordering, terminal-once
+verification runs, the SessionStart context for every state a change can be in,
+and the two PreToolUse guards — these are claims about what the helper and the
+hooks *do* when run. They are exercised here as subprocesses against isolated
+state roots and real temporary repositories, because that is the only way to
+observe them. A structural compiler can never reach them: it reads files, and
+these are facts about execution.
 
 Neither layer is evidence that the workflow regulates attention. That needs the
 three hand-observed pilot runs, which have not happened.
+
+Run:  uv run scripts/tests/test_attention_workflow.py
 """
 
 from __future__ import annotations
@@ -29,7 +47,6 @@ import pytest
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 SOURCE = REPO_ROOT / "plugins" / "attention-workflow"
-PUBLISHED = REPO_ROOT / "marketplaces" / "claude" / "plugins" / "attention-workflow"
 HELPER = SOURCE / "scripts" / "aw_state.py"
 SKILL = SOURCE / "skills" / "workflow" / "SKILL.md"
 DEBRIEF = SOURCE / "skills" / "debrief" / "SKILL.md"
@@ -224,97 +241,8 @@ def git_repo(tmp_path: Path) -> Iterator[Path]:
 
 
 # ---------------------------------------------------------------------------
-# Publication
+# The verifier's tool filter — an enforcement property, not a publication fact
 # ---------------------------------------------------------------------------
-
-
-def test_source_package_declares_claude_only() -> None:
-    text = (SOURCE / "PACKAGE.yaml").read_text(encoding="utf-8")
-    assert "id: attention-workflow" in text
-    assert "  claude:" in text
-    assert "  codex:" not in text, "Experiment 1 is Claude-only; a Codex target would publish a package whose hook guarantee is absent"
-
-
-def test_claude_publication_carries_every_declared_surface() -> None:
-    manifest = json.loads((PUBLISHED / ".claude-plugin" / "plugin.json").read_text(encoding="utf-8"))
-    assert manifest["name"] == "attention-workflow"
-    assert manifest["version"] == "0.15.0"
-    # Experimental: installing the marketplace must not switch the lifecycle
-    # out from under an in-flight spec-flow change.
-    assert manifest["defaultEnabled"] is False
-
-    # Payloads are copied verbatim — the executables the hooks actually run,
-    # and the references the skill points at.
-    for relative in (
-        "hooks/hooks.json",
-        "hooks/session_start.py",
-        "hooks/authority_delivery_guard.py",
-        "scripts/aw_state.py",
-        "references/state-model.md",
-        "references/enforcement-map.md",
-        "references/issue-projections.md",
-        "references/hosts/linear.md",
-        "references/hosts/fibery.md",
-        "references/hosts/github.md",
-    ):
-        published = PUBLISHED / relative
-        assert published.is_file(), f"missing from the Claude publication: {relative}"
-        assert published.read_bytes() == (SOURCE / relative).read_bytes()
-
-    # Artifacts have their front-matter re-emitted by the compiler, so compare
-    # identity and body rather than bytes.
-    skill = (PUBLISHED / "skills" / "workflow" / "SKILL.md").read_text(encoding="utf-8")
-    assert "name: workflow" in skill
-    assert "Frame -> Design -> Prepare --authorize--> Implement" in skill
-    # Run 1 left an ordinary defect recorded as verify -> verify; the skill must
-    # spell out the phase change so the record stays honest about who is acting.
-    assert "--phase implement --owner execution" in skill
-    assert "VERIFIER VERDICT" in skill or "no verdict, no recommendation" in skill
-
-    debrief = (PUBLISHED / "skills" / "debrief" / "SKILL.md").read_text(encoding="utf-8")
-    assert "name: debrief" in debrief
-    assert "AW-DEBRIEF" in debrief
-
-    agent = (PUBLISHED / "agents" / "workflow-verifier.md").read_text(encoding="utf-8")
-    assert "name: workflow-verifier" in agent
-    assert agent.split("---", 2)[2] == (SOURCE / "agents" / "workflow-verifier.md").read_text(
-        encoding="utf-8"
-    ).split("---", 2)[2]
-
-
-def test_published_executable_payloads_keep_their_exec_bit() -> None:
-    for relative in ("hooks/session_start.py", "hooks/authority_delivery_guard.py"):
-        assert os.access(PUBLISHED / relative, os.X_OK), relative
-
-
-def test_published_hooks_declare_sessionstart_and_pretooluse() -> None:
-    hooks = json.loads((PUBLISHED / "hooks" / "hooks.json").read_text(encoding="utf-8"))["hooks"]
-    assert "SessionStart" in hooks
-    matchers = [entry.get("matcher") for entry in hooks["PreToolUse"]]
-    assert matchers == ["Bash|Edit|Write|NotebookEdit|MultiEdit"]
-
-
-def test_no_codex_publication_for_this_package() -> None:
-    codex = REPO_ROOT / "marketplaces" / "codex" / "plugins" / "attention-workflow"
-    assert not codex.exists(), "Codex is deliberately out of scope for Experiment 1"
-
-    registry = json.loads(
-        (REPO_ROOT / "marketplaces" / "codex" / ".agents" / "plugins" / "marketplace.json").read_text(
-            encoding="utf-8"
-        )
-    )
-    names = {plugin["name"] for plugin in registry["plugins"]}
-    assert "attention-workflow" not in names
-
-
-def test_claude_registry_lists_the_package() -> None:
-    registry = json.loads(
-        (REPO_ROOT / "marketplaces" / "claude" / ".claude-plugin" / "marketplace.json").read_text(
-            encoding="utf-8"
-        )
-    )
-    entry = next(p for p in registry["plugins"] if p["name"] == "attention-workflow")
-    assert entry["version"] == "0.15.0"
 
 
 def test_verifier_agent_is_read_and_execute_only() -> None:
@@ -1505,3 +1433,7 @@ def test_close_offers_the_debrief_without_gating_on_it() -> None:
     assert "declined without discussion" in skill
     # The helper gates Close on the capture item alone; debrief is not a gate.
     assert "debrief" not in HELPER.read_text(encoding="utf-8").lower()
+
+
+if __name__ == "__main__":
+    sys.exit(pytest.main([__file__, *sys.argv[1:]]))

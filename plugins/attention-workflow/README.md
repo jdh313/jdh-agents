@@ -124,14 +124,26 @@ experiment is built to test.
 
 ## Evidence status
 
-**Structural and unit evidence — done.** `scripts/tests/test_attention_workflow.py`
-covers grant create-only semantics, supersession preserving old grants,
-amendment staling evidence, atomic current-state writes, fail-safe evaluation,
+**Structural and behavioral evidence — done, across two tools.** The two are
+kept apart because they answer different questions.
+
+*Structural* — that the committed Claude publication carries the skill, agent,
+hooks, references, and executable payloads, and carries no Codex projection —
+is covered by `scripts/agentforge.sh check MARKETPLACE.yaml --out marketplaces
+--claude-native`, which compares canonical compilation against the committed
+tree (drift, missing and extra outputs, the executable bit, manifest parity,
+skill front-matter). No hand-written test restates it.
+
+*Behavioral* — `uv run scripts/tests/test_attention_workflow.py` — covers what
+the helper and the hooks actually do when run: grant create-only semantics,
+supersession preserving old grants, amendment staling evidence, atomic
+current-state writes, fail-safe evaluation, judgment-before-verdict ordering,
 SessionStart context for active / holding / exception / no-state, grant-write
 denial, unauthorized and authorized push handling, safe-command allowance,
 terminal-once run results under delayed and duplicate completion, tracker
 projection failure, and VCS checkpoint postconditions against real temporary
-repositories.
+repositories. These are facts about execution, observed as subprocesses against
+isolated state roots; `check` reads files and cannot reach them.
 
 **Runtime smoke evidence — partial.** The SessionStart and guard hooks were
 exercised end to end as executables against real hook payloads in an isolated

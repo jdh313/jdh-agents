@@ -60,13 +60,14 @@ your edit and Codex read its cache.
 
 ## Development setup
 
-Everything except regenerating `marketplaces/` runs from a plain clone.
+Everything runs from a plain clone. There is nothing to install: the compiler
+fetches itself on first use, and the privacy gate is stdlib-only Python.
 
 ```bash
 git clone https://github.com/jdh313/jdh-agents
 cd jdh-agents
-uv run marketplace check      # merge gate: drift + schemas + lint
-uv run pytest -q
+python3 scripts/privacy_scan.py
+scripts/agentforge.sh check MARKETPLACE.yaml --out marketplaces --claude-native
 ```
 
 Install the privacy pre-push hook once per clone — it is the gate that keeps
@@ -78,31 +79,34 @@ prek install --hook-type pre-push
 
 `prek` is a Rust reimplementation of the pre-commit framework
 ([j178/prek](https://github.com/j178/prek)); the hook runs
-`uv run marketplace scan` over the working tree. It scans what is about to
-ship, not git history.
+`python3 scripts/privacy_scan.py` over the working tree. It scans what is about
+to ship, not git history.
 
 ### Regenerating `marketplaces/` (needs the compiler)
 
-[`jdh313/agentforge`](https://github.com/jdh313/agentforge) is public, so anyone
-can run the compiler — but it must be the **pinned revision**, checked out as a
-detached worktree:
-
 ```bash
-git -C "$AGENTFORGE_REPO" worktree add --detach /tmp/af-pin <pinned-sha>
-env AGENTFORGE_PROJECT=/tmp/af-pin uv run marketplace sync
+scripts/agentforge.sh compile MARKETPLACE.yaml --out marketplaces
 ```
 
-The pinned SHA lives in [`docs/agentforge-compatibility.md`](docs/agentforge-compatibility.md).
-CI itself no longer checks out and builds that revision — it downloads and
-SHA256-verifies the release binary pinned in
-[`.github/workflows/validate.yml`](.github/workflows/validate.yml)
-(`AGENTFORGE_VERSION` / `AGENTFORGE_SHA256`). A local run against anything else
-is not the merge gate.
+[`scripts/agentforge.sh`](scripts/agentforge.sh) holds the pin: a release
+version plus a per-platform sha256 map taken from that release's own
+`SHA256SUMS`. It downloads the matching binary on first use, verifies the hash
+before executing a single byte, and caches it under `.cache/agentforge/<version>/`
+(gitignored). The hash is re-verified on every run, so a corrupted or tampered
+cache is replaced rather than trusted. CI runs this same script — there is no
+separate CI pin.
 
-**Do not use an `agentforge` binary on your `PATH`.** It typically symlinks into
-a working checkout that tracks whatever branch is being developed, and it has
-rejected canonical keys the pinned revision accepts. When that happens the
-failure looks like a bug in your change, and is not.
+To bump the compiler: change `AGENTFORGE_VERSION`, replace the hash map from the
+new release's `SHA256SUMS`, re-run compile, and commit the regenerated tree.
+
+**Do not run a bare `agentforge` off your `PATH`.** It typically symlinks into a
+working checkout that tracks whatever branch is being developed, and it has
+rejected canonical keys the pinned release accepts. When that happens the
+failure looks like a bug in your change, and is not. Two escape hatches exist
+for working *on* AgentForge — `AGENTFORGE_BIN` names an arbitrary executable and
+skips verification, `AGENTFORGE_PROJECT` runs a source checkout via `bun` and
+announces itself every time — and neither is the merge gate. If a result
+surprises you, re-run with both unset.
 
 ## Generated output is not editable
 
@@ -112,13 +116,13 @@ marketplaces/  <- compiler output. Never edit here.
 .claude-plugin/marketplace.json  <- compiler output (the root manifest).
 ```
 
-`marketplace sync` republishes the whole `marketplaces/` tree by rename and
+`agentforge compile` republishes the whole `marketplaces/` tree by rename and
 prunes every stale file. An edit made there is discarded without warning, and
-`marketplace check` will fail on it in CI. If you need different output, change
-`MARKETPLACE.yaml` or the relevant `plugins/<name>/PACKAGE.yaml` and re-sync.
+`agentforge check` will fail on it in CI. If you need different output, change
+`MARKETPLACE.yaml` or the relevant `plugins/<name>/PACKAGE.yaml` and recompile.
 
-One `sync` per batch. It regenerates every publication, so parallel work must
-collect its changes first and sync once.
+One compile per batch. It regenerates every publication, so parallel work must
+collect its changes first and compile once.
 
 ## Version bumping
 
@@ -132,17 +136,17 @@ the bump means Codex users never receive the change.
 | Bug fix | Patch | 0.1.0 → 0.1.1 |
 | Breaking change | Major | 0.1.0 → 1.0.0 |
 
-Then re-run `sync` so the compiled manifests carry the new version.
+Then re-run `compile` so the compiled manifests carry the new version.
 
 ## Before you open a pull request
 
 ```bash
-uv run marketplace check   # sync drift + Claude/Codex schemas + lint
-uv run pytest -q
+python3 scripts/privacy_scan.py
+scripts/agentforge.sh check MARKETPLACE.yaml --out marketplaces --claude-native
 ```
 
-Both must pass. CI re-runs exactly these, plus a full-corpus compile against the
-pinned compiler; a clean local run is the merge gate.
+Both must pass. CI re-runs exactly these against the pinned compiler; a clean
+local run is the merge gate.
 
 Commit messages follow `type[scope]: subject (vX.Y.Z)`, e.g.
 `feat[librarian]: vault-reader handles empty folders (v0.4.0)`. The version

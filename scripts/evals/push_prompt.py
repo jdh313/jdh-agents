@@ -1,4 +1,8 @@
 #!/usr/bin/env python3
+# /// script
+# requires-python = ">=3.13"
+# dependencies = ["pyyaml>=6.0"]
+# ///
 """Publish the skill-routing judge prompt to Langfuse as a versioned prompt.
 
 The judge's context is the assembled description corpus — every skill's

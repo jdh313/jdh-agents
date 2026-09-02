@@ -7,16 +7,15 @@ marketplace and package metadata. The root Claude/Codex marketplace manifests
 and per-package `.claude-plugin/plugin.json` / `.codex-plugin/plugin.json`
 files are committed generated outputs; never hand-edit them.
 
-Regenerate only those native manifests with the pinned AgentForge checkout:
+Regenerate the publications with the pinned AgentForge compiler:
 
 ```bash
-env AGENTFORGE_PROJECT=/path/to/agentforge-at-1dba647 \
-  uv run marketplace sync
+scripts/agentforge.sh compile MARKETPLACE.yaml --out marketplaces
 ```
 
-`uv run marketplace check` recompiles to a temporary directory and detects
-root, package, missing, extra, and content drift without modifying the working
-tree. Skills, agents, commands, hooks, references, and other source content
+`scripts/agentforge.sh check MARKETPLACE.yaml --out marketplaces` diffs the
+compilation plan against the committed tree and reports root, package, missing,
+extra, content, and permission drift without modifying the working tree. Skills, agents, commands, hooks, references, and other source content
 remain maintained in place. Codex enrollment remains limited to the five
 packages declared in `MARKETPLACE.yaml`. Declared hooks are translated into
 Codex's handler schema; Codex skips plugin-bundled hooks until the user reviews

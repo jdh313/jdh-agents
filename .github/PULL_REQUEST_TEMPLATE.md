@@ -5,8 +5,8 @@
 ## Verification
 
 ```
-uv run marketplace check
-uv run pytest -q
+python3 scripts/privacy_scan.py
+scripts/agentforge.sh check MARKETPLACE.yaml --out marketplaces --claude-native
 ```
 
 - [ ] Both pass locally.

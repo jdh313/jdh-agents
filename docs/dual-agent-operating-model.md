@@ -80,24 +80,27 @@ Open a new task after installation or update so Codex reloads plugin skills.
 1. Edit the shared skill body or reference once.
 2. Update only the runtime manifest or adapter whose contract changed.
 3. Keep Claude and Codex manifest names and versions equal.
-4. Run `uv run marketplace sync` when Claude manifest metadata changes.
-5. Run `uv run marketplace check` and `uv run pytest -q`.
-6. Validate a Codex-only failure with
-   `uv run marketplace validate --format codex`.
-7. Test modified pilots in a fresh Codex task and the corresponding Claude
+4. Run `scripts/agentforge.sh compile MARKETPLACE.yaml --out marketplaces`
+   when manifest metadata changes.
+5. Run `scripts/agentforge.sh check MARKETPLACE.yaml --out marketplaces
+   --claude-native` and `python3 scripts/privacy_scan.py`.
+6. Test modified pilots in a fresh Codex task and the corresponding Claude
    workflow before release.
 
 ## Validation and CI
 
-`uv run marketplace check` is the merge gate:
+`scripts/agentforge.sh check MARKETPLACE.yaml --out marketplaces
+--claude-native` is the merge gate:
 
-1. Claude registry drift check.
-2. Claude marketplace validation.
-3. Codex marketplace, manifest, parity, and skill-frontmatter validation.
-4. Plugin lint.
+1. Output drift across both publications: missing, extra, changed, permissions.
+2. Managed-output content and managed `.json` parsing.
+3. Manifest parity and declared plugin path resolution.
+4. Skill frontmatter against each target's schema.
+5. `claude plugin validate --strict` over the Claude publication.
 
-GitHub Actions runs that command plus `uv run pytest -q`. The repository owns
-the Codex validator; CI does not depend on a user-installed Codex skill.
+GitHub Actions runs that command plus `python3 scripts/privacy_scan.py`. Codex
+exposes no non-interactive validator, so the Codex publication is gated by the
+compiler's own checks; CI does not depend on a user-installed Codex skill.
 
 ## Pilot acceptance
 

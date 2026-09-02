@@ -27,7 +27,8 @@ jdh-agents/
 │       ├── .agents/plugins/marketplace.json
 │       └── plugins/[name]/
 ├── scripts/                  # Automation tooling
-│   └── marketplace/          # `marketplace` CLI: sync, validate, lint, scan, check
+│   ├── agentforge.sh         # Fetches + sha256-verifies the pinned compiler
+│   └── privacy_scan.py       # Repo-wide secret/privacy gate (stdlib only)
 └── .github/workflows/        # CI/CD automation
     └── validate.yml          # GitHub Actions workflow
 ```
@@ -46,20 +47,26 @@ and it resolves packages back into `marketplaces/claude/`.
 
 > **Consuming vs. authoring.** Installing and using these plugins needs nothing
 > but this repository — `marketplaces/` is compiled output and is committed, so
-> every plugin is ready to install as-is. *Authoring* (the `sync` step below)
+> every plugin is ready to install as-is. *Authoring* (the `compile` step below)
 > additionally needs the [AgentForge compiler](https://github.com/jdh313/agentforge),
-> which is public, at the pinned revision. Everything else — install,
-> `validate`, `lint`, `pytest` — runs from a plain clone.
+> which `scripts/agentforge.sh` fetches and verifies on first use — no manual
+> install, and no credential, since that repository is public.
 
 ### Prerequisites
 
 Nothing here is needed to *browse* the repo. These are what the plugins and the
 tooling expect at runtime.
 
-**For the marketplace tooling** (`validate`, `lint`, `check`, `pytest`):
+**For the marketplace tooling** (`compile`, `check`):
 
-- [`uv`](https://docs.astral.sh/uv/) on `PATH`
-- Python >= 3.13 (`uv` will fetch it if missing)
+- `bash` and `curl` — `scripts/agentforge.sh` fetches the pinned compiler binary
+  and verifies it against a per-platform sha256 before executing it
+- `python3` — for `scripts/privacy_scan.py`, which is stdlib-only and needs no
+  virtualenv or package manager
+- [`uv`](https://docs.astral.sh/uv/) — only to run
+  `scripts/tests/test_attention_workflow.py`, which declares its own `pytest`
+  dependency in a PEP 723 header. The repo declares no project, so there is
+  nothing to install and no lockfile to sync.
 
 **Per plugin.** Most plugins are self-contained, but several are inert or
 misleading without an external account or binary. Check this table before
@@ -134,9 +141,9 @@ is installed from a local clone, and a second root file would collide with
 nothing useful.
 
 Like everything under `marketplaces/`, the root manifest is generated. Do not
-hand-edit it -- `uv run marketplace sync` rewrites it, and
-`uv run marketplace check` fails on drift in it, reporting the path relative to
-the repository root rather than to `marketplaces/`.
+hand-edit it -- `agentforge compile` rewrites it, and `agentforge check` fails on
+drift in it, reporting the path with a `<root>` prefix rather than relative to
+`marketplaces/`.
 
 ### Adding a New Plugin (maintainer-only)
 
@@ -150,102 +157,92 @@ Step 3 requires the [AgentForge compiler](https://github.com/jdh313/agentforge).
 2. Add plugin files and an authoritative `plugins/my-plugin/PACKAGE.yaml`. Declare
    only the runtimes whose native mappings have been validated.
 
-3. Regenerate the committed native manifests with the pinned compiler:
+3. Regenerate the committed publications with the pinned compiler:
    ```bash
-   uv run marketplace sync
+   scripts/agentforge.sh compile MARKETPLACE.yaml --out marketplaces
    ```
    The pinned compiler is fetched and sha256-verified on first use; nothing to
    install or configure.
 
-4. Validate the committed publications (read-only drift + schema + lint):
+4. Verify the committed tree, including the native Claude validator:
    ```bash
-   uv run marketplace check
+   scripts/agentforge.sh check MARKETPLACE.yaml --out marketplaces --claude-native
    ```
 
-5. Run the full-corpus acceptance suite, then verify the committed tree with
-   the native Claude validator:
+5. Run the privacy gate over the whole tree:
    ```bash
-   uv run pytest -q
-   "$(uv run marketplace agentforge-path)" \
-     check MARKETPLACE.yaml --out marketplaces --claude-native
+   python3 scripts/privacy_scan.py
    ```
 
 See [`docs/agentforge-compatibility.md`](docs/agentforge-compatibility.md) for
 the current target matrix, payload handling, and reviewed compatibility
 limitations.
 
-## Marketplace CLI
+## Tooling
 
-A single tool (`scripts/marketplace/`) drives the registry. Run via `uv run marketplace <command>`:
+Two commands drive the registry. There is no repo-specific CLI to install.
 
-### Sync
+### Compile
 
-Compiles `MARKETPLACE.yaml` with AgentForge and materializes only the two root
-marketplace manifests, all 15 Claude package manifests, and the five declared
-Codex pilot manifests. It never replaces maintained skills, agents, commands,
-hooks, references, or other source content.
-
-```bash
-uv run marketplace sync
-# use `sync --check` to fail on drift without writing
-```
-
-### Validate
-
-Schema-validates a marketplace:
+Compiles `MARKETPLACE.yaml` into the committed publication roots under
+`marketplaces/`, plus the root manifest beside `MARKETPLACE.yaml`. AgentForge
+stages into a temporary directory and publishes by rename, so a failed compile
+leaves the committed tree untouched and a successful one prunes every stale file.
 
 ```bash
-uv run marketplace validate                 # Claude
-uv run marketplace validate --format codex  # Codex pilots
-uv run marketplace validate --format codex --manifest PATH --plugins-root PATH  # generated publication
+scripts/agentforge.sh compile MARKETPLACE.yaml --out marketplaces
 ```
 
-The Codex form validates the generated marketplace, each declared local plugin
-manifest, skill metadata and explicit-only sidecars, and rejects missing or
-undeclared materialized packages. Codex does not currently expose a native
-non-interactive `plugin validate` command, so this repository-owned validator
-is the native merge gate for the declared Codex publication.
-
-AgentForge owns the cross-runtime translation from Claude
-`disable-model-invocation: true` metadata to Codex
-`policy.allow_implicit_invocation: false` skill sidecars. jdh-agents's
-full-corpus suite verifies that translation against the real canonical corpus;
-it does not reimplement the compiler rule.
-
-### Lint
-
-Checks plugin files for correctness:
-
-```bash
-uv run marketplace lint
-```
+`scripts/agentforge.sh` is a ~40-line wrapper that pins the compiler by release
+version and per-platform sha256, fetches it on first use, verifies the bytes
+before executing them, and caches it under `.cache/agentforge/<version>/`. The
+hash is re-verified on every run, so a corrupted or tampered cache is replaced
+rather than trusted. CI runs this same script — there is no separate CI pin.
 
 ### Check (merge gate)
 
-Recompiles in a temporary directory, checks all committed generated manifests,
-validates both repository-native publications, and runs lint. This command is
-read-only and is the CI entrypoint:
+Diffs the compilation plan against the committed tree without writing, and
+reports missing, extra, changed, and permission drift. It also gates managed
+output content, parses every managed `.json`, validates skill frontmatter,
+checks manifest parity, and resolves every declared plugin path. With
+`--claude-native` it cross-checks the Claude publication using
+`claude plugin validate --strict`.
 
 ```bash
-uv run marketplace check
+scripts/agentforge.sh check MARKETPLACE.yaml --out marketplaces --claude-native
 ```
+
+AgentForge owns the cross-runtime translation from Claude
+`disable-model-invocation: true` metadata to Codex
+`policy.allow_implicit_invocation: false` skill sidecars, and reports it as a
+`translated-construct` note during `check`.
+
+### Privacy gate
+
+```bash
+python3 scripts/privacy_scan.py
+```
+
+Hard-fails on absolute machine-home paths and secret-shaped assignments across
+the whole git-tracked tree; warns on softer signals. Stdlib-only, so the prek
+pre-push hook can run it with no environment to set up.
+
+This is the one gate AgentForge cannot own: AgentForge only ever sees files a
+publication declares, so a leak in an undeclared file — a doc, a workflow, a
+decision atom — is invisible to it.
 
 ## CI/CD
 
 GitHub Actions runs on every push and pull request:
-- `uv run marketplace check` (Claude drift + Claude/Codex schemas + lint)
-- `uv run pytest` with AgentForge pinned to release `v0.2.0`
-- deterministic full-corpus compilation and read-only drift checks
+- `python3 scripts/privacy_scan.py` over the whole git-tracked tree
+- `agentforge check --claude-native` with AgentForge pinned to release `v0.4.0`
 - `claude plugin validate --strict` for the generated Claude publication,
   using Claude Code `2.1.216`
-- `uv run marketplace validate --format codex` for the generated Codex publication
 
 [`jdh313/agentforge`](https://github.com/jdh313/agentforge) publishes
 per-platform release binaries, so the workflow downloads the pinned
 `agentforge-linux-x64` binary and verifies it against a recorded SHA256
-checksum instead of checking out and building the compiler from source. It
-previously required an `AGENTFORGE_DEPLOY_KEY` repository secret and failed
-closed without it; that requirement is gone now that nothing is checked out.
+checksum instead of checking out and building the compiler from source.
 
 ## Metadata ownership
 
@@ -253,8 +250,8 @@ closed without it; that requirement is gone now that nothing is checked out.
 of marketplace and package metadata, and `plugins/` is the only maintained
 source of plugin content. Everything under `marketplaces/` is committed
 compiler output — manifests and bodies alike. Edit the source and run
-`uv run marketplace sync`; never hand-edit a file under `marketplaces/`, because
-the next sync republishes the whole tree and silently discards the edit.
+`scripts/agentforge.sh compile`; never hand-edit a file under `marketplaces/`,
+because the next compile republishes the whole tree and silently discards the edit.
 
 ## Support
 

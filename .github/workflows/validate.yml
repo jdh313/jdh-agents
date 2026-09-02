@@ -17,28 +17,37 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      # AgentForge is no longer installed here. The compiler is pinned by version
-      # + per-platform sha256 in `scripts/marketplace/generation.py`, which fetches
-      # and verifies it on first use and caches it under `.cache/agentforge/`.
+      # AgentForge is not installed here. The compiler is pinned by version +
+      # per-platform sha256 in `scripts/agentforge.sh`, which fetches and
+      # verifies it on first use and caches it under `.cache/agentforge/`.
       # One pin, one code path, identical bytes in CI and on a laptop.
 
       - name: Install Claude Code validator
         run: npm install --global @anthropic-ai/claude-code@2.1.216
 
-      - name: Set up uv
-        uses: astral-sh/setup-uv@v5
-        with:
-          python-version: '3.13'
-
-      - name: Check Claude and Codex marketplaces (sync drift + schemas + lint + privacy gate)
-        run: uv run marketplace check
-
-      - name: Unit tests
-        run: uv run pytest -q
+      # AgentForge only ever sees files a publication declares, so a leak in an
+      # undeclared file is invisible to it. This is the repo-wide backstop for
+      # the prek pre-push hook, and runs first so a leak fails fast.
+      - name: Privacy gate (machine paths, secrets, PII)
+        run: python3 scripts/privacy_scan.py
 
       # The publications are committed, so the merge gate validates the exact
       # bytes both runtimes will load rather than a fresh temporary compile.
-      - name: Validate committed publications
+      # `check` covers output drift, managed-output content, manifest parity,
+      # plugin path resolution, and skill frontmatter; `--claude-native`
+      # cross-checks the Claude publication with `claude plugin validate --strict`.
+      - name: Check committed publications (drift + schemas + native validation)
         run: |
-          "$(uv run marketplace agentforge-path)" \
-            check MARKETPLACE.yaml --out marketplaces --claude-native
+          scripts/agentforge.sh check MARKETPLACE.yaml \
+            --out marketplaces --claude-native
+
+      # `check` reads files; these tests run the plugin. The attention-workflow
+      # hooks and state helper enforce grant authority and delivery gating, and
+      # no structural check can reach a claim about what a subprocess does when
+      # executed. `uv` is here solely to resolve this file's PEP 723 header --
+      # the repo declares no project and needs none.
+      - name: Install uv (for the PEP 723 test script)
+        uses: astral-sh/setup-uv@20cfd1bf945f4377ade1205e4dbc17946fc9a30d # v10.0.1
+
+      - name: Behavioral tests (attention-workflow state + guards)
+        run: uv run scripts/tests/test_attention_workflow.py
