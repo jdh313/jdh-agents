@@ -1,5 +1,5 @@
 name: Marketplace tooling bug
-description: "`marketplace sync`, `check`, `validate`, `lint`, or `scan` misbehaves."
+description: "`agentforge compile`/`check` or the privacy scan misbehaves."
 labels: [bug, tooling]
 body:
   - type: dropdown
@@ -7,12 +7,10 @@ body:
     attributes:
       label: Command
       options:
-        - sync
-        - check
-        - validate
-        - lint
-        - scan
-        - pytest
+        - agentforge compile
+        - agentforge check
+        - agentforge check --claude-native
+        - privacy_scan.py
         - other
     validations:
       required: true

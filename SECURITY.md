@@ -83,10 +83,14 @@ workspace) by design. Grant them access deliberately.
 
 ## What the privacy gate does and does not cover
 
-`uv run marketplace scan` (`scripts/marketplace/privacy.py`) runs on every push
-via a `prek` pre-push hook and inside `marketplace check`. It hard-fails on
-absolute machine-home paths and secret-shaped assignments, and warns on a few
-softer signals.
+`python3 scripts/privacy_scan.py` runs on every push via a `prek` pre-push hook
+and again in CI. It hard-fails on absolute machine-home paths and secret-shaped
+assignments, and warns on a few softer signals.
+
+It is deliberately separate from `agentforge check`, and cannot be folded into
+it: AgentForge only ever sees files a publication declares, so a leak in an
+undeclared file — a doc, a workflow, a decision atom — is invisible to it. This
+scanner walks the whole git-tracked tree.
 
 It scans the **working tree, not git history** — it stops a leak from shipping,
 it does not find one that was introduced and later reverted. And its coverage is
