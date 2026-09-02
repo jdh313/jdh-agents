@@ -19,5 +19,5 @@ Any skill adapted from upstream pins its source in `SKILL.md` frontmatter (`upst
 
 ## Verify & commit
 
-- Verify loop / merge gate: `uv run marketplace check` (sync-drift + schema + lint), then `uv run pytest`. Run `uv run marketplace sync` first if you added or renamed a plugin, and commit the regenerated `marketplaces/` tree.
+- Verify loop / merge gate: `scripts/agentforge.sh check MARKETPLACE.yaml --out marketplaces --claude-native` (drift + schema + content gates + native Claude validation). Run `scripts/agentforge.sh compile MARKETPLACE.yaml --out marketplaces` first if you changed any plugin source, and commit the regenerated `marketplaces/` tree.
 - Commit format: `type[scope]: subject (vX.Y.Z)` — the version suffix is mandatory on plugin-changing commits and tracks that plugin's own `plugin.json` version. Bump the version before syncing (feature → minor, fix → patch, breaking → major).

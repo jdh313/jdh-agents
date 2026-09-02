@@ -1,6 +1,6 @@
 {
   "name": "skillsmith",
-  "version": "2.1.0",
+  "version": "2.1.1",
   "description": "Craft and upkeep of skills. Authoring reference (the vocabulary and principles that make any agent-consumed document predictable — a skill, an AGENTS.md/CLAUDE.md, a rules file, a doc reached by a pointer) plus provenance tracking for borrowed work: compares an adapted skill to its pinned upstream, flags behavioral drift and fabricated attributions, and refreshes the reviewed commit SHA. Houses writing-for-agents and upstream-review.",
   "author": {
     "name": "Jacob Hoehler"
