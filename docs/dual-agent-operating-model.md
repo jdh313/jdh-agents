@@ -83,7 +83,7 @@ Open a new task after installation or update so Codex reloads plugin skills.
 4. Run `scripts/agentforge.sh compile MARKETPLACE.yaml --out marketplaces`
    when manifest metadata changes.
 5. Run `scripts/agentforge.sh check MARKETPLACE.yaml --out marketplaces
-   --claude-native` and `python3 scripts/privacy_scan.py`.
+   --claude-native` and `scripts/privacy-scan.sh`.
 6. Test modified pilots in a fresh Codex task and the corresponding Claude
    workflow before release.
 
@@ -98,7 +98,7 @@ Open a new task after installation or update so Codex reloads plugin skills.
 4. Skill frontmatter against each target's schema.
 5. `claude plugin validate --strict` over the Claude publication.
 
-GitHub Actions runs that command plus `python3 scripts/privacy_scan.py`. Codex
+GitHub Actions runs that command plus `scripts/privacy-scan.sh`. Codex
 exposes no non-interactive validator, so the Codex publication is gated by the
 compiler's own checks; CI does not depend on a user-installed Codex skill.
 

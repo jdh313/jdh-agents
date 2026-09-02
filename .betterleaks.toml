@@ -1,0 +1,42 @@
+# Privacy gate rules. Run by scripts/privacy-scan.sh, which is invoked by the
+# prek pre-push hook and by CI.
+#
+# TOML GOTCHA, and the reason the self-test exists: top-level keys must precede
+# EVERY table header. A `prefilter = ...` written below `[extend]` is silently
+# reparented to `extend.prefilter` and ignored -- the gate then passes while
+# filtering nothing. Keep bare keys at the top, and never move them below a
+# `[table]` line. `scripts/tests/test_privacy_gate.sh` fails if the custom rules
+# below stop firing, which is what catches this class of mistake.
+
+[extend]
+# Inherit Betterleaks' maintained secret ruleset (vendor credential shapes for
+# AWS, GitHub, Slack, Stripe, and so on) and add the two repo-specific rules
+# below. Measured against this tree at adoption: zero findings from the default
+# ruleset across every tracked file, so no allowlist or baseline is carried.
+useDefault = true
+
+# The rule that is not a secret rule. This repository is published so others can
+# install from it; the realistic leak is not a credential but the author's own
+# machine path ending up in a committed skill body or doc. No entropy or
+# validation heuristic would ever flag that, so it has to be an explicit regex.
+[[rules]]
+id = "absolute-home-path"
+description = "Absolute machine-home path (deanonymizes the author)"
+regex = '''(?:Users|home)/[A-Za-z0-9._-]+/'''
+tags = ["privacy"]
+
+# Kept from the hand-written gate this replaced. The inherited default ruleset
+# covers known vendor token shapes; this catches a generic
+# quoted password/token assignment that matches no specific vendor shape.
+#
+# This file is itself in scan scope -- scripts/privacy-scan.sh passes an
+# absolute --config path, so Betterleaks does not recognise it as its own config
+# and reads it as content. That is deliberate: a real credential pasted in here
+# should fail the gate like anywhere else. The cost is that a literal example in
+# a comment would match its own rule, so examples above are written as
+# placeholders rather than plausible values.
+[[rules]]
+id = "secret-shaped-assignment"
+description = "Secret-shaped assignment"
+regex = '''(?i)(api[_-]?key|secret|token|passwd|password)\s*[:=]\s*['"][^'"]{8,}['"]'''
+tags = ["privacy"]

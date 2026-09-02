@@ -5,7 +5,7 @@
 ## Verification
 
 ```
-python3 scripts/privacy_scan.py
+scripts/privacy-scan.sh
 scripts/agentforge.sh check MARKETPLACE.yaml --out marketplaces --claude-native
 ```
 

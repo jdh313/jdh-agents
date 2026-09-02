@@ -10,7 +10,7 @@ body:
         - agentforge compile
         - agentforge check
         - agentforge check --claude-native
-        - privacy_scan.py
+        - privacy-scan.sh
         - other
     validations:
       required: true

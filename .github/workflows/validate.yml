@@ -14,8 +14,13 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      # The privacy gate scans committed history, so it needs the commits.
+      # actions/checkout defaults to depth 1, which would leave it scanning a
+      # single commit and reporting clean no matter what earlier ones contain.
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       # AgentForge is not installed here. The compiler is pinned by version +
       # per-platform sha256 in `scripts/agentforge.sh`, which fetches and
@@ -28,8 +33,16 @@ jobs:
       # AgentForge only ever sees files a publication declares, so a leak in an
       # undeclared file is invisible to it. This is the repo-wide backstop for
       # the prek pre-push hook, and runs first so a leak fails fast.
+      #
+      # The self-test runs BEFORE the gate on purpose: the gate's worst failure
+      # is silence, and a scan that matches nothing looks identical to a clean
+      # tree. The self-test plants known violations and requires rejection, so a
+      # silently-inert config fails here rather than passing forever.
+      - name: Privacy gate self-test (planted violations must be rejected)
+        run: scripts/tests/test_privacy_gate.sh
+
       - name: Privacy gate (machine paths, secrets, PII)
-        run: python3 scripts/privacy_scan.py
+        run: scripts/privacy-scan.sh
 
       # The publications are committed, so the merge gate validates the exact
       # bytes both runtimes will load rather than a fresh temporary compile.
