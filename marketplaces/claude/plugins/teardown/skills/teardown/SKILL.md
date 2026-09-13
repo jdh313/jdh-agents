@@ -68,12 +68,20 @@ If both return candidates, or neither returns anything and you suspect a near-mi
 
 ## The corpus
 
-**A local clone is required.** Reading a project through the GitHub web UI produces the citation quality that makes a teardown worthless. Resolve `~/upstream/<name>`:
+**Use a local clone if one exists; otherwise read files fetched at a pinned SHA.** What makes a teardown worthless is citing from rendered web pages or memory. A raw file fetched at a pinned SHA and opened with `Read` carries the same line numbers a clone does, so Phase 1 loses nothing. What fetch mode loses is local pickaxe, and Phase 2 carries that through the GitHub API instead.
 
-- **Present.** Check `git status` and whether the branch has diverged from its remote. Then **confirm before pulling**: report the current SHA, what a pull would bring in, and whether the tree is dirty — and ask. Many of these repos back services the user actually runs; a silent `git pull` into `~/upstream` is a change to their machine, not a refresh of your reading material. Never pull automatically. Reading a slightly stale clone is fine, and the SHA you record makes it honest.
-- **Absent.** Offer to clone into `~/upstream/<name>`. Say which remote and how large.
+**Find a clone by its remote, not its folder name.** Folder names drift from slugs (`~/upstream/home-assistant-core` holds `home-assistant/core`), so match the remote URL in each clone's config:
 
-Record the **exact SHA read** (`git rev-parse --short HEAD`) for every project. It goes into `projects_surveyed:` and it is what `/teardown-recheck` later re-verifies against.
+```bash
+rg -l --fixed-strings 'github.com/home-assistant/core' ~/upstream/*/.git/config
+```
+
+- **Clone present.** Check whether the tree is dirty and how far it sits behind its remote. Then **confirm before pulling**: report the current SHA, what a pull would bring in, and whether the tree is dirty — and ask. Many of these repos back services the user actually runs; a silent `git pull` into `~/upstream` is a change to their machine, not a refresh of your reading material. Never pull automatically. Reading a slightly stale clone is fine, and the SHA you record makes it honest. The SHA is `git -C <clone> rev-parse HEAD`.
+- **No clone.** Do not stop, and do not clone without asking. Pin the SHA from the default branch — `gh api repos/<owner>/<name> --jq .default_branch`, then `gh api repos/<owner>/<name>/commits/<branch> --jq .sha` — and dispatch in fetch mode (`repo_path: fetch`). Surveyors download each file they read into `<outdir>/src/<path>` at that SHA. Offer a clone only when the goal needs deep history archaeology the API cannot carry, and say which remote and how large.
+
+Record the **exact SHA read** for every project. Its short form goes into `projects_surveyed:`; it is what `/teardown-recheck` later re-verifies against.
+
+**The output directory** holds surveyor files, fetched sources, and the Artifact HTML for this session: `<scratchpad>/teardown/<owner>-<name>@<sha7>/` when the session names a scratchpad directory, otherwise `/tmp/teardown/<owner>-<name>@<sha7>/`. If surveyor files for that repo and SHA already exist there, reuse them rather than re-dispatching.
 
 **If `git` is refused, it is a guard hook, not a broken repo — adapt, don't work around.** A `destructive-vcs-guard` style hook keys on the *session's* working directory, so once the cwd is any jj repo — this marketplace, or the vault itself — it rejects status-shaped `git` commands aimed anywhere, including a plain git clone in `~/upstream`. It reports "This is a jj repo," which is false about the clone and true about the cwd. `allowed-tools` pre-approves a call; it cannot override a hook that refuses one, so the `Bash(git status *)` entry above helps only when no such hook is active.
 

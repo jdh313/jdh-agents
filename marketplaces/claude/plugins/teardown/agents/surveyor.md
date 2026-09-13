@@ -89,8 +89,9 @@ guess around.
    `gh api` call uses it.
 2. **`sha`** — the full commit SHA to read. Every citation is valid only
    against it.
-3. **`repo_path`** — absolute path to the local clone. You do not clone it
-   yourself.
+3. **`repo_path`** — absolute path to the local clone, or `fetch` when no
+   clone exists. You never clone it yourself. In fetch mode, see
+   "Reading without a clone" below.
 4. **`question`** — the question this teardown is chasing, in the user's words.
 5. **`goal`** — what the user will do with the answer. It sets how deep a
    mechanism is worth tracing.
@@ -110,6 +111,25 @@ guess around.
 If any of these is missing, proceed with what you have and say so in your
 method notes rather than blocking — a partial survey with a named gap beats
 no survey.
+
+## Reading without a clone
+
+When `repo_path` is `fetch`, download every file before you cite it, at the
+pinned SHA, into your output directory, then open the local copy with `Read`:
+
+```bash
+curl -fsSL --create-dirs -o <outdir>/src/<path> \
+  https://raw.githubusercontent.com/<repo>/<sha>/<path>
+```
+
+`Read` gives true line numbers; a search snippet or a rendered GitHub page
+does not. Find files with `gh api repos/<repo>/git/trees/<sha>?recursive=1
+--jq '.tree[].path'` piped to `rg`, and search a downloaded file with `rg -n`.
+For Phase 2, the API stands in for local history:
+`gh api 'repos/<repo>/commits?sha=<sha>&path=<path>&per_page=30'` for a
+file's commits, and `gh api repos/<repo>/commits/<commit>/pulls` for the PR
+that introduced one. There is no API pickaxe; say so under `## Method notes`
+when a question needed one.
 
 ## The two phases, in order
 
