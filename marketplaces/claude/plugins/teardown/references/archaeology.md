@@ -4,10 +4,13 @@ Technique for [`surveyor`](../agents/surveyor.md)'s Phase 2. Run this only
 after Phase 1 has produced a file map — every technique below is scoped by
 that map, and scoping is what makes it fast instead of a fishing expedition.
 
+Every command names the clone with `-C <repo_path>`. The clone is never the
+session's working directory, so a bare `git log` reads the wrong repository.
+
 ## Find what introduced something
 
 ```
-git log --diff-filter=A --follow -- <path>
+git -C <repo_path> log --diff-filter=A --follow -- <path>
 ```
 
 Gets you the commit that first added the file. Read that commit's message
@@ -15,13 +18,14 @@ and diff before going further — it's often the single richest source of
 rationale you'll find, especially in a project with no ADR directory.
 
 For a symbol or block inside a file that already existed, don't stop at the
-file-add commit — walk forward from there with `git log -p -- <path>` or
-jump straight to pickaxe (below) on the specific term.
+file-add commit — walk forward from there with
+`git -C <repo_path> log -p -- <path>` or jump straight to pickaxe (below) on
+the specific term.
 
 ## Pickaxe, scoped to one file
 
 ```
-git log -S<term> -- <path/to/one/file.ext>
+git -C <repo_path> log -S<term> -- <path/to/one/file.ext>
 ```
 
 **Never run pickaxe unscoped against the whole tree.** A project with
@@ -37,7 +41,7 @@ would plausibly have typed in a commit message or comment, not on variable
 or function names:
 
 ```
-git log -S"cause stability problems" -- <path>
+git -C <repo_path> log -S"cause stability problems" -- <path>
 ```
 
 A phrase fragment like this found the exact introducing commit on the first
@@ -62,8 +66,7 @@ searches before narrowing to a fragment that matched.
 Before spending pickaxe budget, check once:
 
 ```
-find . -iregex '.*/\(adr\|docs/decisions\|docs/architecture\).*' 2>/dev/null
-git ls-files | grep -iE 'adr|decision-record|architecture-decision'
+git -C <repo_path> ls-files | rg -i 'adr|decision-record|architecture-decision|docs/decisions|docs/architecture'
 ```
 
 If nothing turns up, the project keeps its rationale in commit messages and
@@ -74,7 +77,7 @@ no rationale; it's a project whose rationale lives in a different place.
 
 **Check for a sibling architecture repo before concluding there are no ADRs.**
 A large project often splits governance out of the code repository, so the
-find above returns nothing while a full ADR corpus exists one repo over. Home
+search above returns nothing while a full ADR corpus exists one repo over. Home
 Assistant is the worked example: `home-assistant/core` has no ADR directory,
 and a survey that stopped there reported "no ADR corpus, all rationale lives
 in commit messages" — wrong. The ADRs live in `home-assistant/architecture`,
@@ -93,8 +96,8 @@ A file's full history can span unrelated eras. A path like `manifest.json`
 can exist in a codebase for years as something completely unrelated (e.g. a
 browser extension's PWA manifest) before being repurposed for the thing
 you're actually investigating (e.g. a plugin-system manifest introduced
-years later). `git log --diff-filter=A -- manifest.json` will show you the
-*first* addition, which may be the wrong era entirely.
+years later). `git -C <repo_path> log --diff-filter=A -- manifest.json` will
+show you the *first* addition, which may be the wrong era entirely.
 
 Guard against this the same way Phase 1 protects Phase 2 generally: scope
 your first search by the path *and the era* Phase 1's structural read
@@ -110,8 +113,9 @@ review comments or issue discussion unless a later commit happens to quote
 them back verbatim. When a commit message alone doesn't explain a design
 choice, and you have a `remote_hint` (`owner/repo`):
 
-- Find the PR that introduced a commit: search GitHub for the commit SHA,
-  or if the commit message references `#NNN`, fetch that PR/issue directly.
+- Find the PR that introduced a commit:
+  `gh api repos/<owner>/<repo>/commits/<sha>/pulls`, or if the commit message
+  references `#NNN`, fetch that PR/issue directly.
 - `WebFetch` a specific PR/issue URL once you have a number — cheaper and
   more precise than `WebSearch`.
 - `WebSearch` when you have a topic but no number yet (e.g. "home-assistant

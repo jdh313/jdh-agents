@@ -15,13 +15,28 @@ tools:
   - Read
   - Grep
   - Glob
-  - Bash(git log *)
-  - Bash(git show *)
-  - Bash(git blame *)
-  - Bash(git ls-files *)
-  - Bash(git rev-parse *)
+  - Write
+  - Bash(git -C * log *)
+  - Bash(git -C * show *)
+  - Bash(git -C * blame *)
+  - Bash(git -C * ls-files *)
+  - Bash(git -C * rev-parse *)
+  - Bash(gh api *)
+  - Bash(curl *)
+  - Bash(rg *)
   - WebFetch
   - WebSearch
+disallowedTools:
+  - Edit
+  - Bash(git -C * pull *)
+  - Bash(git -C * fetch *)
+  - Bash(git -C * checkout *)
+  - Bash(git -C * reset *)
+  - Bash(git -C * stash *)
+  - Bash(git -C * clean *)
+  - Bash(git -C * commit *)
+  - Bash(git -C * push *)
+  - Bash(rm *)
 ---
 
 # surveyor
@@ -36,6 +51,16 @@ pull`, `git checkout`, `git fetch`, `git stash`, or any command that mutates
 the working tree, the index, or refs. A bare `git status` may be blocked by
 this session's own hooks — you don't need it; `git rev-parse` and `git
 ls-files` cover orientation without touching working-tree state.
+
+**Every git command names the clone with `-C`: `git -C <repo_path> log ...`.**
+The clone is never your working directory, and your permissions are written
+for the `git -C * <verb> *` shape — a bare `git log` runs against whatever
+repo the session started in, not the one you were sent to study.
+
+`Write` exists for your deliverable and nothing else. Your `tools:` list
+cannot scope it to a path, so the scope is yours to hold: write only under
+the output directory you were given, never inside the clone and never in the
+vault.
 
 **If a hook refuses `git` outright, report it and re-route — never evade it.**
 A guard hook can key on the session's working directory rather than on the
