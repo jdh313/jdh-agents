@@ -25,7 +25,7 @@ Entries append in read order and are never rewritten in place: re-reading a proj
 Finding a prior read is then one command:
 
 ```bash
-rg -l 'repo: home-assistant/core' ~/Loose\ Ends/Reference/
+rg -l --fixed-strings 'repo: home-assistant/core' "$HOME/Loose Ends/Reference/"
 ```
 
 ## Question note

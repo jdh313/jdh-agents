@@ -1,16 +1,16 @@
 ---
 name: teardown
 description: >-
-  Read a real codebase at source level and land the result as a durable vault
-  reference page — a whole-system project note, or a single-concern question
-  note that accretes one project at a time into comparison tables and derived
-  claims. Use when the user says "teardown", "study X", "how is X architected",
-  "how does X do Y", "how do these projects handle Z", "what can I learn from
-  X", "add X to that survey", or hands over a repo they want understood rather
-  than changed. Requires a local clone; delegates reading to `@surveyor` agents
-  and keeps the synthesis for itself.
+  Study an outside open-source repository the user does not own, at source
+  level, and land it as a durable vault note that later studies add to (plus an
+  interactive Artifact page where the Artifact tool exists). Use only when the
+  user names an outside repo or project and wants its internals — "teardown X",
+  "study home-assistant/core", "how is <outside project> architected under the
+  hood", "walk me through <repo>'s source", "how does <repo> implement
+  <mechanism>", "add <repo> to that survey". Not for the user's own repos,
+  general vault or wiki questions, or a quick library API lookup. Delegates
+  reading to `@surveyor` agents and keeps the synthesis.
 argument-hint: Which project — or which question across projects?
-disable-model-invocation: true
 allowed-tools: >-
   Bash(obsidian-cli *), Read, Grep, Glob, Bash(git log *), Bash(git show *),
   Bash(git blame *), Bash(git status *), Bash(git remote *), Bash(git fetch *),
@@ -53,9 +53,15 @@ State back, in one line, what you inferred: note type, target note (new or exist
 
 ## Find the existing note before writing a new one
 
-A miss here is the expensive failure. It silently creates a second page on the same question, and two pages on one question never merge — the accretion that makes question notes valuable stops dead. Search both ways before concluding a page does not exist:
+A miss here is the expensive failure. It silently creates a second page on the same question, and two pages on one question never merge — the accretion that makes question notes valuable stops dead. This happened: a session studied Home Assistant core without finding `Extension Architecture in Application Platforms`, which already recorded `home-assistant/core`, and duplicated part of it. Search both ways before concluding a page does not exist, and do it first — before any clone, fetch, or dispatch:
 
-- **The read log.** `rg -l 'projects_surveyed:' -A 40 ~/Loose\ Ends/Reference/` and grep the repo name within. `projects_surveyed:` doubles as "have I read this repo before, and where did it land?" across 285+ notes.
+- **The read log, by repo slug.** Resolve the `owner/name` slug first (from the user's words, or `gh api repos/<owner>/<name> --jq .full_name`), then search the `repo:` lines that `projects_surveyed:` entries carry:
+
+  ```bash
+  rg -l --fixed-strings 'repo: home-assistant/core' "$HOME/Loose Ends/Reference/"
+  ```
+
+  Search the slug, never a clone folder name: the clone at `~/upstream/home-assistant-core` is recorded as `repo: home-assistant/core`, and a search for the folder name finds nothing.
 - **Semantic.** Dispatch `librarian:vault-reader` with the question in the user's own words. Titles will not match; the concern will.
 
 If both return candidates, or neither returns anything and you suspect a near-miss title, show the user the candidates and ask. A tie you resolve alone is the duplicate you create.
