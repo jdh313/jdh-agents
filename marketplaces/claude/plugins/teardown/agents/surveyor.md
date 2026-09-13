@@ -3,9 +3,9 @@ name: surveyor
 description: >-
   Studies one foreign open-source project and writes cited architectural
   evidence to a file — what it does today, and why it is shaped that way.
-  Dispatched by the `teardown` skill, one surveyor per project, so a
-  multi-project teardown fans out cleanly and each project's findings stay
-  independently attributable. Read-only toward the studied repo: never
+  Dispatched by the `teardown` skill, one surveyor per project (or per
+  concern within one large project), so a teardown fans out cleanly and each
+  file's findings stay independently attributable. Read-only toward the studied repo: never
   modifies, pulls, checks out, fetches, or writes anything inside it. Writes
   `<outdir>/<concern>.md` and replies with one line naming it. Hands back evidence; the
   orchestrator decides what the transferable lesson is. Not for comparing

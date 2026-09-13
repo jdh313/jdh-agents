@@ -88,7 +88,9 @@ When that happens:
 
 Reading is delegated. Synthesis is not.
 
-Dispatch one **`@surveyor`** per project. Fan out — when accreting several projects into a question note, they run concurrently in a single message. Each surveyor runs two **ordered** phases: current structure first, then history and rationale *with the structure already in hand*.
+Dispatch one **`@surveyor`** per project — or, for one large repo, one per **concern**. Fan out: every surveyor in a batch goes in a single message so they run concurrently. Each surveyor runs two **ordered** phases: current structure first, then history and rationale *with the structure already in hand*.
+
+**Split a large repo by concern, not by phase.** A concern is a slice of the code with its own files and its own sub-questions: Home Assistant core splits cleanly into `runtime` (event loop, bus, state machine, recorder, HTTP) and `framework` (entity base classes, platforms, config entries, loader, dependencies). Each concern surveyor does both phases over its own slice and writes its own file. Split when one surveyor could not read the relevant code in one pass — a repo in the tens of thousands of files, or a goal spanning two layers of the system map. Give each concern a one-line `Scope:` that names what the other concern owns, so the two files do not overlap.
 
 The order is load-bearing, and the evidence is direct. A trial run against `home-assistant/core` (27,571 files, 115,980 commits) compared one agent doing code-then-history against a reader/digger split:
 
@@ -96,7 +98,7 @@ The order is load-bearing, and the evidence is direct. A trial run against `home
 - Commit SHAs from both arms verified correct. **Archaeology survives fan-out; current-code line numbers are what degrade under it.**
 - The digger's own method notes named the handoff cost: it burned searches chasing a false-positive 2015 frontend `manifest.json`, and said knowing the current structure first "would have let me scope the very first pickaxe search by path and skip that false start entirely."
 
-So: one agent per project, both phases, never a reader/digger split within one project.
+That evidence argues against one thing only: separating the agent that reads current code from the agent that digs its history. It says nothing against two agents reading different code. So: one agent per project or per concern, each doing both phases over its own slice, and never a reader/digger split.
 
 **Write the `sub_questions` yourself before dispatching.** They are the fixed list every surveyor in the batch answers, so they are what makes rows comparable. Take them from the target note's existing numbered sections when accreting; otherwise derive 3–6 from the question and goal.
 
