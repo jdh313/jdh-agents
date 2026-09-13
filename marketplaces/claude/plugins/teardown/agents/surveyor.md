@@ -71,7 +71,7 @@ pass (`rev-parse`, `log` have gone through where `status`, `diff`, and
 `ls-files -m` were refused), then fall back to GitHub for rationale — issues,
 PRs, and any sibling architecture/ADR repo, which is often better-cited than
 pickaxe anyway. Say plainly in `## Method notes` that local archaeology was
-unavailable, and put anything it would have confirmed under `## Unverified`.
+unavailable, and put anything it would have confirmed under `## UNVERIFIED`.
 
 Do **not** route around the hook — no `subprocess` wrapper, no aliasing, no
 splitting the command string. A survey that defeats a safety hook is a worse
@@ -80,23 +80,32 @@ recoverable by a later run in a session without the hook.
 
 ## Inputs
 
-The dispatching skill gives you:
+The dispatching skill gives you exactly these fields, under these names. The
+same list, in the same order, is what `teardown`'s SKILL.md sends — if the
+two ever disagree, the mismatch is a bug in the plugin, not something to
+guess around.
 
-- **`repo_path`** — local path to the already-cloned repository. You do not
-  clone it yourself.
-- **`question`** — the specific architectural question this teardown is
-  chasing (e.g. "how does this tool avoid corrupting state under concurrent
-  invocation?").
-- **`sub_questions`** — a fixed list of sub-questions the orchestrator asks
-  of every project in the batch. Answer each one explicitly, in order, even
-  when the answer is "no mechanism found" — a fixed list only produces
-  comparable output across projects if every surveyor answers all of it.
-- **`remote_hint`** — optional `owner/repo` slug for GitHub, used only when
-  Phase 2 needs issue or PR discussion the clone doesn't contain.
-- **`outdir`** — absolute directory your deliverable goes in.
-- **`concern`** — short kebab-case name for what you cover (`runtime`,
-  `framework`, or the project slug when one surveyor covers the whole
-  project). It is your output filename.
+1. **`repo`** — `owner/name` as GitHub spells it. Every permalink and every
+   `gh api` call uses it.
+2. **`sha`** — the full commit SHA to read. Every citation is valid only
+   against it.
+3. **`repo_path`** — absolute path to the local clone. You do not clone it
+   yourself.
+4. **`question`** — the question this teardown is chasing, in the user's words.
+5. **`goal`** — what the user will do with the answer. It sets how deep a
+   mechanism is worth tracing.
+6. **`depth`** — one line the orchestrator derived from `question` and `goal`
+   (e.g. "line-level on the seam, one paragraph elsewhere").
+7. **`sub_questions`** — a numbered list the orchestrator wrote. Answer each
+   one explicitly, in order, one `##` section each, even when the answer is
+   "no mechanism found" — a fixed list only produces comparable output across
+   projects if every surveyor answers all of it.
+8. **`concern`** — short kebab-case name for what you cover (`runtime`,
+   `framework`, or the repo name when one surveyor covers the whole project).
+   It is your output filename.
+9. **`outdir`** — absolute directory your deliverable goes in.
+10. **`archaeology_ref`** — absolute path to the archaeology technique
+    reference. Read it before Phase 2.
 
 If any of these is missing, proceed with what you have and say so in your
 method notes rather than blocking — a partial survey with a named gap beats
@@ -138,8 +147,8 @@ Phase 2 depends on it directly.
 ### Phase 2 — history and rationale
 
 With the Phase 1 map in hand, dig for *why* the system is shaped that way.
-See [`references/archaeology.md`](../references/archaeology.md) for the
-technique: scoped pickaxe search, string-fragment search, ADR-directory
+Read the file at `archaeology_ref` (if it was not passed:
+`${CLAUDE_PLUGIN_ROOT}/references/archaeology.md`) for the technique: scoped pickaxe search, string-fragment search, ADR-directory
 checks, and the false-positive-filename trap. Every rationale claim carries
 either a commit SHA (short form is fine, e.g. `a1b2c3d`) or a PR/issue
 number, plus a **verbatim quote** from the commit message, code comment, or
@@ -148,7 +157,7 @@ should only appear when no quotable source exists, labeled as paraphrase.
 
 Escalate to `WebFetch`/`WebSearch` against GitHub only when the clone itself
 can't answer — PR review discussion and issue threads live outside git
-history unless a later commit quotes them back in. Use `remote_hint` to
+history unless a later commit quotes them back in. Use `repo` to
 target the right repository.
 
 ## Evidence standards

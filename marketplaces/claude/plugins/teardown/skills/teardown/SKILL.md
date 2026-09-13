@@ -93,7 +93,26 @@ The order is load-bearing, and the evidence is direct. A trial run against `home
 
 So: one agent per project, both phases, never a reader/digger split within one project.
 
-Give each surveyor the question, the goal, the clone path, the SHA, and the depth. Ask it back for **evidence** — cited structure, quoted rationale, explicit absences, labelled inference. Do not ask it for the lesson. The lesson is yours, because only you hold all the projects.
+**Write the `sub_questions` yourself before dispatching.** They are the fixed list every surveyor in the batch answers, so they are what makes rows comparable. Take them from the target note's existing numbered sections when accreting; otherwise derive 3–6 from the question and goal.
+
+Dispatch with exactly these fields, in this order — `agents/surveyor.md` reads the same list under the same names:
+
+```markdown
+1. repo: <owner/name>
+2. sha: <full 40-char sha>
+3. repo_path: <absolute clone path>
+4. question: <the user's question, in their words>
+5. goal: <what they will do with the answer>
+6. depth: <one line you derived from question + goal>
+7. sub_questions:
+   1. <…>
+   2. <…>
+8. concern: <kebab-case; the repo name when one surveyor covers the project>
+9. outdir: <absolute output directory>
+10. archaeology_ref: ${CLAUDE_PLUGIN_ROOT}/references/archaeology.md
+```
+
+Send `archaeology_ref` as the absolute path shown above: the plugin-root variable is substituted in this skill's text, but that substitution is not documented for an agent's body, so the surveyor cannot be trusted to resolve it itself. Ask each surveyor for **evidence** — cited structure, quoted rationale, explicit absences, labelled inference. Do not ask it for the lesson. The lesson is yours, because only you hold all the projects.
 
 **The surveyor's deliverable is `<outdir>/<concern>.md`; its reply is one line naming that file.** Read the file, not the reply. If a surveyor goes idle without replying, check for the file before chasing — the work is usually done. If the file is missing, send "resend, do not redo: write it to `<outdir>/<concern>.md`, then reply with one line." A chase without "do not redo" reads as "start over."
 
@@ -122,7 +141,7 @@ The cost is asymmetric by design: the eleventh project is more expensive than th
 
 ## Write the note
 
-Templates, exact frontmatter (including the `projects_surveyed:` shape), section skeletons, a worked comparison-table example, and the evidence standards are in [`../../references/note-shapes.md`](../../references/note-shapes.md). Load it before the first write of a session.
+Templates, exact frontmatter (including the `projects_surveyed:` shape), section skeletons, a worked comparison-table example, and the evidence standards are in `${CLAUDE_PLUGIN_ROOT}/references/note-shapes.md`. Load it before the first write of a session.
 
 Honor the vault's own conventions (`~/Loose Ends/.claude/CLAUDE.md`): `owner: ai`, `type: wiki`, no H1 title, `date created` / `date_modified` left to the Linter plugin, kebab-case hierarchical tags, wikilinks on first mention of anything with its own page.
 

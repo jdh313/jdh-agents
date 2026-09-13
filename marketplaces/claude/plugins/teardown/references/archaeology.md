@@ -111,7 +111,7 @@ as a gotcha, not silently discarding.
 A local clone contains commits and their messages — it does not contain PR
 review comments or issue discussion unless a later commit happens to quote
 them back verbatim. When a commit message alone doesn't explain a design
-choice, and you have a `remote_hint` (`owner/repo`):
+choice, use the `repo` slug (`owner/repo`) you were given:
 
 - Find the PR that introduced a commit:
   `gh api repos/<owner>/<repo>/commits/<sha>/pulls`, or if the commit message
