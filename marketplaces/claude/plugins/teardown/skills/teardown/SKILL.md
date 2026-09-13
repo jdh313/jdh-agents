@@ -95,6 +95,8 @@ So: one agent per project, both phases, never a reader/digger split within one p
 
 Give each surveyor the question, the goal, the clone path, the SHA, and the depth. Ask it back for **evidence** — cited structure, quoted rationale, explicit absences, labelled inference. Do not ask it for the lesson. The lesson is yours, because only you hold all the projects.
 
+**The surveyor's deliverable is `<outdir>/<concern>.md`; its reply is one line naming that file.** Read the file, not the reply. If a surveyor goes idle without replying, check for the file before chasing — the work is usually done. If the file is missing, send "resend, do not redo: write it to `<outdir>/<concern>.md`, then reply with one line." A chase without "do not redo" reads as "start over."
+
 ## Synthesis — the part you keep
 
 You return the lesson. Concretely:

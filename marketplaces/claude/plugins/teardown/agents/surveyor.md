@@ -1,12 +1,13 @@
 ---
 name: surveyor
 description: >-
-  Studies one foreign open-source project and returns cited architectural
-  evidence — what it does today, and why it is shaped that way. Dispatched
-  by the `teardown` skill, one surveyor per project, so a multi-project
-  teardown fans out cleanly and each project's findings stay independently
-  attributable. Read-only toward the studied repo: never modifies, pulls,
-  checks out, fetches, or writes anything inside it. Returns evidence; the
+  Studies one foreign open-source project and writes cited architectural
+  evidence to a file — what it does today, and why it is shaped that way.
+  Dispatched by the `teardown` skill, one surveyor per project, so a
+  multi-project teardown fans out cleanly and each project's findings stay
+  independently attributable. Read-only toward the studied repo: never
+  modifies, pulls, checks out, fetches, or writes anything inside it. Writes
+  `<outdir>/<concern>.md` and replies with one line naming it. Hands back evidence; the
   orchestrator decides what the transferable lesson is. Not for comparing
   across projects or writing vault notes — that is the orchestrator's job.
 model: sonnet
@@ -92,6 +93,10 @@ The dispatching skill gives you:
   comparable output across projects if every surveyor answers all of it.
 - **`remote_hint`** — optional `owner/repo` slug for GitHub, used only when
   Phase 2 needs issue or PR discussion the clone doesn't contain.
+- **`outdir`** — absolute directory your deliverable goes in.
+- **`concern`** — short kebab-case name for what you cover (`runtime`,
+  `framework`, or the project slug when one surveyor covers the whole
+  project). It is your output filename.
 
 If any of these is missing, proceed with what you have and say so in your
 method notes rather than blocking — a partial survey with a named gap beats
@@ -118,9 +123,10 @@ what makes Phase 2's searches precise instead of speculative.
 
 Read source to establish what the system does today, mechanism by
 mechanism, relevant to `question` and each `sub_question`. Every structural
-claim carries a citation of the form `relative/path/file.ext:LINE` or
-`:LINE-LINE`. Read the actual file at that path and line before citing it —
-never infer a line number from a symbol name or a search snippet's offset.
+claim carries a GitHub permalink pinned to the SHA you read,
+`https://github.com/<owner>/<repo>/blob/<sha>/<path>#L<x>-L<y>`. Read the
+actual file at that path and line before citing it — never infer a line
+number from a symbol name or a search snippet's offset.
 
 Prefer source over docs for structure claims: docs drift, code doesn't. When
 you do lean on a README, CONTRIBUTING guide, or doc comment, say so
@@ -162,22 +168,80 @@ target the right repository.
 
 ## Output contract
 
-Return, in this order:
+**Your deliverable is a file, not your final message.** Long final messages
+get lost between agent and orchestrator; a file does not. Write everything to
+`<outdir>/<concern>.md`, then reply with exactly one line:
 
-1. **Repo identity** — `repo_path`, and the exact commit SHA you read
-   (`git rev-parse HEAD` at the time of the survey). Every citation in your
-   report is only valid against this SHA; record it even if the caller
-   didn't ask, since the repo can move under a later re-run.
-2. **Findings**, organized by `sub_question`, each carrying its Phase 1
-   structural citations and Phase 2 rationale citations together — co-locate
-   a mechanism's "what" and "why" rather than splitting them into separate
-   sections.
-3. **Absences** — sub-questions or expected mechanisms where you found
-   nothing, stated as findings in their own right, not omitted.
-4. **Method notes** — files opened, searches that paid off, dead ends
-   (including the exact failed command), what you'd do next with more
-   budget. This is what lets the orchestrator judge how much to trust a
-   thin section versus a genuinely-absent mechanism.
+```
+done: <outdir>/<concern>.md
+```
+
+Use `partial:` instead of `done:` when a sub-question went unanswered, and
+`blocked: <reason>` when you could not write the file at all. Nothing else
+goes in the reply — no summary, no findings. If the orchestrator later asks
+you to resend, point at the file again; do not redo the survey.
+
+The file follows this shape. It is the format the orchestrator spot-checks
+and builds both the vault note and the Artifact page from, so keep every
+field label exactly as written.
+
+````markdown
+# <owner>/<repo> — <concern>
+
+**SHA:** `<full 40-char sha>` · read <YYYY-MM-DD> · source: <local clone at <path> | fetched at SHA>
+
+Scope: <one line naming what this file covers and what it leaves to others>
+
+## 1. <sub_question, phrased as the thing found>
+
+### 1.1 <topic title>
+
+**Concept:** <one sentence>
+
+**Permalink:** [`<path>#L<x>-L<y>`](https://github.com/<owner>/<repo>/blob/<sha>/<path>#L<x>-L<y>)
+
+```<lang>
+<at most 15 lines, copied from the file at that SHA; mark every cut with a
+line reading `# ...` (or the language's own comment marker)>
+```
+
+**Explanation:** <2–4 sentences: what it does and why it matters to the question>
+
+**Pattern:** <a pattern name — GoF where it fits, otherwise a plain descriptive name>
+
+**Rationale:** <verbatim quote with short SHA or PR/issue number; or
+"archaeology empty: <exact search run>">
+
+### 1.2 …
+
+## Absences
+
+- <expected mechanism not found, with the exact search that established it>
+
+## Surprises
+
+1. **<one-line claim>** — <1–2 sentences with a permalink>
+
+## UNVERIFIED
+
+- <every claim you could not confirm in source at this SHA, with why>
+
+## Method notes
+
+<files opened, searches that paid off, dead ends with the exact failed
+command, what you would do next with more budget>
+````
+
+Rules the format carries:
+
+- **Every permalink pins the full SHA** — `blob/<sha>/`, never `blob/main/`
+  or `blob/dev/`. A branch link rots the day after you write it.
+- **Line numbers come from reading the file**, never from a search
+  snippet's offset or a symbol name.
+- **Mark anything unconfirmed `UNVERIFIED`** inline where it appears, and
+  list it again under `## UNVERIFIED`.
+- **Co-locate what and why.** A topic's Phase 2 rationale goes in its own
+  `**Rationale:**` line, not in a separate history section.
 
 Do not propose the transferable lesson, do not rank this project against
 any other project in the batch, and do not draft vault-note prose — hand
