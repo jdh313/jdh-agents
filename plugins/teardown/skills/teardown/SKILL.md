@@ -12,7 +12,7 @@ description: >-
   lookup. Delegates reading to `@surveyor` agents and keeps the synthesis.
 effort: high
 argument-hint: "Which project — or which question across projects?"
-allowed-tools: Bash(obsidian-cli *), Read, Grep, Glob, Bash(git -C * log *), Bash(git -C * show *), Bash(git -C * blame *), Bash(git -C * status *), Bash(git -C * rev-parse *), Bash(git -C * remote *), Bash(git -C * fetch *), Bash(gh api *), Bash(base64 *), Bash(gh issue *), Bash(gh pr *), Bash(rg *), WebFetch, mcp__obsidian-mcp__patch_note, mcp__obsidian-mcp__search_notes, Edit(~/Loose Ends/Reference/Developer/**), Edit(//private/tmp/**), Edit(//tmp/teardown/**), Agent, Skill(artifact-design), Artifact
+allowed-tools: Bash(obsidian-cli *), Read, Grep, Glob, Bash(git -C * log *), Bash(git -C * show *), Bash(git -C * blame *), Bash(git -C * status *), Bash(git -C * rev-parse *), Bash(git -C * remote *), Bash(git -C * fetch *), Bash(gh api *), Bash(base64 *), Bash(gh issue *), Bash(gh pr *), Bash(rg *), WebFetch, mcp__obsidian-mcp__patch_note, mcp__obsidian-mcp__update_frontmatter, mcp__obsidian-mcp__search_notes, Edit(~/Loose Ends/Reference/Developer/**), Edit(//private/tmp/**), Edit(//tmp/teardown/**), Agent, Skill(artifact-design), Artifact
 disallowed-tools: Bash(rm *), Bash(trash *), Bash(git push *), Bash(git commit *), Bash(git checkout *), Bash(git reset *), Bash(git clean *), Bash(git rebase *), Bash(git stash *)
 ---
 
@@ -44,7 +44,7 @@ A miss here is the expensive failure. It silently creates a second page on the s
   Search the slug: the clone at `~/upstream/home-assistant-core` is recorded as `repo: home-assistant/core`, so a search for the folder name finds nothing.
 - **Semantic.** Dispatch `librarian:vault-reader` with the question in the user's own words. Titles will not match; the concern will.
 
-If both return candidates, or neither returns anything and you suspect a near-miss title, show the user the candidates and ask. A tie you resolve alone is the duplicate you create. If the note found carries `artifact:`, that is the page to extend.
+If both return candidates, or neither returns anything and you suspect a near-miss title, show the user the candidates and ask. A tie you resolve alone is the duplicate you create. If the repo's latest `projects_surveyed:` entry carries `artifact:`, that is the page to extend.
 
 ## 3. Pin the source
 
@@ -158,17 +158,17 @@ Adding a project to an existing question note, or re-reading one at a newer SHA,
 
 When no note records the repo, create a project note at layer 1 — unless an existing question note already asks the question a finding answers, in which case the finding goes into that note's table. Both shapes live in `Reference/Developer/`, and both carry `projects_surveyed:`.
 
-Templates, exact frontmatter (including `projects_surveyed:` and `artifact:`), section skeletons, a worked comparison-table example, and the evidence standards are in `${CLAUDE_PLUGIN_ROOT}/references/note-shapes.md`. Load it before the first write of a session.
+Templates, exact frontmatter (including the `projects_surveyed:` entry and its `artifact:` field), section skeletons, a worked comparison-table example, and the evidence standards are in `${CLAUDE_PLUGIN_ROOT}/references/note-shapes.md`. Load it before the first write of a session.
 
 Honor the vault's own conventions (`~/Loose Ends/.claude/CLAUDE.md`): `owner: ai`, `type: wiki`, no H1 title, date fields left to the Linter plugin, kebab-case hierarchical tags, wikilinks on first mention of anything with its own page, one line per paragraph.
 
 **Write a new page as a file; use the tools for everything after.** `obsidian-cli create` takes its body through `content=`, an escaped single-argument string — unusable for a teardown, whose substance is pipe tables, code spans, and quoted rationale. Write the file directly to `~/Loose Ends/Reference/Developer/<Title>.md`, after confirming the path is new (pre-approved through the `Edit(...)` path rules in `allowed-tools`, which is how Claude Code scopes `Write`). `obsidian-cli create --help` *creates a note named "Untitled"*; check `obsidian-cli --help` at the top level instead.
 
-For an existing note, use the tools: `obsidian-cli property:set` for frontmatter (a new `projects_surveyed:` entry, `artifact:`), `mcp__obsidian-mcp__patch_note` for a changed table row or a rewritten claim, and `librarian:note-editor` for a restructure.
+For an existing note, use the tools: `mcp__obsidian-mcp__patch_note` or `update_frontmatter` for frontmatter (a new `projects_surveyed:` entry is a nested list item, which `obsidian-cli property:set` cannot append), `mcp__obsidian-mcp__patch_note` for a changed table row or a rewritten claim, and `librarian:note-editor` for a restructure.
 
 ## 9. Publish the page and offer the next layer
 
-Build or extend the Artifact page per `${CLAUDE_PLUGIN_ROOT}/references/artifact-shape.md`: load `artifact-design` first, add this layer's tab, and republish. After the first publish, write its URL into the note's frontmatter as `artifact:`.
+Build or extend the Artifact page per `${CLAUDE_PLUGIN_ROOT}/references/artifact-shape.md`: load `artifact-design` first, add this layer's tab, and republish. After the first publish, write its URL onto this read's `projects_surveyed:` entry as `artifact:`.
 
 Close the layer by giving the user:
 

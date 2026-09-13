@@ -22,7 +22,7 @@ projects_surveyed:
 
 Entries append in read order and are never rewritten in place: re-reading a project at a newer SHA adds a second entry for the same `repo`. The history of when a page's claims were last grounded is part of the page's value.
 
-A note with an interactive page also carries `artifact: <url>` — the Artifact URL, set after the first publish, so a later session can read the page and extend it in place instead of creating a second one. See `artifact-shape.md`.
+- **`artifact`** — optional. The Artifact page URL for this repo at this read, when one was built. The page is per repo, not per note: a question note surveying five repos can point at five pages. A later session reads that URL and extends the page in place instead of creating a second one. See `artifact-shape.md`.
 
 Finding a prior read is then one command:
 

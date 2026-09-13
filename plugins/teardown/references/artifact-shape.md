@@ -16,7 +16,7 @@ The worked exemplar is the Home Assistant core page (`Inside Home Assistant`, co
 2. **Keep the HTML in the output directory**: `<outdir>/<repo-name>.html`.
 3. **Republish the same file path** for each new layer in a session, so the URL stays the same.
 4. **Set `favicon` only on the first publish.** Omit it on every republish.
-5. **Record the URL in the vault note's frontmatter** as `artifact: <url>` after the first publish. A later session has a different output directory, so it cannot rely on the file path: it passes that `url` to the Artifact tool with `action: "read"`, builds on the HTML that comes back, and publishes with `url`.
+5. **Record the URL on the repo's `projects_surveyed:` entry** as `artifact: <url>` after the first publish — on the entry, not the note, because a question note spans many repos and each has its own page. A later session has a different output directory, so it cannot rely on the file path: it passes that `url` to the Artifact tool with `action: "read"`, builds on the HTML that comes back, and publishes with `url`.
 
 Title the page as a name for the subject, such as `Inside Home Assistant`, not `Home Assistant Teardown — Architecture Study`. Pass the explanation as `description`.
 
