@@ -12,7 +12,7 @@ description: >-
   lookup. Delegates reading to `@surveyor` agents and keeps the synthesis.
 effort: high
 argument-hint: "Which project — or which question across projects?"
-allowed-tools: Bash(obsidian-cli *), Read, Grep, Glob, Bash(git log *), Bash(git show *), Bash(git blame *), Bash(git status *), Bash(git remote *), Bash(git fetch *), Bash(gh api *), Bash(gh issue *), Bash(gh pr *), Bash(rg *), WebFetch, mcp__obsidian-mcp__patch_note, mcp__obsidian-mcp__search_notes, Edit(~/Loose Ends/Reference/Developer/**), Edit(//private/tmp/**), Edit(//tmp/teardown/**), Agent, Skill(artifact-design), Artifact
+allowed-tools: Bash(obsidian-cli *), Read, Grep, Glob, Bash(git -C * log *), Bash(git -C * show *), Bash(git -C * blame *), Bash(git -C * status *), Bash(git -C * rev-parse *), Bash(git -C * remote *), Bash(git -C * fetch *), Bash(gh api *), Bash(base64 *), Bash(gh issue *), Bash(gh pr *), Bash(rg *), WebFetch, mcp__obsidian-mcp__patch_note, mcp__obsidian-mcp__search_notes, Edit(~/Loose Ends/Reference/Developer/**), Edit(//private/tmp/**), Edit(//tmp/teardown/**), Agent, Skill(artifact-design), Artifact
 disallowed-tools: Bash(rm *), Bash(trash *), Bash(git push *), Bash(git commit *), Bash(git checkout *), Bash(git reset *), Bash(git clean *), Bash(git rebase *), Bash(git stash *)
 ---
 
@@ -122,6 +122,18 @@ Dispatch with exactly these fields, in this order — `agents/surveyor.md` reads
 Send `archaeology_ref` as the absolute path shown above: the plugin-root variable is substituted in this skill's text, but that substitution is not documented for an agent's body, so the surveyor cannot be trusted to resolve it itself. Ask each surveyor for **evidence** — cited structure, quoted rationale, explicit absences, labelled inference. Do not ask it for the lesson. The lesson is yours, because only you hold all the projects.
 
 **The surveyor's deliverable is `<outdir>/<concern>.md`; its reply is one line naming that file.** Read the file, not the reply. If a surveyor goes idle without replying, check for the file before chasing — the work is usually done. If the file is missing, send "resend, do not redo: write it to `<outdir>/<concern>.md`, then reply with one line." A chase without "do not redo" reads as "start over."
+
+## Verify before writing anything
+
+No surveyor claim reaches the vault note or the Artifact page until you have checked it yourself. Per surveyor file:
+
+1. **Pick 3 citations**, spread across the file — one early, one middle, one from the section the goal leans on hardest. For each, open the cited file at the pinned SHA (`git -C <clone> show <sha>:<path>`, the fetched copy under `<outdir>/src/`, or `gh api 'repos/<owner>/<name>/contents/<path>?ref=<sha>' --jq .content | base64 -d`) and confirm the lines hold the snippet and support the explanation.
+2. **Check every anomaly claim**, not a sample. An anomaly is any claim that the source is corrupted, a fetch glitched, upstream has a bug, or code "cannot be valid." Surveyors label these `ANOMALY:`, but also scan `## Surprises` and `## UNVERIFIED` for unlabelled ones. Test each against the project's declared toolchain before accepting it: the language version in `pyproject.toml` / `package.json` / `go.mod`, and that version's changelog.
+3. **Act on what fails.** A wrong line number gets corrected in place. A claim the source does not support gets dropped. If 2 or more of the 3 sampled citations fail, the file's line numbers are not trustworthy: check every citation in it, or re-dispatch that concern.
+
+The worked failure: a surveyor reading Home Assistant core called `except KeyError, ValueError:` a download glitch — "invalid Python 3 syntax" — and warned readers off every multi-exception clause in the codebase. It is valid Python 3.14 syntax (PEP 758, unparenthesized `except`), and core requires Python ≥ 3.14.2. One look at `requires-python` turns a false data-integrity warning into a real surprise worth recording.
+
+Say in one line, before writing, what the check found: citations checked, anomalies confirmed or overturned, anything dropped.
 
 ## Synthesis — the part you keep
 

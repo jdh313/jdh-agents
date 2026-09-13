@@ -269,6 +269,12 @@ Rules the format carries:
   snippet's offset or a symbol name.
 - **Mark anything unconfirmed `UNVERIFIED`** inline where it appears, and
   list it again under `## UNVERIFIED`.
+- **Label anomalies `ANOMALY:`** — any claim that source is corrupted, a
+  fetch glitched, upstream has a bug, or code cannot be valid. Before writing
+  one, check the project's declared language version (`requires-python`,
+  `engines`, `go` directive) and whether newer syntax explains it: Home
+  Assistant's `except KeyError, ValueError:` looked like corruption and is
+  valid Python 3.14 (PEP 758). The orchestrator checks every `ANOMALY:` line.
 - **Co-locate what and why.** A topic's Phase 2 rationale goes in its own
   `**Rationale:**` line, not in a separate history section.
 
