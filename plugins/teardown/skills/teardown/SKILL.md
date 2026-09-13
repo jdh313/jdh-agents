@@ -20,16 +20,30 @@ A **teardown** reads a real codebase at source level and lands the result as a d
 
 The quality bar is a concrete artifact: `~/Loose Ends/Reference/Developer/Architecture of Stateful CLI Dev Tools.md`. Read it before writing your first teardown. Every structural claim in it carries a `path/file.ext:LINE`; every rationale claim quotes a maintainer verbatim with a short SHA or PR number; absences are reported as findings ("a pickaxe for `os.Rename` on that file returns nothing, ever"); inference is labelled inference; an `## Unverified` section names what could not be confirmed.
 
-## Two note types, and the route between them
+## Staged descent — the user picks each next layer
 
-The user's question decides which one you are writing.
+Do not decide the output's shape up front. A teardown descends through three layers, and **each layer ends by stopping and offering the next one.** The user's follow-up picks it, or ends the session there.
 
-- **Project note** — whole-system scope. *"How is Home Assistant architected?"* One project, one page. The spine is the **mental model**: the central abstraction, the unit of work, how data moves, and the two or three decisions everything else hangs off. The second half is 3–5 load-bearing decisions with reconstructed rationale. A short pinned navigation block (entry points, the extension seam) sits near the top as scaffolding — it is a map to the code, never the substance of the page.
-- **Question note** — single-concern scope. *"How does Home Assistant let users create plugins?"* Born at one project and **accretes** projects over time. Structure is question-sections; inside each, a comparison table with projects as rows. The value concentrates in a handful of bolded derived claims that only exist because several rows sit next to each other.
+| Layer | The reader's question | Surveyor focus | Artifact tab |
+|---|---|---|---|
+| 1. System map | What are the parts, and how does one event move through them? | Components, boundaries, one real end-to-end trace | System map |
+| 2. Domain model | How does it model the things it manages, and so how does extension work? | Record shapes (registry JSON, state objects, manifests), base-class contracts, extension lifecycle | Domain model (named for the subject, e.g. "Device model") |
+| 3. Code | What does the real code look like? | Runtime walkthrough of real functions, patterns, pinned libraries, surprises | Code |
 
-Route on scope, not on project count. "How is X architected" is a project note even if X is the third such project. "How does X do Y" is a question note even at N=1 — the table has one row, and the page is built to grow.
+Start at layer 1 unless the question already names a deeper one — "how does X let users write plugins" starts at layer 2. Skip no layer the user asks for, and run none they did not.
 
-Both live in `Reference/Developer/`. Both carry `projects_surveyed:`.
+Each layer is one full pass through the same loop: write `sub_questions` for that layer → dispatch surveyors → verify → add findings to the vault note → add a tab to the Artifact page → stop and offer the remaining layers as a numbered choice. Surveyor files are named `<layer>-<concern>.md` (`1-system.md`, `3-runtime.md`, `3-framework.md`), so a later layer never overwrites an earlier one.
+
+**The vault note is the durable record; the Artifact page is the explorable view of it.** Every layer adds to both, in that order. If the session ends mid-descent, the note must already hold everything the page shows. Page structure is in `${CLAUDE_PLUGIN_ROOT}/references/artifact-shape.md`; build the page whenever the `Artifact` tool exists, and say in one line that you skipped it when it does not.
+
+### Where a layer's findings land
+
+The target note is the one found at session open. Two note shapes exist (skeletons in `note-shapes.md`), and findings go to whichever the vault already has:
+
+- **Question note** — single-concern, accretes projects as table rows (*"Extension Architecture in Application Platforms"*). A layer's findings that answer one of its numbered sections become that project's row. When the project already has a row, update it from the newer SHA and add a new `projects_surveyed:` entry. Then re-test the note's standing claims (see Accretion).
+- **Project note** — whole-system, one project, spine is the mental model. Layer 1 feeds `## Navigation` and `## The mental model`; layer 2 feeds the central abstraction and how data moves; layer 3 feeds `## Load-bearing decisions` and `## Gotchas`.
+
+When no note records the repo, create a project note at layer 1. Before writing any finding, check whether an existing question note already asks the question it answers. If one does, the finding belongs in that note's table, not in a new page. Both shapes live in `Reference/Developer/`, and both carry `projects_surveyed:`.
 
 ## Session open — fast
 
@@ -40,7 +54,7 @@ The user will route around a slow opening. Two things only:
 
 Depth is *derived* from those two. A goal of "I'm about to build this seam myself" earns line-level tracing of the seam and its rejected alternatives; a goal of "I keep wondering how these differ" earns one table row per project. There is no depth dial and no gate that refuses to go deeper — the pair above is the whole input.
 
-State back, in one line, what you inferred: note type, target note (new or existing), projects, and depth. Then move.
+State back, in one line, what you inferred: target note (existing, or new project note), starting layer, source (clone or fetch), surveyor concerns, depth, and whether an Artifact page will be built. Then move.
 
 ## Find the existing note before writing a new one
 
@@ -114,7 +128,7 @@ Dispatch with exactly these fields, in this order — `agents/surveyor.md` reads
 7. sub_questions:
    1. <…>
    2. <…>
-8. concern: <kebab-case; the repo name when one surveyor covers the project>
+8. concern: <layer number + kebab-case slice, e.g. 1-system, 3-runtime>
 9. outdir: <absolute output directory>
 10. archaeology_ref: ${CLAUDE_PLUGIN_ROOT}/references/archaeology.md
 ```
@@ -168,7 +182,11 @@ Honor the vault's own conventions (`~/Loose Ends/.claude/CLAUDE.md`): `owner: ai
 
 For everything after the first write, use the tools: `obsidian-cli append` and `property:set` for accretion (a new `projects_surveyed:` entry, a new table row), `mcp__obsidian-mcp__patch_note` for surgical in-body replacement when a claim is rewritten, and `librarian:note-editor` for a restructure.
 
-Close by giving the user the note's Obsidian URI, plus one line naming what changed in the derived claims — that is what they came for.
+Close each layer by giving the user:
+
+1. the note's Obsidian URI, plus one line naming what changed in the derived claims — that is what they came for;
+2. the Artifact URL, when a page was built (after the first publish, write it into the note's frontmatter as `artifact:`);
+3. the remaining layers as a numbered choice — for example "Next: 2. Domain model — how devices and entities are modeled · 3. Code — runtime walkthrough, patterns, libraries."
 
 ## Composition
 

@@ -22,6 +22,8 @@ projects_surveyed:
 
 Entries append in read order and are never rewritten in place: re-reading a project at a newer SHA adds a second entry for the same `repo`. The history of when a page's claims were last grounded is part of the page's value.
 
+A note with an interactive page also carries `artifact: <url>` — the Artifact URL, set after the first publish, so a later session can read the page and extend it in place instead of creating a second one. See `artifact-shape.md`.
+
 Finding a prior read is then one command:
 
 ```bash

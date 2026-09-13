@@ -46,20 +46,22 @@ thing `/teardown-recheck` reads to know what to check for drift.
 
 ## Session flow (`/teardown`)
 
-1. Confirm the target repo has a local clone at `~/upstream/<name>`. If it
-   doesn't, or if it exists but is behind, **always confirm before pulling** —
-   several of these repos back services the user runs, and a silent
-   fast-forward is a silent behavior change to a running system.
-2. Dispatch the `surveyor` agent, read-only, scoped to the confirmed clone.
-   It runs two ordered phases: current structure first (what the system looks
-   like today), then history and rationale (why it got that way, via git log
-   / commit messages / changelogs) — deliberately in that order, so the
-   "why" phase has the "what" already in view rather than reconstructing both
-   at once.
-3. Route findings into a QUESTION note (existing or new), a PROJECT note
-   (existing or new), or both, per the note-type guidance above.
-4. Record `projects_surveyed:` on every note touched, with the repo, the
-   commit SHA the surveyor actually read, and today's date.
+1. Find the existing note first, by the repo slug recorded in
+   `projects_surveyed:` (`repo: owner/name`), before touching any code.
+2. Pin a SHA. Use a local clone if one exists (found by remote URL, not folder
+   name) and **always confirm before pulling** it; with no clone, surveyors
+   fetch each file they cite at the pinned SHA.
+3. Descend one layer at a time — **system map**, then **domain model**, then
+   **code** — with the user picking each next layer. Per layer, `surveyor`
+   agents (one per project, or one per concern in a large repo) run two
+   ordered phases, current structure then history and rationale, and each
+   writes its evidence to a file.
+4. Spot-check 3 citations per surveyor file and every anomaly claim before
+   writing anything.
+5. Add the layer's findings to the vault note (with a `projects_surveyed:`
+   entry for the SHA read), then add a tab to one interactive Artifact page
+   when the Artifact tool is available. The note is the durable record; the
+   page is the explorable view of it.
 
 ## Keeping notes honest (`/teardown-recheck`)
 
@@ -101,5 +103,8 @@ files.
 
 - An Obsidian vault (default `~/Loose Ends/`) with a `Reference/Developer/`
   location for both note types.
-- Local clones under `~/upstream/<name>` for every project under study —
-  `teardown` reads from a checkout, never a remote API or a scrape.
+- A local clone under `~/upstream/` when one exists; otherwise `gh` and `curl`
+  to fetch source files at a pinned SHA. Citations always come from files
+  opened at that SHA, never from rendered pages or memory.
+- Claude Code's `Artifact` tool for the interactive page. Without it, the
+  vault note is produced alone and is complete on its own.
