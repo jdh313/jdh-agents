@@ -34,8 +34,11 @@ This adaptation routes every teaching artifact — including lessons and referen
 ## Before you start: ground in how this user learns
 
 Read `Personal/Manual of Me/Learning/Learning Style.md` first with
-`obsidian-cli read`. A runtime that exposes a registered, read-only vault
-collaborator may delegate this read, but the direct CLI path is always valid.
+`obsidian-cli read path="Personal/Manual of Me/Learning/Learning Style.md"`.
+Always pass `path=` for exact vault paths; a bare positional argument is
+ignored by the current CLI and reads the active note instead. A runtime that
+exposes a registered, read-only vault collaborator may delegate this read, but
+the path-qualified CLI route is always valid.
 The note documents how the user actually retains material — the two-gate model
 (learning by **doing** + **real stakes**) and the **AI-as-substitute failure
 mode** (the risk that an AI tutor becomes a crutch that produces fluency
@@ -78,9 +81,13 @@ destructive shell or VCS commands such as `rm`, `trash`, `git push`,
 The vault is **context-first**: folders convey context, and activity is a frontmatter facet, not a folder. There is no top-level `Learning/` folder — instead, place the workspace under the context the topic belongs to, and mark the activity with `type: learning-mission` + `tags: [learning]` so a query can still gather "all my learning" across contexts.
 
 Infer the best-fit context from the topic using the vault's canonical Location
-Decision Tree (currently stored in the vault's `.claude/CLAUDE.md`; read it as
-vault content regardless of which runtime is active), **propose a path, and
-confirm with the user** before creating anything:
+Decision Tree. Resolve the vault root with `obsidian-cli vault info=path`, then
+read `<vault-root>/.claude/CLAUDE.md` with the runtime's filesystem read tool.
+Obsidian does not index that hidden file, so `obsidian-cli read path=...` cannot
+open it. Treat the file as canonical vault content regardless of which runtime
+is active. If it cannot be read, do not guess the namespace: ask the user where
+the workspace belongs. **Propose a path, and confirm with the user** before
+creating anything:
 
 - Technical / programming topic → `Reference/Developer/<Topic>/`
 - DevOps / infrastructure topic → `Reference/Infrastructure/<Topic>/`
