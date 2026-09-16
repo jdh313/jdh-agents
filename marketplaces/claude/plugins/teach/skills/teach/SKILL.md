@@ -33,7 +33,13 @@ This adaptation routes every teaching artifact — including lessons and referen
 
 ## Before you start: ground in how this user learns
 
-Read `Personal/Manual of Me/Learning/Learning Style.md` first (via `obsidian-cli read` or `@vault-reader`). It documents how the user actually retains material — the two-gate model (learning by **doing** + **real stakes**) and the **AI-as-substitute failure mode** (the risk that an AI tutor becomes a crutch that produces fluency without retention).
+Read `Personal/Manual of Me/Learning/Learning Style.md` first with
+`obsidian-cli read`. A runtime that exposes a registered, read-only vault
+collaborator may delegate this read, but the direct CLI path is always valid.
+The note documents how the user actually retains material — the two-gate model
+(learning by **doing** + **real stakes**) and the **AI-as-substitute failure
+mode** (the risk that an AI tutor becomes a crutch that produces fluency
+without retention).
 
 Let it steer every choice:
 
@@ -52,13 +58,29 @@ Each topic gets a **self-contained workspace folder in the vault**, placed under
 
 Reference material — cheat sheets, algorithm notes, syntax cards — is **not** a workspace artifact anymore. It's ordinary wiki content; see [Reference material](#reference-material) below for where it lives.
 
-**Tooling:** every artifact above is a `.md` note, created and edited with `obsidian-cli` (`create`, `append`, `property:set`); surgical in-note edits use whichever targeted note-patch tool the runtime offers (Claude's Obsidian MCP integration); complex restructures are dispatched to `@note-editor`.
+**Tooling:** every artifact above is a `.md` note, created and edited with
+`obsidian-cli` (`create`, `append`, `property:set`). Surgical in-note edits use
+whichever targeted note-patch tool the runtime offers. For a complex
+restructure, use a registered bounded vault-editor collaborator when one is
+available. If the runtime has no such collaborator, do not invent one: ask the
+user before a broad rewrite and make the smallest safe change directly.
+
+**Safety boundary:** the frontmatter tool policy is defense in depth, not the
+only statement of the rule. Never delete vault content or modify DEVONthink.
+Make no vault write until the user confirms the proposed workspace path. Keep
+writes inside that confirmed workspace, except for global `Sources/` or wiki
+pages the user explicitly approves as part of the teaching flow. Do not run
+destructive shell or VCS commands such as `rm`, `trash`, `git push`,
+`jj abandon`, or `jj restore` as part of this workflow.
 
 ### Resolving the context (where the workspace lives)
 
 The vault is **context-first**: folders convey context, and activity is a frontmatter facet, not a folder. There is no top-level `Learning/` folder — instead, place the workspace under the context the topic belongs to, and mark the activity with `type: learning-mission` + `tags: [learning]` so a query can still gather "all my learning" across contexts.
 
-Infer the best-fit context from the topic using the vault's Location Decision Tree (in the vault's `.claude/CLAUDE.md`), **propose a path, and confirm with the user** before creating anything:
+Infer the best-fit context from the topic using the vault's canonical Location
+Decision Tree (currently stored in the vault's `.claude/CLAUDE.md`; read it as
+vault content regardless of which runtime is active), **propose a path, and
+confirm with the user** before creating anything:
 
 - Technical / programming topic → `Reference/Developer/<Topic>/`
 - DevOps / infrastructure topic → `Reference/Infrastructure/<Topic>/`
@@ -204,14 +226,21 @@ For acquiring knowledge, difficulty is the enemy. It eats working memory you nee
 
 Before reaching for the web — and certainly before trusting your parametric knowledge — **survey the textbooks the user already owns in DEVONthink.** These are the highest-trust source class available: the user paid for them, chose to keep them, and they are *stable* (a textbook doesn't drift the way a live codebase or a moving web page does), so a citation into one stays valid.
 
-When gathering or expanding resources for a topic:
+If the active runtime has no DEVONthink integration, say so plainly before
+gathering sources, do not imply that the library was searched, and continue
+with the normal web-source flow. Missing integration changes the available
+source class; it does not block the rest of the teaching workspace.
+
+When DEVONthink is connected, use these connector-only steps before the web
+path:
 
 - **Search DEVONthink first.** Use `mcp__devonthink__search_records` / `mcp__devonthink__lookup_records` (and `get_databases` to see what's available) to find textbooks relevant to the topic. Surface what you found to the user and let them confirm which are worth grounding lessons in.
 - **Pull content to ground lessons, not to replace them.** Use `get_record_text` / `extract_record_content` to read the relevant passages and ground your explanations in what the book actually says — then cite it. Quote sparingly; the lesson teaches, the book is the authority behind the claim.
 - **Cite by DEVONthink item link.** Record the textbook in `Resources.md` under Knowledge with its DEVONthink item link (`x-devonthink-item://<UUID>`, from `get_record_properties`) plus a page/chapter pointer where you can. See [RESOURCES-FORMAT.md](./RESOURCES-FORMAT.md).
 - **Read-only.** Never create, move, tag, or modify records in the user's DEVONthink library — it is their reference collection, not a teaching workspace.
 
-If no owned textbook covers the topic, say so and fall back to web sources via the normal ingest flow.
+If the connected library has no owned textbook covering the topic, say so and
+fall back to web sources via the normal ingest flow.
 
 ### Citing a live codebase
 
