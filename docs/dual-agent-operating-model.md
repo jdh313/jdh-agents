@@ -114,6 +114,17 @@ The four pilots passed fresh-task smoke tests:
   warnings.
 - `spec-flow`: routed an existing file-hosted contract without mutation.
 
+Additional fresh-task Codex acceptance:
+
+- `teach` (0.11.4, 2026-09-16): explicit invocation loaded the installed
+  `jdh-agents` copy, read the exact Learning Style note and hidden vault
+  Location Decision Tree, disclosed that DEVONthink was unavailable, and
+  created then re-read only `Mission.md`, `Resources.md`, and `Glossary.md`
+  under the user-confirmed `Reference/Developer/Jujutsu Workspaces/` path.
+  The runtime trial caught and fixed two real CLI hazards first: exact reads
+  require `path=`, and `obsidian-cli create --help` performs a create rather
+  than showing help. Claude regression remains a separate Fibery #103 gate.
+
 Expand Codex support plugin by plugin. A plugin joins the Codex catalog only
 after its manifest validates, platform-specific primitives have native
 mappings, and a fresh-task smoke test passes.

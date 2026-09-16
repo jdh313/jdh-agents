@@ -294,6 +294,16 @@ parity claims:
   that is a local dependency, not a Codex gap, and is stated in the
   `longDescription`.
 
+  Fresh Codex runtime evidence (2026-09-16, Teach 0.11.4) goes beyond the
+  generated projection: an explicitly invoked installed copy grounded itself
+  in the exact Learning Style note and vault Location Decision Tree, disclosed
+  the missing DEVONthink integration, and created and re-read the three
+  requested workspace notes under a user-confirmed path without writing any
+  other vault artifact. The preceding failed trials exposed the positional
+  read and subcommand-help hazards now stated in portable body prose. Claude
+  regression is still pending under Fibery #103 and is not implied by this
+  Codex result.
+
 Constructs that would otherwise be lost with nothing reported must be declared
 in canonical YAML under `targets.codex.losses`, and compilation fails
 against the declaration when one is missing. Three constructs are gated today:

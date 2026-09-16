@@ -50,6 +50,12 @@ restructure, use a registered bounded vault-editor collaborator when one is
 available. If the runtime has no such collaborator, do not invent one: ask the
 user before a broad rewrite and make the smallest safe change directly.
 
+`obsidian-cli` uses `key=value` arguments, not conventional positional flags.
+Create with `obsidian-cli create path="..." content="..."` and read with
+`obsidian-cli read path="..."`. Never probe a subcommand with `--help`:
+`obsidian-cli create --help` executes `create` and can create an unwanted
+default note. Use the top-level `obsidian-cli --help` command reference instead.
+
 **Safety boundary:** the frontmatter tool policy is defense in depth, not the
 only statement of the rule. Never delete vault content or modify DEVONthink.
 Make no vault write until the user confirms the proposed workspace path. Keep
