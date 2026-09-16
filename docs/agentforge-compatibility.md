@@ -301,8 +301,17 @@ parity claims:
   requested workspace notes under a user-confirmed path without writing any
   other vault artifact. The preceding failed trials exposed the positional
   read and subcommand-help hazards now stated in portable body prose. Claude
-  regression is still pending under Fibery #103 and is not implied by this
-  Codex result.
+  regression is independent and is not implied by this Codex result.
+
+  Fresh Claude runtime evidence (2026-09-16, Teach 0.11.5) exercised that
+  independent path. Claude loaded the generated plugin at process startup,
+  read the complete 661-line vault guidance before proposing or writing,
+  waited for confirmation of `Reference/Developer/Jujutsu Templates/`, and
+  created five Markdown notes inside it. The mission omitted an unverified
+  parent MOC and the redundant `context/developer` tag, demonstrating the
+  `ndr:nyq74g` authority split at runtime. Scratch jj validation also created a
+  per-repository config directory under `~/.config/jj/repos/`; it is recorded
+  as a non-vault cleanup item and was not silently removed.
 
 Constructs that would otherwise be lost with nothing reported must be declared
 in canonical YAML under `targets.codex.losses`, and compilation fails

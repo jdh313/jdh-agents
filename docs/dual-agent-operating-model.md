@@ -123,7 +123,20 @@ Additional fresh-task Codex acceptance:
   under the user-confirmed `Reference/Developer/Jujutsu Workspaces/` path.
   The runtime trial caught and fixed two real CLI hazards first: exact reads
   require `path=`, and `obsidian-cli create --help` performs a create rather
-  than showing help. Claude regression remains a separate Fibery #103 gate.
+  than showing help.
+
+Fresh Claude regression evidence:
+
+- `teach` (0.11.5, 2026-09-16): a fresh Claude Code process loaded the
+  generated plugin with `--plugin-dir`, invoked `/teach:teach`, read all 661
+  lines of the canonical vault guidance before proposing a path, and waited
+  for confirmation of `Reference/Developer/Jujutsu Templates/`. It created
+  five Markdown notes inside that workspace; `Mission.md` correctly omitted
+  both an unverified `up` link and the folder-redundant `context/developer`
+  tag. The run made no repository change and used no destructive command or
+  subcommand `--help`. Its scratch jj validation left one per-repository config
+  directory under `~/.config/jj/repos/`; that non-vault side effect remains an
+  explicit cleanup item rather than being silently deleted.
 
 Expand Codex support plugin by plugin. A plugin joins the Codex catalog only
 after its manifest validates, platform-specific primitives have native

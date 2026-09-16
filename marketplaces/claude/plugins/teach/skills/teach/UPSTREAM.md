@@ -62,3 +62,10 @@ This forks hard from upstream's self-contained-HTML model — deliberately, not 
 no missing-asset loss. Runtime acceptance remains separate: it must verify the
 installed copy can use the asset and must not infer behavior from publication
 bytes alone.
+
+**Resolved 2026-09-16 (Fibery #103, `ndr:nyq74g`):** vault-local guidance owns
+vault-wide placement, frontmatter, tag, hierarchy, and link conventions; Teach
+owns the learning-specific artifact set, artifact formats, workflow, and safety
+gates. Teach now requires a complete read of the canonical vault guidance,
+omits `up` when no verified parent MOC exists, and does not duplicate folder
+context with an unconditional `context/{y}` tag.

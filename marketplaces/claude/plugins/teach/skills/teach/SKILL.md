@@ -88,7 +88,9 @@ The vault is **context-first**: folders convey context, and activity is a frontm
 
 Infer the best-fit context from the topic using the vault's canonical Location
 Decision Tree. Resolve the vault root with `obsidian-cli vault info=path`, then
-read `<vault-root>/.claude/CLAUDE.md` with the runtime's filesystem read tool.
+read the complete `<vault-root>/.claude/CLAUDE.md` with the runtime's filesystem
+read capability before deriving a path or vault-specific fields. Searching or
+grepping selected excerpts does not satisfy this gate.
 Obsidian does not index that hidden file, so `obsidian-cli read path=...` cannot
 open it. Treat the file as canonical vault content regardless of which runtime
 is active. If it cannot be read, do not guess the namespace: ask the user where
@@ -102,6 +104,12 @@ creating anything:
 - A standalone personal interest with no clean home (a language, an instrument) → propose your best guess and let the user redirect
 
 Topic folders use **Title Case with spaces** (`Postgres MVCC`). The user owns the namespace call — when in doubt, ask.
+
+The vault guidance owns vault-wide placement, frontmatter, tag, hierarchy, and
+link conventions. This skill owns the learning-specific artifact set, artifact
+formats, teaching workflow, and safety gates. Apply the live vault conventions
+instead of copying or inventing a folder-derived context tag or parent MOC.
+See `ndr:nyq74g`.
 
 ## Philosophy
 
