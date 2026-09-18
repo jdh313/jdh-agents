@@ -16,7 +16,7 @@ Do not rely solely on this CLAUDE.md or existing plugin examples — they may be
 
 **jdh-agents** is a personal Claude Code and Codex plugin marketplace with automated validation and synchronization. It provides:
 - Authoritative AgentForge marketplace/package definitions in `MARKETPLACE.yaml` and `plugins/*/PACKAGE.yaml`
-- Committed generated native manifests for Claude and the five declared Codex pilots
+- Committed generated native manifests for all eighteen Claude packages and the fifteen Codex-enrolled ones
 - Generated-output drift detection, native schema validation, and a repo-wide privacy gate
 - GitHub Actions CI/CD for marketplace integrity
 
@@ -41,10 +41,10 @@ jdh-agents/
 │       ├── commands/             # Commands (optional)
 │       └── README.md
 ├── marketplaces/                 # COMPILER OUTPUT — committed, never hand-edited
-│   ├── claude/                   # Complete Claude marketplace root (16 plugins)
+│   ├── claude/                   # Complete Claude marketplace root (18 packages)
 │   │   ├── .claude-plugin/marketplace.json
 │   │   └── plugins/[name]/       # Compiled manifest + bodies
-│   └── codex/                    # Complete Codex marketplace root (7 pilots)
+│   └── codex/                    # Complete Codex marketplace root (15 packages)
 │       ├── .agents/plugins/marketplace.json
 │       └── plugins/[name]/       # Compiled manifest + bodies + agents/openai.yaml
 ├── scripts/                      # Automation utilities

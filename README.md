@@ -20,10 +20,10 @@ jdh-agents/
 │       ├── PACKAGE.yaml      # Canonical AgentForge package definition
 │       └── ...               # Plugin files (commands, agents, skills, etc.)
 ├── marketplaces/             # Compiler output — committed, never hand-edited
-│   ├── claude/               # Self-contained Claude marketplace root (16 plugins)
+│   ├── claude/               # Self-contained Claude marketplace root (18 packages)
 │   │   ├── .claude-plugin/marketplace.json
 │   │   └── plugins/[name]/
-│   └── codex/                # Self-contained Codex marketplace root (7 pilots)
+│   └── codex/                # Self-contained Codex marketplace root (15 packages)
 │       ├── .agents/plugins/marketplace.json
 │       └── plugins/[name]/
 ├── .betterleaks.toml         # Privacy-gate rules
@@ -115,7 +115,8 @@ git clone https://github.com/jdh313/jdh-agents
 /plugin marketplace add /path/to/jdh-agents/marketplaces/claude
 ```
 
-Codex local marketplace and pilots:
+Codex local marketplace. Fifteen packages are enrolled; the four below plus
+`librarian` and `teach` are the ones with a passing fresh-task smoke test:
 
 ```bash
 codex plugin marketplace add /path/to/jdh-agents/marketplaces/codex

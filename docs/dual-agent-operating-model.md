@@ -2,8 +2,16 @@
 
 ## Status
 
-Codex support is limited to the pilot plugins `commit`, `craft`, `linear`, and
-`spec-flow`. Claude Code remains the default surface for every other plugin.
+Enrollment and runtime acceptance are different things, and this document
+tracks both. The authoritative enrollment is the `codex` publication in
+`MARKETPLACE.yaml`: it runs `mode: all-compatible`, so every package that
+declares a `targets.codex` block is compiled and published. That is fifteen
+packages today, against eighteen for Claude. Six of those fifteen — `commit`,
+`craft`, `librarian`, `linear`, `spec-flow`, and `teach` — have passed
+fresh-task smoke tests (ndr:v0a3bm); the rest are compiled and enrolled with
+runtime acceptance still outstanding. Claude Code remains the default
+surface for every plugin, and the only surface for the three Claude-only
+packages (`attention-workflow`, `langfuse`, `teardown`).
 The repository publishes both runtimes from one source: `marketplaces/claude/`
 is what a Claude install resolves (remotely, via the root manifest) and
 `marketplaces/codex/` is what a Codex install resolves from a local clone.
@@ -104,7 +112,9 @@ compiler's own checks; CI does not depend on a user-installed Codex skill.
 
 ## Pilot acceptance
 
-The four pilots passed fresh-task smoke tests:
+Six packages have passed fresh-task smoke tests. `librarian` is recorded in
+`agentforge/docs/librarian-agent-acceptance.md` and `teach` is recorded below;
+the other four:
 
 - `commit`: detected repository conventions and reviewed a message without
   committing.
