@@ -145,6 +145,39 @@ Additional fresh-task Codex acceptance:
   require `path=`, and `obsidian-cli create --help` performs a create rather
   than showing help.
 
+- `teach` (0.11.5, 2026-09-18, codex-cli 0.154.0): a clean reinstall from
+  `marketplaces/codex` produced a cache byte-identical to the Codex
+  publication, carrying `skills/teach/agents/openai.yaml` with
+  `policy.allow_implicit_invocation: false` and a body whose collaborator
+  wording is capability-conditional — no named `@vault-reader` or
+  `@note-editor`, and no Claude-specific Obsidian patch-tool instruction.
+  Those are facts about the installed artifacts; the rest is observed
+  behavior. A fresh neutral-directory session on `gpt-5.6-luna`, given a
+  natural-language "Teach me…" prompt, taught from model knowledge alone: it
+  did not load Teach, touch Obsidian, read vault guidance, or propose a
+  workspace, so explicit-only invocation held. Under an explicit `$teach`
+  invocation the same build read the exact Learning Style note and the
+  complete vault location guidance, said truthfully that DEVONthink was
+  unavailable and had not been searched, proposed a workspace, and stopped
+  before writing; the proposed folder did not exist until the user confirmed
+  it. After confirmation it wrote only under
+  `Reference/Developer/Bloom Filters/` — `Mission.md`, `Resources.md`,
+  `Glossary.md`, an empty `Records/`, and
+  `lessons/0001-bloom-filter-membership.md` — created no global Sources note,
+  wiki page, or unearned learning record, and re-read every file it wrote. A
+  second fresh Codex session reconstructed that workspace from its own files
+  and added only `lessons/0002-bloom-filter-saturation.md`, leaving mission,
+  resources, glossary, and `Records/` unchanged. Collaborator steps ran
+  through the direct `obsidian-cli` and edit route rather than a named agent
+  — the fallback the capability-conditional wording specifies — and no
+  unavailable collaborator was invented. An earlier natural-language trial
+  inside the jdh-agents source worktree is excluded from this record: it
+  discovered canonical Teach source on disk, so it measures the working
+  directory rather than the invocation policy. The Codex tool boundary
+  remains advisory. These observations record compliance in the sessions
+  tested; they are not mechanical tool-filter enforcement, and one passing
+  run is not a general guarantee.
+
 Fresh Claude regression evidence:
 
 - `teach` (0.11.5, 2026-09-16): a fresh Claude Code process loaded the

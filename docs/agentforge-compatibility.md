@@ -12,6 +12,14 @@ The pin is a release identity rather than a source revision so that CI and a
 local run execute the same bytes; a source build at the equivalent commit is
 not byte-identical to the published asset.
 
+That pin does not currently validate this tree. `librarian` and `skillsmith`
+declare a `body-agent-reference` loss — a construct AgentForge added after
+v0.4.0 — so the pinned binary rejects the definition on an invalid enum before
+it diffs anything, and the regenerated `marketplaces/` tree for those two
+packages is therefore not committed either. The gate is restored by bumping
+`AGENTFORGE_VERSION` to a release carrying that construct and recompiling; this
+is a release prerequisite, not a supported state.
+
 ## Gate ownership
 
 Acceptance and drift detection are AgentForge's, run against this repository's
@@ -346,6 +354,28 @@ parity claims:
   per-repository config directory under `~/.config/jj/repos/`; it is recorded
   as a non-vault cleanup item and was not silently removed.
 
+  Fresh Codex runtime evidence (2026-09-18, Teach 0.11.5, codex-cli 0.154.0)
+  re-exercises that path on the current build, and separates two things.
+  The artifact facts: a clean reinstall from `marketplaces/codex` produced a
+  cache byte-identical to the publication, carrying the generated
+  `agents/openai.yaml` with `policy.allow_implicit_invocation: false` and a
+  capability-conditional collaborator body with no named `@vault-reader` or
+  `@note-editor` and no Claude-specific patch-tool instruction. The
+  behavioral facts are observed, not inferred from those artifacts: a
+  neutral-directory session given a natural-language teaching request never
+  loaded the skill, read vault guidance, or proposed a workspace, while an
+  explicit `$teach` invocation read the exact Learning Style note and the
+  complete vault location guidance, said plainly that DEVONthink was
+  unavailable and had not been searched, and stopped for confirmation before
+  creating anything. The confirmed run wrote only inside the confirmed folder
+  — mission, resources, glossary, an empty `Records/`, and one lesson — and
+  re-read every file; a second fresh session added one further lesson and
+  changed nothing else. Collaborator steps took the direct CLI and edit
+  fallback the conditional wording names, inventing no collaborator Codex
+  does not register. The declared `mcp-tool-reference` loss on DEVONthink is
+  unchanged by this run, and the Codex tool boundary stays advisory: this
+  records compliance in the sessions tested, not enforcement.
+
 - `workspaces`: the single skill's `allowed-tools` is stripped, and nothing
   else is. The package declares no agents, references no `mcp__*` tool, and
   uses no `$ARGUMENTS` template, so no construct is declarable and the
@@ -360,11 +390,13 @@ parity claims:
 
 Constructs that would otherwise be lost with nothing reported must be declared
 in canonical YAML under `targets.codex.losses`, and compilation fails
-against the declaration when one is missing. Three constructs are gated today:
-an agent `tools:` filter (`coach`, `debate`, `librarian`, `shake-tune`,
-`skillsmith`, `spec-flow`), an `mcp__*` tool reference (`librarian`, `linear`,
-`pm`, `spec-flow`, `teach`), and a `$ARGUMENTS` body template variable
-(`librarian`, `spec-flow`). A skill's own `allowed-tools` is not among them — it is stripped
+against the declaration when one is missing. Four constructs are gated today:
+an agent `tools:` filter (`coach`, `craft`, `debate`, `librarian`, `linear`,
+`shake-tune`, `skillsmith`, `spec-flow`), an `mcp__*` tool reference (`craft`,
+`librarian`, `linear`, `pm`, `spec-flow`, `teach`), a body template variable —
+`$ARGUMENTS` or `${CLAUDE_*}` (`introspect`, `librarian`, `spec-flow`) — and a
+collaborator reference to an agent the target does not register (`librarian`,
+`skillsmith`). A skill's own `allowed-tools` is not among them — it is stripped
 with a warning, not a declared loss, so converting a command to a skill trades
 a gated construct for a reported one. A construct that is translated rather
 than lost — `disable-model-invocation`, or a hook
