@@ -1,6 +1,6 @@
 schema: agentforge.package/v1
 id: introspect
-defaults: {"name": "introspect", "version": "0.10.0", "description": "Introspection tooling for Claude Code itself. usage-report: reconstruct how a person works with Claude Code in a repo (skills, slash commands, subagents, MCP tools, task-kickoff style, activity over time) from their local session transcripts, via a stdlib-only read-only parser. conversation-temperature: read the local user's own authored register across all their transcripts — terseness, heat, and warmth, led by marker rates and real quoted messages rather than composite indices. Both run locally against the user's own transcripts and make no network calls; usage-report emits names and counts only, while conversation-temperature quotes the user's own messages back to them by design.", "author": {"name": "Jacob Hoehler"}, "license": "Apache-2.0", "keywords": ["claude-code", "introspection", "usage", "analytics", "transcripts", "workflow", "skills", "onboarding", "self-analysis", "tone", "temperature", "register", "communication-style"]}
+defaults: {"name": "introspect", "version": "0.10.1", "description": "Introspection tooling for Claude Code itself. usage-report: reconstruct how a person works with Claude Code in a repo (skills, slash commands, subagents, MCP tools, task-kickoff style, activity over time) from their local session transcripts, via a stdlib-only read-only parser. conversation-temperature: read the local user's own authored register across all their transcripts — terseness, heat, and warmth, led by marker rates and real quoted messages rather than composite indices. Both run locally against the user's own transcripts and make no network calls; usage-report emits names and counts only, while conversation-temperature quotes the user's own messages back to them by design.", "author": {"name": "Jacob Hoehler"}, "license": "Apache-2.0", "keywords": ["claude-code", "introspection", "usage", "analytics", "transcripts", "workflow", "skills", "onboarding", "self-analysis", "tone", "temperature", "register", "communication-style"]}
 artifacts:
   - {type: skill, pattern: 'skills/*/SKILL.md'}
 payloads:
@@ -9,6 +9,19 @@ payloads:
 targets:
   claude: {}
   codex:
+    losses:
+      - construct: body-template-variable
+        state: retained-unenforced
+        note: >-
+          Both skill bodies interpolate ${CLAUDE_PLUGIN_ROOT} in the command that
+          runs the bundled parser, and Codex renames that variable to
+          ${PLUGIN_ROOT}, so the literal path a Codex reader is handed does not
+          resolve. The conversation-temperature body already carries the fallback
+          in prose -- locate skills/<name>/scripts/*.py inside the installed
+          plugin directory and run that path instead. The two script occurrences
+          are comments explaining why each script resolves its shared import from
+          __file__ rather than the variable; those resolve correctly on every
+          runtime and lose nothing.
     native:
       interface:
         displayName: Introspect
