@@ -199,7 +199,7 @@
     },
     {
       "name": "introspect",
-      "version": "0.10.0",
+      "version": "0.10.1",
       "description": "Introspection tooling for Claude Code itself. usage-report: reconstruct how a person works with Claude Code in a repo (skills, slash commands, subagents, MCP tools, task-kickoff style, activity over time) from their local session transcripts, via a stdlib-only read-only parser. conversation-temperature: read the local user's own authored register across all their transcripts — terseness, heat, and warmth, led by marker rates and real quoted messages rather than composite indices. Both run locally against the user's own transcripts and make no network calls; usage-report emits names and counts only, while conversation-temperature quotes the user's own messages back to them by design.",
       "author": {
         "name": "Jacob Hoehler"
@@ -268,7 +268,7 @@
     },
     {
       "name": "librarian",
-      "version": "0.19.0",
+      "version": "0.19.1",
       "description": "Curates, catalogs, retrieves, and maintains your library of notes and knowledge in an Obsidian vault. Workflow-shaped (Capture / Process / Retrieve / Maintain) and agent-mediated (skills draft, agents execute). 18 skills + 4 agents + 6 references, coupled to the vault conventions in ~/Loose Ends/.claude/rules/{wiki.md,catalog.md} and the Templater templates in ~/Loose Ends/Templates/.",
       "author": {
         "name": "Jacob Hoehler"
@@ -360,7 +360,7 @@
     },
     {
       "name": "skillsmith",
-      "version": "2.1.1",
+      "version": "2.1.2",
       "description": "Craft and upkeep of skills. Authoring reference (the vocabulary and principles that make any agent-consumed document predictable — a skill, an AGENTS.md/CLAUDE.md, a rules file, a doc reached by a pointer) plus provenance tracking for borrowed work: compares an adapted skill to its pinned upstream, flags behavioral drift and fabricated attributions, and refreshes the reviewed commit SHA. Houses writing-for-agents and upstream-review.",
       "author": {
         "name": "Jacob Hoehler"
