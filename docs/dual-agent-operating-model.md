@@ -92,7 +92,7 @@ Open a new task after installation or update so Codex reloads plugin skills.
    when manifest metadata changes.
 5. Run `scripts/agentforge.sh check MARKETPLACE.yaml --out marketplaces
    --claude-native` and `scripts/privacy-scan.sh`.
-6. Test modified pilots in a fresh Codex task and the corresponding Claude
+6. Test modified packages in a fresh Codex task and the corresponding Claude
    workflow before release.
 
 ## Validation and CI
@@ -110,7 +110,13 @@ GitHub Actions runs that command plus `scripts/privacy-scan.sh`. Codex
 exposes no non-interactive validator, so the Codex publication is gated by the
 compiler's own checks; CI does not depend on a user-installed Codex skill.
 
-## Pilot acceptance
+## Runtime acceptance
+
+Enrollment and acceptance are separate facts. Every package listed in the Codex
+publication is enrolled; the ones below are the subset that has additionally
+been exercised on a fresh Codex runtime. The results are dated records of what
+was observed then, not standing guarantees, and a later version of the same
+package inherits nothing from them.
 
 Six packages have passed fresh-task smoke tests. `librarian` is recorded in
 `agentforge/docs/librarian-agent-acceptance.md` and `teach` is recorded below;
@@ -123,6 +129,10 @@ the other four:
   resolved the workspace team dynamically; workspace differences remained
   warnings.
 - `spec-flow`: routed an existing file-hosted contract without mutation.
+
+Those four were recorded without a version or date pin. They are kept as the
+historical record of what was observed, and are not re-dated here; treat them
+as evidence about the package as it stood then.
 
 Additional fresh-task Codex acceptance:
 
@@ -148,6 +158,10 @@ Fresh Claude regression evidence:
   directory under `~/.config/jj/repos/`; that non-vault side effect remains an
   explicit cleanup item rather than being silently deleted.
 
-Expand Codex support plugin by plugin. A plugin joins the Codex catalog only
-after its manifest validates, platform-specific primitives have native
-mappings, and a fresh-task smoke test passes.
+Expand Codex support plugin by plugin, and keep the two halves of that
+expansion distinct. A package enters the Codex publication when it declares
+`targets.codex`, its manifest validates, and its platform-specific primitives
+have native mappings or declared losses. It reaches runtime acceptance only
+after a fresh-task smoke test passes. Nine of the fifteen enrolled packages are
+at the first stage and not the second (`ndr:v0a3bm`); publication membership
+should not be read as the second.

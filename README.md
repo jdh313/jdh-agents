@@ -2,11 +2,11 @@
 
 Personal plugin marketplace shared by Claude Code and Codex, with canonical
 AgentForge definitions, native runtime manifests, and automated validation.
-Claude supports the full catalog; private Codex support currently covers
-`commit`, `craft`, `linear`, and `spec-flow`.
+Claude supports the full catalog; Codex enrolls 15 packages, with completed
+fresh-task runtime smoke acceptance for 6.
 
 See [Dual-agent operating model](docs/dual-agent-operating-model.md) for
-ownership boundaries, runtime mappings, installation, and pilot acceptance.
+ownership boundaries, runtime mappings, installation, and runtime acceptance.
 
 ## Directory Structure
 
@@ -115,8 +115,11 @@ git clone https://github.com/jdh313/jdh-agents
 /plugin marketplace add /path/to/jdh-agents/marketplaces/claude
 ```
 
-Codex local marketplace. Fifteen packages are enrolled; the four below plus
-`librarian` and `teach` are the ones with a passing fresh-task smoke test:
+Codex local marketplace. Fifteen of the eighteen packages declare
+`targets.codex` and are therefore enrolled -- enrollment means the package
+compiled and published for Codex, not that it was exercised on a Codex runtime.
+Six have a passing fresh-task smoke test on top of that: the four installed
+below plus `librarian` and `teach`.
 
 ```bash
 codex plugin marketplace add /path/to/jdh-agents/marketplaces/codex

@@ -45,8 +45,8 @@ The merge gate also applies the runtime-native checks that are available:
 
 Generated publication roots are committed, not disposable.
 `agentforge compile MARKETPLACE.yaml --out marketplaces` compiles complete
-publications into `marketplaces/claude/` (224 managed files, 16 packages) and
-`marketplaces/codex/` (212 managed files, 14 packages), and each root is
+publications into `marketplaces/claude/` (224 managed files, 18 packages) and
+`marketplaces/codex/` (212 managed files, 15 packages), and each root is
 self-contained enough for its runtime to be pointed directly at it. `check`
 diffs the whole tree — content and executable bits — against the committed one;
 it never writes.
@@ -63,18 +63,34 @@ skill-local `agents/openai.yaml` containing
 `policy.allow_implicit_invocation: false`. Supplied sidecars remain subject to
 AgentForge's normal collision policy and cannot silently replace generated
 policy. jdh-agents owns verifying those compiler results across the real
-16-package corpus and validating the seven declared Codex packages; it does not
-duplicate the translation in repository tooling.
+18-package corpus and validating the fifteen declared Codex packages; it does
+not duplicate the translation in repository tooling.
 
 ## Target enrollment
 
-- Claude enrolls all sixteen packages with `all-compatible`.
-- Codex enrolls fourteen: `coach`, `commit`, `compass`, `craft`, `debate`,
+Enrollment is a declaration, not an acceptance result. The authoritative
+source is `MARKETPLACE.yaml` plus each package's own `targets.codex` block;
+both publications run `mode: all-compatible`, so a package is enrolled exactly
+when it declares support for that target. Counts below are read from those
+declarations, never from generated output or prose elsewhere in the repository.
+
+- Claude enrolls all eighteen packages with `all-compatible`.
+- Codex enrolls fifteen: `coach`, `commit`, `compass`, `craft`, `debate`,
   `feedback`, `introspect`, `librarian`, `linear`, `pm`, `shake-tune`,
-  `skillsmith`, `spec-flow`, and `teach`.
-- `langfuse` and `attention-workflow` are the two packages that do not declare
-  Codex support, and both omissions are deliberate rather than pending. See the
-  entries below.
+  `skillsmith`, `spec-flow`, `teach`, and `workspaces`.
+- `langfuse`, `attention-workflow`, and `teardown` are the three packages that
+  do not declare Codex support. Each omission is a decision with a stated
+  reason, not an oversight; `langfuse` and `attention-workflow` are held out on
+  a structural incompatibility, `teardown` on missing acceptance evidence. See
+  the entries below.
+
+**Being in the Codex publication proves compilation, not behavior.** It means
+the package declared the target, compiled, and is drift-clean against the
+committed tree. It does not mean a fresh Codex runtime was exercised, that
+stripped Claude constructs have working equivalents, or that a smoke test
+passed. Fresh-runtime acceptance is tracked per package under `ndr:v0a3bm` and
+recorded in `docs/dual-agent-operating-model.md`; on the current record six of
+the fifteen have passed one. Read the two facts separately.
 
 `feedback` carries a **native mapping but not yet fresh-runtime acceptance**.
 Its Codex projection compiles, validates, and is drift-clean, and its report
@@ -107,6 +123,23 @@ one, because it retires the user's suspicion that anything is wrong. Enrollment
 waits on TEAM-350, which owns porting the transcript reader to dispatch on
 payload shape so one file serves both runtimes.
 
+`attention-workflow` is **deliberately not enrolled for Codex** for a
+related reason. Its central claim is about plugin-bundled hook behavior on a
+fresh runtime, and this repository's Codex publication does not pre-authorize
+bundled hooks — the user reviews and trusts them separately. A Codex projection
+therefore could not exercise the default structural-guard behavior at all, so
+enrolling it would publish a package whose load-bearing guarantee is silently
+absent (`ndr:7gf4vb`, `ndr:v0a3bm`).
+
+`teardown` is **not enrolled for Codex pending acceptance**, which is a
+different state from the two above. Its native mapping is ready — an
+`agent-tools-filter` loss for the surveyor's read-only allowlist and an
+`mcp-tool-reference` loss for the `obsidian-mcp` calls — but no projection has
+been exercised on a fresh Codex runtime. Enrolling first would ship an
+unenforced read-only boundary on an agent that reads clones of services the
+user runs. The `codex:` block is restored with those two declared losses once
+acceptance is done.
+
 Target omission is an explicit compatibility decision. AgentForge must not emit
 an empty or untested package merely because its definition validates.
 
@@ -135,7 +168,7 @@ executable payloads and compile as `0755`; all other compiled files normalize to
 
 ## Claude compatibility
 
-All sixteen packages compile for Claude and pass `claude plugin validate
+All eighteen packages compile for Claude and pass `claude plugin validate
 --strict`. The canonical marketplace omits three legacy generated metadata
 fields—`metadata.homepage`, `metadata.totalPlugins`, and
 `metadata.lastUpdated`—because current strict validation reports them as
@@ -147,7 +180,7 @@ namespace at runtime, so `skills/today` declares `name: today` and is invoked as
 
 ## Codex compatibility
 
-The fourteen-package publication compiles and passes jdh-agents's
+The fifteen-package publication compiles and passes jdh-agents's
 Codex-native validator. Compilation diagnostics are reviewed limitations, not
 parity claims:
 
@@ -312,6 +345,18 @@ parity claims:
   `ndr:nyq74g` authority split at runtime. Scratch jj validation also created a
   per-repository config directory under `~/.config/jj/repos/`; it is recorded
   as a non-vault cleanup item and was not silently removed.
+
+- `workspaces`: the single skill's `allowed-tools` is stripped, and nothing
+  else is. The package declares no agents, references no `mcp__*` tool, and
+  uses no `$ARGUMENTS` template, so no construct is declarable and the
+  projected body is byte-identical to the canonical one. Disposition:
+  **accepted.** The stripped allowlist is the same permission-prompt
+  convenience accepted elsewhere; the skill's actual boundary is `jjx` and `jj`
+  themselves. One portability note that is not a compiler finding: the body
+  says "Spawn each subagent (Task/Agent tool)", naming Claude's tool. The
+  surrounding sentence is about spawning a subagent at all, which every runtime
+  with subagents can do, so the instruction survives the parenthetical. Codex
+  runtime acceptance has not been exercised.
 
 Constructs that would otherwise be lost with nothing reported must be declared
 in canonical YAML under `targets.codex.losses`, and compilation fails

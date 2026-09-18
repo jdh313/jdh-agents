@@ -20,7 +20,7 @@ Do not rely solely on this CLAUDE.md or existing plugin examples — they may be
 - Generated-output drift detection, native schema validation, and a repo-wide privacy gate
 - GitHub Actions CI/CD for marketplace integrity
 
-See `docs/dual-agent-operating-model.md` for Claude/Codex ownership boundaries, runtime mappings, and pilot acceptance.
+See `docs/dual-agent-operating-model.md` for Claude/Codex ownership boundaries, runtime mappings, and runtime acceptance.
 
 ## High-Level Architecture
 
