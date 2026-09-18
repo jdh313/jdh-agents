@@ -12,13 +12,11 @@ The pin is a release identity rather than a source revision so that CI and a
 local run execute the same bytes; a source build at the equivalent commit is
 not byte-identical to the published asset.
 
-That pin does not currently validate this tree. `librarian` and `skillsmith`
-declare a `body-agent-reference` loss — a construct AgentForge added after
-v0.4.0 — so the pinned binary rejects the definition on an invalid enum before
-it diffs anything, and the regenerated `marketplaces/` tree for those two
-packages is therefore not committed either. The gate is restored by bumping
-`AGENTFORGE_VERSION` to a release carrying that construct and recompiling; this
-is a release prerequisite, not a supported state.
+The pin is AgentForge 1.0.0. That release carries the `body-agent-reference`
+construct declared by `librarian` and `skillsmith`, so the pinned binary can
+validate both the canonical definitions and their committed generated output.
+The prior v0.4.0 pin rejected that enum before it could diff anything; the 1.0
+cutover and full recompilation restore the documented gate.
 
 ## Gate ownership
 
