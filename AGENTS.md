@@ -16,7 +16,7 @@ scripts/agentforge.sh compile MARKETPLACE.yaml --out marketplaces
 `scripts/agentforge.sh check MARKETPLACE.yaml --out marketplaces` diffs the
 compilation plan against the committed tree and reports root, package, missing,
 extra, content, and permission drift without modifying the working tree. Skills, agents, commands, hooks, references, and other source content
-remain maintained in place. Codex enrollment remains limited to the five
+remain maintained in place. Codex enrollment remains limited to the fifteen
 packages declared in `MARKETPLACE.yaml`. Declared hooks are translated into
 Codex's handler schema; Codex skips plugin-bundled hooks until the user reviews
 and trusts the definition.
