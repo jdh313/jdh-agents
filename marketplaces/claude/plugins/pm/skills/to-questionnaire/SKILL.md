@@ -85,8 +85,8 @@ A closing catch-all: anything we did not ask that we should know?
 
 The questionnaire exists to unblock a decision, so route what comes back rather than leaving it in the file:
 
-- **A decision the answers now settle** — dispatch `Skill(ndr:capture-decision)` so the call lands in the durable layer, not in a Markdown file nobody rereads.
-- **Work the answers reveal** — `Skill(spec-flow:capture)` for a single thing, `Skill(pm:breakdown)` if it is a goal with several slices in it.
+- **A decision the answers now settle** — dispatch the `ndr:capture-decision` skill so the call lands in the durable layer, not in a Markdown file nobody rereads.
+- **Work the answers reveal** — the `spec-flow:capture` skill for a single thing, the `pm:breakdown` skill if it is a goal with several slices in it.
 - **A `pm:chart` ticket this unblocked** — post the answers as the resolution comment on that ticket and close it, per that skill's resolution step. The questionnaire file is the linked asset, not the resolution.
 - **Answers that raise new questions** — that is a normal outcome. A second questionnaire to the same person is cheaper than a guess.
 

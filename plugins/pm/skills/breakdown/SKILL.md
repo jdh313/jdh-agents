@@ -73,10 +73,10 @@ When the source is a spec-flow contract, breakdown grows it into a **nested cont
 1. **Gather context.** Read the conversation. If an argument was passed, read the source fully:
    - `TEAM-N` — fetch it from Linear. Record as the **parent ticket** for later linking.
    - Vault note path — read it from the vault.
-   - `ndr:<atom-id>` — dispatch `Skill(ndr:decisions)` to resolve the head.
+   - `ndr:<atom-id>` — dispatch the `ndr:decisions` skill to resolve the head.
    - File path — `Read` it.
 
-2. **Ground against ndr heads** (skip without the external `ndr` plugin). Dispatch `Skill(ndr:ground)` against the goal's area (auth, backend framework, frontend, infra, etc.). Surface the current decision heads relevant to the breakdown. Use them to:
+2. **Ground against ndr heads** (skip without the external `ndr` plugin). Dispatch the `ndr:ground` skill against the goal's area (auth, backend framework, frontend, infra, etc.). Surface the current decision heads relevant to the breakdown. Use them to:
    - Avoid proposing slices that conflict with active decisions
    - Avoid duplicating settled choices
    - Recognize when a slice IS a decision point (gets the `Decision` type label)
@@ -127,7 +127,7 @@ When the source is a spec-flow contract, breakdown grows it into a **nested cont
    - **Assignee:** Omit `assignee` by default — breakdown produces independently-grabbable slices that either person can pull from the shared team queue. Set `assignee` only for slices the user explicitly pre-assigned during the quiz. (See the `linear` skill's collaboration conventions for the accept ritual.)
    - From the agent's `## Result` block, capture the returned `TEAM-N` for downstream blocks/blocked-by references. Surface its `## Discrepancies` block verbatim when non-empty — a silently dropped label is exactly the failure the agent's verify step exists to catch, and swallowing it here defeats it.
 
-   **Structural fallback:** if the `linear-ops` agent is not available — the linear plugin is not installed — do not reimplement the write. Say the agent is missing, and hand the composed slices to the `linear` skill's create operation, or to the user to paste. Cross-plugin references resolve only when both plugins are installed (`ndr:m7pd8d`).
+   **Structural fallback:** if no registered `linear-ops` collaborator is available, do not reimplement the write and do not improvise one. Availability of a *dispatchable* collaborator is a runtime registration question, and some runtimes register none. The procedure itself is not runtime-dependent: wherever the linear plugin is installed, its `agents/linear-ops.md` ships with it — read that file and follow it literally, then report the result in the shape the collaborator would have returned, including any `## Discrepancies`. Only where the linear plugin is absent entirely is there nothing to follow: say so, and hand the composed slices to the `linear` skill's create operation, or to the user to paste.
 
 7a. **Write the fog to the parent** (parent-hosted breakdowns only). Anything the quiz surfaced that failed the phrase-it-now test goes to the parent's `## Not yet specified` — one line per patch, as loose as the view allows. Write it in the parent's own words, not sharpened; sharpening it here is the same mistake as ticketing it.
 
@@ -183,7 +183,7 @@ Granularity right? Dependencies correct? Anything to merge or split? Anyone to p
 - **Creating-only during the breakdown operation.** breakdown spawns child slices; it does not close, transition, or rewrite existing tickets as it runs. This is a rule about *this operation*, not a claim that the parent is a frozen artifact — see *The parent is a mutable contract* above (just under the Overview).
 - **Never mutate existing tickets' content** — only create new ones and (when the source is a spec-flow parent) attach child relations. **One carve-out: the parent's `## Not yet specified` section**, which this skill owns end-to-end — writing patches while charting, clearing them as they graduate. Nothing else in the parent body is breakdown's to touch, and no *slice* body ever is.
 - **Confirm before publishing.** Show the user the final ordered list once more before any ticket is created. Publishing is the only destructive step in this skill.
-- **Decision-type slices** get `Done when: decision captured and linked here`. After the call is made, recommend `Skill(ndr:capture-decision)` if the ndr plugin is present.
+- **Decision-type slices** get `Done when: decision captured and linked here`. After the call is made, recommend the `ndr:capture-decision` skill if the ndr plugin is present.
 - **Cycle assignment is not breakdown's job.** Slices land in Backlog. `pm:groom` pulls them into a cycle later.
 - **Skip horizontal-slice anti-patterns.** Never propose "do all schema work first, then all API work, then all UI work" as three slices — that's a layer-by-layer plan, not tracer bullets.
 - **Avoid file paths or code snippets in issue bodies.** They go stale. Exception: a prototype-derived snippet that encodes a decision more precisely than prose (state machine, schema, type shape) — inline the decision-rich parts only, with a note that it came from a prototype.
@@ -205,4 +205,4 @@ Granularity right? Dependencies correct? Anything to merge or split? Anyone to p
 - **`references/issue-shape.md`** — required fields each published ticket carries.
 - **`references/layer-policy.md`** — milestone-assignment criteria; epic-parent earn-it rule; subissue default-off stance.
 - **`groom`** skill in this plugin — pulls breakdown's Backlog output into the cycle later.
-- **Project `CLAUDE.md`** — repo conventions; the codebase shape that informs which layers a vertical slice touches.
+- **Project agent guidance** (`AGENTS.md` / `CLAUDE.md`) — repo conventions; the codebase shape that informs which layers a vertical slice touches.

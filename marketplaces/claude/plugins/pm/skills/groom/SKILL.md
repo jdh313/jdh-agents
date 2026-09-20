@@ -53,7 +53,7 @@ The bet: classification is mechanical (rule-based) and tedious, so the skill doe
 3. Pull backlog issues filtered to the active project. Sort by `updatedAt` descending. Capture `assignee` on each.
 3a. **Build a per-person WIP map.** From the cycle issues pulled in step 2, group by assignee: how many tickets per person are in progress / todo / unassigned. Keep it lightweight — count, not capacity math. Use this to inform pull-in recommendations: flag pull-in candidates as "ready for anyone" (unassigned, no blockers) vs "blocked on @person" (blocked by a ticket assigned to a specific person). Surface the WIP map in the output (see Output format below).
 4. Classify each ticket into exactly ONE bucket per the taxonomy below. Precedence when multiple criteria match: **NDR-moot > Missing fields > Stale > Push-out > Pull-in**.
-5. For tickets whose body or title references `ndr:<atom-id>`, `ndr:#<slug>`, or `ndr:<area/topic>`, dispatch `Skill(ndr:decisions)` to resolve the supersession head. Flag any whose referenced atom has been superseded as `NDR-moot`. (Skip this step without the external `ndr` plugin.)
+5. For tickets whose body or title references `ndr:<atom-id>`, `ndr:#<slug>`, or `ndr:<area/topic>`, dispatch the `ndr:decisions` skill to resolve the supersession head. Flag any whose referenced atom has been superseded as `NDR-moot`. (Skip this step without the external `ndr` plugin.)
 6. Search the vault project root for working-session notes touched in the last 7 days. Surface any work items mentioned in those notes but not represented by a Linear ticket as `Vault-unfiled` candidates. (Skip this step without a vault.)
 7. Format the punch list per the output format below. Emit to chat.
 8. **Write the cycle log.** Replace the log issue's body with the formatted punch list (cycle header + buckets). Skip this step if step 1 found no candidate — warn the user instead.
@@ -68,7 +68,7 @@ A ticket lands in exactly one bucket per session. Precedence when multiple match
 | **Push-out** | In active cycle, blocked OR needs spec OR missing done-when |
 | **Stale** | Backlog, no updates in >14 days, priority ∈ {low, none} |
 | **Missing fields** | Per `references/issue-shape.md` #1–6: any required field absent (no priority, no project, no surface label, no type label, or — for status ≥ Todo — no `## Done when` section in description) |
-| **NDR-moot** | References a superseded ndr atom (confirmed via `Skill(ndr:decisions)`) |
+| **NDR-moot** | References a superseded ndr atom (confirmed via the `ndr:decisions` skill) |
 | **Vault-unfiled** | Work named in vault session notes (last 7 days) with no corresponding ticket |
 
 ## Output format

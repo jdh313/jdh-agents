@@ -135,11 +135,16 @@ specifies: operation, team, fields, body, relations. Pass the body verbatim —
 the agent does not author prose, and anything you leave for it to fill in comes
 back blocked.
 
-**Structural fallback:** if the `linear-ops` agent is not available — the
-linear plugin is not installed — do not reimplement the write. Say the agent
-is missing, and hand the composed ticket to the `linear` skill's create
-operation, or to the user to paste. Cross-plugin references resolve only when
-both plugins are installed (`ndr:m7pd8d`).
+**Structural fallback:** if no registered `linear-ops` collaborator is
+available, do not reimplement the write and do not improvise one. Availability
+of a *dispatchable* collaborator is a runtime registration question, and some
+runtimes register none. The procedure itself is not runtime-dependent:
+wherever the linear plugin is installed, its `agents/linear-ops.md` ships with
+it — read that file and follow it literally, then report the result in the
+shape the collaborator would have returned, including any `## Discrepancies`.
+Only where the linear plugin is absent entirely is there nothing to follow:
+say so, and hand the composed ticket to the `linear` skill's create operation,
+or to the user to paste.
 
 ### 6. Report
 

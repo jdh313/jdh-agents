@@ -114,13 +114,13 @@ Every ticket is either **worked with the human** — a live exchange the agent n
 | Mode | With the human? | Type label | How it resolves |
 |---|---|---|---|
 | **Research** | no | `Spike` | Reading docs, third-party APIs, or local knowledge bases to surface a fact a decision waits on. Use when knowledge outside the working directory is required. |
-| **Prototype** | yes | `Spike` | Raise the fidelity of the discussion with a cheap, rough, concrete artifact to react to — an outline, a stub, UI or logic code. Use when "how should it look" or "how should it behave" is the key question. Dispatch `Skill(craft:prototype)`; link the prototype as an asset. |
-| **Grilling** | yes | `Decision` | Conversation. **The default case.** Dispatch `Skill(craft:grill)` and `Skill(craft:domain-modeling)`. Where the repo carries a `CONTEXT.md` glossary or ndr coverage, prefer `Skill(craft:grill-with-docs)`. |
+| **Prototype** | yes | `Spike` | Raise the fidelity of the discussion with a cheap, rough, concrete artifact to react to — an outline, a stub, UI or logic code. Use when "how should it look" or "how should it behave" is the key question. Dispatch the `craft:prototype` skill; link the prototype as an asset. |
+| **Grilling** | yes | `Decision` | Conversation. **The default case.** Dispatch the `craft:grill` skill and the `craft:domain-modeling` skill. Where the repo carries a `CONTEXT.md` glossary or ndr coverage, prefer the `craft:grill-with-docs` skill. |
 | **Task** | either | `Chore` | Manual work that must happen before a *decision* can be made: nothing to decide, prototype, or research, but the discussion is blocked until it is done — signing up for a service so its API can be judged, provisioning access, moving data so its shape can be seen. The one mode that *does* rather than decides; it earns its place by unblocking a decision, not by delivering the destination. The agent drives it alone where it can, otherwise it hands the human a precise checklist. Resolved when the work is done; the answer records what was done and any facts later tickets depend on (credentials location, new URLs, row counts). |
 
 The `Spike` / `Decision` split above is the `linear` skill's own boundary test — empirical vs judgment — applied to map tickets. Research and prototype are things you go and find out; grilling is a call made from the chair.
 
-**A `Task` ticket blocked on someone else's knowledge is a questionnaire.** Dispatch `Skill(pm:to-questionnaire)` to turn it into a document that person can fill in async, and link the document from the ticket.
+**A `Task` ticket blocked on someone else's knowledge is a questionnaire.** Dispatch the `pm:to-questionnaire` skill to turn it into a document that person can fill in async, and link the document from the ticket.
 
 ## Fog of war, and out of scope
 
@@ -142,9 +142,9 @@ Two modes. Either way, **never resolve more than one ticket per session** — re
 
 The user invokes with a loose idea.
 
-1. **Name the destination.** Dispatch `Skill(craft:grill)` and `Skill(craft:domain-modeling)` to pin down what this map is finding its way to — the spec, decision, or change. The destination fixes the scope, so it is settled first.
+1. **Name the destination.** Dispatch the `craft:grill` skill and the `craft:domain-modeling` skill to pin down what this map is finding its way to — the spec, decision, or change. The destination fixes the scope, so it is settled first.
 
-2. **Ground against ndr heads** (skip without the external `ndr` plugin). Dispatch `Skill(ndr:ground)` against the destination's area. A question already settled by a standing decision is not fog — it is a link into `## Notes`, and charting a ticket for it wastes a session.
+2. **Ground against ndr heads** (skip without the external `ndr` plugin). Dispatch the `ndr:ground` skill against the destination's area. A question already settled by a standing decision is not fog — it is a link into `## Notes`, and charting a ticket for it wastes a session.
 
 3. **Map the frontier.** Grill again, **breadth-first** this time: fan out across the whole space rather than deep on any one thread, surfacing the open decisions and the first steps takeable now. **If this surfaces no fog** — the route is already clear, the whole journey small enough to plan in one sitting — you do not need a map. Stop and say so, and point at `pm:breakdown` instead.
 
@@ -154,7 +154,7 @@ The user invokes with a loose idea.
 
 6. **Create the tickets, then wire in a second pass.** **One `linear-ops` dispatch per ticket** — the agent takes a single intent block and returns a single ticket. Publish them all first so they have real `TEAM-N` IDs, then dispatch again to link each one to the map and wire the blocks / blocked-by edges via `## Relations` — issues need IDs before they can reference each other. Wiring sorts them into the frontier and the blocked; everything you cannot yet specify stays in `## Not yet specified`. Surface any `## Discrepancies` block the agent returns verbatim.
 
-   **Structural fallback:** if the `linear-ops` agent is not available — the linear plugin is not installed — do not reimplement the write. Say the agent is missing, and hand the composed map and tickets to the `linear` skill's create operation, or to the user to paste. Cross-plugin references resolve only when both plugins are installed (`ndr:m7pd8d`).
+   **Structural fallback:** if no registered `linear-ops` collaborator is available, do not reimplement the write and do not improvise one. Availability of a *dispatchable* collaborator is a runtime registration question, and some runtimes register none. The procedure itself is not runtime-dependent: wherever the linear plugin is installed, its `agents/linear-ops.md` ships with it — read that file and follow it literally, then report the result in the shape the collaborator would have returned, including any `## Discrepancies`. Only where the linear plugin is absent entirely is there nothing to follow: say so, and hand the composed map and tickets to the `linear` skill's create operation, or to the user to paste.
 
 7. **Fire the research subagents.** For each research-mode ticket just created, dispatch a subagent in parallel — `Explore` for questions answerable inside the repo, a web-research agent for anything outside it. Each returns its findings to this session; you post them as a resolution comment via a `linear-ops` `comment` dispatch. Research agents have no Linear write access of their own.
 
@@ -166,8 +166,8 @@ The user invokes with a map (`TEAM-N` or URL). A ticket argument is **optional**
 
 1. **Load the map** — the low-resolution view, not every ticket body.
 2. **Choose the ticket.** If the user named one, use it. Otherwise take the first frontier ticket in order. **Claim it**: dispatch `linear-ops` with an `update` intent assigning it, before any work.
-3. **Resolve it.** **Zoom as needed** — fetch the full body of any related or closed ticket on demand; dispatch whichever skills `## Notes` names. If in doubt, `Skill(craft:grill)` plus `Skill(craft:domain-modeling)`.
-4. **Capture the decision.** A `Decision`-mode resolution is an ndr atom: dispatch `Skill(ndr:capture-decision)` and put the returned `ndr:` reference in the resolution. A `Spike` resolution is a **finding** — a vault note or a comment — and becomes an atom only if the finding itself resolves a decision (the `linear` skill's rule). A `Chore` resolution records what was done and the facts later tickets depend on.
+3. **Resolve it.** **Zoom as needed** — fetch the full body of any related or closed ticket on demand; dispatch whichever skills `## Notes` names. If in doubt, the `craft:grill` skill plus the `craft:domain-modeling` skill.
+4. **Capture the decision.** A `Decision`-mode resolution is an ndr atom: dispatch the `ndr:capture-decision` skill and put the returned `ndr:` reference in the resolution. A `Spike` resolution is a **finding** — a vault note or a comment — and becomes an atom only if the finding itself resolves a decision (the `linear` skill's rule). A `Chore` resolution records what was done and the facts later tickets depend on.
 5. **Record the resolution.** Dispatch `linear-ops` with a `comment` intent block — a `## Target` naming the ticket, the answer as the body — then a `transition` to move the ticket to a completed state, and append one line to the map's `## Decisions so far` — the ticket's name as a link, a one-line gist, and the `ndr:` reference if one was captured.
 6. **Advance the frontier.** Add newly-surfaced tickets (create, then wire). Graduate any fog the answer made specifiable, clearing each graduated patch from `## Not yet specified` so it lives only as its new ticket. If the answer reveals that a ticket — this one or another — sits beyond the destination, **rule it out of scope** rather than resolving it on the route. If the decision invalidates other parts of the map, update or cancel those tickets and say so.
 
