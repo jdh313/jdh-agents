@@ -136,6 +136,31 @@ as evidence about the package as it stood then.
 
 Additional fresh-task Codex acceptance:
 
+- `commit` (3.2.1, 2026-09-21, codex-cli 0.155.1): a clean reinstall from
+  the generated local Codex publication produced an executable `0755` guard
+  and a hook command rooted at `${PLUGIN_ROOT}`. A fresh session ran with the
+  reviewed hook enabled for automation. Its initial `git status --short`
+  returned ` M marker.txt`; the following exact `git reset --hard` attempt was
+  intercepted before shell execution with the complete destructive-command
+  reason and safe stash-or-commit alternative. A later status still returned
+  ` M marker.txt`, and `cat marker.txt` returned `dirty marker must survive`,
+  proving allowed commands still ran and no stale hook block remained. Because
+  the guard exits 0 without output for malformed JSON and for a native payload
+  without `tool_input.command`, its observed fail-open behavior matches the
+  script's declared contract. The run used
+  `--dangerously-bypass-hook-trust` only to represent an explicitly reviewed
+  hook in non-interactive automation; ordinary Codex sessions still require
+  the user's hook trust.
+
+- `commit` (3.2.1, 2026-09-21, Claude Code 2.1.278): a fresh process loaded
+  the generated Claude plugin with `--plugin-dir`. Streamed native
+  `PreToolUse:Bash` events showed an allowed payload whose
+  `tool_input.command` was `git status --short`, then the destructive payload
+  `git reset --hard`. The generated `${CLAUDE_PLUGIN_ROOT}` command resolved
+  the executable guard, which exited 2 and surfaced its complete block reason
+  and safe alternative before Bash ran. A following allowed status/read command
+  returned the unchanged dirty marker, with no stale hook state.
+
 - `teach` (0.11.4, 2026-09-16): explicit invocation loaded the installed
   `jdh-agents` copy, read the exact Learning Style note and hidden vault
   Location Decision Tree, disclosed that DEVONthink was unavailable, and

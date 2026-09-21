@@ -211,7 +211,17 @@ parity claims:
   Codex's handler schema and the executable guard ships with it at `0755`;
   `${CLAUDE_PLUGIN_ROOT}` becomes the native `${PLUGIN_ROOT}`. Codex skips
   plugin-bundled hooks until the user reviews and trusts the definition, so the
-  guard is present but inert until then.
+  guard is present but inert until then. Fresh 3.2.1 acceptance on 2026-09-21
+  exercised the generated packages separately. Claude Code 2.1.278 streamed
+  the native `PreToolUse:Bash` event, resolved the plugin-root script, allowed
+  `git status --short`, and blocked `git reset --hard` with exit 2 before Bash
+  ran; a later allowed read proved the dirty marker survived and no stale block
+  remained. Codex CLI 0.155.1, with the reviewed hook explicitly enabled for
+  non-interactive automation, observed the same allow/block/allow sequence from
+  the installed Codex package. Direct malformed-JSON and missing-command probes
+  both exited 0 without output, matching the guard's declared fail-open
+  contract. These are runtime observations; compilation alone still proves
+  none of them, and an ordinary Codex session still requires user hook trust.
 - `compass`: four fields are stripped on all three skills — `argument-hint`,
   `allowed-tools`, `disallowed-tools`, and `effort` — and none is a declarable
   loss. Disposition: **accepted.** `allowed-tools` is a permission-prompt
