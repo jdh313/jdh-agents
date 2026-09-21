@@ -11,7 +11,7 @@ session transcripts under `~/.claude/projects/`. Surfaces:
 - **Skill fingerprint** — both invocation counts and `attributionSkill` *depth* (how many
   actions were performed under each skill).
 - **Slash commands** typed (workflow vs session-management).
-- **Subagents** spawned, by type.
+- **Subagents** spawned by type, plus unique assistant turns per `agentId`.
 - **MCP tools** and overall tool-usage distribution.
 - **Models** used, and **activity** over time (sessions/day, branches touched, worktree use).
 

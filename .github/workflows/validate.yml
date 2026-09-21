@@ -89,3 +89,6 @@ jobs:
 
       - name: Behavioral tests (attention-workflow state + guards)
         run: uv run scripts/tests/test_attention_workflow.py
+
+      - name: Behavioral tests (introspect transcript attribution)
+        run: uv run scripts/tests/test_introspect_usage_report.py

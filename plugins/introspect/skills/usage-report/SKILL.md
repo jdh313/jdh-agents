@@ -74,8 +74,8 @@ wants that and understands the output may be shared. Confirm before using `--inc
 ## Notes
 
 - No dependencies, no network calls — safe to run anywhere Python 3.9+ exists.
-- Subagent-internal tool calls live in separate sidechain transcripts; the "main thread"
-  tool table is the primary view. The sidechain table only appears if those records are
-  inlined in this install.
+- Subagent-internal tool calls are read from each parent session's
+  `subagents/*.jsonl` files. The tool table separates main-thread and subagent calls, and
+  the per-agent table counts unique assistant turns by `agentId`.
 - If "No transcripts found" prints, history may be under a different path — pass
   `--projects-dir` or try `--all` to confirm what exists.

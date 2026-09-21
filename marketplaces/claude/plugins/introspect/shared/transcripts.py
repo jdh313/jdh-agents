@@ -72,7 +72,10 @@ _CONTINUATION_RE = re.compile(
 
 
 def find_transcripts(
-    projects_dir: Path, repo_keyword: str | None = None, scan_all: bool = False
+    projects_dir: Path,
+    repo_keyword: str | None = None,
+    scan_all: bool = False,
+    include_subagents: bool = False,
 ) -> list[Path]:
     """Return JSONL transcript paths for matching project dirs.
 
@@ -80,6 +83,7 @@ def find_transcripts(
         projects_dir: The ``~/.claude/projects`` directory (or an override).
         repo_keyword: Case-insensitive substring a project dir must contain.
         scan_all: If True, ignore ``repo_keyword`` and take every project dir.
+        include_subagents: Also include ``<session>/subagents/*.jsonl`` files.
 
     Returns:
         Sorted list of ``*.jsonl`` transcript file paths.
@@ -93,7 +97,26 @@ def find_transcripts(
         if not scan_all and repo_keyword and repo_keyword.lower() not in child.name.lower():
             continue
         files.extend(child.glob("*.jsonl"))
+        if include_subagents:
+            files.extend(child.glob("*/subagents/*.jsonl"))
     return sorted(files)
+
+
+def is_subagent_transcript(path: Path) -> bool:
+    """Return whether ``path`` has Claude Code's sidechain transcript layout."""
+    return path.parent.name == "subagents"
+
+
+def transcript_session_root(path: Path) -> Path:
+    """Return one stable parent-session identity for main and sidechain files.
+
+    ``<project>/<session>.jsonl`` and
+    ``<project>/<session>/subagents/<agent>.jsonl`` both resolve to
+    ``<project>/<session>``.
+    """
+    if is_subagent_transcript(path):
+        return path.parent.parent
+    return path.with_suffix("")
 
 
 def parse_ts(value: object) -> datetime | None:

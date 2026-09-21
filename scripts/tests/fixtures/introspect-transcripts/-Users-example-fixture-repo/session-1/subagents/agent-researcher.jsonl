@@ -1,0 +1,4 @@
+{"type":"user","timestamp":"2026-09-20T10:00:02Z","agentId":"researcher-123","message":{"content":"delegated prompt"}}
+{"type":"assistant","timestamp":"2026-09-20T10:00:03Z","agentId":"researcher-123","message":{"id":"agent-message-1","model":"claude-test","content":[{"type":"tool_use","name":"Bash","input":{}}]}}
+{"type":"assistant","timestamp":"2026-09-20T10:00:04Z","agentId":"researcher-123","message":{"id":"agent-message-1","model":"claude-test","content":[{"type":"tool_use","name":"Write","input":{}}]}}
+{"type":"assistant","timestamp":"2026-09-20T10:00:05Z","agentId":"researcher-123","message":{"id":"agent-message-2","model":"claude-test","content":[{"type":"tool_use","name":"Read","input":{}}]}}

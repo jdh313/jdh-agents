@@ -56,8 +56,10 @@ from transcripts import (  # noqa: E402
     classify_command,
     clean_user_text,
     find_transcripts,
+    is_subagent_transcript,
     parse_ts,
     raw_user_text,
+    transcript_session_root,
 )
 
 
@@ -77,6 +79,7 @@ class Stats:
         self.skill_attribution: Counter[str] = Counter()  # actions under a skill
         self.plugin_attribution: Counter[str] = Counter()
         self.subagents: Counter[str] = Counter()
+        self.agent_turns: Counter[str] = Counter()
         self.tools_main: Counter[str] = Counter()
         self.tools_sub: Counter[str] = Counter()
         self.mcp_tools: Counter[str] = Counter()
@@ -88,6 +91,8 @@ class Stats:
         self.sessions_per_day: Counter[str] = Counter()
         self.worktree_sessions = 0
         self.cwds: Counter[str] = Counter()  # session cwd -> count, for repo-root resolution
+        self._session_roots: set[Path] = set()
+        self._agent_messages: set[tuple[str, str]] = set()
         # opt-in argument samples
         self.slash_args: dict[str, list[str]] = defaultdict(list)
         self.skill_args: dict[str, list[str]] = defaultdict(list)
@@ -104,7 +109,11 @@ class Stats:
 
 def process_file(path: Path, st: Stats, include_args: bool) -> None:
     """Fold one transcript file's records into the running ``Stats``."""
-    st.sessions += 1
+    sidechain_file = is_subagent_transcript(path)
+    session_root = transcript_session_root(path)
+    if session_root not in st._session_roots:
+        st._session_roots.add(session_root)
+        st.sessions += 1
     first_human_seen = False
     file_min: datetime | None = None
     is_worktree = False
@@ -148,7 +157,12 @@ def process_file(path: Path, st: Stats, include_args: bool) -> None:
             if msg.get("model"):
                 st.models[str(msg["model"])] += 1
 
-            if rtype == "user" and not rec.get("isSidechain") and not rec.get("isMeta"):
+            if (
+                rtype == "user"
+                and not sidechain_file
+                and not rec.get("isSidechain")
+                and not rec.get("isMeta")
+            ):
                 # Raw text keeps the harness tags (command-name / command-args
                 # are read below); typed text has them stripped, so hook-injected
                 # blocks alone no longer count as a human prompt.
@@ -184,9 +198,16 @@ def process_file(path: Path, st: Stats, include_args: bool) -> None:
                         st.kickoffs[opener if cmds else "bare prompt"] += 1
 
             if rtype == "assistant":
+                agent_id = rec.get("agentId")
+                message_id = msg.get("id")
+                if (sidechain_file or rec.get("isSidechain")) and agent_id and message_id:
+                    agent_message = (str(agent_id), str(message_id))
+                    if agent_message not in st._agent_messages:
+                        st._agent_messages.add(agent_message)
+                        st.agent_turns[str(agent_id)] += 1
                 content = msg.get("content")
                 if isinstance(content, list):
-                    sidechain = bool(rec.get("isSidechain"))
+                    sidechain = sidechain_file or bool(rec.get("isSidechain"))
                     for block in content:
                         if not (isinstance(block, dict) and block.get("type") == "tool_use"):
                             continue
@@ -203,14 +224,14 @@ def process_file(path: Path, st: Stats, include_args: bool) -> None:
                         if name in ("Agent", "Task") and isinstance(inp, dict):
                             st.subagents[str(inp.get("subagent_type") or "(default)")] += 1
 
-    if file_min:
+    if file_min and not sidechain_file:
         st.session_dates.append(file_min)
         st.sessions_per_day[file_min.strftime("%Y-%m-%d")] += 1
-    if is_worktree:
+    if is_worktree and not sidechain_file:
         st.worktree_sessions += 1
-    if file_entrypoint:
+    if file_entrypoint and not sidechain_file:
         st.entrypoints[file_entrypoint] += 1
-    if file_cwd:
+    if file_cwd and not sidechain_file:
         st.cwds[file_cwd] += 1
 
 
@@ -357,6 +378,11 @@ def to_markdown(st: Stats, include_args: bool, scope: str) -> str:
     out.extend(_table(st.subagents, limit=30))
     out.append("")
 
+    out.append("## Subagent turns (by agent ID)")
+    out.append("")
+    out.extend(_table(st.agent_turns, limit=30))
+    out.append("")
+
     out.append("## MCP tools used")
     out.append("")
     out.extend(_table(st.mcp_tools, limit=30))
@@ -364,7 +390,7 @@ def to_markdown(st: Stats, include_args: bool, scope: str) -> str:
 
     out.append("## Tool usage")
     out.append("")
-    out.append("_main = main thread · sub = inside subagents (when inlined) · sorted by total._")
+    out.append("_main = main thread · sub = separate or inlined subagent transcript · sorted by total._")
     out.append("")
     tool_keys = set(st.tools_main) | set(st.tools_sub)
     tool_rows: list[list[str]] = []
@@ -428,6 +454,7 @@ def to_json(st: Stats) -> str:
         "slash_workflow": dict(nv["slash_workflow"]),  # type: ignore[arg-type]
         "slash_session": dict(nv["slash_session"]),  # type: ignore[arg-type]
         "subagents": dict(st.subagents),
+        "agent_turns": dict(st.agent_turns),
         "tools_main": dict(st.tools_main),
         "tools_sub": dict(st.tools_sub),
         "mcp_tools": dict(st.mcp_tools),
@@ -493,6 +520,8 @@ def to_csv(st: Stats) -> str:
 
     for name, count in st.subagents.most_common():
         writer.writerow(["subagent", name, "count", count])
+    for name, count in st.agent_turns.most_common():
+        writer.writerow(["agent_turn", name, "count", count])
     for name, count in st.mcp_tools.most_common():
         writer.writerow(["mcp_tool", name, "count", count])
     for name in sorted(
@@ -584,7 +613,7 @@ def main() -> None:
 
     since_dt = parse_ts(args.since + "T00:00:00Z") if args.since else None
 
-    files = find_transcripts(args.projects_dir, args.repo, args.all)
+    files = find_transcripts(args.projects_dir, args.repo, args.all, include_subagents=True)
     if not files:
         scope = "all projects" if args.all else f"projects matching '{args.repo}'"
         print(f"No transcripts found under {args.projects_dir} for {scope}.")
@@ -604,7 +633,10 @@ def main() -> None:
         used += 1
 
     scope_label = "all projects" if args.all else f"project dirs matching '{args.repo}'"
-    scope = f"{scope_label} — {used} session file(s) under `{args.projects_dir}`"
+    scope = (
+        f"{scope_label} — {st.sessions} session(s), {used} transcript file(s) "
+        f"under `{args.projects_dir}`"
+    )
     if args.json:
         rendered = to_json(st)
     elif args.csv:
@@ -613,7 +645,7 @@ def main() -> None:
         rendered = to_markdown(st, args.include_args, scope)
 
     ext = "json" if args.json else "csv" if args.csv else "md"
-    summary = f"({used} sessions, {st.human_prompts} prompts)"
+    summary = f"({st.sessions} sessions, {used} transcript files, {st.human_prompts} prompts)"
 
     if args.stdout:
         print(rendered)
