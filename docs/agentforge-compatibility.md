@@ -380,11 +380,16 @@ parity claims:
   projected body is byte-identical to the canonical one. Disposition:
   **accepted.** The stripped allowlist is the same permission-prompt
   convenience accepted elsewhere; the skill's actual boundary is `jjx` and `jj`
-  themselves. One portability note that is not a compiler finding: the body
-  says "Spawn each subagent (Task/Agent tool)", naming Claude's tool. The
-  surrounding sentence is about spawning a subagent at all, which every runtime
-  with subagents can do, so the instruction survives the parenthetical. Codex
-  runtime acceptance has not been exercised.
+  themselves. The shared body now names the runtime's collaboration tool rather
+  than Claude's Task/Agent spelling. Fresh Codex acceptance on 0.1.1 loaded the
+  installed skill and observed `jjx open <slug>` create and idempotently resume
+  one child path, `jjx open --unique <slug>` create a distinct fan-out path,
+  `jjx add <path>` create an explicit-path checkout with the expected cwd, and
+  `jjx rm` safely remove all three. The default `workspace-write` sandbox could
+  not update the jj/Git metadata; the passing run used user-approved
+  `danger-full-access` in a disposable repository. The skill therefore tells
+  sandboxed runtimes to request approval for the exact `jjx` command and never
+  presents this acceptance as sandbox-free behavior.
 
 Constructs that would otherwise be lost with nothing reported must be declared
 in canonical YAML under `targets.codex.losses`, and compilation fails

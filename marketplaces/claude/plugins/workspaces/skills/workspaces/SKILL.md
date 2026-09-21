@@ -5,12 +5,12 @@ description: >-
   repo to work in — reach for this before concluding that running multiple
   agents on separate copies of a repo isn't possible, or reaching for a plain
   `git worktree` in a jj-colocated repo. Creates or resumes a jj workspace via
-  `jjx add --name <slug>`, a sibling checkout that shares the repo's full
-  history, so each subagent gets an isolated working directory with no risk of
-  two agents editing the same files. Use when asked to run subagents in parallel
-  on isolated copies of a repo, spin up an isolated checkout or worktree per
-  agent, parallelize edits across a repo without agents stepping on each other,
-  or fan out work that needs its own working directory. jj-repos only (`jj root`
+  `jjx open <slug>`, a sibling checkout that shares the repo's full history, so
+  each subagent gets an isolated working directory with no risk of two agents
+  editing the same files. Use when asked to run subagents in parallel on
+  isolated copies of a repo, spin up an isolated checkout or worktree per agent,
+  parallelize edits across a repo without agents stepping on each other, or fan
+  out work that needs its own working directory. jj-repos only (`jj root`
   succeeds) — for a plain git repo, ordinary `git worktree` is the right tool.
 allowed-tools:
   - 'Bash(jjx:*)'
@@ -34,7 +34,7 @@ instead — do not reach for `jjx`.
 ## The core command
 
 ```
-jjx add --name <slug>
+jjx open <slug>
 ```
 
 Creates the workspace, or **resumes** an existing intact one for that slug
@@ -43,13 +43,19 @@ path on stdout **and nothing else** (everything informational goes to
 stderr), so callers can capture stdout directly as the path:
 
 ```sh
-ws_path=$(jjx add --name auth-fix)
+ws_path=$(jjx open auth-fix)
 ```
 
 The workspace lands at `<repo>-spaces/<slug>` — a sibling of the repo, not
 nested inside it. It's a full checkout: same repo history, seeded local files
 (`.env` and similar, from `.worktree-copy.toml`), and a working git shim so
 editor gutters function.
+
+Sandboxed runtimes may require approval for the exact `jjx` command because it
+writes jj/Git repository metadata and creates a sibling checkout outside the
+current workspace root. If that write is denied, request elevated permission
+for the command; do not treat the denial as a jjx failure or bypass the runtime
+sandbox broadly.
 
 ### Basing the workspace
 
@@ -77,13 +83,13 @@ bare slug.
 
 1. Create one workspace per subagent up front, capturing each path:
    ```sh
-   ws=$(jjx add --name <task-slug> --unique)
+   ws=$(jjx open --unique <task-slug>)
    ```
    Every workspace shares the same underlying jj repo, so nothing needs
    merging at the filesystem level.
-2. Spawn each subagent (Task/Agent tool) with a prompt that states its
-   absolute workspace path explicitly and instructs it to make **all** edits
-   inside that path — never outside it.
+2. Spawn each subagent with the runtime's collaboration tool and a prompt that
+   states its absolute workspace path explicitly and instructs it to make
+   **all** edits inside that path — never outside it.
 3. Let them run in parallel; one workspace each means no two agents write the
    same file.
 4. When a subagent finishes, its commits are ordinary jj commits in the
@@ -96,6 +102,9 @@ bare slug.
 
 ## Also useful
 
+- `jjx add <path>` — add an existing checkout at an explicit path as a jj
+  workspace. This is distinct from `jjx open <slug>`, which creates or resumes
+  a managed sibling checkout by slug.
 - `jjx seed <path> [--root <dir>]` — (re-)seed a directory from
   `.worktree-copy.toml` without creating a workspace.
 - `jjx gitshim [init|sync|lock|unlock] [dir]` — manage the read-only git
@@ -104,7 +113,7 @@ bare slug.
 ## Claude Code's own worktree hook
 
 On this machine, Claude Code's `Agent` tool with `isolation: "worktree"`
-already routes through a `WorktreeCreate` hook straight to `jjx add --name`
+already routes through a `WorktreeCreate` hook straight to `jjx open`
 for jj repos — so that path also gives you an isolated checkout, no manual
 `jjx` call needed. Reach for the explicit workflow above when you need
 control over the base revision (`--from`) or explicit naming, or when

@@ -6,8 +6,8 @@ Enrollment and runtime acceptance are different things, and this document
 tracks both. The authoritative enrollment is the `codex` publication in
 `MARKETPLACE.yaml`: it runs `mode: all-compatible`, so every package that
 declares a `targets.codex` block is compiled and published. That is fifteen
-packages today, against eighteen for Claude. Six of those fifteen — `commit`,
-`craft`, `librarian`, `linear`, `spec-flow`, and `teach` — have passed
+packages today, against eighteen for Claude. Seven of those fifteen — `commit`,
+`craft`, `librarian`, `linear`, `spec-flow`, `teach`, and `workspaces` — have passed
 fresh-task smoke tests (ndr:v0a3bm); the rest are compiled and enrolled with
 runtime acceptance still outstanding. Claude Code remains the default
 surface for every plugin, and the only surface for the three Claude-only
@@ -178,6 +178,26 @@ Additional fresh-task Codex acceptance:
   tested; they are not mechanical tool-filter enforcement, and one passing
   run is not a general guarantee.
 
+- `workspaces` (0.1.1, 2026-09-21, codex-cli 0.155.1, jjx 0.4.0): a clean
+  reinstall from the generated local Codex publication loaded the exact skill
+  at `~/.codex/plugins/cache/jdh-agents/workspaces/0.1.1`. A fresh
+  session in a disposable jj-colocated repository first established the
+  sandbox boundary: under `workspace-write`, `jjx open codex-accept` could not
+  update repository metadata and failed before creating a usable checkout.
+  The skill now tells a sandboxed runtime to request approval for the exact
+  `jjx` command rather than treating that denial as a jjx failure or broadly
+  bypassing the sandbox. With user-approved `danger-full-access`, a second
+  fresh session created
+  `/private/tmp/workspaces-acceptance.8gzTOE-spaces/codex-accept`, ran with that
+  exact child directory as its cwd, resumed the same path on a second
+  `jjx open codex-accept`, created the distinct `codex-accept-2` via
+  `jjx open --unique codex-accept`, and created the explicit
+  `/private/tmp/workspaces-acceptance-explicit` checkout via `jjx add <path>`.
+  `jjx rm` reported all three checkouts trashed; final existence checks found
+  all three absent and the original fixture present. This accepts the skill's
+  command contract and cleanup behavior, not operation without repository-write
+  approval.
+
 Fresh Claude regression evidence:
 
 - `teach` (0.11.5, 2026-09-16): a fresh Claude Code process loaded the
@@ -195,6 +215,6 @@ Expand Codex support plugin by plugin, and keep the two halves of that
 expansion distinct. A package enters the Codex publication when it declares
 `targets.codex`, its manifest validates, and its platform-specific primitives
 have native mappings or declared losses. It reaches runtime acceptance only
-after a fresh-task smoke test passes. Nine of the fifteen enrolled packages are
+after a fresh-task smoke test passes. Eight of the fifteen enrolled packages are
 at the first stage and not the second (`ndr:v0a3bm`); publication membership
 should not be read as the second.
