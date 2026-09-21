@@ -1,6 +1,6 @@
 schema: agentforge.package/v1
 id: librarian
-defaults: {"name": "librarian", "version": "0.19.1", "description": "Curates, catalogs, retrieves, and maintains your library of notes and knowledge in an Obsidian vault. Workflow-shaped (Capture / Process / Retrieve / Maintain) and agent-mediated (skills draft, agents execute). 18 skills + 4 agents + 6 references, coupled to the vault conventions in ~/Loose Ends/.claude/rules/{wiki.md,catalog.md} and the Templater templates in ~/Loose Ends/Templates/.", "author": {"name": "Jacob Hoehler"}, "license": "Apache-2.0", "keywords": ["obsidian", "knowledge-base", "wiki", "catalog", "notes", "meetings", "experiments", "bases", "ingest", "refresh", "lint", "curation", "personal-knowledge", "savings-goal", "budget", "purchase", "planning"]}
+defaults: {"name": "librarian", "version": "0.20.0", "description": "Curates, catalogs, retrieves, and maintains your library of notes and knowledge in an Obsidian vault. Workflow-shaped (Capture / Process / Retrieve / Maintain) and agent-mediated (skills draft, agents execute). 19 skills + 4 agents + 6 references, coupled to the vault conventions in ~/Loose Ends/.claude/rules/{wiki.md,catalog.md} and the Templater templates in ~/Loose Ends/Templates/.", "author": {"name": "Jacob Hoehler"}, "license": "Apache-2.0", "keywords": ["obsidian", "knowledge-base", "wiki", "catalog", "notes", "meetings", "experiments", "bases", "ingest", "refresh", "lint", "curation", "personal-knowledge", "savings-goal", "budget", "purchase", "planning"]}
 artifacts:
   - {type: skill, pattern: 'skills/*/SKILL.md'}
   - {type: agent, pattern: 'agents/*.md'}
@@ -8,7 +8,10 @@ payloads:
   include:
     - {source: references/}
 targets:
-  claude: {}
+  claude:
+    native:
+      userConfig:
+        word_log: {type: string, title: Word log, description: 'Vault-relative path of the note /term appends to on this machine', default: 'Reference/Word Log.md'}
   codex:
     losses:
       - construct: agent-tools-filter
@@ -20,7 +23,7 @@ targets:
       - construct: body-agent-reference
         state: retained-unenforced
         note: >-
-          Codex registers no agent role from a plugin package, so the 71
+          Codex registers no agent role from a plugin package, so the 72
           references to vault-reader, vault-curator, vault-inspector, and
           note-editor across librarian's own agent bodies, skill bodies, and
           references/architecture.md name a collaborator a Codex reader cannot

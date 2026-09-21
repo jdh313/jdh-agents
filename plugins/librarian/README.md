@@ -11,7 +11,7 @@ Workflow-shaped (Capture → Process → Retrieve → Maintain), agent-mediated
 (skills draft, agents execute), reference-backed (conventions and
 templates load on demand).
 
-18 skills + 4 agents + 6 references, coupled to the vault at
+19 skills + 4 agents + 6 references, coupled to the vault at
 `~/Loose Ends/` and governed by `~/Loose Ends/.claude/rules/{wiki.md,
 catalog.md}`.
 
@@ -19,7 +19,7 @@ catalog.md}`.
 
 | Stage | Skills |
 |---|---|
-| **Capture** | `wiki-create` (stub mode), `event-capture`, `meeting-notes`, `experiment-start`, `note-capture`, `note-suggester`, `catalog-evaluate` (new), `savings-goal-add` (scaffold a funded-purchase goal with tier, budget, acceptance criteria) |
+| **Capture** | `wiki-create` (stub mode), `event-capture`, `meeting-notes`, `experiment-start`, `note-capture`, `term` (name a fumbled word, log it to a word log), `note-suggester`, `catalog-evaluate` (new), `savings-goal-add` (scaffold a funded-purchase goal with tier, budget, acceptance criteria) |
 | **Process** | `wiki-create` (ingest mode), `wiki-refresh`, `wiki-graduate`, `meeting-restructure`, `catalog-evaluate` (re-eval), `catalog-recheck` (re-evaluate existing entry against revisit triggers) |
 | **Retrieve** | `wiki-query`, `meeting-followup`, `experiment-review` |
 | **Maintain** | `vault-inspect`, `note-cleanup` |
@@ -39,7 +39,7 @@ through `@vault-reader` (Sonnet); diagnostic sweeps run in
 | Agent | Model | Effort | Engagement | Verb | Invoked by |
 |---|---|---|---|---|---|
 | `vault-reader` | Sonnet 4.6 | medium | persistent | Read + synthesize | `wiki-query`, `meeting-followup`, `experiment-review`, `event-capture` (entity lookup), `wiki-refresh` (drift check), `wiki-graduate` (link map), `catalog-evaluate` (existence check), `experiment-start` (promote mode) |
-| `note-editor` | Haiku 4.5 | low | one-shot | Mechanical write + cascade | `wiki-create`, `wiki-refresh`, `wiki-graduate`, `catalog-evaluate`, `meeting-notes`, `meeting-restructure`, `experiment-start`, `experiment-review` (verdict), `event-capture`, `note-capture`, `base-add` |
+| `note-editor` | Haiku 4.5 | low | one-shot | Mechanical write + cascade | `wiki-create`, `wiki-refresh`, `wiki-graduate`, `catalog-evaluate`, `meeting-notes`, `meeting-restructure`, `experiment-start`, `experiment-review` (verdict), `event-capture`, `note-capture`, `term`, `base-add` |
 | `vault-curator` | Sonnet 4.6 | high | persistent | Interactive cleanup | `note-cleanup` |
 | `vault-inspector` | Haiku 4.5 | low | one-shot | Rule-check + structured report | `vault-inspect` |
 
@@ -91,6 +91,15 @@ active_work_context: Work
 
 Travels with the vault (via Obsidian Sync), not the plugin install.
 See `references/work-context-config.md` for details.
+
+`term` instead reads one plugin option (Claude Code `userConfig`),
+`word_log`: the vault-relative note it appends to, default
+`Reference/Word Log.md`. Set it per machine in
+`pluginConfigs["librarian@jdh-agents"].options` of the user
+`settings.json`, or through `/config`. An unset option falls back to
+the default inside the skill, since Claude Code leaves unset values
+unsubstituted. Codex has no `userConfig`, so `term` always uses the
+default there.
 
 ## Vault coupling
 

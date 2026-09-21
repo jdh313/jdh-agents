@@ -24,6 +24,7 @@ Bring new information into the vault.
 - `meeting-notes` — format raw meeting notes (or transcripts) and file
 - `experiment-start` — scaffold a hypothesis + protocol + review_date
 - `note-capture` — one-liner to today's daily note (slash command)
+- `term` — name the word the user fumbled, then silently append it to a word log (slash command)
 - `note-suggester` — passive ambient suggestions during coding (no I/O at trigger; batches at session end)
 - `catalog-evaluate` (new entry path) — single self-contained tool entry with a `stance`
 
