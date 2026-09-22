@@ -2,8 +2,8 @@
 
 Personal plugin marketplace shared by Claude Code and Codex, with canonical
 AgentForge definitions, native runtime manifests, and automated validation.
-Claude supports the full catalog; Codex enrolls 15 packages, with completed
-fresh-task runtime smoke acceptance for 6.
+Claude supports the full catalog; Codex enrolls 16 packages, with completed
+fresh-task runtime smoke acceptance for 8.
 
 See [Dual-agent operating model](docs/dual-agent-operating-model.md) for
 ownership boundaries, runtime mappings, installation, and runtime acceptance.
@@ -23,7 +23,7 @@ jdh-agents/
 │   ├── claude/               # Self-contained Claude marketplace root (18 packages)
 │   │   ├── .claude-plugin/marketplace.json
 │   │   └── plugins/[name]/
-│   └── codex/                # Self-contained Codex marketplace root (15 packages)
+│   └── codex/                # Self-contained Codex marketplace root (16 packages)
 │       ├── .agents/plugins/marketplace.json
 │       └── plugins/[name]/
 ├── .betterleaks.toml         # Privacy-gate rules

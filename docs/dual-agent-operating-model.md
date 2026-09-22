@@ -5,13 +5,13 @@
 Enrollment and runtime acceptance are different things, and this document
 tracks both. The authoritative enrollment is the `codex` publication in
 `MARKETPLACE.yaml`: it runs `mode: all-compatible`, so every package that
-declares a `targets.codex` block is compiled and published. That is fifteen
-packages today, against eighteen for Claude. Seven of those fifteen — `commit`,
-`craft`, `librarian`, `linear`, `spec-flow`, `teach`, and `workspaces` — have passed
+declares a `targets.codex` block is compiled and published. That is sixteen
+packages today, against eighteen for Claude. Eight of those sixteen — `commit`,
+`craft`, `langfuse`, `librarian`, `linear`, `spec-flow`, `teach`, and `workspaces` — have passed
 fresh-task smoke tests (ndr:v0a3bm); the rest are compiled and enrolled with
 runtime acceptance still outstanding. Claude Code remains the default
-surface for every plugin, and the only surface for the three Claude-only
-packages (`attention-workflow`, `langfuse`, `teardown`).
+surface for every plugin, and the only surface for the two Claude-only
+packages (`attention-workflow`, `teardown`).
 The repository publishes both runtimes from one source: `marketplaces/claude/`
 is what a Claude install resolves (remotely, via the root manifest) and
 `marketplaces/codex/` is what a Codex install resolves from a local clone.
@@ -118,7 +118,7 @@ been exercised on a fresh Codex runtime. The results are dated records of what
 was observed then, not standing guarantees, and a later version of the same
 package inherits nothing from them.
 
-Six packages have passed fresh-task smoke tests. `librarian` is recorded in
+Eight packages have passed fresh-task smoke tests. `librarian` is recorded in
 `agentforge/docs/librarian-agent-acceptance.md` and `teach` is recorded below;
 the other four:
 
@@ -135,6 +135,16 @@ historical record of what was observed, and are not re-dated here; treat them
 as evidence about the package as it stood then.
 
 Additional fresh-task Codex acceptance:
+
+- `langfuse` (1.4.0, 2026-09-21, codex-cli 0.155.1): a clean install from the
+  generated Codex publication into an isolated Codex home loaded the translated
+  `Stop` and `SessionStart` hooks after explicit review and trust. A fresh
+  one-turn session produced `Processed 1 turns` locally. A read-only Langfuse
+  Observations API v2 query for that exact session returned the SessionStart
+  programmatic-spawn span plus the turn span and generation, tagged `codex`,
+  with model `gpt-6-astra` and release `codex-cli 0.155.1`. The test confirms
+  observed Langfuse v4 OTLP lifecycle ingestion and metadata for the new Codex
+  rollout parser; it does not turn hook trust into telemetry consent.
 
 - `commit` (3.2.1, 2026-09-21, codex-cli 0.155.1): a clean reinstall from
   the generated local Codex publication produced an executable `0755` guard
@@ -225,6 +235,13 @@ Additional fresh-task Codex acceptance:
 
 Fresh Claude regression evidence:
 
+- `langfuse` (1.4.0, 2026-09-21, Claude Code 2.1.278): a fresh process loaded
+  the generated Claude plugin with `--plugin-dir` and completed one turn. The
+  shared hook logged one processed turn, and the same read-only Langfuse query
+  returned a span and generation tagged `claude-code`, with model
+  `claude-opus-5` and release `2.1.278 (Claude Code)`. This verifies that adding
+  Codex rollout dispatch preserved the existing Claude transcript path.
+
 - `teach` (0.11.5, 2026-09-16): a fresh Claude Code process loaded the
   generated plugin with `--plugin-dir`, invoked `/teach:teach`, read all 661
   lines of the canonical vault guidance before proposing a path, and waited
@@ -240,6 +257,6 @@ Expand Codex support plugin by plugin, and keep the two halves of that
 expansion distinct. A package enters the Codex publication when it declares
 `targets.codex`, its manifest validates, and its platform-specific primitives
 have native mappings or declared losses. It reaches runtime acceptance only
-after a fresh-task smoke test passes. Eight of the fifteen enrolled packages are
+after a fresh-task smoke test passes. Eight of the sixteen enrolled packages are
 at the first stage and not the second (`ndr:v0a3bm`); publication membership
 should not be read as the second.

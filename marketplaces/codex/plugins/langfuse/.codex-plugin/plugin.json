@@ -1,0 +1,30 @@
+{
+  "name": "langfuse",
+  "version": "1.4.0",
+  "description": "Sends Claude Code and Codex session traces to Langfuse via a Stop hook — per-turn traces with prompts, generations, tool observations, and backdated timestamps. Includes a SessionStart tripwire that marks programmatically-spawned sessions.",
+  "author": {
+    "name": "Jacob Hoehler"
+  },
+  "license": "Apache-2.0",
+  "keywords": [
+    "langfuse",
+    "observability",
+    "tracing",
+    "llm",
+    "monitoring"
+  ],
+  "hooks": "./hooks/hooks.json",
+  "interface": {
+    "displayName": "Langfuse",
+    "shortDescription": "Trace Codex sessions in Langfuse",
+    "longDescription": "Sends per-turn Codex traces, generations, and tool observations to Langfuse after explicit hook review and trust.",
+    "developerName": "Jacob Hoehler",
+    "category": "Developer Tools",
+    "capabilities": [
+      "Network"
+    ],
+    "defaultPrompt": [
+      "Help me configure and verify Langfuse tracing."
+    ]
+  }
+}

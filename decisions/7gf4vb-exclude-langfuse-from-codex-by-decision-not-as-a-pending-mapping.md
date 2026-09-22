@@ -1,7 +1,7 @@
 ---
 id: "7gf4vb"
 title: Exclude langfuse from Codex by decision, not as a pending mapping
-status: current
+status: superseded
 decision_date: 2026-08-03
 author: Jacob Hoehler
 conviction: strong
@@ -12,7 +12,8 @@ labels:
 binds:
   - plugins/langfuse/PACKAGE.yaml
 supersedes: []
-superseded_by: []
+superseded_by:
+  - 3t0szg
 derived_from:
   - linear:TEAM-352
   - linear:TEAM-350

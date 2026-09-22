@@ -13,8 +13,9 @@ payloads:
 # publication skips bundled hooks until the user separately reviews and trusts
 # them. A Codex projection could not exercise the default structural-guard
 # behavior at all, so enrolling it would publish a package whose load-bearing
-# guarantee is silently absent — the same reasoning that keeps `langfuse` out
-# (ndr:7gf4vb, ndr:v0a3bm). Revisit only with fresh-runtime acceptance evidence.
+# guarantee is silently absent (ndr:v0a3bm). Langfuse's separate parser gap was
+# closed by runtime-specific normalization and acceptance; this hook-enforcement
+# gap remains. Revisit only with fresh-runtime acceptance evidence.
 targets:
   claude:
     native:

@@ -51,8 +51,8 @@ The merge gate also applies the runtime-native checks that are available:
 
 Generated publication roots are committed, not disposable.
 `agentforge compile MARKETPLACE.yaml --out marketplaces` compiles complete
-publications into `marketplaces/claude/` (224 managed files, 18 packages) and
-`marketplaces/codex/` (212 managed files, 15 packages), and each root is
+publications into `marketplaces/claude/` (226 managed files, 18 packages) and
+`marketplaces/codex/` (218 managed files, 16 packages), and each root is
 self-contained enough for its runtime to be pointed directly at it. `check`
 diffs the whole tree — content and executable bits — against the committed one;
 it never writes.
@@ -69,7 +69,7 @@ skill-local `agents/openai.yaml` containing
 `policy.allow_implicit_invocation: false`. Supplied sidecars remain subject to
 AgentForge's normal collision policy and cannot silently replace generated
 policy. jdh-agents owns verifying those compiler results across the real
-18-package corpus and validating the fifteen declared Codex packages; it does
+18-package corpus and validating the sixteen declared Codex packages; it does
 not duplicate the translation in repository tooling.
 
 ## Target enrollment
@@ -81,22 +81,22 @@ when it declares support for that target. Counts below are read from those
 declarations, never from generated output or prose elsewhere in the repository.
 
 - Claude enrolls all eighteen packages with `all-compatible`.
-- Codex enrolls fifteen: `coach`, `commit`, `compass`, `craft`, `debate`,
-  `feedback`, `introspect`, `librarian`, `linear`, `pm`, `shake-tune`,
-  `skillsmith`, `spec-flow`, `teach`, and `workspaces`.
-- `langfuse`, `attention-workflow`, and `teardown` are the three packages that
+- Codex enrolls sixteen: `coach`, `commit`, `compass`, `craft`, `debate`,
+  `feedback`, `introspect`, `langfuse`, `librarian`, `linear`, `pm`,
+  `shake-tune`, `skillsmith`, `spec-flow`, `teach`, and `workspaces`.
+- `attention-workflow` and `teardown` are the two packages that
   do not declare Codex support. Each omission is a decision with a stated
-  reason, not an oversight; `langfuse` and `attention-workflow` are held out on
-  a structural incompatibility, `teardown` on missing acceptance evidence. See
-  the entries below.
+  reason, not an oversight; `attention-workflow` is held out on a structural
+  incompatibility, `teardown` on missing acceptance evidence. See the entries
+  below.
 
 **Being in the Codex publication proves compilation, not behavior.** It means
 the package declared the target, compiled, and is drift-clean against the
 committed tree. It does not mean a fresh Codex runtime was exercised, that
 stripped Claude constructs have working equivalents, or that a smoke test
 passed. Fresh-runtime acceptance is tracked per package under `ndr:v0a3bm` and
-recorded in `docs/dual-agent-operating-model.md`; on the current record six of
-the fifteen have passed one. Read the two facts separately.
+recorded in `docs/dual-agent-operating-model.md`; on the current record eight of
+the sixteen have passed one. Read the two facts separately.
 
 `feedback` carries a **native mapping but not yet fresh-runtime acceptance**.
 Its Codex projection compiles, validates, and is drift-clean, and its report
@@ -105,29 +105,24 @@ set. The Codex smoke test in TEAM-342 has not been run — no Codex runtime was
 available — so under `ndr:v0a3bm` this package is enrolled on the mapping half
 of the gate only. Treat its Codex support as unverified until that test runs.
 
-`langfuse` is **deliberately not enrolled for Codex**, and the reason is not
-that it fails to compile. It compiles cleanly: both its `Stop` and
-`SessionStart` events are Codex lifecycle events, the argument arrays fold into
-Codex's single `command` string with meaning preserved, `${CLAUDE_PLUGIN_ROOT}`
-becomes `${PLUGIN_ROOT}`, and the executable payload keeps its `0755` mode. The
-plugin would install and its hooks would fire.
+`langfuse` is **enrolled and fresh-runtime accepted for Codex** at 1.4.0. Its
+shared parser dispatches on Claude transcript rows and Codex `response_item`
+payloads, preserving message, tool-call, tool-result, timestamp, model,
+release, session, and runtime metadata without exporting reasoning rows. State
+and logs resolve under the active runtime home, and missing credentials remain
+fail-open. Codex still requires the user to inspect and trust bundled hooks;
+that trust is separate from consent to export prompts, responses, and tool data.
 
-They would also produce nothing. The `Stop` hook exists to parse a session
-transcript, and it keys on Claude Code's JSONL row shape — `msg["type"]` in
-`("user", "assistant")`, then `msg["message"]["role"]`. Codex rollout rows are
-`{"type": "response_item", "payload": {…}}`: they carry `payload`, never
-`message`, and their `type` values are `session_meta`, `event_msg`,
-`response_item`, `world_state`, `turn_context`, and `compacted`. Run against
-three real Codex rollouts, the plugin's own parser resolved **0 turns from
-8,127 rows**. Every row falls to the unknown tally and no turn is ever flushed.
-
-Enrolling it would therefore ship a package that runs `uv` on every turn, reads
-a transcript it cannot parse, writes `Processed 0 turns` to a `~/.claude`-named
-log on a Codex machine, and exits 0 — silent, continuous, and indistinguishable
-from working. An observability tool that fails silently is worse than an absent
-one, because it retires the user's suspicion that anything is wrong. Enrollment
-waits on TEAM-350, which owns porting the transcript reader to dispatch on
-payload shape so one file serves both runtimes.
+Fresh acceptance on 2026-09-21 installed the generated Codex package into an
+isolated Codex home and ran Codex CLI 0.155.1 with the reviewed hooks enabled.
+The local hook logged one processed turn, and a read-only Langfuse v2 query
+returned the SessionStart programmatic-spawn span plus the turn span and
+generation for the same session, with the `codex` tag, `gpt-6-astra` model, and
+`codex-cli 0.155.1` release. A fresh Claude Code 2.1.278
+run from the generated Claude plugin likewise logged one turn and returned a
+span and generation tagged `claude-code` with model `claude-opus-5` and the
+matching Claude release. These observed traces close the earlier zero-turn
+parser incompatibility; compilation alone did not.
 
 `attention-workflow` is **deliberately not enrolled for Codex** for a
 related reason. Its central claim is about plugin-bundled hook behavior on a
@@ -157,8 +152,8 @@ an empty or untested package merely because its definition validates.
   types. Claude preserves those artifacts directly.
 - Package-root references, `craft/CONTEXT.md`, and arbitrary skill sidecars are
   supplied payloads.
-- The commit guard, Langfuse hook companions, and the attention-workflow hooks
-  and state helper are Claude-only payloads.
+- The commit guard and Langfuse hook companions are projected to both runtimes;
+  the attention-workflow hooks and state helper remain Claude-only payloads.
 - Native plugin manifests are represented by canonical defaults and target
   overlays, never copied as payloads.
 - Plugin READMEs stay in the source repository but are intentionally excluded
@@ -186,7 +181,7 @@ namespace at runtime, so `skills/today` declares `name: today` and is invoked as
 
 ## Codex compatibility
 
-The fifteen-package publication compiles and passes jdh-agents's
+The sixteen-package publication compiles and passes jdh-agents's
 Codex-native validator. Compilation diagnostics are reviewed limitations, not
 parity claims:
 

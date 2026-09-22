@@ -92,3 +92,6 @@ jobs:
 
       - name: Behavioral tests (introspect transcript attribution)
         run: uv run scripts/tests/test_introspect_usage_report.py
+
+      - name: Behavioral tests (Langfuse dual-runtime parser)
+        run: uv run scripts/tests/test_langfuse_hook.py

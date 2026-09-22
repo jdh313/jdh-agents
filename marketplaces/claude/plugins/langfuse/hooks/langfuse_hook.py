@@ -4,7 +4,7 @@
 # dependencies = ["langfuse>=4.7.1,<5"]
 # ///
 """
-Claude Code -> Langfuse hook
+Claude Code / Codex -> Langfuse hook
 
 """
 # Forked from langfuse/Claude-Observability-Plugin v1.0.0
@@ -29,8 +29,19 @@ try:
 except Exception:
     sys.exit(0)
 
-# --- Paths ---
-STATE_DIR = Path.home() / ".claude" / "state"
+# --- Runtime / paths ---
+def _runtime_name() -> str:
+    # Codex plugin hooks receive PLUGIN_ROOT. Claude exposes only the
+    # compatibility-prefixed variable, so this remains unambiguous even though
+    # Codex also supplies CLAUDE_PLUGIN_ROOT for migrated hooks.
+    return "codex" if os.environ.get("PLUGIN_ROOT") else "claude-code"
+
+
+RUNTIME = _runtime_name()
+if RUNTIME == "codex":
+    STATE_DIR = Path(os.environ.get("CODEX_HOME", Path.home() / ".codex")) / "state"
+else:
+    STATE_DIR = Path.home() / ".claude" / "state"
 LOG_FILE = STATE_DIR / "langfuse_hook.log"
 STATE_FILE = STATE_DIR / "langfuse_state.json"
 LOCK_FILE = STATE_DIR / "langfuse_state.lock"
@@ -175,7 +186,7 @@ def state_key(session_id: str, transcript_path: str) -> str:
 # ----------------- Hook payload -----------------
 def read_hook_payload() -> Dict[str, Any]:
     """
-    Claude Code hooks pass a JSON payload on stdin.
+    Claude Code and Codex hooks pass a JSON payload on stdin.
     This script tolerates missing/empty stdin by returning {}.
     """
     try:
@@ -287,7 +298,7 @@ def extract_text(content: Any) -> str:
     if isinstance(content, list):
         parts: List[str] = []
         for x in content:
-            if isinstance(x, dict) and x.get("type") == "text":
+            if isinstance(x, dict) and x.get("type") in ("text", "input_text", "output_text"):
                 parts.append(x.get("text", ""))
             elif isinstance(x, str):
                 parts.append(x)
@@ -307,7 +318,7 @@ def get_model(msg: Dict[str, Any]) -> str:
     m = msg.get("message")
     if isinstance(m, dict):
         return m.get("model") or "claude"
-    return "claude"
+    return "codex" if RUNTIME == "codex" else "claude"
 
 def get_usage(msg: Dict[str, Any]) -> Optional[Dict[str, int]]:
     """Extract Anthropic token usage from an assistant message, if present."""
@@ -338,7 +349,7 @@ def get_message_id(msg: Dict[str, Any]) -> Optional[str]:
     return None
 
 def parse_ts(value: Any) -> Optional[datetime]:
-    """Parse a Claude Code jsonl row timestamp (ISO 8601 with trailing Z)."""
+    """Parse a transcript row timestamp (ISO 8601 with trailing Z)."""
     if isinstance(value, dict):
         value = value.get("timestamp")
     if not isinstance(value, str) or not value:
@@ -459,7 +470,123 @@ class Turn:
     tool_results_by_id: Dict[str, Any]
     end_offset: int  # transcript offset immediately after this turn's last contributing row
 
-def build_turns(rows: List[Tuple[Dict[str, Any], int]]) -> Tuple[List[Turn], Dict[str, int]]:
+def _parse_tool_input(value: Any) -> Any:
+    if not isinstance(value, str):
+        return value
+    try:
+        return json.loads(value)
+    except Exception:
+        return value
+
+
+def normalize_codex_row(msg: Dict[str, Any], default_model: Optional[str]) -> Optional[Dict[str, Any]]:
+    """Map one Codex rollout row into the Claude-shaped parser model."""
+    if msg.get("type") != "response_item" or not isinstance(msg.get("payload"), dict):
+        return None
+
+    payload = msg["payload"]
+    item_type = payload.get("type")
+    timestamp = msg.get("timestamp")
+
+    if item_type == "message" and payload.get("role") in ("user", "assistant"):
+        role = payload["role"]
+        content = payload.get("content")
+        if not isinstance(content, list):
+            content = []
+        normalized_content = []
+        for item in content:
+            if not isinstance(item, dict):
+                continue
+            if item.get("type") in ("input_text", "output_text", "text"):
+                normalized_content.append({"type": "text", "text": item.get("text", "")})
+        message: Dict[str, Any] = {
+            "role": role,
+            "content": normalized_content,
+            "id": payload.get("id"),
+        }
+        if role == "assistant":
+            message["model"] = default_model or "codex"
+        return {"type": role, "message": message, "timestamp": timestamp}
+
+    if item_type in ("custom_tool_call", "function_call"):
+        call_id = payload.get("call_id") or payload.get("id")
+        name = payload.get("name") or "unknown"
+        tool_input = payload.get("input", payload.get("arguments"))
+        return {
+            "type": "assistant",
+            "message": {
+                "role": "assistant",
+                "id": payload.get("id") or call_id,
+                "model": default_model or "codex",
+                "content": [{
+                    "type": "tool_use",
+                    "id": call_id,
+                    "name": name,
+                    "input": _parse_tool_input(tool_input),
+                }],
+            },
+            "timestamp": timestamp,
+        }
+
+    if item_type == "tool_search_call":
+        call_id = payload.get("call_id") or payload.get("id")
+        return {
+            "type": "assistant",
+            "message": {
+                "role": "assistant",
+                "id": payload.get("id") or call_id,
+                "model": default_model or "codex",
+                "content": [{
+                    "type": "tool_use",
+                    "id": call_id,
+                    "name": "tool_search",
+                    "input": payload.get("arguments") or {},
+                }],
+            },
+            "timestamp": timestamp,
+        }
+
+    if item_type == "tool_search_output":
+        call_id = payload.get("call_id") or payload.get("id")
+        return {
+            "type": "user",
+            "message": {
+                "role": "user",
+                "content": [{
+                    "type": "tool_result",
+                    "tool_use_id": call_id,
+                    "content": payload.get("tools") or [],
+                    "is_error": payload.get("status") == "failed",
+                }],
+            },
+            "timestamp": timestamp,
+        }
+
+    if item_type in ("custom_tool_call_output", "function_call_output"):
+        call_id = payload.get("call_id") or payload.get("id")
+        output = payload.get("output")
+        is_error = bool(payload.get("is_error") or payload.get("isError"))
+        return {
+            "type": "user",
+            "message": {
+                "role": "user",
+                "content": [{
+                    "type": "tool_result",
+                    "tool_use_id": call_id,
+                    "content": output,
+                    "is_error": is_error,
+                }],
+            },
+            "timestamp": timestamp,
+        }
+
+    return None
+
+
+def build_turns(
+    rows: List[Tuple[Dict[str, Any], int]],
+    default_model: Optional[str] = None,
+) -> Tuple[List[Turn], Dict[str, int]]:
     """
     Groups incremental transcript rows into turns:
     user (non-tool-result) -> assistant messages -> (tool_result rows, possibly interleaved)
@@ -498,7 +625,24 @@ def build_turns(rows: List[Tuple[Dict[str, Any], int]]) -> Tuple[List[Turn], Dic
             end_offset=current_end_offset,
         ))
 
-    for msg, end_offset in rows:
+    for raw_msg, end_offset in rows:
+        msg = raw_msg
+        if raw_msg.get("type") in (
+            "session_meta", "event_msg", "response_item", "world_state",
+            "turn_context", "compacted",
+        ):
+            normalized = normalize_codex_row(raw_msg, default_model)
+            if normalized is None:
+                row_type = raw_msg.get("type") if isinstance(raw_msg.get("type"), str) else "unknown"
+                # Expected Codex envelope rows are metadata, not parser losses.
+                if row_type not in ("session_meta", "event_msg", "world_state", "turn_context", "compacted"):
+                    payload_type = raw_msg.get("payload", {}).get("type") if isinstance(raw_msg.get("payload"), dict) else None
+                    if row_type == "response_item" and payload_type == "reasoning":
+                        continue
+                    unknown_key = f"{row_type}:{payload_type}" if payload_type else row_type
+                    unknown_counts[unknown_key] = unknown_counts.get(unknown_key, 0) + 1
+                continue
+            msg = normalized
         role = get_role(msg)
 
         # tool_result rows show up as role=user with content blocks of type tool_result
@@ -507,12 +651,25 @@ def build_turns(rows: List[Tuple[Dict[str, Any], int]]) -> Tuple[List[Turn], Dic
             for tr in iter_tool_results(get_content(msg)):
                 tid = tr.get("tool_use_id")
                 if tid:
-                    tool_results_by_id[str(tid)] = {"content": tr.get("content"), "timestamp": row_ts}
+                    tool_results_by_id[str(tid)] = {
+                        "content": tr.get("content"),
+                        "timestamp": row_ts,
+                        "is_error": bool(tr.get("is_error")),
+                    }
             if current_user is not None:
                 current_end_offset = end_offset
             continue
 
         if role == "user":
+            if current_user is not None and not assistant_latest:
+                # Codex can serialize several user-role input items before the
+                # first assistant item. They are one turn, not competing turns.
+                existing = get_content(current_user)
+                incoming = get_content(msg)
+                if isinstance(existing, list) and isinstance(incoming, list):
+                    current_user["message"]["content"] = [*existing, *incoming]
+                    current_end_offset = end_offset
+                    continue
             # new user message -> finalize previous turn
             flush_turn()
 
@@ -537,7 +694,7 @@ def build_turns(rows: List[Tuple[Dict[str, Any], int]]) -> Tuple[List[Turn], Dic
             continue
 
         # unknown row type — never part of a turn, just tallied for visibility
-        row_type = msg.get("type") if isinstance(msg.get("type"), str) else "unknown"
+        row_type = raw_msg.get("type") if isinstance(raw_msg.get("type"), str) else "unknown"
         unknown_counts[row_type] = unknown_counts.get(row_type, 0) + 1
 
     # flush last
@@ -581,28 +738,29 @@ def _compose_trace_name(turn_num: int, user_text_raw: str) -> str:
     return f"[Turn {turn_num}] {snippet}"
 
 
-# ----------------- Claude version cache (edit f) -----------------
+# ----------------- Runtime version cache (edit f) -----------------
 
-_CLAUDE_VERSION = None
-_CLAUDE_VERSION_CHECKED = False
+_RUNTIME_VERSION = None
+_RUNTIME_VERSION_CHECKED = False
 
 
-def _get_claude_version():
-    global _CLAUDE_VERSION, _CLAUDE_VERSION_CHECKED
-    if _CLAUDE_VERSION_CHECKED:
-        return _CLAUDE_VERSION
-    _CLAUDE_VERSION_CHECKED = True
+def _get_runtime_version():
+    global _RUNTIME_VERSION, _RUNTIME_VERSION_CHECKED
+    if _RUNTIME_VERSION_CHECKED:
+        return _RUNTIME_VERSION
+    _RUNTIME_VERSION_CHECKED = True
     try:
         import subprocess
+        executable = "codex" if RUNTIME == "codex" else "claude"
         result = subprocess.run(
-            ["claude", "--version"],
+            [executable, "--version"],
             capture_output=True, text=True, timeout=2,
         )
         if result.returncode == 0:
-            _CLAUDE_VERSION = result.stdout.strip() or None
+            _RUNTIME_VERSION = result.stdout.strip() or None
     except Exception:
-        _CLAUDE_VERSION = None
-    return _CLAUDE_VERSION
+        _RUNTIME_VERSION = None
+    return _RUNTIME_VERSION
 
 
 # ----------------- Langfuse emit -----------------
@@ -685,12 +843,12 @@ def emit_turn(
     with propagate_attributes(
         session_id=session_id,
         trace_name=trace_name,
-        tags=["claude-code", f"cwd:{cwd_label}", mode],
+        tags=[RUNTIME, f"cwd:{cwd_label}", mode],
         user_id=user_id,
     ):
         # Build trace metadata; include agent context fields when present (subagent hooks only)
         trace_metadata: Dict[str, Any] = {
-            "source": "claude-code",
+            "source": RUNTIME,
             "turn_number": turn_num,
             "transcript_path": str(transcript_path),
             "assistant_message_count": len(turn.assistant_msgs),
@@ -769,7 +927,7 @@ def emit_turn(
 
             gen_span = _start_backdated(
                 langfuse,
-                name=f"Claude Generation {idx + 1}",
+                name=f"{'Codex' if RUNTIME == 'codex' else 'Claude'} Generation {idx + 1}",
                 as_type="generation",
                 start_time=prev_ts or am_ts,
                 parent_otel_span=parent_otel_span,
@@ -893,7 +1051,7 @@ def main() -> int:
             secret_key=secret_key,
             host=host,
             timeout=5,
-            release=os.environ.get("LANGFUSE_RELEASE") or _get_claude_version(),
+            release=os.environ.get("LANGFUSE_RELEASE") or _get_runtime_version(),
         )
     except Exception:
         return 0
@@ -914,7 +1072,8 @@ def main() -> int:
                 save_state(state)
                 return 0
 
-            turns, unknown_counts = build_turns(rows)
+            model = payload.get("model") if isinstance(payload.get("model"), str) else None
+            turns, unknown_counts = build_turns(rows, default_model=model)
             if unknown_counts:
                 n = sum(unknown_counts.values())
                 debug(f"skipped {n} unknown transcript rows: {sorted(unknown_counts)}")
@@ -1005,14 +1164,13 @@ def main() -> int:
         deferred_note = f", {deferred} turn(s) deferred for retry" if deferred else ""
         info(f"Processed {emitted} turns in {dur:.2f}s (session={session_id}){deferred_note}")
 
-        # Emit a bare BEL via terminalSequence so the terminal gives a subtle
-        # flush signal when traces land. Hooks run without a controlling tty so
-        # this must go through Claude Code's terminal write path rather than
-        # directly to /dev/tty.
-        try:
-            print(json.dumps({"terminalSequence": "\x07"}))
-        except Exception:
-            pass
+        if RUNTIME == "claude-code":
+            # Claude accepts terminalSequence and can relay BEL without a tty.
+            # Codex has no equivalent common output field, so it emits nothing.
+            try:
+                print(json.dumps({"terminalSequence": "\x07"}))
+            except Exception:
+                pass
 
         return 0
 
