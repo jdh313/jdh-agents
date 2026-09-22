@@ -133,14 +133,14 @@ Before any implementation code is written, turn the contract's *Done when* bulle
 - The repo root and the detected VCS (from step 3).
 - Nothing about your intended implementation — no file plan, no approach notes. The isolation is the point.
 
-It returns, per bullet: `covered` (with the test's file path and test name), `manual` (the bullet describes a smoke check no automated test can express), or `unmappable` (with the reason). Plus a single confirmation that the suite was run and every new test failed for the expected reason.
+It returns, per bullet: `covered` (with the test's file path and test name), `manual` (the bullet describes a smoke check no automated test can express), or `unmappable` (with the reason). It must also return VCS checkpoint evidence: for jj, the red-phase revision, its parent relationship to a fresh empty `@`, and the commands/results that observed both; for git, the committed checkpoint and clean working tree. A `red` outcome requires this checkpoint evidence to verify successfully. If checkpoint creation happened but verification failed, return `blocked`, preserve the checkpoint, and report the failed evidence. Plus a single confirmation that the suite was run and every new test failed for the expected reason.
 
 **What comes back to you is the manifest, not the tests.** Do not open the test files. You will see their names and failure output when you run the suite during execute — that is normal red-green working. Reading their source is not, and neither is editing them:
 
 - A red-phase test that is **wrong** is a contract problem, not a test problem. Surface it, append a `[resolved]` Decision-log row, and get the user's explicit sign-off before the test changes. If the wrongness is in what *Done when* promised, that is `spec-flow:amend`.
 - Never delete, skip, weaken, or `xfail` a red-phase test to get green. If that impulse arrives, the change isn't done.
 
-**Commit the tests as their own checkpoint** before writing implementation code — a single commit containing only the new tests, via the installed `commit` skill. The commit is the timestamp that proves the tests predate the code.
+The red-phase author must commit the tests as their own checkpoint before implementation code exists — a single commit containing only the new tests, via the installed `commit` skill. The commit is the timestamp that proves the tests predate the code; the orchestrator must not commit or re-commit the tests. Before proceeding to execute, verify the boundary independently from the implementation repo, rather than accepting the manifest claim: under jj, run `jj status`, `jj log -r '@|@-' --no-graph`, and `jj diff -r '@-' --summary`; require a fresh empty `@` whose parent is the red-phase checkpoint and whose parent diff lists only the new test files. `jj describe` alone does not satisfy this because it leaves the tests in `@`. If the boundary is missing, any query disagrees with the manifest, or unrelated pre-existing changes are present, stop implementation and report the checkpoint as unverified; do not clean or absorb those changes. A disclosed test setup file needed to register the new tests is allowed and must be included in the checkpoint evidence. Under git, require the checkpoint commit and a clean working tree.
 
 **Skip conditions** — announce which one fired, then continue to execute:
 
