@@ -80,7 +80,11 @@ If user declines, proceed without profile. Analysis still works — recommendati
 
 **If single PNG:** Skip this step — analyze the one file.
 
-Otherwise, this is a genuine multiple-choice moment — use the **AskUserQuestion** tool rather than a free-text prompt:
+Otherwise, this is a genuine multiple-choice moment — use the runtime's
+structured choice-input facility rather than a free-text prompt. Claude Code
+uses **AskUserQuestion**; on Codex, present the same choices as one explicit
+multiple-choice question and wait for the user's selection. Do not choose a
+scope on the user's behalf.
 
 **If single session with multiple tests**, ask what to analyze, offering: analyze all tests from this session, or focus on a specific one (list the detected test types as the specific-test options).
 
@@ -90,7 +94,15 @@ The user's selection determines which agents get dispatched in Step 5.
 
 ### Step 5: Analyze Tests
 
-For each selected test, dispatch the matching specialist agent via the **Agent** tool. Each agent is the sole owner of its diagnostic logic (thresholds, pattern catalogs, presentation format) — this skill's job is routing, context assembly, and cross-agent synthesis, not diagnosis.
+For each selected test, dispatch the matching specialist procedure through the
+runtime's bounded subagent mechanism. Claude Code uses the **Agent** tool. A
+Codex plugin package does not register its `agents/*.md` files as role types;
+there, load the matching `agents/<name>.md` procedure from the installed
+package and run it inline unless the host explicitly exposes that role. Never
+replace the named procedure with an unrestricted general-purpose subagent.
+Each procedure is the sole owner of its diagnostic logic (thresholds, pattern
+catalogs, presentation format) — this skill's job is routing, context assembly,
+and cross-agent synthesis, not diagnosis.
 
 **Test type → agent:**
 
@@ -111,12 +123,17 @@ For each selected test, dispatch the matching specialist agent via the **Agent**
 
 **For each test, dispatch its agent with:**
 
-- **PNG path(s)** — both X and Y paths in one dispatch for the shaper agent; a single path for the others; multiple paths when the user asked to compare before/after.
+- **PNG path(s)** — both X and Y paths in one dispatch for the shaper procedure; a single path for the others; multiple paths when the user asked to compare before/after. Read each local PNG with the runtime's multimodal image reader (Codex's `view_image` when available). If the runtime cannot access a path, ask the user to attach the image instead of inferring from its filename.
 - **Printer-profile summary** (from Step 3) — the loaded/created profile, or a note that none exists.
 - **Relevant prior history** — check `.shake-tune-history/` (if it exists) for previous summary entries mentioning this test type; pass along a brief note of what changed since then, if anything.
 - **User-stated symptoms** — anything the user has already said about what prompted this analysis (rattling at a speed, ringing on prints, etc.).
 
-The agent reads the PNG(s) itself and returns its diagnosis in its own presentation format — do not re-derive the diagnosis or re-apply thresholds yourself; relay what each agent returns into Step 6's synthesis.
+The procedure reads the PNG(s) itself and returns its diagnosis in its own
+presentation format — do not re-derive the diagnosis or re-apply thresholds
+yourself; relay what it returns into Step 6's synthesis. Analyzer procedures
+are read-only: do not edit printer configuration, raw results, or history while
+diagnosing. History writing remains the explicit, post-analysis choice in Step
+7.
 
 ### Step 6: Synthesize Combined Assessment
 
