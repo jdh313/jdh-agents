@@ -1,7 +1,7 @@
 {
   "name": "introspect",
-  "version": "0.10.2",
-  "description": "Introspection tooling for Claude Code itself. usage-report: reconstruct how a person works with Claude Code in a repo (skills, slash commands, subagents, MCP tools, task-kickoff style, activity over time) from their local session transcripts, via a stdlib-only read-only parser. conversation-temperature: read the local user's own authored register across all their transcripts — terseness, heat, and warmth, led by marker rates and real quoted messages rather than composite indices. Both run locally against the user's own transcripts and make no network calls; usage-report emits names and counts only, while conversation-temperature quotes the user's own messages back to them by design.",
+  "version": "0.10.3",
+  "description": "Introspection tooling for Claude Code itself. usage-report: reconstruct how a person works with Claude Code in a repo (skills, slash commands, subagents, MCP tools, task-kickoff style, activity over time) from local Claude Code transcripts, via a stdlib-only read-only parser. It can be invoked from Claude Code or Codex, but does not parse Codex rollout files or claim Codex usage parity. conversation-temperature: read the local user's own authored register across all their Claude Code transcripts — terseness, heat, and warmth, led by marker rates and real quoted messages rather than composite indices. Both run locally against the user's own transcripts and make no network calls; usage-report emits names and counts only, while conversation-temperature quotes the user's own messages back to them by design.",
   "author": {
     "name": "Jacob Hoehler"
   },
@@ -24,7 +24,7 @@
   "interface": {
     "displayName": "Introspect",
     "shortDescription": "Report on your Claude Code usage and register",
-    "longDescription": "Parses local Claude Code session transcripts under ~/.claude/projects/ to summarize skills, slash commands, subagents, MCP tools, and task-kickoff style, and to read the local user's own authored tone across those same transcripts. Read-only, stdlib-only, privacy-safe by default. Note — the analyzed transcripts are Claude Code's own; running these skills from Codex means they are inspecting a different runtime's logs than the one they're invoked from.",
+    "longDescription": "Parses local Claude Code session transcripts under ~/.claude/projects/ to summarize skills, slash commands, subagents, MCP tools, and task-kickoff style, and to read the local user's own authored tone across those same transcripts. Read-only, stdlib-only, privacy-safe by default. The skills can be invoked from Claude Code or Codex, but do not parse Codex rollout files or claim Codex usage parity.",
     "developerName": "Jacob Hoehler",
     "category": "Developer Tools",
     "capabilities": [
