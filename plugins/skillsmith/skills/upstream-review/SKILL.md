@@ -23,11 +23,29 @@ This is a judgment task, not a text diff. It produces a divergence report and pr
 
 ## Multi-skill sweeps
 
-For reviewing more than one adapted skill in a session, dispatch the `@upstream-reviewer` agent once per skill rather than running everything inline. This keeps the comparison state (fetched upstream bytes, ledger reads, classification work) isolated per skill and out of this skill's context, so the session stays interactive — you can adjudicate each finding before moving to the next skill.
+For reviewing more than one adapted skill in a session, dispatch the
+`@upstream-reviewer` agent once per skill on Claude Code rather than running
+everything inline. This keeps the comparison state (fetched upstream bytes,
+ledger reads, classification work) isolated per skill and out of this skill's
+context, so the session stays interactive — you can adjudicate each finding
+before moving to the next skill. Codex plugin packages do not register that
+agent role; on Codex, run the same read-only procedure inline, one skill at a
+time, unless the host explicitly exposes a registered role.
 
 ```
 @upstream-reviewer skill_path=<path> upstream_repo=<owner/name> upstream_path=<path> reviewed_sha=<sha> ledger_path=<path or empty>
 ```
+
+## Codex execution contract
+
+The Codex path preserves the review's boundaries even without the Claude role
+dispatch. Read the adapted skill, its ledger, and the upstream bytes; use
+`gh api` and `base64` when available; compare behavior rather than copying
+text; and return findings for adjudication. Do not write the skill, ledger,
+provenance block, or any other file during review. Apply an accepted fix only
+after the review result has returned, then run the publication verify loop.
+When the upstream source cannot be fetched, report that as an external blocker
+instead of guessing from memory.
 
 The agent is read-only: it returns findings but never writes. After you adjudicate, apply fixes and update the provenance block yourself (step 9 below).
 

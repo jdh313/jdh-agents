@@ -11,6 +11,24 @@ upstream:
 
 Reference for writing any document an agent consumes: a skill, an `AGENTS.md` / `CLAUDE.md`, a rules file, a doc reached by a pointer. The packaging differs; the writing does not — the same levers make each one predictable, since the agent takes the same _process_ every run rather than producing the same output.
 
+## Runtime split: Claude Code and Codex
+
+Keep the writing principles shared, but name the runtime contract being
+authored. Claude Code plugin documents may use `allowed-tools`,
+`disallowed-tools`, `disable-model-invocation`, `context: fork`, and registered
+`Agent` collaborators. Codex skills are still `SKILL.md` directories, but a
+Codex package uses `.codex-plugin/plugin.json`, explicit invocation is selected
+with the skill policy in `agents/openai.yaml`, and plugin-bundled agent files
+are procedures rather than registered role types. Codex does not enforce
+Claude's tool-filter frontmatter; state any safety boundary in the body and
+name the Codex tool or fallback that actually carries it.
+
+When a document must work on both runtimes, keep the canonical procedure
+portable and add a target-specific body only for a real behavioral difference.
+Do not claim that a shared key, invocation policy, tool allowlist, or agent
+dispatch survives merely because the generated file exists; inspect the target
+manifest and runtime contract separately.
+
 **Bold terms** are defined in [`GLOSSARY.md`](references/GLOSSARY.md); look them up there for the full meaning.
 
 When the document you're writing is a skill, read [`SKILL-MECHANICS.md`](references/SKILL-MECHANICS.md) for frontmatter, the invocation choice, and router skills.
