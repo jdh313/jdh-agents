@@ -9,15 +9,6 @@ payloads:
 targets:
   claude: {}
   codex:
-    losses:
-      - construct: body-template-variable
-        state: retained-unenforced
-        note: >-
-          The only remaining ${CLAUDE_PLUGIN_ROOT} occurrences are comments in
-          the bundled Python scripts explaining why their shared import is
-          resolved from __file__. The skill commands themselves resolve the
-          installed plugin root with printenv CLAUDE_PLUGIN_ROOT or PLUGIN_ROOT,
-          so no runtime command depends on Codex expanding a Claude variable.
     native:
       interface:
         displayName: Introspect

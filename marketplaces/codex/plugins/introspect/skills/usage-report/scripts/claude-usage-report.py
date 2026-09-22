@@ -41,8 +41,8 @@ from pathlib import Path
 
 # Shared transcript parsing lives at the plugin root so both introspect skills
 # agree on what a prompt is. Resolved from __file__ rather than
-# ${CLAUDE_PLUGIN_ROOT} so the script also works under Codex, which renames
-# that variable to ${PLUGIN_ROOT}. Bytecode is disabled so importing never
+# the plugin-root environment variable so the script also works under Codex,
+# whose plugin-root variable has a different name. Bytecode is disabled so importing never
 # drops a __pycache__ into the plugin tree, where the payload sweep would
 # copy it into the compiled marketplaces.
 sys.dont_write_bytecode = True
