@@ -1,2 +1,2 @@
-{"type":"user","timestamp":"2026-09-20T10:00:00Z","cwd":"/tmp/fixture-repo","gitBranch":"main","message":{"content":"Inspect the repo"}}
+{"type":"user","timestamp":"2026-09-20T10:00:00Z","cwd":"/tmp/fixture-repo","gitBranch":"main","message":{"content":"Inspect the repo. PRIVATE-PROMPT-DO-NOT-REPORT"}}
 {"type":"assistant","timestamp":"2026-09-20T10:00:01Z","cwd":"/tmp/fixture-repo","message":{"id":"main-message-1","model":"claude-test","content":[{"type":"tool_use","name":"Read","input":{}},{"type":"tool_use","name":"Agent","input":{"subagent_type":"Explore"}}]}}
