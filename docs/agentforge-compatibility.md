@@ -264,15 +264,14 @@ parity claims:
   skill's body, so the guidance survives even though the autocomplete hint does
   not. No `targets.codex.losses` entries: the package declares zero Claude-only
   constructs, which is the whole reason it was picked as the M2 opener.
-- `introspect`: nothing is stripped. The `usage-report` body's
-  `${CLAUDE_PLUGIN_ROOT}` is **translated** to `${PLUGIN_ROOT}`, so no loss is
-  declarable and none is declared. Disposition: **accepted, with a scope note
-  at the point of discovery.** The skill reads `~/.claude` transcripts, so a
-  Codex user running it gets a report about a *different* runtime's session
-  history than the one invoking it. That is inherent to what the skill
-  measures, not a translation defect, but it is surprising enough that the
-  Codex `longDescription` states it outright rather than leaving a user to
-  discover it from an empty or foreign-looking report.
+- `introspect`: nothing is stripped. Both skills resolve their bundled script
+  from the installed plugin root using the runtime-provided environment
+  (`CLAUDE_PLUGIN_ROOT` under Claude Code or `PLUGIN_ROOT` under Codex), so no
+  target-specific body loss is declared. Disposition: **accepted, with an
+  explicit scope note at the point of discovery.** The skills read
+  `~/.claude/projects/` transcripts only; a Codex invocation inspects Claude
+  Code's logs rather than its own `~/.codex/sessions/` rollouts, and does not
+  claim Codex usage or token-cost parity.
 - `librarian`: Claude-only policy fields are stripped. Four Claude agents
   become reusable Codex role procedures without Claude model, turn, or tool
   enforcement.

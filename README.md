@@ -87,7 +87,7 @@ installing one and wondering why it does nothing:
 | `craft` | `gh`, `git`/`jj`, `ndr`; IaC skills additionally want `tflint`, `checkov`, `trivy`, `infracost` |
 | `langfuse` | A Langfuse account + `uv` on `PATH` (the Stop hook runs via `uv run`) |
 | `skillsmith` | `gh` on `PATH` (for upstream-review) |
-| `introspect` | Local Claude Code transcripts under `~/.claude/projects/` |
+| `introspect` | Local Claude Code transcripts under `~/.claude/projects/`; invocable from Claude Code or Codex, but does not parse Codex rollout files |
 | `shake-tune` | Klippain Shake Tune PNG output from a Klipper printer |
 | `commit`, `feedback` | Nothing beyond `git` (`commit` also supports `jj`) |
 
