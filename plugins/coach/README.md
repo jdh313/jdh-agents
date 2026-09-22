@@ -183,6 +183,17 @@ Tone calibration and response patterns for coaching interactions. Loaded automat
 
 ## Agents
 
+### Codex role-procedure mapping
+
+The files under `agents/` are shared role procedures. Claude Code may load them
+as named plugin agents; Codex plugin packages do not register named agent
+types, so a Codex session must either apply the procedure inline or dispatch a
+bounded native subagent with the matching installed file embedded in its
+prompt. Preserve the procedure's read-only boundary in that prompt. If the
+native collaboration primitive exposes model, effort, or tool restrictions,
+pass the requested values; otherwise report those settings as unenforced
+rather than implying parity.
+
 ### `project-pulse` -- Project Activity Scanner
 
 Data engine that scans Linear projects and Obsidian project/hobby notes to classify activity levels:
