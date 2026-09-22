@@ -15,6 +15,8 @@ packages (`attention-workflow`, `teardown`).
 The repository publishes both runtimes from one source: `marketplaces/claude/`
 is what a Claude install resolves (remotely, via the root manifest) and
 `marketplaces/codex/` is what a Codex install resolves from a local clone.
+Fresh Introspect Claude and Codex acceptance evidence is recorded in
+[`docs/introspect-runtime-acceptance.md`](introspect-runtime-acceptance.md).
 
 ## Ownership model
 

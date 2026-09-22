@@ -67,28 +67,29 @@ def test_separate_subagent_transcript_is_attributed_to_parent_session() -> None:
         assert "PRIVATE-PROMPT-DO-NOT-REPORT" not in rendered
 
 
-def test_bundled_cli_runs_from_a_runtime_plugin_root() -> None:
-    plugin_root = REPO_ROOT / "plugins" / "introspect"
-    for variable in ("CLAUDE_PLUGIN_ROOT", "PLUGIN_ROOT"):
-        env = os.environ.copy()
-        env.pop("CLAUDE_PLUGIN_ROOT", None)
-        env.pop("PLUGIN_ROOT", None)
-        env[variable] = str(plugin_root)
-        command = (
-            'plugin_root="$(printenv CLAUDE_PLUGIN_ROOT 2>/dev/null || printenv PLUGIN_ROOT)"; '
-            'exec python3 "$plugin_root/skills/usage-report/scripts/claude-usage-report.py" '
-            f'--projects-dir "{FIXTURE}" --repo fixture-repo --stdout'
-        )
-        result = subprocess.run(
-            ["sh", "-c", command],
-            check=False,
-            capture_output=True,
-            text=True,
-            env=env,
-        )
-        assert result.returncode == 0, result.stderr
-        assert "# Claude Code usage report" in result.stdout
-        assert "PRIVATE-PROMPT-DO-NOT-REPORT" not in result.stdout
+def test_bundled_cli_runs_from_loaded_skill_path_without_runtime_env(tmp_path: Path) -> None:
+    env = os.environ.copy()
+    env.pop("CLAUDE_PLUGIN_ROOT", None)
+    env.pop("PLUGIN_ROOT", None)
+    result = subprocess.run(
+        [
+            sys.executable,
+            str(SCRIPT),
+            "--projects-dir",
+            str(FIXTURE),
+            "--repo",
+            "fixture-repo",
+            "--stdout",
+        ],
+        check=False,
+        capture_output=True,
+        text=True,
+        env=env,
+        cwd=tmp_path,
+    )
+    assert result.returncode == 0, result.stderr
+    assert "# Claude Code usage report" in result.stdout
+    assert "PRIVATE-PROMPT-DO-NOT-REPORT" not in result.stdout
 
 
 if __name__ == "__main__":

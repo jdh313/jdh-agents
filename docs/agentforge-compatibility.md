@@ -265,9 +265,9 @@ parity claims:
   not. No `targets.codex.losses` entries: the package declares zero Claude-only
   constructs, which is the whole reason it was picked as the M2 opener.
 - `introspect`: nothing is stripped. Both skills resolve their bundled script
-  from the installed plugin root using the runtime-provided environment
-  (`CLAUDE_PLUGIN_ROOT` under Claude Code or `PLUGIN_ROOT` under Codex), so no
-  target-specific body loss is declared. Disposition: **accepted, with an
+  relative to the loaded `SKILL.md` and invoke its absolute path while keeping
+  the analyzed repository as cwd, so no runtime environment variable or
+  target-specific body loss is required. Disposition: **accepted, with an
   explicit scope note at the point of discovery.** The skills read
   `~/.claude/projects/` transcripts only; a Codex invocation inspects Claude
   Code's logs rather than its own `~/.codex/sessions/` rollouts, and does not

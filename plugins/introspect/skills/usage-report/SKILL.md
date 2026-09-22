@@ -41,10 +41,10 @@ wants that and understands the output may be shared. Confirm before using `--inc
 
 2. **Run the parser** — from inside the repo being analyzed, no flags needed:
 
-   ```sh
-   plugin_root="$(printenv CLAUDE_PLUGIN_ROOT 2>/dev/null || printenv PLUGIN_ROOT)"
-   python3 "$plugin_root/skills/usage-report/scripts/claude-usage-report.py"
-   ```
+   Resolve [the bundled script](scripts/claude-usage-report.py) relative to this
+   loaded `SKILL.md` file. Run `python3` with that absolute path, quoted for
+   spaces, while keeping the analyzed repository as the working directory.
+   The path comes from the loaded skill location, not a shell environment variable.
 
    By default it **saves** to the analyzed repo's `.claude/usage-reports/usage-report.md`
    (repo root inferred from the sessions' own `cwd`) and drops a `.gitignore` there so the
