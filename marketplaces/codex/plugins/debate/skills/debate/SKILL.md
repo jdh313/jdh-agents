@@ -41,6 +41,34 @@ Three pipeline modes control depth and thoroughness:
 
 **Deep mode under `/goal` (optional, user-invoked):** Deep mode fans out up to 13 agents across multiple rounds, which is long-running and easy to lose the thread on. If the user wants Deep mode to run to a hard finish, suggest they launch it under a `/goal` completion condition — e.g. `/goal a verdict is produced with a stated confidence level, then /debate --deep <question>`. The completion condition keeps the pipeline driving to the synthesizer's verdict rather than stalling mid-round. This is a user-invoked convenience, not something the skill sets up itself.
 
+### Runtime collaboration mapping
+
+The role procedures in `agents/` are shared instructions, not registered
+Codex agent types. Use the collaboration primitives of the runtime that is
+actually executing this skill:
+
+- **Claude Code:** dispatch with `Task` and the named `subagent_type`, then
+  re-engage a stopped named advocate with `SendMessage` when Deep mode needs a
+  second round.
+- **Codex:** dispatch a bounded native subagent with `spawn_agent`, embedding
+  the matching role procedure (`agents/advocate.md`, `agents/fact-checker.md`,
+  `agents/devils-advocate.md`, or `agents/synthesizer.md`) in its prompt. Do
+  not pass `subagent_type` and do not assume the packaged Markdown file is a
+  registered role. Record the returned agent ID, use `wait_agent` for results,
+  and use `send_message` to re-engage the same named advocate in Deep mode.
+  If a native primitive is unavailable, spawn a fresh bounded subagent with
+  the same role procedure and include the relevant prior output; report that
+  fallback rather than silently treating the round as continuous.
+
+Codex dispatches must carry the role's requested model and reasoning budget
+when the native primitive exposes them: `advocate` and `fact-checker` use the
+`sonnet`-equivalent model, while `devils-advocate` and `synthesizer` use the
+`opus`-equivalent model with high effort. Every dispatched prompt must repeat
+the role's tool boundary in prose: advocates and the fact-checker use web
+research only; the synthesizer uses only evidence supplied in its prompt.
+If the runtime does not expose model, effort, or tool restrictions, state that
+the setting was requested but unenforced in the final acceptance report.
+
 **Auto-detection heuristic:**
 - **Deep** triggers on: "career change", "invest", "irreversible", "major", "life decision", explicit `--deep`, or user asking for thoroughness
 - **Standard** triggers on: multi-option questions, domain-specific topics, moderate complexity
