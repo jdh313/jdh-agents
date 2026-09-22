@@ -1,6 +1,9 @@
 # introspect
 
-Introspection tooling for Claude Code itself.
+Introspection tooling for Claude Code itself. The skills may be invoked from
+Claude Code or Codex, but their supported transcript source is Claude Code's
+local `~/.claude/projects/` directory. They do not parse Codex's
+`~/.codex/sessions/` rollout files.
 
 ## `usage-report`
 

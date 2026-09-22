@@ -1,9 +1,16 @@
 ---
 name: usage-report
-description: Summarize how you (or whoever runs it) work with Claude Code in a repo — which skills, slash commands, subagents, and MCP tools you use, how you kick off tasks, plan-mode usage, and activity over time. Use when someone says "claude usage report", "how do I use Claude here", "analyze my Claude Code workflow", "summarize my sessions", or is asked by a teammate to share their workflow stats. Runs a local, read-only parser over ~/.claude transcripts and narrates the result. Privacy-safe by default (names + counts only; no prompt text leaves the machine).
+description: Summarize how you (or whoever runs it) work with Claude Code in a repo — which skills, slash commands, subagents, and MCP tools you use, how you kick off tasks, plan-mode usage, and activity over time. Use when someone says "claude usage report", "how do I use Claude here", "analyze my Claude Code workflow", "summarize my sessions", or is asked by a teammate to share their workflow stats. Runs from Claude Code or Codex, but reads only Claude Code's local transcripts. Privacy-safe by default (names + counts only; no prompt text leaves the machine).
 ---
 
 # Claude Code usage report
+
+## Supported runtime scope
+
+This skill can be invoked from either Claude Code or Codex. In both cases it
+inspects Claude Code transcripts under `~/.claude/projects/` only. It does not
+parse Codex rollout files under `~/.codex/sessions/`, and it makes no claim that
+the Claude metrics describe Codex usage or provide token-cost accounting.
 
 Reconstruct a person's Claude Code workflow in a repo from their **local** session
 transcripts, then narrate it. The deterministic crunching is done by the bundled
@@ -35,7 +42,8 @@ wants that and understands the output may be shared. Confirm before using `--inc
 2. **Run the parser** — from inside the repo being analyzed, no flags needed:
 
    ```sh
-   python3 "${CLAUDE_PLUGIN_ROOT}/skills/usage-report/scripts/claude-usage-report.py"
+   plugin_root="$(printenv CLAUDE_PLUGIN_ROOT 2>/dev/null || printenv PLUGIN_ROOT)"
+   python3 "$plugin_root/skills/usage-report/scripts/claude-usage-report.py"
    ```
 
    By default it **saves** to the analyzed repo's `.claude/usage-reports/usage-report.md`
@@ -77,5 +85,7 @@ wants that and understands the output may be shared. Confirm before using `--inc
 - Subagent-internal tool calls are read from each parent session's
   `subagents/*.jsonl` files. The tool table separates main-thread and subagent calls, and
   the per-agent table counts unique assistant turns by `agentId`.
+- The parser intentionally excludes prompt text, command bodies, tool inputs and
+  outputs, hidden reasoning, and model token usage from its default report.
 - If "No transcripts found" prints, history may be under a different path — pass
   `--projects-dir` or try `--all` to confirm what exists.

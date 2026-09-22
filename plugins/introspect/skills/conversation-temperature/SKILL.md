@@ -12,10 +12,11 @@ Read the user's *authored register* across their whole Claude Code history — h
 ## How to run
 
 ```bash
-uv run "${CLAUDE_PLUGIN_ROOT}/skills/conversation-temperature/scripts/conversation-analysis.py" --temperature --examples 6
+plugin_root="$(printenv CLAUDE_PLUGIN_ROOT 2>/dev/null || printenv PLUGIN_ROOT)"
+uv run "$plugin_root/skills/conversation-temperature/scripts/conversation-analysis.py" --temperature --examples 6
 ```
 
-- The script is bundled with this skill; stdlib-only, read-only, no network calls. If `${CLAUDE_PLUGIN_ROOT}` does not expand in your runtime, locate `skills/conversation-temperature/scripts/conversation-analysis.py` inside the installed plugin directory and run that path. `python3` works in place of `uv run` on Python 3.13+.
+- The script is bundled with this skill; stdlib-only, read-only, no network calls. The command resolves the installed plugin root from either runtime's environment. If neither variable is available, locate `skills/conversation-temperature/scripts/conversation-analysis.py` inside the installed plugin directory and run that path. `python3` works in place of `uv run` on Python 3.13+.
 - Reads every transcript under `~/.claude/projects/*/` (all projects, ~200+ files; takes a minute). Progress goes to stderr; the markdown report goes to stdout.
 - `--examples N` sets quoted examples per category (default 6).
 - The tone logic lives in `analyze_temperature()` in that script; the same section (`## 5. Temperature / Tone`) is also included in the full report when the script runs with no flags. That no-flag run writes a dated markdown file to `.docs/` under the current working directory instead of printing.
