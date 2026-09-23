@@ -1,6 +1,6 @@
 schema: agentforge.package/v1
 id: feedback
-defaults: {"name": "feedback", "version": "0.5.0", "description": "A two-sided loop for improving agent plugins from test sessions. The 'session' skill (tester side) turns the current session record into a copy-pasteable report grading the plugins exercised; the 'jot' skill files a quick note or idea about a single surface mid-session; the 'triage' skill (author side) aggregates many reports and jots into a prioritized action plan, routing each finding to a concrete fix. All three share one report-format contract.", "author": {"name": "Jacob Hoehler"}, "license": "Apache-2.0", "keywords": ["feedback", "testing", "dogfooding", "session-review", "triage", "plugins", "jot", "ideas"]}
+defaults: {"name": "feedback", "version": "0.5.1", "description": "A two-sided loop for improving agent plugins from test sessions. The 'session' skill (tester side) turns the current session record into a copy-pasteable report grading the plugins exercised; the 'jot' skill files a quick note or idea about a single surface mid-session; the 'triage' skill (author side) aggregates many reports and jots into a prioritized action plan, routing each finding to a concrete fix. All three share one report-format contract.", "author": {"name": "Jacob Hoehler"}, "license": "Apache-2.0", "keywords": ["feedback", "testing", "dogfooding", "session-review", "triage", "plugins", "jot", "ideas"]}
 artifacts:
   - {type: skill, pattern: 'skills/*/SKILL.md'}
 payloads:

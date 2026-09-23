@@ -39,6 +39,15 @@ load-bearing, since `triage` reads them instead of a body.
 
 ## Hard rules
 
+- **No note, no jot.** If the invocation carries no note text (a bare
+  `/feedback:jot`, or only a `source:surface` id), write nothing and reply with
+  the usage below, then stop. Never guess a note from the session.
+
+  ```
+  Usage: /feedback:jot [source:surface] <note>
+    e.g. /feedback:jot spec-flow:capture asks too many questions
+  ```
+
 - **Ask no questions.** Infer everything. If the surface can't be determined,
   use `?:<surface>` or `?:?` rather than asking.
 - **Keep the user's words.** `## User Feedback` is the whole note as given,
