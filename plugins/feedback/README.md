@@ -6,10 +6,13 @@ any runtime that hosts the plugin — reports name surfaces by what they are for
 produce the same shape and triage the same way.
 
 - **Testers** run `/feedback:session` to emit one copy-pasteable report.
+- **Anyone** runs `/feedback:jot` to file a quick note or idea about a
+  single surface mid-session — a plugin surface, or setup outside plugins
+  (rules, `CLAUDE.md`, user-level skills, settings).
 - **The author** runs `/feedback:triage` over a pile of those reports to get a
   prioritized, routed action plan.
 
-Both skills agree on one contract — `references/report-format.md` — so the
+All three skills agree on one contract — `references/report-format.md` — so the
 report a tester sends is the same structure the author aggregates. That shared
 format is what makes the loop work: the tester gets a clean block, the author
 gets something machine-clusterable instead of prose to read by hand.
@@ -39,6 +42,30 @@ The report contains:
 It works across plugins from multiple repos and records which repo a surface
 came from when discernible, plus an `Environment` line so the author knows which
 version was tested.
+
+### `jot` — `/feedback:jot` (either side)
+
+Quick capture for one surface. `/feedback:jot spec-flow:capture asks too many
+questions` writes a *jot*: a short note shaped by the Obsidian vault's
+conventions, not a report block. Frontmatter carries every triage field
+(`type: agent-feedback`, `owner: ai`, `status`, `surface`, `kind`, `repo`,
+`version`, `severity`, `category`, runtime/environment metadata, and a topic
+tag, and a one-sentence `summary`); the body renders the summary with
+`` `= this.summary` `` as meeting notes do, then `## User Feedback` with the
+user's words in full (any fix they propose included), and `## Context` with
+what was happening in the session when it came up. It asks no questions: the
+surface comes from the argument or from what just ran, and an idea files as a
+`minor/missing` finding.
+
+`/feedback:triage <jot folder>` reads jots from their frontmatter, skipping any
+whose `status` is no longer `open`.
+
+**Where jots go** is the plugin option `jot_dir` (Claude Code `userConfig`), an
+absolute path set per machine in `pluginConfigs["feedback@jdh-agents"].options`
+of the user `settings.json`, or through `/config`. Point it at a synced folder
+(an Obsidian vault folder works) to collect jots from several machines in one
+place. Unset, and always on Codex (which has no `userConfig`), jots land in
+`.docs/feedback/jots/` under the current repo.
 
 ### `triage` — `/feedback:triage` (author side)
 

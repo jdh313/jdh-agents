@@ -41,7 +41,9 @@ them.
 - **Don't invent findings.** Only cluster what the reports actually contain. If
   a report is malformed or off-format, note it under "Unparseable" rather than
   guessing its meaning.
-- **Scope to surfaces.** Route to plugin fixes, not model behavior.
+- **Scope to surfaces.** Route to fixes in plugins and agent setup (rules,
+  `CLAUDE.md`, settings), not model behavior. A `rule` or `config` surface
+  routes to an edit of the file that defines it.
 
 ## Procedure
 
@@ -57,6 +59,13 @@ them.
    kind, repo, severity, category, and the evidence prose. Also capture the
    table verdict per surface and the `Worked well` notes. Lines that don't match
    the tag grammar go to an "Unparseable" bucket — don't discard silently.
+
+   A **jot** (frontmatter `type: agent-feedback`, no report block) is one
+   finding read from its frontmatter: `surface`, `kind`, `repo`, `severity`,
+   `category`, with `## User Feedback` and `## Context` together as the
+   evidence. `category: worked-well` makes it
+   a `Worked well` note instead. Derive its verdict per the report format's
+   "Jots" section. Skip jots whose `status` is not `open`.
 
 3. **Cluster** findings by `(surface, category)`. Within a cluster, merge the
    evidence from each source and count corroboration (how many distinct reports
