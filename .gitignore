@@ -66,3 +66,6 @@ htmlcov/
 
 # Pinned AgentForge compiler, fetched on demand and verified by sha256.
 .cache/
+
+# Plugin eval run output (claude plugin eval)
+plugins/*/evals/results/
