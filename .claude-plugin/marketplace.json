@@ -180,6 +180,27 @@
       "source": "./marketplaces/claude/plugins/debate"
     },
     {
+      "name": "em",
+      "version": "0.1.0",
+      "description": "Engineering-manager skills for executing tracked work, with no fixed lifecycle. `start` scopes one ticket (fetch, ground in decisions, read the touched code, ask only the questions nothing else can answer) and stops at a brief. `lead` takes any work reference, checks from the ticket body whether it is already shaped, picks an execution shape (inline, one worker, parallel workspaces, test-first), dispatches, and verifies every result by diff before a pre-push stop. Tracker-agnostic: Linear, Fibery, and GitHub Issues through per-tracker adapters, selected by the reference form or a repo-local `.em.toml`. Pairs with the pm plugin, which shapes the tickets em executes.",
+      "author": {
+        "name": "Jacob Hoehler"
+      },
+      "license": "Apache-2.0",
+      "keywords": [
+        "engineering-manager",
+        "orchestration",
+        "delegation",
+        "subagents",
+        "verification",
+        "tickets",
+        "linear",
+        "fibery",
+        "github-issues"
+      ],
+      "source": "./marketplaces/claude/plugins/em"
+    },
+    {
       "name": "feedback",
       "version": "0.5.1",
       "description": "A two-sided loop for improving agent plugins from test sessions. The 'session' skill (tester side) turns the current session record into a copy-pasteable report grading the plugins exercised; the 'jot' skill files a quick note or idea about a single surface mid-session; the 'triage' skill (author side) aggregates many reports and jots into a prioritized action plan, routing each finding to a concrete fix. All three share one report-format contract.",
