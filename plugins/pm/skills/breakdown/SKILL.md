@@ -114,7 +114,7 @@ When the source is a spec-flow contract, breakdown grows it into a **nested cont
 
    Iterate until the user approves the breakdown.
 
-6. **Confirm parent linking.** If the source was a `TEAM-N` ticket, every child is linked to it as its parent. State the intent, not the mechanism: **how** that link is expressed in the tracker — a native subissue relation or a sibling-parent link — is the `linear` skill's call, made against `references/layer-policy.md`. Confirm the parent ID once before publishing. If the source was vault/ndr/conversation, there is no parent to link — each child's aim line describes the goal directly (link to vault note or ndr atom if applicable).
+6. **Confirm parent linking.** If the source was a `TEAM-N` ticket, every child is linked to it as its parent. State the intent, not the mechanism: **how** that link is expressed in the tracker is the `linear` skill's call, made against `references/layer-policy.md`. Confirm the parent ID once before publishing. If the source was vault/ndr/conversation, there is no parent to link — each child's aim line describes the goal directly (link to vault note or ndr atom if applicable).
 
 7. **Publish in dependency order via `linear-ops`.** Save blockers first so children can reference real `TEAM-N` IDs in the Linear blocks/blocked-by relation. **One dispatch per slice** — the agent takes a single intent block and returns a single ticket, so the loop is sequential: publish a slice, capture its returned `TEAM-N`, then name it in the next slice's `## Relations`. Compose each intent block as `linear-ops`'s own definition specifies (operation, team, fields, body, relations) and pass the body verbatim — the agent does not author prose, and anything you leave for it to fill in comes back blocked. For each slice:
 
@@ -123,7 +123,7 @@ When the source is a spec-flow contract, breakdown grows it into a **nested cont
    - Set labels: one Surface, one Type. Defaults: `Feature` type unless decision-shaped (`Decision`). Surface comes from the slice's primary layer.
    - Set priority: `medium` (Backlog default per the `linear` skill). Bump to `high` only when the user explicitly committed to the slice this cycle.
    - Set project: the active phase project (lookup in Linear, take the non-completed one).
-   - Declare the parent ticket if applicable in `## Relations`, and let `linear-ops` wire it. Its **shape** — native subissue or sibling-parent link — remains the `linear` skill's call against `references/layer-policy.md`.
+   - Declare the parent ticket if applicable in `## Relations`, and let `linear-ops` wire it. Its **shape** remains the `linear` skill's call against `references/layer-policy.md`.
    - **Assignee:** Omit `assignee` by default — breakdown produces independently-grabbable slices that either person can pull from the shared team queue. Set `assignee` only for slices the user explicitly pre-assigned during the quiz. (See the `linear` skill's collaboration conventions for the accept ritual.)
    - From the agent's `## Result` block, capture the returned `TEAM-N` for downstream blocks/blocked-by references. Surface its `## Discrepancies` block verbatim when non-empty — a silently dropped label is exactly the failure the agent's verify step exists to catch, and swallowing it here defeats it.
 
@@ -203,6 +203,6 @@ Granularity right? Dependencies correct? Anything to merge or split? Anyone to p
 
 - **`references/issue-body.md`** — body slots each published ticket conforms to.
 - **`references/issue-shape.md`** — required fields each published ticket carries.
-- **`references/layer-policy.md`** — milestone-assignment criteria; epic-parent earn-it rule; subissue default-off stance.
+- **`references/layer-policy.md`** — milestone-assignment criteria; epic-parent earn-it rule; one-level subissue rule.
 - **`groom`** skill in this plugin — pulls breakdown's Backlog output into the cycle later.
 - **Project agent guidance** (`AGENTS.md` / `CLAUDE.md`) — repo conventions; the codebase shape that informs which layers a vertical slice touches.

@@ -44,7 +44,7 @@ The bet: classification is mechanical (rule-based) and tedious, so the skill doe
 - **ndr atoms root:** `~/Loose Ends/Decisions/` — filter to atoms whose `project:` frontmatter matches the active project. Skip the NDR-moot bucket if you don't use the external `ndr` plugin.
 - **Cycle cadence:** weekly, per your Linear workspace settings. Examples in this skill assume Thu→Wed — cycle closes Wed EOD, the new cycle starts Thursday, and grooming runs Thursday morning.
 - **Issue shape spec:** `../../references/issue-shape.md` (plugin reference). Defines what counts as a well-formed ticket; `../../references/issue-body.md` defines the body it points at. Load when classifying for the Missing-fields or NDR-moot buckets.
-- **Layer policy:** `../../references/layer-policy.md` (plugin reference). Defines the active layers (project / milestone / issue / cycle), the default-off ones (epic, subissue, initiative), and the legal states for a ticket. Load when flagging orphans (no milestone, in cycle) or evaluating whether a proposed parent ticket earns its keep.
+- **Layer policy:** `../../references/layer-policy.md` (plugin reference). Defines the active layers (project / milestone / issue / cycle), the one-level subissue rule, the default-off ones (epic, initiative), and the legal states for a ticket. Load when flagging orphans (no milestone, in cycle) or evaluating whether a proposed parent ticket earns its keep.
 
 ## Procedure
 

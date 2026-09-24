@@ -1,29 +1,29 @@
 # Linear layer policy
 
-What organizational layers the workspace uses (project, milestone, issue, cycle), what layers are deliberately off by default (epic / parent ticket, subissue), and the decision criteria for promoting work between layers. Source of truth for `pm:groom`, `pm:breakdown`, and `pm:retro` when they need to decide where a ticket sits.
+What organizational layers the workspace uses (project, milestone, issue, subissue, cycle), what layers are deliberately off by default (initiative, epic / parent ticket), and the decision criteria for promoting work between layers. Source of truth for `pm:groom`, `pm:breakdown`, and `pm:retro` when they need to decide where a ticket sits.
 
 Companion to `references/issue-shape.md` (per-ticket structure). This file covers the layers **around** tickets; `issue-shape.md` covers what goes **inside** a ticket.
 
 ## Load-bearing rule
 
-**Three structural layers, one time-box.** Active layers:
+**Three structural layers, one nesting level, one time-box.** Active layers:
 
 1. **Project** — the phase (e.g. a 60-day block of scoped work). One project per phase, plus a standing **Parking Lot** project for parked tickets. Each new phase gets its own project.
 2. **Milestone** — a capability slice within the project with a "done as a unit" moment (e.g. `Auth perimeter`, `CI/CD from GitHub`, `Data Model`, `CRUD UI`). Linear orders these in the UI.
-3. **Issue** — the work unit. Always flat under its milestone.
-4. **Cycle** — weekly time-box, orthogonal to scope.
+3. **Issue** — the work unit, under its milestone.
+4. **Subissue** — a child of an issue via Linear's native `parentId`, one level deep. Used when a ticket is split into session-sized children, and for the children of an earned parent (see below).
+5. **Cycle** — weekly time-box, orthogonal to scope.
 
 Inactive layers (default off):
 
 - **Initiative** — deferred until there are ≥2 active projects.
 - **Epic / parent ticket** — earn-it only (see promotion criterion below). Default off.
-- **Subissue** — not retired, not adopted; the default is flat siblings under a shared milestone, no nesting. Revisit only when a big milestone mid-flight makes the grouping question live.
 
 ## Why so few layers
 
 Industry consensus for small / solo teams: **too many layers create administrative bloat with no operational payoff.** The natural shape for a single-developer team is Linear's intended 3-layer model (Project → Milestone → Issue) plus the cycle time-box.
 
-Layers above issue answer the question *"what scope group does this belong to?"* You only need as many of those as you actually slice along. A solo project typically slices along capability (auth, CI/CD, data model, CRUD UI) — that's milestone. Below issue, nesting (subissues, sub-sub-issues) adds tree depth without buying scope clarity that flat siblings + a shared milestone don't already give.
+Layers above issue answer the question *"what scope group does this belong to?"* You only need as many of those as you actually slice along. A solo project typically slices along capability (auth, CI/CD, data model, CRUD UI) — that's milestone. Below issue, one level of subissues buys something flat siblings do not: a change that must merge as a unit but is too big for one implementation session stays visibly one change, with Linear's own progress roll-up on the parent. Deeper nesting (sub-sub-issues) adds tree depth without that payoff, so it stays off.
 
 ## Decision criteria
 
@@ -43,7 +43,13 @@ Entity slices (one milestone per domain entity) are the common alternative shape
 
 ### What goes in an issue
 
-Per `references/issue-shape.md`. The unit of work that ships in one or a few cycles. Issues are always **flat siblings under their milestone** — no parent/subissue nesting.
+Per `references/issue-shape.md`. The unit of work that ships in one or a few cycles, under its milestone.
+
+### When to split an issue into subissues
+
+Split when the change should merge together but spans several surfaces, or will not fit one implementation session. The original ticket becomes the parent; each child is sized to one session and linked with `parentId`. No earn-it test applies: the split is justified by size, not by the parent's own weight. Children inherit the parent's milestone. Order between children is expressed with `blocks` / blocked-by, and the parent's body names the merge order.
+
+One level only. A child that is itself too big gets split into more siblings under the same parent, or promoted to its own top-level issue when it no longer has to merge with the rest; never a grandchild. The reason is what reads the tree: Linear documents sub-issues one level deep (parent to direct children, with the parent's auto-close keyed to them), and integrations that walk sub-issues have been seen to drop grandchildren silently. A grandchild is a ticket that tooling can fail to find. Jira forbids children of sub-tasks outright, and ClickUp's own guidance is one level for most work.
 
 ### What goes in a cycle
 
@@ -57,11 +63,9 @@ The week's commit batch. Cycles are scope-agnostic — they pull from whichever 
 2. **Has its own design substrate** — an ndr cluster (≥2 atoms), a vault design doc, or a Linear document. The substrate is what *needs a home* on the parent's description body.
 3. **Generates cross-ticket discussion** — comment threads that would otherwise be scattered across siblings or chat.
 
-Pass all three: add a parent ticket. Default shape is **sibling parent** — a regular ticket linked to its children via `relatedTo` or `blocks`, not via Linear's `parentId` (which creates a subissue tree).
+Pass all three: add a parent ticket. Its children are **native subissues** linked via `parentId`.
 
 A parent ticket that earns its keep also serves as the **async-discussion venue** for children that span both collaborators. When children are split across people, the parent's comment thread is the canonical coordination point rather than ad-hoc chat — link the parent when handing off or requesting cross-review.
-
-Whether to instead use Linear's native subissue nesting (`parentId`) is **deferred** — see "Subissue" in the inactive-layers list above. Until the question is live, default to the sibling-parent shape if a parent is warranted at all.
 
 If the proposed epic fails any criterion: stay flat under the milestone, file an ndr atom or vault note for design substrate if needed, and live with the milestone's progress bar as the only grouping signal.
 
@@ -93,7 +97,7 @@ The orthogonal-axes mental model:
 - **`references/issue-shape.md`** — per-ticket structure.
 - **`pm:groom`** — Missing-fields bucket uses the legal-states table above. Orphans (no milestone, in cycle) get surfaced for backfill.
 - **`pm:breakdown`** — when slicing a goal into tickets, decide milestone assignment per "What goes in a milestone" above. Default to existing milestones; only propose a new one if the slice is a genuinely new capability with a "done as a unit" moment.
-- **`pm:retro`** — cycle retros surface "did we honor the layer policy?" — any orphans landed, any subissue temptations resisted, any epic that earned its keep.
+- **`pm:retro`** — cycle retros surface "did we honor the layer policy?" — any orphans landed, any nesting deeper than one level, any epic that earned its keep.
 
 ## See also
 

@@ -235,6 +235,6 @@ The map is done when no open tickets remain and `## Not yet specified` holds not
 
 - **`references/issue-body.md`** — body slots each map ticket conforms to.
 - **`references/issue-shape.md`** — required fields each map ticket conforms to.
-- **`references/layer-policy.md`** — the earn-it criteria and the sibling-parent shape the map uses.
+- **`references/layer-policy.md`** — the earn-it criteria the map clears, and the subissue shape its tickets take.
 - **`references/contract-template.md`** in the `spec-flow` plugin — the canonical definition of the fog-of-war model this skill applies to the map.
 - **`breakdown`** skill in this plugin — slices the route once wayfinding has cleared it.
