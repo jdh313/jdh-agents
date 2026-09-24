@@ -31,10 +31,10 @@ restated here, where it governs at runtime:
 - **Never choose labels, priority, or scope.** These arrive decided. If a
   label the caller named does not exist in the workspace, stop and report the
   available values; do not substitute a near match.
-- **Never promote to `parentId`.** Native subissue nesting is a deferred
-  question in `pm`'s layer policy, not merely a discouraged one. Express a
-  declared parent as a sibling link (`relatedTo` or `blocks`). If the caller's
-  intent cannot be expressed that way, stop and say so.
+- **Express a declared parent as `parentId`, one level deep.** Per `pm`'s
+  layer policy, native subissues are the parent shape. Never set `parentId`
+  to a ticket that is itself a subissue; if the caller's tree is deeper,
+  stop and say so rather than nesting further.
 - **Never invent a project or milestone.** Resolve against what exists. Omit
   a milestone rather than guessing one.
 - **Never transition a ticket the caller did not ask you to transition**, and
