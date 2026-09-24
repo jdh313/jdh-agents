@@ -1,0 +1,71 @@
+description: compiled commit plugin evaluation for Claude Code
+prompts: file://prompt.txt
+extensions:
+  - file://scripts/fixture-hook.js:beforeEach
+# working_dir comes from the beforeEach hook: one fresh fixture per row.
+providers:
+  - id: anthropic:claude-agent-sdk
+    label: claude-plugin
+    config:
+      apiKeyRequired: false
+      max_turns: 25
+      setting_sources:
+        - project
+      plugins:
+        - type: local
+          path: ../../marketplaces/claude/plugins/commit
+      skills: all
+      # An explicit tools list disables the provider's own Skill injection, so
+      # Skill must be listed or the model can never invoke a skill.
+      tools:
+        - Read
+        - Glob
+        - Grep
+        - Bash
+        - Skill
+      settings:
+        permissions:
+          allow:
+            - 'Bash(*)'
+            - 'Read(*)'
+            - 'Glob(*)'
+            - 'Grep(*)'
+            - 'Skill(*)'
+  # Control arm: identical except the plugin is absent. setting_sources stays
+  # project-only, so no user-installed commit plugin leaks in either.
+  - id: anthropic:claude-agent-sdk
+    label: claude-baseline
+    config:
+      apiKeyRequired: false
+      max_turns: 25
+      setting_sources:
+        - project
+      # An explicit tools list disables the provider's own Skill injection, so
+      # Skill must be listed or the model can never invoke a skill.
+      tools:
+        - Read
+        - Glob
+        - Grep
+        - Bash
+        - Skill
+      settings:
+        permissions:
+          allow:
+            - 'Bash(*)'
+            - 'Read(*)'
+            - 'Glob(*)'
+            - 'Grep(*)'
+            - 'Skill(*)'
+defaultTest:
+  assert:
+    # Runs that invoke the skill cost $0.63-0.69 (skill-less runs $0.21-0.25);
+    # this catches a runaway loop.
+    - type: cost
+      threshold: 1.00
+      metric: cost
+evaluateOptions:
+  maxConcurrency: 1
+tests:
+  - file://tests/shared-case.yaml
+  - file://tests/claude-forced.yaml
+  - file://tests/jj-case.yaml

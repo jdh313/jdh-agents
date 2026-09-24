@@ -1,0 +1,15 @@
+- description: Commit the README clarification only and preserve notes.txt
+  vars:
+    invoke: ''
+    vcs: git
+  assert:
+    - type: javascript
+      value: file://assertions/git-outcome.js
+      metric: git-outcome
+    - type: javascript
+      value: file://assertions/house-style.js
+      metric: house-style
+    # Observed runs took 10-38s; Codex's own turn_timeout_ms is 120s.
+    - type: latency
+      threshold: 90000
+      metric: latency

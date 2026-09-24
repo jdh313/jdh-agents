@@ -1,0 +1,17 @@
+# Positive control: invoke the skill explicitly, so skill-report.json can show
+# the skill executing even when the default prompt never triggers it.
+- description: Forced /commit:commit invocation
+  providers:
+    - claude-plugin
+  vars:
+    invoke: '/commit:commit '
+  assert:
+    - type: javascript
+      value: file://assertions/git-outcome.js
+      metric: git-outcome
+    - type: javascript
+      value: file://assertions/house-style.js
+      metric: house-style
+    - type: latency
+      threshold: 90000
+      metric: latency
