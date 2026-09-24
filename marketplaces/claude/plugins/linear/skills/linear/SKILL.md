@@ -129,11 +129,11 @@ A caller (`pm:breakdown`, `pm:chart`) declares **that** a ticket has a parent; t
 
 Resolve the shape against `pm`'s `references/layer-policy.md`:
 
-- **Default: sibling parent.** A regular ticket linked to its children via `relatedTo` or `blocks`. Issues stay flat siblings under their milestone.
-- **Native subissue nesting (`parentId`) is deferred**, not merely discouraged — the policy holds the question open. Do not reach for it because a caller's tree happens to look nested; a parent that earns its keep still takes the sibling shape.
-- **Epic / parent tickets are earn-it**, per the policy's three-part test. A caller declaring a parent is not itself evidence the test passed.
+- **Native subissues (`parentId`) are the parent shape.** Every declared parent-child link is written as `parentId` on the child. Children inherit the parent's milestone; order between them is a `blocks` relation.
+- **One level only.** Never set `parentId` to a ticket that is itself a subissue. If a caller's tree is deeper, flatten it under the top parent (or promote a branch that no longer has to merge with the rest to its own top-level issue) and say so.
+- **A new epic parent is earn-it**, per the policy's three-part test. A caller declaring a brand-new parent is not itself evidence the test passed. Splitting an existing ticket into session-sized children needs no test: the original ticket is the parent.
 
-If a caller's intent cannot be expressed under the current policy, say so and stop rather than silently promoting to `parentId` — the deferral is a decision someone made, and quietly reversing it in a save call is how a policy dies.
+If a caller's intent cannot be expressed under the current policy, say so and stop rather than improvising a shape.
 
 ### Status flow
 
