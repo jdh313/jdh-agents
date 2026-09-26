@@ -1,0 +1,23 @@
+description: compiled commit plugin evaluation for Codex app-server
+prompts: file://prompt.txt
+extensions:
+  - file://scripts/fixture-hook.js:beforeEach
+# working_dir comes from the beforeEach hook: one fresh fixture per row.
+providers:
+  - id: openai:codex-app-server
+    label: codex-plugin
+    config:
+      sandbox_mode: '{{env.COMMIT_EVAL_CODEX_SANDBOX_MODE}}'
+      approval_policy: never
+      network_access_enabled: false
+      include_raw_events: true
+      experimental_raw_events: true
+      reuse_server: false
+      turn_timeout_ms: 120000
+      cli_env:
+        CODEX_HOME: '{{env.COMMIT_EVAL_CODEX_HOME}}'
+evaluateOptions:
+  maxConcurrency: 1
+tests:
+  - file://tests/shared-case.yaml
+  - file://tests/jj-case.yaml

@@ -11,11 +11,11 @@ ticket that is already shaped goes straight to execution.
 
 | Skill | Use it for |
 |---|---|
-| `em:start` | Scope one ticket and stop at a brief: fetch, ground in decisions, read the touched code, ask only the questions nothing else can answer. |
+| `em:scope` | Scope one ticket and stop at a brief: fetch, ground in decisions, read the touched code, ask only the questions nothing else can answer. |
 | `em:lead` | Execute one or more tickets, or a milestone: check readiness, choose a shape, dispatch, verify by diff, run the review fan-out, stop before push. |
 
-Either skill is a valid entry point. `lead` runs `start`'s scoping inline when
-a ticket is not shaped, so you never need to run `start` first.
+Either skill is a valid entry point. `lead` runs `scope`'s steps inline when
+a ticket is not shaped, so you never need to run `scope` first.
 
 ## Readiness
 

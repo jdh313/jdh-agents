@@ -10,7 +10,7 @@ description: >-
   user invokes `/em:lead`, says "be my engineering manager", "run this
   ticket", "take TEAM-123 from here", "orchestrate this", "work the
   milestone", or hands over shaped tickets for execution. For a brief only,
-  with no execution, use `em:start`.
+  with no execution, use `em:scope`.
 argument-hint: "[ticket reference(s) or milestone; empty to ask which work to pick up]"
 allowed-tools:
   - Read
@@ -82,7 +82,7 @@ A ticket is **shaped** when its body has, observably:
 This check reads the ticket, not your impression of it.
 
 - **Shaped:** go to step 3. Do not ask the user anything the ticket answers.
-- **Not shaped:** run `../start/SKILL.md` steps 1 to 6 inline, then continue.
+- **Not shaped:** run `../scope/SKILL.md` steps 1 to 6 inline, then continue.
   Questions that survive its step 4 are genuine forks: ask them.
 - **Too big for one session** (spans several surfaces, or will not fit one
   `sonnet` session): say so and recommend slicing it first, with `pm:breakdown`

@@ -1,0 +1,17 @@
+# Discriminating case: the fixture is a colocated jj repository whose guidance
+# declares no VCS. The commit skill detects .jj/ and commits with jj; without
+# it, an agent reaches for git. Filter to it with COMMIT_EVAL_FILTER=jj.
+- description: jj repository with no declared VCS is committed with jj
+  vars:
+    invoke: ''
+    vcs: jj
+  assert:
+    - type: javascript
+      value: file://assertions/git-outcome.js
+      metric: git-outcome
+    - type: javascript
+      value: file://assertions/vcs-choice.js
+      metric: vcs-choice
+    - type: latency
+      threshold: 90000
+      metric: latency

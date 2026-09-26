@@ -1,15 +1,15 @@
 ---
-name: start
+name: scope
 description: >-
   Scope one ticket before any code is written: fetch it from whichever tracker
-  it lives in (Linear, Fibery, GitHub Issues), ground in current decisions,
-  read the touched code, ask only the questions nothing else can answer, and
-  stop at a short brief. This skill should be used when the user invokes
-  `/em:start`, says "start on TEAM-123", "pick up this ticket", "scope this
-  ticket", "what would it take to do #42", or names a ticket and wants a plan
-  before implementation. Zero questions is a normal outcome. To go straight to
+  it lives in (Linear, Fibery, GitHub Issues), ground in current decisions, read
+  the touched code, ask only the questions nothing else can answer, and stop at
+  a short brief. This skill should be used when the user invokes `/em:scope`,
+  says "start on TEAM-123", "pick up this ticket", "scope this ticket", "what
+  would it take to do #42", or names a ticket and wants a plan before
+  implementation. Zero questions is a normal outcome. To go straight to
   execution on a ticket that is already shaped, use `em:lead` instead.
-argument-hint: "<ticket reference: key, URL, owner/repo#N, or #N>"
+argument-hint: '<ticket reference: key, URL, owner/repo#N, or #N>'
 allowed-tools:
   - Read
   - Grep
@@ -24,7 +24,7 @@ allowed-tools:
   - mcp__linear-server__list_comments
 ---
 
-# start
+# scope
 
 Turn a ticket reference into a brief the user can approve. Read-only: this
 skill writes no code and no tracker state.
