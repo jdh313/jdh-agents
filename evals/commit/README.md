@@ -19,7 +19,8 @@ Run either provider:
 ```bash
 PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1 npm --prefix evals/commit ci --no-audit --no-fund
 evals/commit/scripts/run.sh claude
-OPENAI_API_KEY=... evals/commit/scripts/run.sh codex
+OPENAI_API_KEY=... COMMIT_EVAL_CODEX_SANDBOX_MODE=danger-full-access \
+  evals/commit/scripts/run.sh codex
 ```
 
 Each provider arm runs `COMMIT_EVAL_REPEAT` times (default 3). The run passes
@@ -101,11 +102,18 @@ links only the existing `$HOME/.codex/auth.json` into the isolated home; plugin
 state remains isolated and the auth file is never copied to or logged in the
 artifact. The runner removes that temporary link after the provider finishes.
 
-The Codex sandbox mode defaults to `workspace-write`. If macOS nested sandboxing
-prevents Codex from executing any command, rerun with
-`COMMIT_EVAL_CODEX_SANDBOX_MODE=danger-full-access`. This is a local harness
-workaround inside the disposable fixture; it does not demonstrate equivalent
-`workspace-write` sandbox behavior.
+The Codex runner rejects `workspace-write` (the default) and `read-only` before
+creating an artifact, isolated `CODEX_HOME`, or plugin installation. The
+fixture is a colocated jj repository and needs working-tree and Git-object
+writes. In `workspace-write`, the Codex sandbox recursively protects `.git`,
+so adding the fixture as a writable root cannot grant that access: [Codex agent approvals and sandbox security](https://learn.chatgpt.com/docs/agent-approvals-security)
+documents `.git` as recursively read-only in that mode, including pointer
+gitdirs. `read-only` cannot make either required write.
+
+Run the explicit local control with
+`COMMIT_EVAL_CODEX_SANDBOX_MODE=danger-full-access`. A passing result in that
+mode proves the compiled plugin and fixture can complete; it does not establish
+that Codex can complete the same case under `workspace-write`.
 
 Neither configuration tests the `destructive-vcs-guard` hook. `skill-report`
 calls activation `observed` only from structured skill evidence in the saved

@@ -4,6 +4,27 @@ set -euo pipefail
 eval_dir=$(cd "$(dirname "$0")/.." && pwd)
 temp_dir=$(mktemp -d "${TMPDIR:-/tmp}/commit-eval-self-check.XXXXXX")
 trap 'rm -rf "$temp_dir"' EXIT
+codex_artifact_count() {
+  if [[ -d "$eval_dir/artifacts" ]]; then
+    find "$eval_dir/artifacts" -maxdepth 1 -type d -name 'codex-*' | wc -l | tr -d ' '
+  else
+    printf '0\n'
+  fi
+}
+
+for codex_sandbox_mode in workspace-write read-only; do
+  codex_artifacts_before=$(codex_artifact_count)
+  set +e
+  codex_guard_output=$(COMMIT_EVAL_CODEX_SANDBOX_MODE="$codex_sandbox_mode" "$eval_dir/scripts/run.sh" codex 2>&1)
+  codex_guard_exit=$?
+  set -e
+  codex_artifacts_after=$(codex_artifact_count)
+  [[ $codex_guard_exit -eq 2 ]]
+  [[ "$codex_guard_output" == *"Codex commit evaluation cannot run with $codex_sandbox_mode"* ]]
+  [[ "$codex_guard_output" == *'COMMIT_EVAL_CODEX_SANDBOX_MODE=danger-full-access'* ]]
+  [[ "$codex_artifacts_before" == "$codex_artifacts_after" ]]
+done
+
 "$eval_dir/scripts/create-fixture.sh" "$temp_dir/fixture"
 
 set +e
@@ -62,4 +83,4 @@ const ok = judge(claude("jj commit -m \"docs: x\" README.md")).pass
   && !judge(claude("git status")).pass;
 process.exit(ok ? 0 : 1);
 ' "$eval_dir/assertions/vcs-choice.js"
-printf 'self-check passed: git and jj fixtures reject their initial state and accept the expected outcome; beforeEach yields a distinct fixture per row; vcs-choice separates jj from git commits\n'
+printf 'self-check passed: Codex restrictive modes fail before artifacts; git and jj fixtures reject their initial state and accept the expected outcome; beforeEach yields a distinct fixture per row; vcs-choice separates jj from git commits\n'

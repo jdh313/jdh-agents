@@ -7,6 +7,24 @@ case "$provider" in
   *) printf 'provider must be claude or codex\n' >&2; exit 2 ;;
 esac
 
+if [[ "$provider" == codex ]]; then
+  codex_sandbox_mode=${COMMIT_EVAL_CODEX_SANDBOX_MODE:-workspace-write}
+  case "$codex_sandbox_mode" in
+    workspace-write)
+      printf '%s\n' \
+        'Codex commit evaluation cannot run with workspace-write: its sandbox protects the fixture .git directory recursively, so jj cannot create Git objects.' \
+        'Rerun only as the explicit local control: COMMIT_EVAL_CODEX_SANDBOX_MODE=danger-full-access evals/commit/scripts/run.sh codex' >&2
+      exit 2
+      ;;
+    read-only)
+      printf '%s\n' \
+        'Codex commit evaluation cannot run with read-only: the fixture needs working-tree and .git writes to create the required jj commit.' \
+        'Rerun only as the explicit local control: COMMIT_EVAL_CODEX_SANDBOX_MODE=danger-full-access evals/commit/scripts/run.sh codex' >&2
+      exit 2
+      ;;
+  esac
+fi
+
 eval_dir=$(cd "$(dirname "$0")/.." && pwd)
 repo_root=$(cd "$eval_dir/../.." && pwd)
 run_stamp=$(date -u +%Y%m%dT%H%M%SZ)-$$
@@ -27,7 +45,7 @@ if [[ ! -x "$promptfoo_bin" ]]; then
 fi
 
 if [[ "$provider" == codex ]]; then
-  export COMMIT_EVAL_CODEX_SANDBOX_MODE="${COMMIT_EVAL_CODEX_SANDBOX_MODE:-workspace-write}"
+  export COMMIT_EVAL_CODEX_SANDBOX_MODE="$codex_sandbox_mode"
   export COMMIT_EVAL_CODEX_HOME="$artifact_dir/codex-home"
   mkdir -p "$COMMIT_EVAL_CODEX_HOME"
   if [[ -z ${OPENAI_API_KEY:-} ]]; then
