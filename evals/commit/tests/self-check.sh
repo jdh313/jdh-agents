@@ -25,6 +25,20 @@ for codex_sandbox_mode in workspace-write read-only; do
   [[ "$codex_artifacts_before" == "$codex_artifacts_after" ]]
 done
 
+codex_artifacts_before=$(codex_artifact_count)
+set +e
+profile_guard_output=$(env -u OPENAI_API_KEY COMMIT_EVAL_CODEX_SANDBOX_MODE=permission-profile "$eval_dir/scripts/run.sh" codex 2>&1)
+profile_guard_exit=$?
+set -e
+[[ $profile_guard_exit -eq 2 ]]
+[[ "$profile_guard_output" == *'requires OPENAI_API_KEY'* ]]
+[[ "$codex_artifacts_before" == "$(codex_artifact_count)" ]]
+
+node "$eval_dir/scripts/patch-codex-app-server.mjs" > "$temp_dir/codex-app-server-adapter.log"
+grep -q 'permission-profile adapter' "$temp_dir/codex-app-server-adapter.log"
+node "$eval_dir/scripts/patch-codex-app-server.mjs" > "$temp_dir/codex-app-server-adapter-second.log"
+grep -q 'already applied' "$temp_dir/codex-app-server-adapter-second.log"
+
 "$eval_dir/scripts/create-fixture.sh" "$temp_dir/fixture"
 
 set +e
@@ -51,7 +65,35 @@ const ok = passes("docs: clarify eval README\n")
   && !passes("docs: clarify eval README.\n");
 process.exit(ok ? 0 : 1);
 ' "$eval_dir/assertions/house-style.js"
-COMMIT_EVAL_FIXTURES="$temp_dir/hooked" node -e '
+mkdir -p "$temp_dir/codex-home/plugins"
+printf '%s\n' 'not-a-real-auth-token' > "$temp_dir/codex-home/auth.json"
+printf '%s\n' '[plugins."commit@jdh-agents"]' 'enabled = true' > "$temp_dir/codex-home/config.toml"
+node -e '
+const { readFileSync } = require("node:fs");
+const { join, resolve } = require("node:path");
+const { writeFixturePermissionProfile } = require(process.argv[1]);
+const [codexHome, fixture] = process.argv.slice(2);
+const profile = writeFixturePermissionProfile({ codexHome, fixture, profile: "commit-eval" });
+const repo = join(resolve(fixture), "repo");
+const resolvedCodexHome = resolve(codexHome);
+const config = readFileSync(join(resolvedCodexHome, "config.toml"), "utf8");
+const checks = [
+  profile.includes("\":root\" = \"deny\""),
+  profile.includes("\":minimal\" = \"read\""),
+  profile.includes("\":tmpdir\" = \"deny\""),
+  profile.includes("\":slash_tmp\" = \"deny\""),
+  profile.includes(`${JSON.stringify(repo)} = \"write\"`),
+  profile.includes(`${JSON.stringify(join(resolvedCodexHome, "plugins"))} = \"read\"`),
+  profile.includes(`${JSON.stringify(join(resolvedCodexHome, "auth.json"))} = \"deny\"`),
+  profile.includes("[permissions.commit-eval.network]\nenabled = false"),
+  config.includes(`[plugins."commit@jdh-agents"]\nenabled = true`),
+  config.includes("[shell_environment_policy]\ninherit = \"core\"\nignore_default_excludes = false"),
+  config.includes("[shell_environment_policy.filters]\n\"OPENAI_API_KEY\" = \"exclude\"\n\"CODEX_API_KEY\" = \"exclude\""),
+  config.trimEnd().endsWith(profile.trimEnd()),
+];
+process.exit(checks.every(Boolean) ? 0 : 1);
+' "$eval_dir/scripts/codex-profile.js" "$temp_dir/codex-home" "$temp_dir/fixture"
+COMMIT_EVAL_FIXTURES="$temp_dir/hooked" COMMIT_EVAL_CODEX_HOME="$temp_dir/codex-home" COMMIT_EVAL_CODEX_PROFILE=commit-eval node -e '
 const { existsSync } = require("node:fs");
 const { beforeEach } = require(process.argv[1]);
 (async () => {
@@ -60,6 +102,8 @@ const { beforeEach } = require(process.argv[1]);
   const ok = a.metadata.fixture !== b.metadata.fixture
     && a.options.working_dir === `${a.metadata.fixture}/repo`
     && a.options.keep === 1
+    && a.options.permissions === `commit-eval-${a.metadata.fixtureId}`
+    && b.options.permissions === `commit-eval-${b.metadata.fixtureId}`
     && existsSync(`${b.metadata.fixture}/repo/notes.txt`);
   process.exit(ok ? 0 : 1);
 })();
@@ -83,4 +127,4 @@ const ok = judge(claude("jj commit -m \"docs: x\" README.md")).pass
   && !judge(claude("git status")).pass;
 process.exit(ok ? 0 : 1);
 ' "$eval_dir/assertions/vcs-choice.js"
-printf 'self-check passed: Codex restrictive modes fail before artifacts; git and jj fixtures reject their initial state and accept the expected outcome; beforeEach yields a distinct fixture per row; vcs-choice separates jj from git commits\n'
+printf 'self-check passed: Codex restrictive modes fail before artifacts; the version-guarded app-server adapter is idempotent; the scoped profile renders fixture writes, minimal runtime and plugin reads, and temp and auth denials; git and jj fixtures reject their initial state and accept the expected outcome; beforeEach yields a distinct fixture per row; vcs-choice separates jj from git commits\n'

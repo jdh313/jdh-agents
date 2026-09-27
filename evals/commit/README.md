@@ -21,6 +21,10 @@ PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1 npm --prefix evals/commit ci --no-audit --no-
 evals/commit/scripts/run.sh claude
 OPENAI_API_KEY=... COMMIT_EVAL_CODEX_SANDBOX_MODE=danger-full-access \
   evals/commit/scripts/run.sh codex
+# Native macOS scoped profile mode (Promptfoo 0.123.1 adapter; experimental):
+OPENAI_API_KEY=... COMMIT_EVAL_CODEX_SANDBOX_MODE=permission-profile \
+  COMMIT_EVAL_FILTER=jj COMMIT_EVAL_REPEAT=1 \
+  evals/commit/scripts/run.sh codex
 ```
 
 Each provider arm runs `COMMIT_EVAL_REPEAT` times (default 3). The run passes
@@ -114,6 +118,37 @@ Run the explicit local control with
 `COMMIT_EVAL_CODEX_SANDBOX_MODE=danger-full-access`. A passing result in that
 mode proves the compiled plugin and fixture can complete; it does not establish
 that Codex can complete the same case under `workspace-write`.
+
+`COMMIT_EVAL_CODEX_SANDBOX_MODE=permission-profile` is the native macOS
+experiment. Its runner patches Promptfoo 0.123.1's ignored installed provider
+bundle at run time; `scripts/patch-codex-app-server.mjs` refuses any version or
+source-shape drift, so `npm ci` followed by the runner reapplies the same small
+adapter. The adapter sends app-server's experimental named `permissions` field
+and omits the mutually exclusive legacy sandbox fields. The fixture hook then
+appends one profile to the isolated `CODEX_HOME/config.toml` only after it knows
+that row's fixture path, preserving the runner's plugin registration. Each row
+uses a unique profile name.
+This mode requires `OPENAI_API_KEY` instead of linking host Codex auth: the
+signed-in account can bring unrelated enabled app plugins into the isolated
+home. Use a key scoped for the eval; it is available to the local provider
+process, so the profile is a command boundary rather than a credential vault.
+The isolated Codex configuration filters `OPENAI_API_KEY` and `CODEX_API_KEY`
+from model-chosen shell commands; the app-server process still holds the key
+to call the model.
+That profile denies filesystem root, `$TMPDIR`, `/tmp`, and the isolated
+`auth.json`; it permits minimal runtime reads, installed plugin reads, and
+writes only under the disposable fixture repository, including `.git` and
+`.jj`. It disables command network access. `maxConcurrency: 1` and
+`reuse_server: false` keep each generated profile tied to one fixture and one
+app-server process. This remains experimental until a model-backed run records
+both the profile in the trace and a passing Git grade.
+On this macOS runner with Codex 0.156.1, the profile reached Promptfoo, but
+app-server thread creation failed while its sandbox helper loaded `AGENTS.md`
+(`sandbox-exec: execvp() of '/opt/homebrew/bin/codex' failed: Operation not
+permitted`, exit 71), before any model call. A direct `codex sandbox` probe
+committed inside the fixture and denied a sibling write. An [upstream macOS
+profile report](https://github.com/openai/codex/issues/45953) records the same
+helper error; it does not establish the cause of this run.
 
 Neither configuration tests the `destructive-vcs-guard` hook. `skill-report`
 calls activation `observed` only from structured skill evidence in the saved

@@ -7,6 +7,9 @@ case "$provider" in
   *) printf 'provider must be claude or codex\n' >&2; exit 2 ;;
 esac
 
+# This is an internal per-row signal, never a caller-selected mode.
+unset COMMIT_EVAL_CODEX_PROFILE
+
 if [[ "$provider" == codex ]]; then
   codex_sandbox_mode=${COMMIT_EVAL_CODEX_SANDBOX_MODE:-workspace-write}
   case "$codex_sandbox_mode" in
@@ -22,7 +25,17 @@ if [[ "$provider" == codex ]]; then
         'Rerun only as the explicit local control: COMMIT_EVAL_CODEX_SANDBOX_MODE=danger-full-access evals/commit/scripts/run.sh codex' >&2
       exit 2
       ;;
+    danger-full-access|permission-profile) ;;
+    *)
+      printf '%s\n' \
+        'COMMIT_EVAL_CODEX_SANDBOX_MODE must be workspace-write, read-only, danger-full-access, or permission-profile.' >&2
+      exit 2
+      ;;
   esac
+  if [[ "$codex_sandbox_mode" == permission-profile && -z ${OPENAI_API_KEY:-} ]]; then
+    printf '%s\n' 'Codex permission-profile evaluation requires OPENAI_API_KEY; host Codex auth can expose unrelated account plugins.' >&2
+    exit 2
+  fi
 fi
 
 eval_dir=$(cd "$(dirname "$0")/.." && pwd)
@@ -60,6 +73,11 @@ if [[ "$provider" == codex ]]; then
   CODEX_HOME="$COMMIT_EVAL_CODEX_HOME" codex plugin marketplace add "$repo_root/marketplaces/codex" --json > "$artifact_dir/codex-marketplace-add.json"
   CODEX_HOME="$COMMIT_EVAL_CODEX_HOME" codex plugin add commit@jdh-agents --json > "$artifact_dir/codex-plugin-add.json"
   CODEX_HOME="$COMMIT_EVAL_CODEX_HOME" codex plugin list --json > "$artifact_dir/codex-plugin-list.json"
+  if [[ "$codex_sandbox_mode" == permission-profile ]]; then
+    export COMMIT_EVAL_CODEX_PROFILE=commit-eval
+    config="$eval_dir/promptfooconfig.codex-profile.yaml"
+    node "$eval_dir/scripts/patch-codex-app-server.mjs" > "$artifact_dir/codex-app-server-adapter.log"
+  fi
 fi
 
 filter=()
@@ -71,6 +89,11 @@ set +e
   -o "$artifact_dir/trace.json" > "$artifact_dir/promptfoo.log" 2>&1
 provider_exit=$?
 set -e
+if [[ ! -s "$artifact_dir/trace.json" ]]; then
+  printf 'artifact: %s\n' "$artifact_dir"
+  printf 'Promptfoo exited %s before it wrote a trace; inspect %s\n' "$provider_exit" "$artifact_dir/promptfoo.log" >&2
+  exit 1
+fi
 # Exit 100 means the eval ran and some assertion failed; summarize.mjs decides
 # whether those failures gate (plugin arms) or only compare (baseline arm).
 set +e
