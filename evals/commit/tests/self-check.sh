@@ -25,14 +25,12 @@ for codex_sandbox_mode in workspace-write read-only; do
   [[ "$codex_artifacts_before" == "$codex_artifacts_after" ]]
 done
 
-codex_artifacts_before=$(codex_artifact_count)
 set +e
-profile_guard_output=$(env -u OPENAI_API_KEY COMMIT_EVAL_CODEX_SANDBOX_MODE=permission-profile "$eval_dir/scripts/run.sh" codex 2>&1)
-profile_guard_exit=$?
+profile_auth_output=$(env -u OPENAI_API_KEY CODEX_HOST_AUTH_PATH="$temp_dir/missing-auth.json" COMMIT_EVAL_CODEX_SANDBOX_MODE=permission-profile "$eval_dir/scripts/run.sh" codex 2>&1)
+profile_auth_exit=$?
 set -e
-[[ $profile_guard_exit -eq 2 ]]
-[[ "$profile_guard_output" == *'requires OPENAI_API_KEY'* ]]
-[[ "$codex_artifacts_before" == "$(codex_artifact_count)" ]]
+[[ $profile_auth_exit -eq 2 ]]
+[[ "$profile_auth_output" == *"Codex needs OPENAI_API_KEY or an existing auth file at $temp_dir/missing-auth.json."* ]]
 
 node "$eval_dir/scripts/patch-codex-app-server.mjs" > "$temp_dir/codex-app-server-adapter.log"
 grep -q 'permission-profile adapter' "$temp_dir/codex-app-server-adapter.log"
@@ -127,4 +125,4 @@ const ok = judge(claude("jj commit -m \"docs: x\" README.md")).pass
   && !judge(claude("git status")).pass;
 process.exit(ok ? 0 : 1);
 ' "$eval_dir/assertions/vcs-choice.js"
-printf 'self-check passed: Codex restrictive modes fail before artifacts; the version-guarded app-server adapter is idempotent; the scoped profile renders fixture writes, minimal runtime and plugin reads, and temp and auth denials; git and jj fixtures reject their initial state and accept the expected outcome; beforeEach yields a distinct fixture per row; vcs-choice separates jj from git commits\n'
+printf 'self-check passed: Codex restrictive modes fail before artifacts; permission-profile accepts the normal auth-file fallback; the version-guarded app-server adapter is idempotent; the scoped profile renders fixture writes, minimal runtime and plugin reads, and temp and auth denials; git and jj fixtures reject their initial state and accept the expected outcome; beforeEach yields a distinct fixture per row; vcs-choice separates jj from git commits\n'

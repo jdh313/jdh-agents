@@ -19,10 +19,10 @@ Run either provider:
 ```bash
 PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1 npm --prefix evals/commit ci --no-audit --no-fund
 evals/commit/scripts/run.sh claude
-OPENAI_API_KEY=... COMMIT_EVAL_CODEX_SANDBOX_MODE=danger-full-access \
+COMMIT_EVAL_CODEX_SANDBOX_MODE=danger-full-access \
   evals/commit/scripts/run.sh codex
 # Native macOS scoped profile mode (Promptfoo 0.123.1 adapter; experimental):
-OPENAI_API_KEY=... COMMIT_EVAL_CODEX_SANDBOX_MODE=permission-profile \
+COMMIT_EVAL_CODEX_SANDBOX_MODE=permission-profile \
   COMMIT_EVAL_FILTER=jj COMMIT_EVAL_REPEAT=1 \
   evals/commit/scripts/run.sh codex
 ```
@@ -128,13 +128,13 @@ and omits the mutually exclusive legacy sandbox fields. The fixture hook then
 appends one profile to the isolated `CODEX_HOME/config.toml` only after it knows
 that row's fixture path, preserving the runner's plugin registration. Each row
 uses a unique profile name.
-This mode requires `OPENAI_API_KEY` instead of linking host Codex auth: the
-signed-in account can bring unrelated enabled app plugins into the isolated
-home. Use a key scoped for the eval; it is available to the local provider
-process, so the profile is a command boundary rather than a credential vault.
-The isolated Codex configuration filters `OPENAI_API_KEY` and `CODEX_API_KEY`
-from model-chosen shell commands; the app-server process still holds the key
-to call the model.
+This mode uses the current Codex CLI account by linking its existing
+`$HOME/.codex/auth.json` into the isolated home when `OPENAI_API_KEY` is
+unset. The app-server receives that isolated home, while the per-thread profile
+still denies the link to model-chosen commands. Supplying `OPENAI_API_KEY`
+remains supported and the isolated configuration filters both `OPENAI_API_KEY`
+and `CODEX_API_KEY` from model-chosen shell commands. Account sign-in can still
+make unrelated connected app plugins available to this eval.
 That profile denies filesystem root, `$TMPDIR`, `/tmp`, and the isolated
 `auth.json`; it permits minimal runtime reads, installed plugin reads, and
 writes only under the disposable fixture repository, including `.git` and

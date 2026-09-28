@@ -32,10 +32,6 @@ if [[ "$provider" == codex ]]; then
       exit 2
       ;;
   esac
-  if [[ "$codex_sandbox_mode" == permission-profile && -z ${OPENAI_API_KEY:-} ]]; then
-    printf '%s\n' 'Codex permission-profile evaluation requires OPENAI_API_KEY; host Codex auth can expose unrelated account plugins.' >&2
-    exit 2
-  fi
 fi
 
 eval_dir=$(cd "$(dirname "$0")/.." && pwd)

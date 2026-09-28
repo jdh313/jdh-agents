@@ -35,8 +35,8 @@ function writeFixturePermissionProfile({ codexHome, fixture, profile }) {
     '',
   ].join('\n');
 
-  // Promptfoo supplies the API key to the app-server process. Keep it out of
-  // the environment inherited by commands the model chooses to run.
+  // If an API key is supplied, keep it out of the environment inherited by
+  // commands the model chooses to run.
   const shellPolicy = [
     '[shell_environment_policy]',
     'inherit = "core"',
