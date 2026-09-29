@@ -1,6 +1,29 @@
 # JUN-444: installed Codex agent lifecycle acceptance
 
-Status on 2026-09-29: **blocked at compiler input; runtime acceptance not run**.
+Status on 2026-09-29: **compiler input integrated; runtime acceptance pending**.
+
+Forgejo `main` and `jun-443` now both resolve to
+`a79a20057e008548ce9a6ae0c1a48f0c5818611e`. Its ancestry contains both copied-file
+mode fixes and the rebased lifecycle work. The prior JUN-443 tip `086aa152`
+has equivalent changed-path content and patch ID
+`121b5680469af7bd03bbd87038e81539ab2e4521` to the new tip.
+
+The detached build used Bun 1.4.2 and `bun run build`. The standalone executable
+is `/tmp/jun-444-build-bwh9mT/bin/agentforge-a79a200-darwin-arm64`, SHA-256
+`3b730dfea2c5c6b41f67c2b17949351a945a8c4e5d088135a50ae297a2532d82`.
+It reports `1.1.0` from unchanged package metadata, but is an **unreleased local
+build**, not the public v1.1.0 binary. All nine lifecycle commands listed below
+are present in its executed help. The build passed 28 focused lifecycle tests,
+typecheck, lint, and an `env -i PATH=/usr/bin:/bin` standalone help/version probe
+outside the source checkout. Evidence is under
+`/tmp/jun-444-build-bwh9mT/evidence/` (`provenance.txt`,
+`rebase-comparison.txt`, `lifecycle-command-help.txt`, `focused-tests.txt`).
+
+The earlier blocked preflight and independent plan below are retained as
+historical evidence; they do not describe the now-integrated compiler input.
+
+## Earlier blocked preflight
+
 This record contains independent source planning and prerequisite evidence for
 [JUN-444](https://linear.app/junglelan/issue/JUN-444/jdh-agents-installed-codex-agent-lifecycle-acceptance).
 The required compiler status is **unreleased local build**. No qualifying

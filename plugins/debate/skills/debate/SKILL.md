@@ -41,31 +41,49 @@ Three pipeline modes control depth and thoroughness:
 
 ### Runtime collaboration mapping
 
-The role procedures in `agents/` are shared instructions, not registered
-Codex agent types. Use the collaboration primitives of the runtime that is
-actually executing this skill:
+The role procedures in `agents/` are shared instructions. Claude registers
+them as native subagents. A Codex plugin installation exposes their Markdown
+procedures but does not itself register Codex roles.
 
-- **Claude Code:** dispatch with `Task` and the named `subagent_type`, then
-  re-engage a stopped named advocate with `SendMessage` when Deep mode needs a
-  second round.
-- **Codex:** dispatch a bounded native subagent with `spawn_agent`, embedding
-  the matching role procedure (`agents/advocate.md`, `agents/fact-checker.md`,
-  `agents/devils-advocate.md`, or `agents/synthesizer.md`) in its prompt. Do
-  not pass `subagent_type` and do not assume the packaged Markdown file is a
-  registered role. Record the returned agent ID, use `wait_agent` for results,
-  and use `send_message` to re-engage the same named advocate in Deep mode.
-  If a native primitive is unavailable, spawn a fresh bounded subagent with
-  the same role procedure and include the relevant prior output; report that
-  fallback rather than silently treating the round as continuous.
+- **Claude Code:** dispatch with `Task` and the named `subagent_type`. Re-engage
+  a stopped named advocate with `SendMessage` when Deep mode needs a second
+  round.
+- **Codex registered-role path:** explicitly invoke
+  `$debate:setup-codex-agents`. Its active `SKILL.md` locates the installed
+  helper relative to that path; select `user` or `project` scope and complete
+  registration. To check later without invoking setup again, derive the helper
+  from this active Debate `SKILL.md` path supplied by skill context:
 
-Codex dispatches must carry the role's requested model and reasoning budget
-when the native primitive exposes them: `advocate` and `fact-checker` use the
-`sonnet`-equivalent model, while `devils-advocate` and `synthesizer` use the
-`opus`-equivalent model with high effort. Every dispatched prompt must repeat
-the role's tool boundary in prose: advocates and the fact-checker use web
-research only; the synthesizer uses only evidence supplied in its prompt.
-If the runtime does not expose model, effort, or tool restrictions, state that
-the setting was requested but unenforced in the final acceptance report.
+  ```sh
+  skill_file='<absolute path of this active Debate SKILL.md>'
+  plugin_root="$(dirname "$(dirname "$(dirname "$skill_file")")")"
+  helper="$plugin_root/skills/setup-codex-agents/scripts/manage-codex-agent-bundle.sh"
+  test -f "$plugin_root/.agentforge/codex-agent-bundle/agentforge-codex-agent-bundle.json"
+  AGENTFORGE_BIN='<absolute AgentForge binary>' sh "$helper" check user
+  # Or: AGENTFORGE_BIN='<absolute AgentForge binary>' sh "$helper" check project '<project-root>'
+  ```
+
+  In a fresh Codex session, run this selected-scope `check` before every native
+  dispatch. Only a successful current check permits these emitted identities,
+  unchanged, as `spawn_agent` `agent_type` values:
+  `debate:advocate`, `debate:fact-checker`, `debate:devils-advocate`, and
+  `debate:synthesizer`. A failed check blocks native dispatch.
+- **Codex Markdown-procedure path:** only when the user explicitly chooses
+  this fallback, spawn a generic bounded subagent and embed the matching
+  installed Markdown body. Do not pass an `agent_type` or claim that this
+  procedure registered a role. This remains available when registration is
+  absent, failed, or deliberately skipped.
+
+For every Codex child prompt, repeat the role's tool boundary in prose:
+advocates, the fact-checker, and the devil's advocate use web research only;
+the synthesizer uses supplied evidence only. Codex has no generated tool
+allowlist; that is the declared `agent-tools-filter` loss. The repeated prompt
+policy guides behavior but does not enforce it mechanically.
+The registered synthesizer has the explicit Codex model `gpt-5.6-terra` and
+canonical high effort. The devil's advocate inherits its model and keeps its
+canonical high effort; advocate and fact-checker inherit both settings.
+These values were selected independently of Claude aliases; runtime metadata
+must confirm applied settings, with unobservable settings recorded as unknown.
 
 **Auto-detection heuristic:**
 - **Deep** triggers on: "career change", "invest", "irreversible", "major", "life decision", explicit `--deep`, or user asking for thoroughness
@@ -125,7 +143,17 @@ Classify the question and identify positions:
 
 ### Step 4: Dispatch Advocate Agents (Round 1)
 
-Launch all advocate agents simultaneously using the Task tool with `subagent_type: "advocate"`. Do **not** pass a per-dispatch `model` — the `advocate` agent pins `model: sonnet` in its own frontmatter, and that value is honored automatically.
+**Claude Code:** launch all advocate agents simultaneously using the Task tool
+with `subagent_type: "advocate"`. Do **not** pass a per-dispatch `model` — the
+agent's Claude frontmatter selects it.
+
+**Codex:** use the registered-role path above before dispatch. In the fresh
+session, a successful selected-scope `check` permits
+`spawn_agent({ agent_type: "debate:advocate", ... })`; pass the emitted
+identity unchanged and do not supply a Claude model alias. If the check fails,
+stop native dispatch unless the user explicitly selected the Markdown-procedure
+path. Record each returned agent ID and use the runtime's result-waiting
+primitive.
 
 **Name each advocate** so it can be re-engaged in Deep mode Round 2 (see Step 8). Use a stable, descriptive name derived from the stance:
 - Binary: `advocate-for` and `advocate-against`
@@ -175,7 +203,14 @@ Skip to **Output Format** section.
 
 ### Step 6: Fact-Check (Standard + Deep)
 
-Dispatch the fact-checker agent using the Task tool with `subagent_type: "fact-checker"` (the agent pins `model: sonnet` in its own frontmatter — do not override per-dispatch):
+**Claude Code:** dispatch the fact-checker agent using the Task tool with
+`subagent_type: "fact-checker"` (the agent's Claude frontmatter selects its
+model).
+
+**Codex:** after a successful selected-scope check in the fresh session,
+dispatch the exact registered `agent_type: "debate:fact-checker"`. If that
+check is not current, use no native `agent_type`; only an explicitly selected
+Markdown-procedure path may continue.
 
 ```
 ## Question
@@ -203,7 +238,12 @@ Skip to **Output Format** section.
 
 **Deep mode only.** After fact-checker returns, re-engage each advocate for an informed rebuttal.
 
-**Preferred path — re-engage the SAME named advocate via `SendMessage`.** Each Round 1 advocate was named and its agent ID recorded (Step 4). A stopped subagent auto-resumes when it receives a `SendMessage`, retaining its full Round 1 context — its own arguments, sources, and reasoning are already in its transcript, so they do **not** need to be re-pasted. Send each advocate only the new material:
+**Claude preferred path — re-engage the SAME named advocate via
+`SendMessage`.** Each Round 1 advocate was named and its agent ID recorded
+(Step 4). A stopped subagent auto-resumes when it receives a `SendMessage`,
+retaining its full Round 1 context — its own arguments, sources, and reasoning
+are already in its transcript, so they do **not** need to be re-pasted. Send
+each advocate only the new material:
 
 ```
 Round 2 — informed rebuttal. Address the fact-checker findings and counterarguments below, then re-emit your full output in the same format.
@@ -219,7 +259,12 @@ Shore up disputed claims with new evidence, directly engage each counterargument
 
 Send these to all advocates before awaiting replies so the rebuttals run in parallel.
 
-**Fallback path — respawn fresh advocates.** `SendMessage`-based re-engagement requires agent teams to be enabled (`CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1`). If `SendMessage` is unavailable, or an advocate's agent ID was not captured, fall back to dispatching a fresh `advocate` (Task tool, `subagent_type: "advocate"`, no per-dispatch model) and re-paste the full Round 1 context the fresh agent lacks:
+**Claude fallback — respawn fresh advocates.** `SendMessage`-based
+re-engagement requires agent teams to be enabled
+(`CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1`). If `SendMessage` is unavailable,
+or an advocate's agent ID was not captured, dispatch a fresh `advocate` (Task
+tool, `subagent_type: "advocate"`, no per-dispatch model) and re-paste the
+full Round 1 context the fresh agent lacks:
 
 ```
 You are arguing [FOR/AGAINST] the following position: [framed question]
@@ -255,9 +300,25 @@ Round 2 — informed rebuttal. You must address the counterarguments and fact-ch
 Shore up disputed claims with new evidence, directly address the counterarguments, and update your confidence. Follow the output format defined in your agent instructions exactly.
 ```
 
+**Codex follow-up:** retain every Round 1 agent ID. Use the runtime primitive
+that is actually available to wake, resume, send input to, or follow up with
+that agent, and observe whether it resumes the same agent. Do not assume that
+`send_message` resumes a Codex agent. If the primitive is unavailable, does not
+resume the agent, or leaves continuity unknown, run a successful selected-scope
+check and dispatch a fresh `agent_type: "debate:advocate"` with the Round 1
+output plus the new material above. If check fails, stop the registered-role
+path. A generic bounded child with the matching Markdown procedure is allowed
+only when the user explicitly selected that procedure path. State the selected
+fallback and continuity result in the verdict record.
+
 ### Step 9: Dispatch Devil's Advocate (Deep Only)
 
-**Deep mode only.** After R2 advocates return, determine the leading position (highest confidence after R2), then dispatch using the Task tool with `subagent_type: "devils-advocate"` (the agent pins `model: opus` + `effort: high` in its own frontmatter — do not override per-dispatch):
+**Deep mode only.** After R2 advocates return, determine the leading position
+(highest confidence after R2). Claude dispatches with the Task tool and
+`subagent_type: "devils-advocate"`. Codex first requires a successful
+selected-scope check in the fresh session, then dispatches the exact registered
+`agent_type: "debate:devils-advocate"`; otherwise it stops or uses only the
+explicit Markdown-procedure path.
 
 ```
 ## Question
@@ -280,7 +341,12 @@ Attack the leading position. Find weaknesses, hidden assumptions, and failure sc
 
 ### Step 10: Dispatch Synthesizer (Deep Only)
 
-**Deep mode only.** After devil's advocate returns, dispatch using the Task tool with `subagent_type: "synthesizer"` (the agent pins `model: opus` + `effort: high` in its own frontmatter — do not override per-dispatch):
+**Deep mode only.** After devil's advocate returns, Claude dispatches with the
+Task tool and `subagent_type: "synthesizer"`. Codex first requires a successful
+selected-scope check in the fresh session, then dispatches the exact registered
+`agent_type: "debate:synthesizer"`. Its explicit registered model is
+`gpt-5.6-terra`; record the applied model and high effort from runtime metadata
+or mark either unobservable value unknown.
 
 ```
 ## Question
@@ -433,8 +499,17 @@ Do not offer it on high-confidence verdicts with no situational caveats, and nev
 ## Constraints
 
 - Maximum 5 advocate agents per round
-- **Per-role models (set in each agent's frontmatter — do not override per-dispatch):** `advocate` and `fact-checker` run as `sonnet`; `devils-advocate` and `synthesizer` run as `opus` with `effort: high` (the contrarian attack and the independent verdict are the reasoning-heaviest roles). The orchestrator stays in the main context.
-- Advocates and the fact-checker do **web research only** — their `tools:` is fenced to `WebSearch, WebFetch`, so they cannot read local files or the vault. The orchestrator handles all local/personal context gathering and passes it in the prompt. The synthesizer operates on **provided context only** (its `tools: Read` grant is a formality — see the agent's own notes; it has no need to invoke it).
+- **Claude role settings:** `advocate` and `fact-checker` use their Claude
+  `sonnet` settings; `devils-advocate` and `synthesizer` use Claude `opus` with
+  high effort. Codex uses only the explicit synthesizer override described
+  above. The devil's advocate retains its canonical high effort; advocate and
+  fact-checker inherit model and effort. Codex does not derive models from
+  those Claude aliases.
+- Advocates, the fact-checker, and the devil's advocate use **web research
+  only**; the synthesizer uses **provided evidence only**. Claude frontmatter
+  fences those tool grants. Codex relies on the repeated prompt policy because
+  its role procedures have no generated tool allowlist. The orchestrator handles
+  local/personal context gathering and passes it in the prompt.
 - All agents receive identical personal context (no asymmetry)
 - Sources must be real URLs from web search results, not hallucinated
 - If advocates return weak or conflicting evidence, say so — do not manufacture certainty

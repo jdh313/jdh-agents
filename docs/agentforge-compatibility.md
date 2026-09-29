@@ -5,18 +5,19 @@ AgentForge collection definitions. Native Claude and Codex manifests remain
 committed at the repository paths consumed by both runtimes, but they are now
 generated outputs rather than independently maintained metadata.
 
-The compiler baseline for this enrollment is the AgentForge **v0.4.0** release
-binary, pinned by version and per-platform sha256 in
+The normal CI compiler is AgentForge **v1.1.0**, pinned by version and
+per-platform sha256 in
 [`scripts/agentforge.sh`](../scripts/agentforge.sh).
 The pin is a release identity rather than a source revision so that CI and a
 local run execute the same bytes; a source build at the equivalent commit is
 not byte-identical to the published asset.
 
-The pin is AgentForge 1.0.0. That release carries the `body-agent-reference`
-construct declared by `librarian` and `skillsmith`, so the pinned binary can
-validate both the canonical definitions and their committed generated output.
-The prior v0.4.0 pin rejected that enum before it could diff anything; the 1.0
-cutover and full recompilation restore the documented gate.
+Debate 0.5.0's opt-in Codex agent bundle is an **unreleased local build**
+consumer trial. Its compiler commit, binary hash, local checks, and separate
+v1.1.0 gate result are recorded in
+[the lifecycle acceptance record](codex-agent-lifecycle-acceptance.md).
+`AGENTFORGE_BIN` selects that local executable; it does not change the wrapper
+or CI pin and must not be described as passing the normal CI merge gate.
 
 ## Gate ownership
 
@@ -241,7 +242,15 @@ parity claims:
   identifiers in prose — were rewritten to name intent rather than declared.
 - `craft`: Claude-only invocation and tool-policy fields are stripped where
   reported.
-- `debate`: the skill's `allowed-tools` is stripped, and `advocate`,
+- `debate`: version 0.5.0 opts into a companion bundle for explicit setup of
+  `debate:advocate`, `debate:fact-checker`, `debate:devils-advocate`, and
+  `debate:synthesizer`. The shared Markdown procedures remain available;
+  plugin installation alone does not register these roles. The synthesizer
+  explicitly selects Codex `gpt-5.6-terra`; other models inherit. Existing
+  canonical high effort projects for the devil's advocate and synthesizer.
+  Runtime application must be established by the linked acceptance record,
+  never inferred from the generated TOML. The skill's `allowed-tools` is
+  stripped, and `advocate`,
   `fact-checker`, `devils-advocate`, and `synthesizer` project as Codex role
   procedures. Disposition: **accepted, with the research fence restated in
   prose.** `agent-tools-filter` is a declared loss — Codex runs all four
@@ -420,7 +429,11 @@ no matching construct name cannot be declared at all — it can only be written
 into some other entry's prose, which is where both of the following currently
 live.
 
-The first is agent **model and effort pinning**. The construct detector reads
+For the pinned public compiler, the first is agent **model and effort pinning**.
+The unreleased opt-in bundle trial above adds an explicit Codex model surface
+and canonical effort projection; it does not translate Claude model aliases or
+extend that support claim to packages using only Markdown procedures.
+The construct detector reads
 only `tools:` from agent frontmatter; nothing reads `model:` or `effort:`. The
 `inferred-artifact-projection` note does say "Claude model, turn, and tool
 constraints … are not enforced by Codex," but that sentence is fixed boilerplate
