@@ -247,7 +247,7 @@ parity claims:
   `debate:synthesizer`. The shared Markdown procedures remain available;
   plugin installation alone does not register these roles. The synthesizer
   explicitly selects Codex `gpt-5.6-terra`; other models inherit. Existing
-  canonical high effort projects for the devil's advocate and synthesizer.
+  canonical high effort is projected for the devil's advocate and synthesizer.
   Runtime application must be established by the linked acceptance record,
   never inferred from the generated TOML. The skill's `allowed-tools` is
   stripped, and `advocate`,
