@@ -22,14 +22,12 @@ jobs:
         with:
           fetch-depth: 0
 
-      # The Forgejo runner checks out world-writable (0666/0777), and
-      # `agentforge check` rejects managed outputs that are not 0644/0755.
-      # GitHub-hosted runners use umask 022, so this is a no-op there.
-      # TODO(forgejo): drop the `umask` line once the source of 0000 is known.
+      # On the Forgejo runner, job steps run under umask 0000 -- a dind default
+      # with no upstream fix yet; the job image itself uses 0022 -- so checkout
+      # writes 0666/0777, and `agentforge check` rejects managed outputs that
+      # are not 0644/0755. A no-op on GitHub-hosted runners (umask 022).
       - name: Normalize checkout permissions
-        run: |
-          umask
-          chmod -R go-w .
+        run: chmod -R go-w .
 
       # AgentForge is not installed here. The compiler is pinned by version +
       # per-platform sha256 in `scripts/agentforge.sh`, which fetches and
