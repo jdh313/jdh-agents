@@ -49,11 +49,11 @@ path. Run its selected-scope `check` action after setup; open a fresh Codex
 session and check the same scope before using an exact registered role such as
 `debate:synthesizer` with `agent_type`.
 
-For the JUN-444 local acceptance run, set `AGENTFORGE_BIN` to the absolute path
-of the verified unreleased AgentForge binary before starting Codex. The consumer
-fixture contains neither Bun nor an AgentForge checkout. This is an unreleased
-local-build procedure, not a public-release acceptance claim. The generated
-setup helper verifies each lifecycle command through that absolute binary.
+Set `AGENTFORGE_BIN` to the absolute path of a verified AgentForge v1.2.0
+binary before starting Codex. The generated setup helper invokes lifecycle
+commands through that binary; consumers need neither Bun nor an AgentForge
+checkout. JUN-444 separately records its original unreleased-build trial and
+the later released-binary checks in `docs/codex-agent-lifecycle-acceptance.md`.
 
 The bundle's registered synthesizer declares `gpt-5.6-terra` and high effort.
 The devil's advocate keeps canonical high effort while inheriting its model;

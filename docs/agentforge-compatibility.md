@@ -430,19 +430,18 @@ no matching construct name cannot be declared at all — it can only be written
 into some other entry's prose, which is where both of the following currently
 live.
 
-For the pinned public compiler, the first is agent **model and effort pinning**.
-The unreleased opt-in bundle trial above adds an explicit Codex model surface
-and canonical effort projection; it does not translate Claude model aliases or
+For Markdown-only agent projection, the first is agent **model and effort
+pinning**. The v1.2.0 opt-in bundle adds an explicit Codex model surface and
+canonical effort projection; it does not translate Claude model aliases or
 extend that support claim to packages using only Markdown procedures.
-The construct detector reads
-only `tools:` from agent frontmatter; nothing reads `model:` or `effort:`. The
-`inferred-artifact-projection` note does say "Claude model, turn, and tool
+The Markdown projection does not apply `model:` or `effort:` as runtime settings.
+The `inferred-artifact-projection` note does say "Claude model, turn, and tool
 constraints … are not enforced by Codex," but that sentence is fixed boilerplate
 emitted for every agent — it never names the pinned value, so it reads the same
 whether an agent pins `opus` or inherits. Any package that tiers its agents by
 model loses that tiering on Codex with no diagnostic naming it. `shake-tune` is
-where this surfaced, but it applies equally to `coach`, `debate`, `librarian`,
-`skillsmith`, and `spec-flow`.
+where this surfaced, but it also applies to the Markdown path in `coach`,
+`debate`, `librarian`, `skillsmith`, and `spec-flow`.
 
 The second is **hook-event support**, which is not in the capability table at
 all. `ConstructSurface` admits only `skill` and `prompt`, so `supportFor`
