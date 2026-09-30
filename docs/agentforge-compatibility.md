@@ -5,19 +5,20 @@ AgentForge collection definitions. Native Claude and Codex manifests remain
 committed at the repository paths consumed by both runtimes, but they are now
 generated outputs rather than independently maintained metadata.
 
-The normal CI compiler is AgentForge **v1.1.0**, pinned by version and
+The normal CI compiler is AgentForge **v1.2.0**, pinned by version and
 per-platform sha256 in
 [`scripts/agentforge.sh`](../scripts/agentforge.sh).
 The pin is a release identity rather than a source revision so that CI and a
 local run execute the same bytes; a source build at the equivalent commit is
 not byte-identical to the published asset.
 
-Debate 0.5.0's opt-in Codex agent bundle is an **unreleased local build**
-consumer trial. Its compiler commit, binary hash, local checks, and separate
-v1.1.0 gate result are recorded in
+Debate 0.5.1 uses the released compiler's package-qualified role paths.
+The original Debate 0.5.0 **unreleased local build** trial and its historical
+v1.1.0 gate failure are retained in
 [the lifecycle acceptance record](codex-agent-lifecycle-acceptance.md).
-`AGENTFORGE_BIN` selects that local executable; it does not change the wrapper
-or CI pin and must not be described as passing the normal CI merge gate.
+The v1.2.0 version and all three platform checksums were updated explicitly
+from the published release. `AGENTFORGE_BIN` still selects an arbitrary local
+executable and must not be described as the normal CI merge gate.
 
 ## Gate ownership
 
@@ -242,7 +243,7 @@ parity claims:
   identifiers in prose — were rewritten to name intent rather than declared.
 - `craft`: Claude-only invocation and tool-policy fields are stripped where
   reported.
-- `debate`: version 0.5.0 opts into a companion bundle for explicit setup of
+- `debate`: version 0.5.1 opts into a companion bundle for explicit setup of
   `debate:advocate`, `debate:fact-checker`, `debate:devils-advocate`, and
   `debate:synthesizer`. The shared Markdown procedures remain available;
   plugin installation alone does not register these roles. The synthesizer

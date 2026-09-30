@@ -28,7 +28,7 @@ Fresh Introspect Claude and Codex acceptance evidence is recorded in
   lives beside the canonical source any more.
 - Claude agents and commands remain native Claude surfaces. Codex keeps shared
   procedures plus runtime subagents; files under `agents/` do not register
-  named Codex agents. Debate 0.5.0 additionally opts into an AgentForge companion
+  named Codex agents. Debate 0.5.1 additionally opts into an AgentForge companion
   bundle with explicit, receipt-managed setup in user or project scope. That
   setup requires an unreleased local compiler/CLI build; see the
   [lifecycle acceptance record](codex-agent-lifecycle-acceptance.md) for the

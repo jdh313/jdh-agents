@@ -2,13 +2,13 @@
   "schema": "agentforge.codex-agent-bundle/v2",
   "package": {
     "id": "debate",
-    "version": "0.5.0"
+    "version": "0.5.1"
   },
   "agents": [
     {
       "id": "advocate",
       "name": "debate:advocate",
-      "definition": "agents/advocate.toml",
+      "definition": "agents/debate/advocate.toml",
       "sha256": "7b364706975611329d765bee919f47dbb0b564057f840b1ec7e59b06ed4e39f2",
       "execution": {
         "model": {
@@ -25,7 +25,7 @@
     {
       "id": "devils-advocate",
       "name": "debate:devils-advocate",
-      "definition": "agents/devils-advocate.toml",
+      "definition": "agents/debate/devils-advocate.toml",
       "sha256": "27d16cb4af86b53b7cbdf447a9295bd78ed6b822f9d270a6265379228a962fc9",
       "execution": {
         "model": {
@@ -43,7 +43,7 @@
     {
       "id": "fact-checker",
       "name": "debate:fact-checker",
-      "definition": "agents/fact-checker.toml",
+      "definition": "agents/debate/fact-checker.toml",
       "sha256": "5fb6e5173ec04ab7e0a291827a5076675f3c64b16e5e261caceec85e09065150",
       "execution": {
         "model": {
@@ -60,7 +60,7 @@
     {
       "id": "synthesizer",
       "name": "debate:synthesizer",
-      "definition": "agents/synthesizer.toml",
+      "definition": "agents/debate/synthesizer.toml",
       "sha256": "5dddccd228c70860329800fbabe55006f42fabf565b6d9e64e169730296c35a1",
       "execution": {
         "model": {

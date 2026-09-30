@@ -1,8 +1,8 @@
 # JUN-444: installed Codex agent lifecycle acceptance
 
-Date: 2026-09-29. Status: **unreleased local build; scoped local acceptance passed, CI blocked**.
+Date: 2026-09-29. Original result: **unreleased local build; scoped local acceptance passed**.
 [JUN-444](https://linear.app/junglelan/issue/JUN-444/jdh-agents-installed-codex-agent-lifecycle-acceptance)
-remains incomplete while the normal CI compiler cannot validate the new source.
+initially encountered a compiler-pin gate; the released v1.2.0 recheck below supersedes that blocker.
 No public AgentForge release or branch push was performed.
 
 ## Pinned inputs and build
@@ -195,7 +195,7 @@ output including the root Claude manifest. No generated fixture was hand-edited:
 - Rename/deletion fixture 0.6.0: `700d1a268e80cb911390c61766b6e6bcb5de97e1`.
 
 These are disposable local test commits, not published Debate versions. The
-real package remains 0.5.0. The shared script's invocation is reproducible from
+real package at that revision was 0.5.0. The shared script's invocation is reproducible from
 this repository with a new unused run directory:
 
 ```sh
@@ -231,7 +231,7 @@ unchanged. Exact commands/results are in
 `/tmp/jun-444-runtime/{user,project}/cleanup.json`. Authentication symlinks in
 those two homes were removed after the runs.
 
-## Verification and remaining gate
+## Original unreleased verification and historical gate
 
 ```sh
 AGENTFORGE_BIN=/tmp/jun-444-build-bwh9mT/bin/agentforge-a79a200-darwin-arm64 \
@@ -245,14 +245,14 @@ Both commands passed. The compiler also normalized the two generated Introspect
 and their skill invokes them through `uv run` or `python3`. These are
 reproducible compiler-owned mode changes, not hand edits or new source policy.
 
-The independent normal merge-gate command remains:
+The independent normal merge-gate command was:
 
 ```sh
 env -u AGENTFORGE_BIN -u AGENTFORGE_PROJECT \
   scripts/agentforge.sh check MARKETPLACE.yaml --out marketplaces --claude-native
 ```
 
-It exits 1 under the unchanged public v1.1.0 pin:
+It exited 1 under the then-current public v1.1.0 pin:
 
 ```text
 plugins/debate/PACKAGE.yaml: invalid definition (targets.codex: Unrecognized key: "codex-agent-bundle")
@@ -293,3 +293,31 @@ References: [Codex configuration](https://learn.chatgpt.com/docs/config-file/con
 defines role config files and trusted project configuration;
 [Claude manifest validation](https://code.claude.com/docs/en/plugins-reference#validate-the-manifest)
 documents the independent native validation used here.
+
+## Published v1.2.0 follow-up
+
+The user reported that AgentForge had been updated on GitHub. Release v1.2.0
+is commit `2d32dc3aca76dc08344d62f0725f69c0ed356e73`, published at
+`2026-09-30T01:20:04Z`. It contains the original integration and lifecycle
+hardening commit `10265934edf3c94b334f710fd8e52e4f2a795175`.
+The downloaded Darwin arm64 binary SHA-256 is
+`67107b2a96892a1a3429010bbb8475d61c4100e1ac01783367e23aef402c2d54`,
+matching published `SHA256SUMS` and the release API asset digest.
+
+The wrapper pin is explicitly updated to v1.2.0 with all three platform hashes.
+Regeneration moves the four bundled definitions into `agents/debate/`, with
+unchanged role contents. Debate is bumped to 0.5.1 to invalidate native caches.
+The original unreleased trial above remains evidence for its exact input.
+Fresh released-binary installed acceptance is pending at this source snapshot.
+Release evidence and command logs are under `/tmp/jun-444-release/`.
+
+```sh
+env -u AGENTFORGE_BIN -u AGENTFORGE_PROJECT \
+  scripts/agentforge.sh compile MARKETPLACE.yaml --out marketplaces
+env -u AGENTFORGE_BIN -u AGENTFORGE_PROJECT \
+  scripts/agentforge.sh check MARKETPLACE.yaml --out marketplaces --claude-native
+```
+
+These commands pass locally with the downloaded release, clearing the compiler
+schema blocker. Hosted CI has not run for these unpushed commits. This work did
+not publish the AgentForge release and does not authorize a branch push.
