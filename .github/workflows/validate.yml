@@ -22,6 +22,15 @@ jobs:
         with:
           fetch-depth: 0
 
+      # The Forgejo runner checks out world-writable (0666/0777), and
+      # `agentforge check` rejects managed outputs that are not 0644/0755.
+      # GitHub-hosted runners use umask 022, so this is a no-op there.
+      # TODO(forgejo): drop the `umask` line once the source of 0000 is known.
+      - name: Normalize checkout permissions
+        run: |
+          umask
+          chmod -R go-w .
+
       # AgentForge is not installed here. The compiler is pinned by version +
       # per-platform sha256 in `scripts/agentforge.sh`, which fetches and
       # verifies it on first use and caches it under `.cache/agentforge/`.
