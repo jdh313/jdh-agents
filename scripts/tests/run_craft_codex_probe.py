@@ -6,8 +6,8 @@ Git projects from the exact committed Codex marketplace archive. It native-
 installs Craft but deliberately registers no Craft roles. The default mode
 runs one saved prompt in one prepared scope and rejects any app or MCP config.
 
-The runner never grants unrestricted access. It is not a substitute for a
-separate, explicitly approved control if ordinary project setup is denied.
+An unrestricted project-setup control is available only behind a dedicated
+flag and must be separately approved after ordinary setup is denied.
 """
 
 from __future__ import annotations
@@ -385,6 +385,7 @@ def prepare(args: argparse.Namespace) -> None:
 
 def run_probe(args: argparse.Namespace) -> int:
     root = validate_root(args.run_root, must_exist=True)
+    validate_control_args(args)
     if args.scope not in SCOPES:
         raise ProbeError("unknown prepared scope: " + args.scope)
     if not args.label or any(char not in "abcdefghijklmnopqrstuvwxyz0123456789-_" for char in args.label):
@@ -424,6 +425,7 @@ def run_probe(args: argparse.Namespace) -> int:
         "argv": argv, "env": {key: env[key] for key in ("CODEX_HOME", "AGENTFORGE_BIN", "PATH")},
         "stdin": str(prompt), "package_model_effort": "inherit", "fixture_parent_model_effort": "gpt-5.6-luna/medium",
         "external_integrations": "apps=false; no mcp_servers",
+        "control": args.control_project_setup,
     }, indent=2) + "\n")
     with stem.with_suffix(".events.jsonl").open("w") as stdout, stem.with_suffix(".stderr").open("w") as stderr:
         result = subprocess.run(argv, input=prompt.read_text(), text=True, env=env, stdout=stdout, stderr=stderr,
@@ -436,6 +438,17 @@ def run_probe(args: argparse.Namespace) -> int:
         raise ProbeError("Craft reviewer probe changed the disposable repository; see " + str(stem) + ".fixture-after.json")
     print(args.scope, args.label, "process exit", result.returncode, "(inspect tool calls and trace metadata separately)")
     return result.returncode
+
+
+def validate_control_args(args: argparse.Namespace) -> None:
+    if args.control_project_setup:
+        if (args.scope != "project" or args.label != "setup-control" or args.sandbox != "danger-full-access"
+                or args.allow_user_registration_write or args.prepare or args.cleanup):
+            raise ProbeError(
+                "--control-project-setup is limited to project/setup-control with danger-full-access and no add-dir"
+            )
+    elif args.sandbox == "danger-full-access":
+        raise ProbeError("danger-full-access requires --control-project-setup")
 
 
 def self_test(output: Path | None) -> int:
@@ -475,6 +488,32 @@ def self_test(output: Path | None) -> int:
             observed = consumer_env(Path("/private/tmp/home"), Path("/private/tmp/agentforge"))
         if set(observed) != {"PATH", "CODEX_HOME", "AGENTFORGE_BIN"} or any(key in observed for key in poison):
             raise ProbeError("consumer environment did not exclude poisoned inherited variables")
+        for name, scope, label, sandbox, add_dir in (
+            ("control-wrong-scope", "user", "setup-control", "danger-full-access", False),
+            ("control-wrong-label", "project", "other", "danger-full-access", False),
+            ("control-add-dir", "project", "setup-control", "danger-full-access", True),
+            ("danger-without-control", "project", "setup-control", "danger-full-access", False),
+        ):
+            control = name != "danger-without-control"
+            candidate = argparse.Namespace(scope=scope, label=label, sandbox=sandbox,
+                                           allow_user_registration_write=add_dir, control_project_setup=control,
+                                           prepare=False, cleanup=False)
+            try:
+                validate_control_args(candidate)
+            except ProbeError as error:
+                failures[name] = str(error)
+            else:
+                raise ProbeError("control guard accepted " + name)
+        for mode in ("prepare", "cleanup"):
+            candidate = argparse.Namespace(scope="project", label="setup-control", sandbox="danger-full-access",
+                                           allow_user_registration_write=False, control_project_setup=True,
+                                           prepare=mode == "prepare", cleanup=mode == "cleanup")
+            try:
+                validate_control_args(candidate)
+            except ProbeError as error:
+                failures["control-" + mode] = str(error)
+            else:
+                raise ProbeError("control guard accepted " + mode)
         traversal_root = Path("/private/tmp/craft-codex-guard/../outside")
         try:
             validate_root(traversal_root, must_exist=False)
@@ -582,10 +621,11 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
     parser.add_argument("--self-test", action="store_true", help="run config guard tests without starting Codex")
     parser.add_argument("--self-test-output", type=Path, help="fresh persistent /private/tmp result path for --self-test")
     parser.add_argument("--cleanup", action="store_true", help="remove one selected isolated Craft plugin and receipt")
+    parser.add_argument("--control-project-setup", action="store_true", help="record the separately approved project setup control only")
     parser.add_argument("--run-root", type=Path, required=False)
     parser.add_argument("--scope", choices=SCOPES)
     parser.add_argument("--label")
-    parser.add_argument("--sandbox", choices=("read-only", "workspace-write"))
+    parser.add_argument("--sandbox", choices=("read-only", "workspace-write", "danger-full-access"))
     parser.add_argument("--allow-user-registration-write", action="store_true", help="allow isolated home only for user workspace-write setup")
     parser.add_argument("--source-repo", type=Path)
     parser.add_argument("--source-commit")
@@ -594,7 +634,7 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
     parser.add_argument("--codex-auth-file", type=Path, default=Path.home() / ".codex" / "auth.json")
     args = parser.parse_args(argv)
     if args.self_test:
-        if args.prepare or args.cleanup or args.allow_user_registration_write:
+        if args.prepare or args.cleanup or args.allow_user_registration_write or args.control_project_setup:
             parser.error("--self-test cannot be combined with preparation, cleanup, or registration write access")
         return args
     required = ("run_root", "codex_bin", "agentforge_bin")
@@ -609,6 +649,10 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
         parser.error("missing required arguments: " + ", ".join("--" + item.replace("_", "-") for item in missing))
     if args.allow_user_registration_write and (args.prepare or args.cleanup or args.scope != "user" or args.sandbox != "workspace-write"):
         parser.error("--allow-user-registration-write is only valid for user workspace-write probe runs")
+    try:
+        validate_control_args(args)
+    except ProbeError as error:
+        parser.error(str(error))
     return args
 
 
