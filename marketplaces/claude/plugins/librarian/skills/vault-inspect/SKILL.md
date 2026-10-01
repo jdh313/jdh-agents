@@ -23,10 +23,31 @@ agent: vault-inspector
 
 # Vault Inspect
 
+## Codex registered dispatch
+
+On Codex, this skill's `vault-inspector` and `@note-editor` routes follow
+the active installed Librarian `RUNTIME.md` (derived from the active
+`SKILL.md` path; `## Codex optional registered vault roles` and
+`## Installed resources and vault destination`). Immediately before each exact
+dispatch, run the selected-scope check. Only a current result permits the
+matching `agent_type` (`librarian:vault-inspector` or `librarian:note-editor`)
+with the required `## Runtime context`; do not set a dispatch model or effort.
+A failed or stale check blocks native dispatch. The user may separately choose
+the installed Markdown/procedure fallback with no `agent_type`; that route does
+not register a role. The existing Claude `agent: vault-inspector` flow remains
+unchanged.
+
+On Codex, every vault path below is rooted at the verified `vault_root` and
+each CLI or connector operation binds the verified `vault_name`. Literal
+`~/Loose Ends` and unqualified integration examples remain Claude-only,
+including before dispatch.
+
 Diagnostic sweep on the Obsidian vault "Loose Ends". The slash command
 forks to `@vault-inspector`, which runs the rule set from
 `${CLAUDE_PLUGIN_ROOT}/references/inspect-rules.md` and returns a
-structured report.
+structured report. On Codex, resolve that rule set beneath the active installed
+`plugin_root` and pass its canonical absolute `inspect_rules_reference` in
+`## Runtime context`; never use a source checkout or current working directory.
 
 Two rule families:
 

@@ -145,10 +145,20 @@ Always consider:
 
 ## Search Before Capture
 
-Before suggesting a new note, search the vault:
+Before suggesting a new note, search the vault. On Codex, derive the active
+installed Librarian `RUNTIME.md` from this skill's installed `SKILL.md` path,
+obtain an explicit `vault_name` and expected absolute `vault_root`, and verify
+that the actual CLI destination for that name resolves to that root. Do not
+use the most recently focused vault or infer the destination from CWD. If the
+destination cannot be proven, skip the search and say the duplicate check is
+unverified. Every Codex CLI operation must carry the verified vault selector;
+the unqualified example below remains Claude-only.
 
 ```bash
+# Claude:
 obsidian-cli search query="topic keywords" format=json
+# Codex, only after destination verification:
+obsidian-cli vault="<verified vault_name>" search query="topic keywords" format=json
 ```
 
 If related content exists:

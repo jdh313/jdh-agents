@@ -12,6 +12,24 @@ allowed-tools:
 
 # Experiment Start
 
+## Codex registered dispatch
+
+On Codex, this skill's `@vault-reader` and `@note-editor` routes follow
+the active installed Librarian `RUNTIME.md` (derived from the active
+`SKILL.md` path; `## Codex optional registered vault roles` and
+`## Installed resources and vault destination`). Immediately before each exact
+dispatch, run the selected-scope check. Only a current result permits the
+matching `agent_type` (`librarian:vault-reader` or `librarian:note-editor`)
+with the required `## Runtime context`; do not set a dispatch model or effort.
+A failed or stale check blocks native dispatch. The user may separately choose
+the installed Markdown/procedure fallback with no `agent_type`; that route does
+not register a role. The existing Claude routes remain unchanged.
+
+On Codex, every vault path below is rooted at the verified `vault_root` and
+each CLI or connector operation binds the verified `vault_name`. Literal
+`~/Loose Ends` and unqualified integration examples remain Claude-only,
+including before dispatch.
+
 Scaffold a new experiment page under `Experiments/` or promote an
 existing `considering` entry to `running`. Schema and skeleton live in
 `~/Loose Ends/.claude/rules/wiki.md` → **Experiments**.

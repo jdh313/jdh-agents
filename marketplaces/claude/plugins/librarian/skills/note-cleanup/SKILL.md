@@ -8,6 +8,24 @@ agent: vault-curator
 
 # Vault Cleanup Session
 
+## Codex registered dispatch
+
+On Codex, this skill's `vault-curator` route follows
+the active installed Librarian `RUNTIME.md` (derived from the active
+`SKILL.md` path; `## Codex optional registered vault roles` and
+`## Installed resources and vault destination`). Immediately before each exact
+dispatch, run the selected-scope check. Only a current result permits
+`agent_type: "librarian:vault-curator"` with the required `## Runtime context`;
+do not set a dispatch model or effort. A failed or stale check blocks native
+dispatch. The user may separately choose the installed Markdown/procedure
+fallback with no `agent_type`; that route does not register a role. The
+existing Claude `agent: vault-curator` flow remains unchanged.
+
+On Codex, every vault path below is rooted at the verified `vault_root` and
+each CLI or connector operation binds the verified `vault_name`. Literal
+`~/Loose Ends` and unqualified integration examples remain Claude-only,
+including before dispatch.
+
 Start an interactive session to clean up and maintain your vault.
 
 ## Usage

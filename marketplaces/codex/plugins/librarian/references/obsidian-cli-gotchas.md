@@ -65,6 +65,12 @@ The CLI defaults to the most recently focused vault. If working from another pro
 obsidian-cli vault="Loose Ends" create path="Sources/2026-04-09 Title.md" content="..." silent
 ```
 
+The remaining literal CLI examples preserve Claude's configured-vault syntax.
+On Codex, every one of them, including reads and diagnostics, must instead
+begin `obsidian-cli vault="<vault_name>"` after Runtime context has verified
+that name resolves to the supplied `vault_root`. Do not run an unqualified
+example against the focused vault.
+
 ## Useful commands for wiki operations
 
 ```bash
