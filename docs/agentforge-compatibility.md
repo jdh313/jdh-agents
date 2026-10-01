@@ -285,7 +285,17 @@ parity claims:
 - `librarian`: Claude-only policy fields are stripped. Four Claude agents
   become reusable Codex role procedures without Claude model, turn, or tool
   enforcement.
-- `linear`: the doctor skill's `allowed-tools` field is stripped.
+- `linear`: 0.9.1 opts into a companion bundle for exactly `linear:linear-ops`.
+  Native plugin installation exposes an explicit-only setup skill; selected-scope
+  registration and a fresh successful check precede exact native dispatch.
+  Markdown procedures remain available separately. Codex model and effort
+  inherit; Claude `haiku` is not a Codex model choice. The agent's `tools:`
+  allowlist is a declared loss, and neither connector spelling nor prose
+  boundaries establish mechanical enforcement. The doctor skill's
+  `allowed-tools` field is stripped. The role receives installed gotchas and,
+  for parent links, PM layer-policy paths or contents from its caller; bundled
+  TOML does not resolve package-relative resources. See the
+  [Linear acceptance record](linear-codex-agent-acceptance.md) for scoped results.
 - `pm`: `argument-hint` and `allowed-tools` are stripped on all three skills,
   neither a declarable loss, for the same reasons as `compass` and `feedback`
   above. Disposition: **accepted, with eleven of twelve tool references
