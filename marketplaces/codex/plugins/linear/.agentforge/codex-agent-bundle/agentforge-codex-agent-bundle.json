@@ -1,0 +1,26 @@
+{
+  "schema": "agentforge.codex-agent-bundle/v2",
+  "package": {
+    "id": "linear",
+    "version": "0.9.0"
+  },
+  "agents": [
+    {
+      "id": "linear-ops",
+      "name": "linear:linear-ops",
+      "definition": "agents/linear/linear-ops.toml",
+      "sha256": "779ce3924468ece2125362a6d24a7f1a53ffce65486e5e72530a39b129253b9c",
+      "execution": {
+        "model": {
+          "source": "inherited"
+        },
+        "effort": {
+          "source": "inherited"
+        }
+      },
+      "losses": [
+        "tools"
+      ]
+    }
+  ]
+}

@@ -118,6 +118,13 @@ it before Linear does.
 
 ### 5. Publish
 
+Before any `linear-ops` dispatch or literal procedure fallback, read the
+installed `linear` skill and supply its exact installed gotchas path/content
+(and the PM layer policy for a parent). For a Codex dispatch, follow that
+skill's **Codex registered-role dispatch** contract: a current selected-scope
+check permits only exact `linear:linear-ops`; use only the explicitly chosen
+Markdown fallback with `agent_type` omitted.
+
 Dispatch `linear-ops` (linear plugin) with the intent block its own definition
 specifies: operation, team, fields, body, relations. Pass the body verbatim —
 the agent does not author prose, and anything you leave for it to fill in comes

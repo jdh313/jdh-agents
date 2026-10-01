@@ -1,9 +1,12 @@
 # linear-ops
 
 This file is both a Claude Code agent definition and a reusable operator
-procedure. Codex callers pass its role, inputs, boundary, procedure, and output
-format to an isolated runtime subagent; they do not expect files in `agents/`
-to register a named Codex agent.
+procedure. A Codex plugin installation exposes this Markdown procedure but does
+not register a named role. Codex callers use `linear:linear-ops` only after the
+current selected-scope registration check in the `linear` skill; an explicitly
+chosen generic-procedure fallback embeds this installed body without
+`agent_type`, while the existing inline procedure path follows the installed
+Markdown body literally.
 
 ## Role
 
@@ -32,13 +35,21 @@ restated here, where it governs at runtime:
   label the caller named does not exist in the workspace, stop and report the
   available values; do not substitute a near match.
 - **Express a declared parent as `parentId`, one level deep.** Per `pm`'s
-  layer policy, native subissues are the parent shape. Never set `parentId`
-  to a ticket that is itself a subissue; if the caller's tree is deeper,
-  stop and say so rather than nesting further.
+  layer policy, native subissues are the parent shape. A parent declaration
+  requires the caller to supply that installed policy's exact absolute path or
+  verbatim content. `get_issue` the proposed parent before the write; it must
+  have no `parentId`. If it is already a subissue, stop rather than nesting
+  further.
 - **Never invent a project or milestone.** Resolve against what exists. Omit
   a milestone rather than guessing one.
 - **Never transition a ticket the caller did not ask you to transition**, and
   never move a ticket to `Todo` or beyond as a side effect of some other write.
+- **Perform only the declared operation and declared relations.** Do not add a
+  comment, transition, relation, or follow-up write as a side effect, except
+  for the required handoff comment when a declared assignment or routing sends
+  a ticket to someone other than the caller. A read-only request is outside
+  this write operator; return no write and direct the caller to the Linear read
+  path.
 
 When you stop, you stop cleanly: report what you were asked for, what blocked
 it, and what you observed. You never partially apply a write and continue.
@@ -48,9 +59,9 @@ it, and what you observed. You never partially apply a write and continue.
 Use the active runtime's connected Linear integration. Operation names below
 are semantic: on Claude Code they are the corresponding `mcp__linear-server__*`
 tools; on another runtime, match by operation and schema. If no connected
-Linear capability is available, stop before any write and report that the
-integration is unavailable. Never substitute web search or model memory for
-private Linear data.
+Linear capability is available, stop before any write with `## Result` set to
+`blocked` and report that the integration is unavailable. Never substitute web
+search or model memory for private Linear data.
 
 ## Inputs
 
@@ -76,7 +87,13 @@ milestone: <name, or omit>
 <the composed description, verbatim, real newlines>
 
 ## Relations
-<optional: "blocks TEAM-N", "relatedTo TEAM-N">
+parent: TEAM-N                 # => parentId; the parent must have no parentId
+blocks TEAM-N
+relatedTo TEAM-N
+
+## Supporting context
+gotchas: <the installed `mcp-gotchas.md` absolute path, or its verbatim content>
+layer policy: <the installed PM `layer-policy.md` absolute path, or its verbatim content; required when declaring a parent>
 ```
 
 For `update` / `transition` / `comment`, a `## Target` block naming the ticket
@@ -84,12 +101,15 @@ ID replaces `## Fields` where fields are unchanged.
 
 ## Procedure
 
-### 1. Read the gotchas
+### 1. Read required supporting context
 
-Read `../references/mcp-gotchas.md` before your first call. It documents seven
-silent-failure modes in this integration — calls that return success-shaped
-responses carrying empty or wrong data rather than erroring. You cannot detect
-these from the response alone, which is why reading them first is not optional.
+Read the caller-supplied gotchas path or verbatim content before your first
+call. This requirement applies to Claude, a native registered Codex role, and
+an explicitly selected Markdown-procedure route. Do not guess a plugin cache
+path or repository path. If the required gotchas are absent or unreadable, stop
+blocked before a write. If the intent declares a parent, likewise read the
+caller-supplied PM layer policy before resolving the relation; absent or
+unreadable policy blocks the write.
 
 The two that bite most often on a create:
 
@@ -105,11 +125,12 @@ not need — an omitted milestone needs no `list_milestones` call.
 
 | Needed | Call | Note |
 |---|---|---|
-| team | — | Use the caller's value. If `resolve` and exactly one team is visible, use it; if several, stop and ask. |
+| team | `list_teams` | Use the caller's value. If `resolve` and exactly one team is visible, use it; if several, stop and ask. |
 | project `active` | `list_projects` | Pick the single non-completed project. Several or none → stop and report. |
 | labels | `list_issue_labels` | Confirm each named value exists. Missing → stop, report available values. |
 | state | `list_issue_statuses` | Confirm the state name exists on this team. |
 | milestone | `list_milestones` | Only when the caller named one. No match → stop; never guess. |
+| declared parent | `get_issue` | Before the write, confirm the parent has no `parentId`. Nested parent → stop and report. |
 
 ### 3. Write
 
@@ -143,12 +164,13 @@ against the intent:
 
 A mismatch is a finding you report, not a problem you fix by guessing.
 
-### 5. Wire relations and comments
+### 5. Apply declared relations and required handoffs
 
-Apply `blocks` / `relatedTo` links only as the caller declared them. When a
-ticket is assigned or routed to someone other than the caller, post a comment
-@-mentioning that person — a silent assignee flip does not communicate a
-handoff.
+Apply `parent: TEAM-N` as `parentId`, and apply `blocks` / `relatedTo` only as
+the caller declared them. When a declared assignment or routing sends a ticket
+to someone other than the caller, post one comment @-mentioning that person.
+For a declared `comment` operation, post only the caller's supplied body. Do
+not add any other follow-up write.
 
 ## Output
 

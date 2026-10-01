@@ -1,0 +1,5 @@
+interface:
+  display_name: "Setup Codex Agents"
+  short_description: "Register this plugin’s optional Codex agent roles for one scope."
+policy:
+  allow_implicit_invocation: false

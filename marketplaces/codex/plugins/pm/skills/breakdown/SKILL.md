@@ -92,6 +92,13 @@ When the source is a spec-flow contract, breakdown grows it into a **nested cont
 
 7. **Publish in dependency order via `linear-ops`.** Save blockers first so children can reference real `TEAM-N` IDs in the Linear blocks/blocked-by relation. **One dispatch per slice** — the agent takes a single intent block and returns a single ticket, so the loop is sequential: publish a slice, capture its returned `TEAM-N`, then name it in the next slice's `## Relations`. Compose each intent block as `linear-ops`'s own definition specifies (operation, team, fields, body, relations) and pass the body verbatim — the agent does not author prose, and anything you leave for it to fill in comes back blocked. For each slice:
 
+   Before any `linear-ops` dispatch or literal procedure fallback, read the
+   installed `linear` skill and supply its exact installed gotchas path/content
+   and this parent's PM layer policy. For a Codex dispatch, follow that skill's
+   **Codex registered-role dispatch** contract: a current selected-scope check
+   permits only exact `linear:linear-ops`; use only the explicitly chosen
+   Markdown fallback with `agent_type` omitted.
+
    - Compose body per `references/issue-body.md`: a one-line aim, then `## Why now`, `## Sketch`, `## Done when`, `## Context` — omitting every slot that has nothing to say.
    - **Write the title and body in the project's domain glossary vocabulary.** If the repo has a `CONTEXT.md` glossary, use its terms rather than inventing synonyms — a ticket that renames the domain costs the implementer a translation step, and drifts the glossary by example.
    - Set labels: one Surface, one Type. Defaults: `Feature` type unless decision-shaped (`Decision`). Surface comes from the slice's primary layer.
