@@ -3,6 +3,9 @@ name: synthesizer
 description: Independent verdict agent that produces the final debate recommendation. Receives all advocate, fact-checker, and devil's advocate outputs and synthesizes without the framing bias of the orchestrator. Used in Deep mode only.
 model: opus
 effort: high
+targets:
+  codex:
+    model: gpt-5.6-terra
 color: green
 maxTurns: 5
 tools: Read

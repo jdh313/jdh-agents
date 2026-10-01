@@ -5,18 +5,20 @@ AgentForge collection definitions. Native Claude and Codex manifests remain
 committed at the repository paths consumed by both runtimes, but they are now
 generated outputs rather than independently maintained metadata.
 
-The compiler baseline for this enrollment is the AgentForge **v0.4.0** release
-binary, pinned by version and per-platform sha256 in
+The normal CI compiler is AgentForge **v1.2.0**, pinned by version and
+per-platform sha256 in
 [`scripts/agentforge.sh`](../scripts/agentforge.sh).
 The pin is a release identity rather than a source revision so that CI and a
 local run execute the same bytes; a source build at the equivalent commit is
 not byte-identical to the published asset.
 
-The pin is AgentForge 1.0.0. That release carries the `body-agent-reference`
-construct declared by `librarian` and `skillsmith`, so the pinned binary can
-validate both the canonical definitions and their committed generated output.
-The prior v0.4.0 pin rejected that enum before it could diff anything; the 1.0
-cutover and full recompilation restore the documented gate.
+Debate 0.5.1 uses the released compiler's package-qualified role paths.
+The original Debate 0.5.0 **unreleased local build** trial and its historical
+v1.1.0 gate failure are retained in
+[the lifecycle acceptance record](codex-agent-lifecycle-acceptance.md).
+The v1.2.0 version and all three platform checksums were updated explicitly
+from the published release. `AGENTFORGE_BIN` still selects an arbitrary local
+executable and must not be described as the normal CI merge gate.
 
 ## Gate ownership
 
@@ -241,7 +243,15 @@ parity claims:
   identifiers in prose — were rewritten to name intent rather than declared.
 - `craft`: Claude-only invocation and tool-policy fields are stripped where
   reported.
-- `debate`: the skill's `allowed-tools` is stripped, and `advocate`,
+- `debate`: version 0.5.1 opts into a companion bundle for explicit setup of
+  `debate:advocate`, `debate:fact-checker`, `debate:devils-advocate`, and
+  `debate:synthesizer`. The shared Markdown procedures remain available;
+  plugin installation alone does not register these roles. The synthesizer
+  explicitly selects Codex `gpt-5.6-terra`; other models inherit. Existing
+  canonical high effort is projected for the devil's advocate and synthesizer.
+  Runtime application must be established by the linked acceptance record,
+  never inferred from the generated TOML. The skill's `allowed-tools` is
+  stripped, and `advocate`,
   `fact-checker`, `devils-advocate`, and `synthesizer` project as Codex role
   procedures. Disposition: **accepted, with the research fence restated in
   prose.** `agent-tools-filter` is a declared loss — Codex runs all four
@@ -420,15 +430,18 @@ no matching construct name cannot be declared at all — it can only be written
 into some other entry's prose, which is where both of the following currently
 live.
 
-The first is agent **model and effort pinning**. The construct detector reads
-only `tools:` from agent frontmatter; nothing reads `model:` or `effort:`. The
-`inferred-artifact-projection` note does say "Claude model, turn, and tool
+For Markdown-only agent projection, the first is agent **model and effort
+pinning**. The v1.2.0 opt-in bundle adds an explicit Codex model surface and
+canonical effort projection; it does not translate Claude model aliases or
+extend that support claim to packages using only Markdown procedures.
+The Markdown projection does not apply `model:` or `effort:` as runtime settings.
+The `inferred-artifact-projection` note does say "Claude model, turn, and tool
 constraints … are not enforced by Codex," but that sentence is fixed boilerplate
 emitted for every agent — it never names the pinned value, so it reads the same
 whether an agent pins `opus` or inherits. Any package that tiers its agents by
 model loses that tiering on Codex with no diagnostic naming it. `shake-tune` is
-where this surfaced, but it applies equally to `coach`, `debate`, `librarian`,
-`skillsmith`, and `spec-flow`.
+where this surfaced, but it also applies to the Markdown path in `coach`,
+`debate`, `librarian`, `skillsmith`, and `spec-flow`.
 
 The second is **hook-event support**, which is not in the capability table at
 all. `ConstructSurface` admits only `skill` and `prompt`, so `supportFor`

@@ -38,3 +38,30 @@ grounded in evidence.
 | **Quick** | Advocates only | Low-stakes, reversible decisions |
 | **Standard** | Advocates → Fact-checker | Medium-stakes, some evidence concern |
 | **Deep** | Advocates R1 → Fact-checker → Advocates R2 → Devil's advocate → Synthesizer | High-stakes, irreversible decisions |
+
+## Codex optional agent bundle
+
+Install Debate from the Codex marketplace, then explicitly invoke
+`$debate:setup-codex-agents` to register its optional roles for either user or
+project scope. The setup skill finds its installed helper from the active
+`SKILL.md` path, so it does not depend on a guessed cache version or plugin
+path. Run its selected-scope `check` action after setup; open a fresh Codex
+session and check the same scope before using an exact registered role such as
+`debate:synthesizer` with `agent_type`.
+
+Set `AGENTFORGE_BIN` to the absolute path of a verified AgentForge v1.2.0
+binary before starting Codex. The generated setup helper invokes lifecycle
+commands through that binary; consumers need neither Bun nor an AgentForge
+checkout. JUN-444 separately records its original unreleased-build trial and
+the later released-binary checks in `docs/codex-agent-lifecycle-acceptance.md`.
+
+The bundle's registered synthesizer declares `gpt-5.6-terra` and high effort.
+The devil's advocate keeps canonical high effort while inheriting its model;
+advocate and fact-checker inherit both settings. These are Codex settings
+chosen for the role itself; they are not translations of the Claude `sonnet` or
+`opus` aliases. Confirm applied values from runtime metadata and record
+unavailable settings as unknown.
+
+The bundled Markdown role procedures remain usable as explicit generic-child
+instructions. That route does not register a Codex role and must not pass an
+`agent_type`.

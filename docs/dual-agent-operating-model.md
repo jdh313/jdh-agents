@@ -26,9 +26,13 @@ Fresh Introspect Claude and Codex acceptance evidence is recorded in
   manifest, and `marketplaces/codex/plugins/<name>/.codex-plugin/plugin.json` is
   the Codex one. Both are compiler output; neither is hand-edited, and neither
   lives beside the canonical source any more.
-- Claude agents and commands remain native Claude surfaces. Codex uses shared
+- Claude agents and commands remain native Claude surfaces. Codex keeps shared
   procedures plus runtime subagents; files under `agents/` do not register
-  named Codex agents.
+  named Codex agents. Debate 0.5.1 additionally opts into an AgentForge companion
+  bundle with explicit, receipt-managed setup in user or project scope. That
+  setup uses AgentForge v1.2.0; see the
+  [lifecycle acceptance record](codex-agent-lifecycle-acceptance.md) for the
+  tested revision, results, and outstanding gates.
 - Small runtime mappings may live beside shared content, such as
   `plugins/craft/RUNTIME.md` or skill-local `agents/openai.yaml` policy files.
 - Preserve behavioral parity, not identical structure or tool spelling.
@@ -39,7 +43,7 @@ Fresh Introspect Claude and Codex acceptance evidence is recorded in
 |---|---|---|
 | Repository guidance | `CLAUDE.md` | Applicable `AGENTS.md`; non-conflicting `CLAUDE.md` facts are supporting documentation |
 | Invoke a skill | `Skill(plugin:skill)` or slash command | Installed namespaced skill or its `SKILL.md` procedure |
-| Independent role | Registered agent via Agent tool | Spawn a bounded runtime subagent with the shared role procedure |
+| Independent role | Registered agent via Agent tool | Shared role procedure; for an opted-in bundle, check registration and use its exact namespaced `agent_type` in a fresh session |
 | User adjudication | `AskUserQuestion` | Structured user input when available; otherwise one concise question |
 | Workflow tracking | `TodoWrite` | Runtime plan/checklist tool |
 | Linear data/actions | `mcp__linear-server__*` | Connected Linear app or MCP operation with equivalent schema |
