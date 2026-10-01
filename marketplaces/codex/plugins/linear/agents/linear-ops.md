@@ -146,6 +146,7 @@ save_issue(
     priority=<caller's priority>,
     assignee="me",              # omit the parameter entirely for unassigned
     description="<caller's body>",
+    # parentId="<validated parent ID>",  # include on this write when declared
 )
 ```
 
@@ -166,8 +167,10 @@ A mismatch is a finding you report, not a problem you fix by guessing.
 
 ### 5. Apply declared relations and required handoffs
 
-Apply `parent: TEAM-N` as `parentId`, and apply `blocks` / `relatedTo` only as
-the caller declared them. When a declared assignment or routing sends a ticket
+For a create or field update, include a declared, validated `parentId` in the
+initial `save_issue`; never create an orphan and attach its parent afterward.
+For an existing-ticket `link` operation, apply its declared parent as
+`parentId`. Apply `blocks` / `relatedTo` only as the caller declared them. When a declared assignment or routing sends a ticket
 to someone other than the caller, post one comment @-mentioning that person.
 For a declared `comment` operation, post only the caller's supplied body. Do
 not add any other follow-up write.

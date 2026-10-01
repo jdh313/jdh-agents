@@ -22,6 +22,7 @@ def main():
     parser.add_argument("--sandbox", choices=("read-only", "workspace-write"), required=True)
     parser.add_argument("--codex-bin", type=Path, required=True)
     parser.add_argument("--agentforge-bin", type=Path, required=True)
+    parser.add_argument("--mock-writes", action="store_true", help="preapprove only local fixture save_issue/save_comment; requires apps disabled")
     args = parser.parse_args()
     root = args.run_root.resolve()
     if not args.run_root.is_absolute() or not str(root).startswith("/private/tmp/linear-codex-"):
@@ -47,8 +48,17 @@ def main():
     command = [str(args.codex_bin), "exec", "-C", str(project), "--skip-git-repo-check", "--json",
                "-s", args.sandbox, "-m", "gpt-5.6-luna", "-c", 'model_reasoning_effort="medium"',
                "-c", "allow_login_shell=false", "--add-dir", str(home), "-o", str(stem) + ".last.txt", "-"]
+    if args.mock_writes:
+        config = (home / "config.toml").read_text()
+        if '[features]\napps = false\n' not in config or '[mcp_servers.linear-fixture]\n' not in config:
+            parser.error("mock write approval requires the isolated linear-fixture server and apps disabled")
+        if config.count('[mcp_servers.') != 1 or str(root / "linear_mock_mcp.py") not in config:
+            parser.error("mock write approval requires exactly the copied local fixture server")
+        command[2:2] = ["-c", 'mcp_servers.linear-fixture.tools.save_issue.approval_mode="auto"',
+                        "-c", 'mcp_servers.linear-fixture.tools.save_comment.approval_mode="auto"']
     stem.with_suffix(".command.json").write_text(json.dumps({"argv": command,
-        "env": {k: env[k] for k in ("CODEX_HOME", "AGENTFORGE_BIN", "PATH")}, "stdin": str(prompt)}, indent=2) + "\n")
+        "env": {k: env[k] for k in ("CODEX_HOME", "AGENTFORGE_BIN", "PATH")}, "stdin": str(prompt),
+        "mock_write_approval": args.mock_writes}, indent=2) + "\n")
     with stem.with_suffix(".events.jsonl").open("w") as out, stem.with_suffix(".stderr").open("w") as err:
         result = subprocess.run(command, input=prompt.read_text(), text=True, env=env, stdout=out, stderr=err, timeout=600)
     stem.with_suffix(".exit").write_text(str(result.returncode) + "\n")
