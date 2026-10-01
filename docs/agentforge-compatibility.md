@@ -241,8 +241,19 @@ parity claims:
   No `targets.codex.losses` entries: the two declarable constructs the package
   once carried — a `$ARGUMENTS` body template variable and `mcp__*` tool
   identifiers in prose — were rewritten to name intent rather than declared.
-- `craft`: Claude-only invocation and tool-policy fields are stripped where
-  reported.
+- `craft`: 0.16.0 opts into a companion bundle for exactly
+  `craft:house-style-reviewer`, `craft:comment-reviewer`, and
+  `craft:copy-reviewer`. Explicit setup registers one selected scope; a fresh
+  successful selected-scope check precedes each exact native dispatch.
+  Installed Markdown procedures remain separately available, and explorer
+  labels such as `arch-explorer` do not register roles. Model and effort
+  inherit; Claude `sonnet` is not translated. Claude invocation and tool-policy
+  fields remain losses: the three reviewers' advisory no-write instructions
+  do not mechanically enforce tool access or sandbox policy on Codex.
+  Lucid integration references belong to a separate skill and grant no
+  connector capability. EM receives only a caller-contract adapter and remains
+  Claude-only. See the [Craft acceptance record](craft-codex-agent-acceptance.md)
+  for evidence and untested workflows.
 - `debate`: version 0.5.1 opts into a companion bundle for explicit setup of
   `debate:advocate`, `debate:fact-checker`, `debate:devils-advocate`, and
   `debate:synthesizer`. The shared Markdown procedures remain available;
@@ -285,7 +296,17 @@ parity claims:
 - `librarian`: Claude-only policy fields are stripped. Four Claude agents
   become reusable Codex role procedures without Claude model, turn, or tool
   enforcement.
-- `linear`: the doctor skill's `allowed-tools` field is stripped.
+- `linear`: 0.9.1 opts into a companion bundle for exactly `linear:linear-ops`.
+  Native plugin installation exposes an explicit-only setup skill; selected-scope
+  registration and a fresh successful check precede exact native dispatch.
+  Markdown procedures remain available separately. Codex model and effort
+  inherit; Claude `haiku` is not a Codex model choice. The agent's `tools:`
+  allowlist is a declared loss, and neither connector spelling nor prose
+  boundaries establish mechanical enforcement. The doctor skill's
+  `allowed-tools` field is stripped. The role receives installed gotchas and,
+  for parent links, PM layer-policy paths or contents from its caller; bundled
+  TOML does not resolve package-relative resources. See the
+  [Linear acceptance record](linear-codex-agent-acceptance.md) for scoped results.
 - `pm`: `argument-hint` and `allowed-tools` are stripped on all three skills,
   neither a declarable loss, for the same reasons as `compass` and `feedback`
   above. Disposition: **accepted, with eleven of twelve tool references

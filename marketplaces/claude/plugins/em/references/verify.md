@@ -39,8 +39,14 @@ defect.
   or similar), follow it. Otherwise, when the `craft` plugin is installed,
   dispatch `craft:house-style-reviewer`, `craft:comment-reviewer`, and
   `craft:copy-reviewer` in one message, plus `/code-review` in a fresh
-  context. An empty report is a normal result; do not re-run it hunting for
-  output.
+  context. In Codex, use the installed Craft plugin's `RUNTIME.md` contract:
+  obtain its installed root from active Craft skill context, run the selected-
+  scope registration check immediately before each exact namespaced
+  `agent_type`, and do not set a model or effort. A failed check blocks native
+  dispatch. Only when the user explicitly selects Craft's Markdown-procedure
+  fallback may a generic child receive the matching installed Markdown body;
+  omit `agent_type` for that child. An empty report is a normal result; do not
+  re-run it hunting for output.
 - **Dispose of every finding.** Fix it, or state in the PR description why it
   stands. A finding is not resolved by being received.
 - **Decisions.** Capture a decision atom (`/capture-decision`, when `ndr` is

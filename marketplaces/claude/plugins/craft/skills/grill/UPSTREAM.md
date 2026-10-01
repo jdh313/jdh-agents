@@ -16,7 +16,7 @@ The design-tree/frontier vocabulary, the pinned question format, the subagent fa
 | added | `allowed-tools: Read, Grep, Glob, Agent`. | Upstream declares none. The fact-lookup move requires filesystem reads and, since `a4b2009a1a3a`, subagent dispatch; pre-approving them keeps the interview from stalling on permission prompts mid-loop. `Agent` matches how `improve-codebase-architecture` and `interrogate-model` declare dispatch in this plugin. |
 | not-added | `disable-model-invocation: true`, and the `grill-me` sibling skill that carries it upstream. | The flag strips a skill's description from the agent's reach, so **no other skill can dispatch it** (`skillsmith:writing-for-agents`). `craft:improve-codebase-architecture` and `craft:grill-with-docs` both dispatch this skill; the flag would break exactly the wiring this port exists to create. Explicit `/grill` invocation still works without it. |
 | not-added | `agents/openai.yaml` interface metadata. | Codex manifests in this marketplace are generated from `PACKAGE.yaml`, not authored per-skill. |
-| not-added | `../../RUNTIME.md` preamble. | This skill dispatches nothing and spawns nothing, so no orchestration terms need runtime mapping — matching `diagnose`, `prototype`, and `zoom-out`. |
+| added | `../../RUNTIME.md` preamble. | The retained fact-finding move dispatches a bounded subagent, so it needs the shared runtime mapping. The preamble preserves the upstream loop and its provenance unchanged; it only maps the existing dispatch onto each runtime and keeps generic exploration labels distinct from registered Craft review roles. |
 
 ## Provenance note — where this content lived before
 

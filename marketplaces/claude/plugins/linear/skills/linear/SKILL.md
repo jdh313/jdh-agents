@@ -41,6 +41,70 @@ Never substitute web search or model memory for private Linear data. If no
 connected Linear capability is available, stop before the Linear action and
 tell the user the integration is unavailable.
 
+## Codex registered-role dispatch
+
+`agents/linear-ops.md` is an installed Markdown procedure, not proof that a
+Codex role is registered. The optional bundle adds an explicit
+`$linear:setup-codex-agents` skill. Use it to register exactly one selected
+scope; do not infer registration from the packaged Markdown file.
+
+For setup and every later native dispatch, derive paths from this active
+installed `SKILL.md`; do not guess a cache path, version, repository checkout,
+or another plugin root. Use an absolute path to a verified released AgentForge
+binary. For an isolated consumer, explicitly set and validate the intended
+`CODEX_HOME` before every lifecycle invocation:
+
+```sh
+skill_file='<absolute path of this active Linear SKILL.md>'
+plugin_root="$(dirname "$(dirname "$(dirname "$skill_file")")")"
+bundle_root="$plugin_root/.agentforge/codex-agent-bundle"
+helper="$plugin_root/skills/setup-codex-agents/scripts/manage-codex-agent-bundle.sh"
+agentforge_bin='<absolute path of a verified released AgentForge binary>'
+isolated_codex_home='<absolute isolated CODEX_HOME>'
+test -f "$bundle_root/agentforge-codex-agent-bundle.json"
+test -x "$agentforge_bin"
+"$agentforge_bin" check-codex-agent --help >/dev/null
+case "$isolated_codex_home" in /*) ;; *) exit 64 ;; esac
+test -d "$isolated_codex_home"
+export CODEX_HOME="$isolated_codex_home"
+test "$CODEX_HOME" = "$isolated_codex_home"
+AGENTFORGE_BIN="$agentforge_bin" sh "$helper" check user
+```
+
+For project scope, validate and use the literal project root on the same
+isolated `CODEX_HOME`; never omit it:
+
+```sh
+project_root='<absolute project root>'
+case "$project_root" in /*) ;; *) exit 64 ;; esac
+test -d "$project_root"
+canonical_project_root="$(cd "$project_root" && pwd -P)"
+test "$canonical_project_root" = "$project_root"
+AGENTFORGE_BIN="$agentforge_bin" sh "$helper" check project "$canonical_project_root"
+```
+
+In a fresh Codex session, run the selected-scope `check` immediately before
+every exact `spawn_agent` dispatch with `agent_type: "linear:linear-ops"`. A
+nonzero or stale check blocks native dispatch. Do not supply a Claude model
+alias, model, effort, tool filter, or permission policy: this registered role
+inherits Codex settings, and the existing `model: haiku` and `tools:` frontmatter
+remain Claude-only source settings. Record observed model and effort from
+runtime metadata when available; otherwise record each as unknown.
+
+Before every `linear-ops` dispatch or inline procedure route, read this active
+installed Linear skill and supply the exact installed absolute path or verbatim
+content for `mcp-gotchas.md`; supply the PM `layer-policy.md` the same way when
+the intent declares a parent. Repeat the operator boundary in every child
+prompt: perform only the decided intent, never author body prose or choose
+scope, keep read-only requests read-only, and block before a write when the
+Linear connector or required context is unavailable.
+
+The Markdown-procedure route remains available only when the user explicitly
+chooses it: either embed the installed `agents/linear-ops.md` body in a generic
+bounded child with `agent_type` omitted, or follow that installed body inline
+literally. Neither route registers a role. They remain separate paths when
+setup is absent, failed, or deliberately skipped.
+
 ## Scope
 
 - **Owns:** Ticket creation defaults, label set, status flow, title shape, status transitions, priority semantics — everything specific to Linear.

@@ -1,5 +1,14 @@
 # JUN-444: installed Codex agent lifecycle acceptance
 
+Linear's subsequent migration uses this implementation as its reference and
+records its own inputs and limits in
+[Linear Codex agent acceptance](linear-codex-agent-acceptance.md). Debate's
+historical results below do not establish acceptance for Linear.
+
+Craft's subsequent migration is recorded separately in
+[Craft Codex agent acceptance](craft-codex-agent-acceptance.md); neither
+Debate nor Linear's runtime results establish acceptance for Craft.
+
 Date: 2026-09-29. Original result: **unreleased local build; scoped local acceptance passed**.
 [JUN-444](https://linear.app/junglelan/issue/JUN-444/jdh-agents-installed-codex-agent-lifecycle-acceptance)
 initially encountered a compiler-pin gate; the released v1.2.0 recheck below supersedes that blocker.

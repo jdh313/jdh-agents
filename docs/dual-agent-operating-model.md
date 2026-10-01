@@ -33,6 +33,16 @@ Fresh Introspect Claude and Codex acceptance evidence is recorded in
   setup uses AgentForge v1.2.0; see the
   [lifecycle acceptance record](codex-agent-lifecycle-acceptance.md) for the
   tested revision, results, and outstanding gates.
+- Linear 0.9.1 opts into the same explicit companion lifecycle for
+  `linear:linear-ops`, with inherited Codex model/effort and caller-supplied
+  installed references. The [Linear acceptance record](linear-codex-agent-acceptance.md)
+  separates mocked writes, live reads, ordinary sandbox setup, and dispatch.
+- Craft 0.16.0 opts into that lifecycle for `craft:house-style-reviewer`,
+  `craft:comment-reviewer`, and `craft:copy-reviewer`. Model and effort inherit;
+  generic explorers remain generic. Its installed `RUNTIME.md` governs
+  selected-scope checks and separately chosen Markdown procedures. The
+  [Craft acceptance record](craft-codex-agent-acceptance.md) separates native
+  installation, activation, dispatch, review behavior, and sandbox limits.
 - Small runtime mappings may live beside shared content, such as
   `plugins/craft/RUNTIME.md` or skill-local `agents/openai.yaml` policy files.
 - Preserve behavioral parity, not identical structure or tool spelling.

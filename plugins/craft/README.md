@@ -53,6 +53,28 @@ Three read-only post-edit review agents, each deriving the host repo's conventio
 - **`comment-reviewer`** — Docstrings and comments against the code they describe, including comments left unchanged while the code beneath them moved. Uses VCS history to separate stale comments from deliberate ones.
 - **`copy-reviewer`** — User-facing strings (CLI output, error messages, help text, prompts, docs headings) against the voice the product already uses. Grounds every finding in an existing string it can cite.
 
+## Codex optional agent bundle
+
+Craft 0.16.0 can register its three review roles in a selected Codex user or
+project scope. After installing Craft from the Codex marketplace, explicitly
+invoke `$craft:setup-codex-agents`, then use the installed
+[`RUNTIME.md`](RUNTIME.md) contract to check that same scope in a fresh session
+immediately before an exact `agent_type` dispatch:
+`craft:house-style-reviewer`, `craft:comment-reviewer`, or
+`craft:copy-reviewer`.
+
+The setup skill derives its helper from the active installed skill path. Set
+`AGENTFORGE_BIN` to an absolute verified AgentForge release binary; consumers
+need neither Bun nor an AgentForge checkout. The roles intentionally inherit
+Codex model and effort settings: their Claude `sonnet` aliases do not imply a
+Codex setting. Runtime metadata is the evidence for applied values.
+
+The existing Markdown procedures remain an explicit fallback. A generic child
+receives the matching installed role body with `agent_type` omitted; it does
+not register a role. Codex does not mechanically retain the Claude tool
+filters, so the role body's advisory, no-edit, no-external-action boundaries
+guide behavior but require runtime acceptance evidence.
+
 ## Reference docs
 
 `craft` also ships three reference documents, not workflows in their own right:

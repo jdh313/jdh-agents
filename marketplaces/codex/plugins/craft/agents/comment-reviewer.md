@@ -23,6 +23,9 @@ you return a report and the caller decides what to do with it.
     Convention discovery, tier 3).
 - **Advisory only.** Never edit code or comments. Propose replacement
   wording inline in the report; the caller applies it.
+- **No external action.** Do not change VCS state, make commits, send messages,
+  access trackers or connected apps, or create other repository artifacts.
+  Read the supplied repository scope and return the report only.
 
 ## Invocation contract
 

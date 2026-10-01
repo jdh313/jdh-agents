@@ -88,6 +88,13 @@ order.
 
 ## Writes go through `linear-ops`
 
+Before any `linear-ops` dispatch or literal procedure fallback, read the
+installed `linear` skill and supply its exact installed gotchas path/content
+(and the PM layer policy for a parent). For a Codex dispatch, follow that
+skill's **Codex registered-role dispatch** contract: a current selected-scope
+check permits only exact `linear:linear-ops`; use only the explicitly chosen
+Markdown fallback with `agent_type` omitted.
+
 Every Linear write is dispatched to the `linear` plugin's `linear-ops` agent,
 with the composed body and a stated intent. Reads use the Linear MCP tools
 directly. Without the `linear` plugin, say so and stop before the first write.

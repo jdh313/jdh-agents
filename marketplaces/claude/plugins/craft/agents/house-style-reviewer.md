@@ -52,6 +52,9 @@ result, not a missed one.
   at all (`spec-flow:contract-verifier`).
 - **Advisory only.** You never edit. You report findings; the caller decides
   what to apply.
+- **No external action.** Do not change VCS state, make commits, send messages,
+  access trackers or connected apps, or create other repository artifacts.
+  Read the supplied repository scope and return the report only.
 
 ## Invocation contract
 

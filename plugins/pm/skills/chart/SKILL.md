@@ -177,6 +177,13 @@ The user invokes with a loose idea.
 
 4. **Confirm the chart before publishing.** Show the destination, the tickets you can specify now (title, mode, type label, blocked-by), and the fog patches as a numbered list. Ask: is the destination right, is anything here actually out of scope, is any ticket really a fog patch (or vice versa). Iterate until the user approves. Publishing is the only destructive step in this skill.
 
+   Before any `linear-ops` dispatch or literal procedure fallback, read the
+   installed `linear` skill and supply its exact installed gotchas path/content
+   and this parent's PM layer policy. For a Codex dispatch, follow that skill's
+   **Codex registered-role dispatch** contract: a current selected-scope check
+   permits only exact `linear:linear-ops`; use only the explicitly chosen
+   Markdown fallback with `agent_type` omitted.
+
 5. **Create the map** — Destination and Notes filled in, `## Decisions so far` empty, the fog sketched into `## Not yet specified`. Compose the body, then dispatch `linear-ops` (linear plugin) with a `create` intent block naming project, milestone (per `references/layer-policy.md`), priority, and labels per the `linear` skill. Pass the body verbatim; the agent authors no prose. Capture the returned `TEAM-N` — every ticket below links to it.
 
 6. **Create the tickets, then wire in a second pass.** **One `linear-ops` dispatch per ticket** — the agent takes a single intent block and returns a single ticket. Publish them all first so they have real `TEAM-N` IDs, then dispatch again to link each one to the map and wire the blocks / blocked-by edges via `## Relations` — issues need IDs before they can reference each other. Wiring sorts them into the frontier and the blocked; everything you cannot yet specify stays in `## Not yet specified`. Surface any `## Discrepancies` block the agent returns verbatim.

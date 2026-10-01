@@ -8,6 +8,8 @@ allowed-tools: Bash(obsidian-cli *), Write, Read, Grep, Glob, Bash(git log *), B
 disallowed-tools: Edit, Bash(rm *), Bash(trash *), Bash(git push *), Bash(jj abandon *), Bash(jj restore *)
 ---
 
+Apply the orchestration mapping in [`../../RUNTIME.md`](../../RUNTIME.md).
+
 The user wants to understand a codebase. This is a **stateful** request — comprehension built over multiple sessions, not a one-shot explanation. (For a one-shot "zoom out and map this area," use the `zoom-out` skill instead; `/grok` is the layer that persists what `zoom-out` surfaces and tracks progress toward an understanding goal.)
 
 This skill borrows the `teach` plugin's machinery — a mission, supersession-aware progress records, one-unit-at-a-time pacing, vault-routed durable artifacts — and points it at a codebase instead of a topic. The durable understanding records live in the **Obsidian vault** (`~/Loose Ends/`); confirmed _shared_ facts graduate out into the **repo's own** durable layer (`CONTEXT.md` and NDR atoms).
@@ -34,7 +36,7 @@ You do not know this codebase. Treat the code and its durable layer as the only 
 
 1. **`/ground`** (ndr plugin) first — surface NDR atoms governing the area so you don't re-explain or contradict settled decisions. Capture the `ndr:` references for the workspace's grounding sources.
 2. **`CONTEXT.md`** at the repo root — the project's glossary. Use its vocabulary exactly in every explanation and record. If it's absent, that's fine; if terms keep surfacing that deserve it, route them to `grill-with-docs`.
-3. **The code**, via a named `Explore` agent (`subagent_type=Explore`, `name="grok-explorer"`) for fan-out reads — keep it addressable so you can ask follow-ups during a walk. Use `Grep`/`Glob`/`Read` directly for narrow checks.
+3. **The code**, via a bounded named exploration child for fan-out reads — keep it addressable so you can ask follow-ups during a walk. In Claude Code this is an `Explore` agent with `name="grok-explorer"`; on other runtimes use their generic exploration mechanism. `grok-explorer` is a handle, not a registered Craft role. Use `Grep`/`Glob`/`Read` directly for narrow checks.
 4. **Git history** — `git log`, `git show`, `git blame` to learn _why_ code is shaped the way it is and who to ask. History is a primary source for a "why," not a footnote.
 
 Use craft's shared vocabulary — **module, interface, implementation, depth, seam, adapter, leverage, locality** — exactly, and don't drift into "component," "service," "API," or "boundary," so explanations stay consistent with `improve-codebase-architecture` and `zoom-out`. The full glossary is [`../../CODEBASE-DESIGN.md`](../../CODEBASE-DESIGN.md).
@@ -105,7 +107,7 @@ This is the codebase analogue of `teach` graduating glossary terms into the vaul
 
 - **`zoom-out`** — the one-shot explainer; `/grok` persists and tracks what it surfaces.
 - **`/ground`** (ndr) — decision grounding before explaining; run it first.
-- **`Explore` agent** — codebase fan-out reads, named for follow-ups.
+- **Bounded exploration child** — codebase fan-out reads, named for follow-ups; Claude uses `Explore`, while other runtimes use their generic exploration mechanism.
 - **`grill-with-docs`** — destination for terms that earn a `CONTEXT.md` entry.
 - **`/capture-decision`** (ndr) — destination for rationale-bearing decisions discovered while grokking.
 - **`improve-codebase-architecture`** — once a subsystem is understood, the natural next step if it's shallow or tangled; shares the same vocabulary.

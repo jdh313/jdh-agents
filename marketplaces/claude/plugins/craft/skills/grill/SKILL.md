@@ -13,6 +13,8 @@ allowed-tools:
   - Agent
 ---
 
+Apply the orchestration mapping in [`../../RUNTIME.md`](../../RUNTIME.md).
+
 Interview the user relentlessly about every aspect of this until you reach a shared understanding.
 
 Map the problem as a **design tree**: every decision branches into the decisions that hang off it. The **frontier** is every decision whose prerequisites are already settled — the questions you can ask *now* without guessing at answers you haven't heard yet. A question whose answer depends on another still-open question is not on the frontier; it belongs later.
