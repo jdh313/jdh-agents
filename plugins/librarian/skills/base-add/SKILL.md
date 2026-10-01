@@ -8,10 +8,31 @@ agent: note-editor
 
 # Add to Base
 
+## Codex registered dispatch
+
+On Codex, this skill's `note-editor` route follows
+the active installed Librarian `RUNTIME.md` (derived from the active
+`SKILL.md` path; `## Codex optional registered vault roles` and
+`## Installed resources and vault destination`). Immediately before each exact
+dispatch, run the selected-scope check. Only a current result permits
+`agent_type: "librarian:note-editor"` with the required `## Runtime context`;
+do not set a dispatch model or effort. A failed or stale check blocks native
+dispatch. The user may separately choose the installed Markdown/procedure
+fallback with no `agent_type`; that route does not register a role. The
+existing Claude `agent: note-editor` flow remains unchanged.
+
+On Codex, every vault path below is rooted at the verified `vault_root` and
+each CLI or connector operation binds the verified `vault_name`. Literal
+`~/Loose Ends` and unqualified integration examples remain Claude-only,
+including before dispatch.
+
 Create a note with the correct properties and location to appear in a
 specified Obsidian Base. The slash command forks to `@note-editor`, which
 loads `${CLAUDE_PLUGIN_ROOT}/references/bases.md` for base schemas and
-filter conventions and executes the write.
+filter conventions and executes the write. On Codex, the caller resolves that
+file beneath the active installed `plugin_root` and passes its canonical
+absolute `bases_reference` in `## Runtime context`; never use a source checkout
+or current working directory.
 
 **One-shot by design.** A single Base entry is one finalized write with
 no carried state, so it stays on a cold `context: fork` dispatch — there
@@ -159,5 +180,7 @@ If run without arguments, the agent prompts for:
 
 ## Related
 
-- `${CLAUDE_PLUGIN_ROOT}/references/bases.md` — base schemas and filter conventions (the agent loads this)
+- Claude: `${CLAUDE_PLUGIN_ROOT}/references/bases.md`; Codex: the canonical
+  `bases_reference` beneath the active installed plugin root — base schemas and
+  filter conventions (the agent loads this)
 - `/note-capture` — quick unstructured captures

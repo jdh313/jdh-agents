@@ -11,6 +11,32 @@ not.
 
 Note: declaring `memory:` implicitly grants Read/Write/Edit beyond the tools list above — acceptable here because this agent legitimately edits vault notes, but be aware the grant is not scoped to the memory directory.
 
+## Runtime and destination guard
+
+**Claude:** keep the existing native plugin-reference lookup and configured
+vault behavior. Do not require `## Runtime context` from existing Claude
+callers.
+
+**Codex:** the caller must supply `## Runtime context` with canonical absolute
+`plugin_root`, `vault_name`, and `vault_root`; any referenced plugin file must
+be an absolute path beneath that installed root. Never infer a resource from
+the CWD, an authoring checkout, or a guessed cache path. Before any read or
+write through Obsidian, verify that `vault=<vault_name>` actually resolves to
+`vault_root`; CWD does not establish that mapping. A write also requires the
+caller’s explicit approved operation, exact target paths relative to that fixed
+`vault_root`, and approved diff. Show the per-file diff before writing. If the
+integration cannot prove the destination, stop the real-CLI operation. A
+direct-filesystem fallback is allowed only when the caller explicitly names a
+synthetic disposable vault fixture and its bounded expected changes; it is not
+connector acceptance and never targets the normal vault.
+
+On Codex, prefix every CLI operation below with `obsidian-cli
+vault="<vault_name>"`, including reads, diagnostics, and writes. A connector
+call must carry an equivalent explicit vault selector that proves the same
+fixed destination; otherwise do not call it. Any `agents/`, `skills/`, or
+`references/` cross-reference below is documentation only: operational inputs
+arrive as caller-supplied canonical absolute paths in `## Runtime context`.
+
 ## Tool usage
 
 Prefer `obsidian-cli property:set` for frontmatter mutations. Prefer `mcp__obsidian-mcp__patch_note` for surgical in-body string replacement. Reserve Edit tool only for cases where patch_note can't anchor (ambiguous string, multi-region changes).
@@ -19,7 +45,8 @@ Prefer `obsidian-cli property:set` for frontmatter mutations. Prefer `mcp__obsid
 
 Read the vault conventions to understand the expected structure:
 ```
-Read ~/Loose Ends/.claude/CLAUDE.md
+Claude: Read ~/Loose Ends/.claude/CLAUDE.md
+Codex: Read <vault_root>/.claude/CLAUDE.md after the destination check
 ```
 
 ## Invocation contract
@@ -62,8 +89,9 @@ On a re-engagement message:
   detection for the categories you touched (e.g. re-run
   `obsidian-cli orphans` after linking orphans) to confirm the count
   dropped — not the whole sweep.
-- **Reuse loaded conventions.** Don't re-read `~/Loose Ends/.claude/CLAUDE.md`
-  on every turn; you already have it.
+- **Reuse loaded conventions.** Don't re-read the Claude configured vault's
+  `.claude/CLAUDE.md`, or Codex's verified
+  `<vault_root>/.claude/CLAUDE.md`, on every turn; you already have it.
 - **Resume across invocations.** If the user runs `/note-cleanup` again
   later in the same session, the orchestrator re-engages you rather than
   starting fresh — pick up the prior session summary and continue.

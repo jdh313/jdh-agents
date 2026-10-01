@@ -1,18 +1,20 @@
 schema: agentforge.package/v1
 id: librarian
-defaults: {"name": "librarian", "version": "0.20.0", "description": "Curates, catalogs, retrieves, and maintains your library of notes and knowledge in an Obsidian vault. Workflow-shaped (Capture / Process / Retrieve / Maintain) and agent-mediated (skills draft, agents execute). 19 skills + 4 agents + 6 references, coupled to the vault conventions in ~/Loose Ends/.claude/rules/{wiki.md,catalog.md} and the Templater templates in ~/Loose Ends/Templates/.", "author": {"name": "Jacob Hoehler"}, "license": "Apache-2.0", "keywords": ["obsidian", "knowledge-base", "wiki", "catalog", "notes", "meetings", "experiments", "bases", "ingest", "refresh", "lint", "curation", "personal-knowledge", "savings-goal", "budget", "purchase", "planning"]}
+defaults: {"name": "librarian", "version": "0.21.0", "description": "Curates, catalogs, retrieves, and maintains your library of notes and knowledge in an Obsidian vault. Workflow-shaped (Capture / Process / Retrieve / Maintain) and agent-mediated (skills draft, agents execute). 19 skills + 4 agents + 6 references, coupled to the vault conventions in ~/Loose Ends/.claude/rules/{wiki.md,catalog.md} and the Templater templates in ~/Loose Ends/Templates/.", "author": {"name": "Jacob Hoehler"}, "license": "Apache-2.0", "keywords": ["obsidian", "knowledge-base", "wiki", "catalog", "notes", "meetings", "experiments", "bases", "ingest", "refresh", "lint", "curation", "personal-knowledge", "savings-goal", "budget", "purchase", "planning"]}
 artifacts:
   - {type: skill, pattern: 'skills/*/SKILL.md'}
   - {type: agent, pattern: 'agents/*.md'}
 payloads:
   include:
     - {source: references/}
+    - {source: RUNTIME.md}
 targets:
   claude:
     native:
       userConfig:
         word_log: {type: string, title: Word log, description: 'Vault-relative path of the note /term appends to on this machine', default: 'Reference/Word Log.md'}
   codex:
+    codex-agent-bundle: true
     losses:
       - construct: agent-tools-filter
         state: stripped
@@ -23,18 +25,24 @@ targets:
       - construct: body-agent-reference
         state: retained-unenforced
         note: >-
-          Codex registers no agent role from a plugin package, so the 72
-          references to vault-reader, vault-curator, vault-inspector, and
-          note-editor across librarian's own agent bodies, skill bodies, and
-          references/architecture.md name a collaborator a Codex reader cannot
-          dispatch. The dispatches are real on Claude -- registration,
-          delegation, isolation, and model selection are observed -- so the
-          bodies keep them and a Codex reader must perform the delegated vault
-          work inline, without the read-only isolation the agent would have
-          provided.
+          Explicit setup registers exactly librarian:vault-reader,
+          librarian:note-editor, librarian:vault-curator, and
+          librarian:vault-inspector in one selected Codex scope. A fresh
+          selected-scope check is required immediately before each exact
+          dispatch. Generic body references are not rewritten or mechanically
+          guarded by the compiler, and plugin installation alone still does
+          not register a role; callers use a separately selected installed
+          Markdown/procedure fallback without agent_type when registration is
+          absent or stale.
       - construct: body-template-variable
         state: retained-unenforced
-        note: Vault agent and skill bodies interpolate ${CLAUDE_PLUGIN_ROOT} to locate bundled reference files. Codex emits the literal text unexpanded, so those paths do not resolve and a Codex reader must locate the references/ files by name instead.
+        note: >-
+          Claude uses ${CLAUDE_PLUGIN_ROOT} for bundled references. Codex
+          emits that text literally, so Codex callers must derive the active
+          installed Librarian plugin root from the active skill path and pass
+          its canonical absolute path in the agent's Runtime context. A role
+          must not infer resources from its CWD, the authoring checkout, or a
+          guessed cache path.
     native:
       interface:
         displayName: Librarian

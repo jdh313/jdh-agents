@@ -77,7 +77,8 @@ Sonnet for the readers/curator — synthesis across pages and judgment
 calls need reasoning capability. Haiku for the editor and inspector —
 when content is drafted in the skill with user approval, the write is
 mechanical pattern application; rule-checking is bulk pattern matching.
-Both fit Haiku's strengths and budget.
+Both fit Haiku's strengths and budget. This is the Claude role rationale;
+Codex does not inherit those aliases as model selections.
 
 No Opus. Defer until evidence emerges that specific operations need it
 — most likely candidate would be a high-stakes catalog-entry evaluation
@@ -94,8 +95,12 @@ Each agent declares an `effort:` matching its model class and job:
 | `note-editor` | Haiku | `low` | Mechanical write of pre-drafted content |
 | `vault-inspector` | Haiku | `low` | Bulk rule-matching, no judgment |
 
-(`effort` overrides the session level while the agent is active; valid
-levels are `low`/`medium`/`high`/`xhigh`/`max`, model-dependent.)
+(`effort` overrides the Claude session level while the agent is active; valid
+levels are `low`/`medium`/`high`/`xhigh`/`max`, model-dependent.) On Codex,
+the four roles inherit the runtime model but retain this effort: bounded reader
+synthesis independently justifies `medium`; curator merge/split judgment,
+`high`; approved mechanical editing and rule-bound inspection, `low`. A runtime
+trace, rather than this table, establishes applied values.
 
 ### Persistent vs one-shot dispatch
 
@@ -119,11 +124,14 @@ Agents come in two engagement shapes:
     write step of the reader/refresh skills) — one mechanical append.
   - `vault-inspector` (`vault-inspect`) — one read-only diagnostic pass.
 
-The mechanism is `SendMessage` to a completed subagent's agent ID, which
+Claude uses `SendMessage` to a completed subagent's agent ID, which
 auto-resumes it with full prior context (requires agent teams enabled).
-There is no frontmatter "persistent" field — `context: fork` always
-spawns fresh, so the re-engagement instruction lives in the skill body
-and the agent's contract section.
+For Codex, use a follow-up only when the runtime returns a handle proving the
+same registered role resumed; otherwise perform a fresh selected-scope check
+and dispatch a new role, recording continuity as unknown. There is no
+frontmatter "persistent" field — `context: fork` always spawns fresh, so the
+re-engagement instruction lives in the skill body and the agent's contract
+section.
 
 ### Read-only skills deny writes
 
@@ -131,7 +139,8 @@ and the agent's contract section.
 in frontmatter. They are read paths — synthesis and diagnostics — and
 route any resulting write through a writing skill (`wiki-create` /
 `wiki-refresh`, owning `@note-editor`). The denial is defense-in-depth on
-top of the agents' own read-only `tools:` lists.
+top of the agents' own read-only `tools:` lists in Claude. Codex strips those
+filters: the same read-only rules survive as procedure instructions only.
 
 ## Skill→agent contract
 
@@ -141,6 +150,11 @@ lives in `agents/vault-reader.md` (`## Invocation contract`).
 **Inbound (caller → agent):**
 
 ```markdown
+## Runtime context
+plugin_root: <canonical active installed Librarian root>
+vault_name: <explicit configured vault name>
+vault_root: <canonical expected vault root>
+
 ## Intent
 <one-line: operation + target>
 
@@ -173,13 +187,20 @@ The payload is plain Markdown for two reasons: it's readable in
 conversation logs without parsing, and it composes with how Claude
 already structures responses.
 
+For write-capable routes, `## Input` also carries an explicitly approved
+operation, exact target paths, and approved draft/diff. Before a connector or
+CLI operation, resolve `vault=<vault_name>` and verify it maps to `vault_root`;
+changing CWD does not prove the destination. If a real integration cannot be
+targeted, stop that dependent operation. A direct filesystem path is only a
+bounded synthetic-fixture fallback and is separate from connector acceptance.
+
 ## Where the rules live
 
 | Layer | Source | Used by |
 |---|---|---|
 | Vault conventions | `~/Loose Ends/.claude/rules/wiki.md`, `~/Loose Ends/.claude/rules/catalog.md` | Humans + agents (loaded on demand) |
 | Page-type templates (canonical schemas) | `~/Loose Ends/Templates/*.md` (Templater) | Skills + agents that write wiki, event, treatment, condition pages |
-| Plugin reference (non-template context) | `references/bases.md`, `references/vault-conventions.md` | Agents (loaded by `@note-editor`, `@vault-reader`) |
+| Plugin reference (non-template context) | Installed `<plugin_root>/references/bases.md`, `<plugin_root>/references/vault-conventions.md` | Agents (loaded by `@note-editor`, `@vault-reader`) |
 | Diagnostic rules | `references/inspect-rules.md` | `@vault-inspector` |
 | Tool gotchas | `references/obsidian-cli-gotchas.md` | Any agent shelling to obsidian-cli |
 | Work-context substitution | `~/Loose Ends/.claude/librarian.local.md` + `references/work-context-config.md` | Meeting skills |
@@ -190,6 +211,11 @@ Plugin references hold only the context that doesn't live in the vault
 the diagnostic rule sets used by `@vault-inspector`. Page-type
 skeletons are never duplicated into the plugin — skills read the
 relevant Templater template at write time.
+
+On Codex, `plugin_root` is the canonical root of the active installed plugin,
+supplied by the caller. It is never inferred from the authoring checkout or
+current working directory. Vault rules and templates likewise remain explicit
+dependencies of the verified target vault.
 
 ## Adding things
 

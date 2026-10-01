@@ -43,6 +43,13 @@ Fresh Introspect Claude and Codex acceptance evidence is recorded in
   selected-scope checks and separately chosen Markdown procedures. The
   [Craft acceptance record](craft-codex-agent-acceptance.md) separates native
   installation, activation, dispatch, review behavior, and sandbox limits.
+- Librarian 0.21.0 opts into that lifecycle for `librarian:vault-reader`,
+  `librarian:note-editor`, `librarian:vault-curator`, and
+  `librarian:vault-inspector`. Its installed `RUNTIME.md` requires a
+  selected-scope check before exact dispatch and supplies installed resource
+  paths plus a verified vault destination. The [Librarian acceptance
+  record](librarian-codex-agent-acceptance.md) separates synthetic-vault tests
+  from real Obsidian integration and preserves the Markdown procedure route.
 - Small runtime mappings may live beside shared content, such as
   `plugins/craft/RUNTIME.md` or skill-local `agents/openai.yaml` policy files.
 - Preserve behavioral parity, not identical structure or tool spelling.

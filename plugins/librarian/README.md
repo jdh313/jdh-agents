@@ -57,6 +57,27 @@ follow the same shape: `## Intent` / `## Constraints` / `## Input` /
 `## Output shape` inbound, `## Result` / `## Sources` / `## Notes`
 outbound.
 
+## Codex registered roles
+
+The four files in `agents/` are Markdown procedures, not registrations by
+themselves. A Codex user can explicitly invoke `$librarian:setup-codex-agents`
+to register `librarian:vault-reader`, `librarian:note-editor`,
+`librarian:vault-curator`, and `librarian:vault-inspector` in one selected
+scope. Every exact `agent_type` dispatch needs a fresh current selected-scope
+check first; plugin installation alone is insufficient. Each caller preserves
+the existing Claude route and points to `RUNTIME.md` for the check, explicit
+installed-Markdown fallback, same-agent continuation, installed resource root,
+and vault-destination guard.
+
+Codex roles inherit the runtime model. The bundle retains `medium` effort for
+bounded reader synthesis, `high` for curator merge/split judgment, and `low`
+for approved editor writes and rule-bound inspector reports; those are
+role-specific Codex rationales, not translations of Claude aliases. Record
+runtime-applied values when observable, otherwise `unknown`. Claude's tool
+filters, model aliases, turn limits, and curator memory remain Claude behavior.
+Their Codex procedures retain the same boundaries as instructions but do not
+mechanically constrain a Codex sandbox or connector.
+
 ## References
 
 Loaded on demand by skills and agents that need vault context:
@@ -69,8 +90,11 @@ Loaded on demand by skills and agents that need vault context:
 | `obsidian-cli-gotchas.md` | obsidian-cli patterns and shell-quoting gotchas | Any agent shelling to obsidian-cli |
 | `work-context-config.md` | `${active_work_context}` substitution rules; reads `~/Loose Ends/.claude/librarian.local.md` | `meeting-notes`, `meeting-followup`, `meeting-restructure` |
 
-Referenced from skills and agents via
-`${CLAUDE_PLUGIN_ROOT}/references/<file>.md`.
+Claude resolves these through
+`${CLAUDE_PLUGIN_ROOT}/references/<file>.md`. Codex callers derive the active
+installed Librarian root from the active skill path and pass it as
+`## Runtime context` before dispatch; roles resolve only
+`<plugin_root>/references/<file>.md`, never an authoring checkout or CWD.
 
 Page-type skeletons (wiki concept, gist hubs, how-to, evaluation,
 event incident/appointment, treatment, condition) live in the vault

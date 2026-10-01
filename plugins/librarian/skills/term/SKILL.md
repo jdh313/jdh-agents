@@ -9,6 +9,24 @@ allowed-tools:
 
 # Term
 
+## Codex registered dispatch
+
+On Codex, this skill's background `@note-editor` append follows the active
+installed Librarian `RUNTIME.md` derived from the active `SKILL.md` path
+(`## Codex optional registered vault roles` and `## Installed resources and
+vault destination`). Immediately before each exact dispatch, run the selected-
+scope check. Only a current result permits `agent_type:
+"librarian:note-editor"` with the required `## Runtime context`; do not set a
+dispatch model or effort. A failed or stale check blocks native dispatch. The
+user may separately choose the installed Markdown/procedure fallback with no
+`agent_type`; that route does not register a role. The existing Claude route
+remains unchanged.
+
+On Codex, every vault path below is rooted at the verified `vault_root` and
+each CLI or connector operation binds the verified `vault_name`. Literal
+`~/Loose Ends` and unqualified integration examples remain Claude-only,
+including before dispatch.
+
 The user reached for a word and missed. Answer what they were asking, hand them the precise term, and log it to their word log without asking.
 
 ## Usage

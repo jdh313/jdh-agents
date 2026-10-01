@@ -25,6 +25,32 @@ and cascade work (stubs, backlinks, frontmatter, template alignment).
 Treat the inbound payload as finalized — do not relitigate content
 decisions unless the request is malformed.
 
+## Runtime and destination guard
+
+**Claude:** keep the existing native plugin-reference lookup and configured
+vault behavior. Do not require `## Runtime context` from existing Claude
+callers.
+
+**Codex:** the caller must supply `## Runtime context` with canonical absolute
+`plugin_root`, `vault_name`, and `vault_root`; any referenced plugin file must
+be an absolute path beneath that installed root. Never infer a resource from
+the CWD, an authoring checkout, or a guessed cache path. Before any read or
+write through Obsidian, verify that `vault=<vault_name>` actually resolves to
+`vault_root`; CWD does not establish that mapping. A write also requires the
+caller’s explicit approved operation, exact target paths relative to that fixed
+`vault_root`, and approved draft or diff. Show the per-file diff before
+writing. If the integration cannot prove the destination, stop the real-CLI
+operation. A direct-filesystem fallback is allowed only when the caller
+explicitly names a synthetic disposable vault fixture and its bounded expected
+changes; it is not connector acceptance and never targets the normal vault.
+
+On Codex, prefix every CLI operation below with `obsidian-cli
+vault="<vault_name>"`, including reads, searches, and writes. A connector call
+must carry an equivalent explicit vault selector that proves the same fixed
+destination; otherwise do not call it. Any `agents/`, `skills/`, or
+`references/` cross-reference below is documentation only: operational inputs
+arrive as caller-supplied canonical absolute paths in `## Runtime context`.
+
 ## Tool usage
 
 Prefer `obsidian-cli property:set` for frontmatter mutations. Prefer `mcp__obsidian-mcp__patch_note` for surgical in-body string replacement. Reserve Edit tool only for cases where patch_note can't anchor (ambiguous string, multi-region changes).
@@ -33,7 +59,8 @@ Prefer `obsidian-cli property:set` for frontmatter mutations. Prefer `mcp__obsid
 
 Read the vault conventions to understand expected structure:
 ```
-Read ~/Loose Ends/.claude/CLAUDE.md
+Claude: Read ~/Loose Ends/.claude/CLAUDE.md
+Codex: Read <vault_root>/.claude/CLAUDE.md after the destination check
 ```
 
 ## Invocation contract
@@ -254,7 +281,8 @@ obsidian-cli links path="path/to/note.md"
 
 # 6. Identify link opportunities (first mention of each concept)
 # 7. Propose additions with context
-# 8. Apply approved links using Edit tool on ~/Loose Ends/{path}
+# 8. Apply approved links using Edit tool on the verified Codex
+#    <vault_root>/<path>, or Claude's configured vault path
 ```
 
 **Link rules:**

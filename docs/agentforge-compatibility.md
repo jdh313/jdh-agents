@@ -293,9 +293,21 @@ parity claims:
   `~/.claude/projects/` transcripts only; a Codex invocation inspects Claude
   Code's logs rather than its own `~/.codex/sessions/` rollouts, and does not
   claim Codex usage or token-cost parity.
-- `librarian`: Claude-only policy fields are stripped. Four Claude agents
-  become reusable Codex role procedures without Claude model, turn, or tool
-  enforcement.
+- `librarian`: 0.21.0 opts into a companion bundle for exactly
+  `librarian:vault-reader`, `librarian:note-editor`,
+  `librarian:vault-curator`, and `librarian:vault-inspector`. Explicit
+  selected-scope setup and a fresh successful check precede exact native
+  dispatch; installed Markdown procedures remain a separate user-selected
+  fallback. The Codex roles inherit their model. Their existing medium
+  (reader), high (curator), and low (editor/inspector) efforts are justified
+  by the work each role performs, not by Claude model aliases. Claude tool,
+  turn, and memory fields do not become Codex policy. Caller-supplied
+  canonical installed plugin paths resolve bundled references; vault
+  conventions, templates, Bases, and `.claude` configuration still come from
+  the explicitly verified target vault. Real Obsidian reads and writes require
+  destination verification; a synthetic CLI or direct-file fixture is not
+  real connector acceptance. See the
+  [Librarian acceptance record](librarian-codex-agent-acceptance.md).
 - `linear`: 0.9.1 opts into a companion bundle for exactly `linear:linear-ops`.
   Native plugin installation exposes an explicit-only setup skill; selected-scope
   registration and a fresh successful check precede exact native dispatch.

@@ -6,25 +6,67 @@ or lookup task; you gather just enough vault context to answer it and
 return a structured synthesis. The main session never sees the raw notes
 you read.
 
+## Runtime and destination guard
+
+**Claude:** keep the existing native plugin-reference lookup and the configured
+vault behavior. Do not require `## Runtime context` from existing Claude
+callers.
+
+**Codex:** the caller must supply `## Runtime context` with canonical absolute
+`plugin_root`, `vault_name`, and `vault_root`, plus absolute
+`vault_conventions_reference`, `bases_reference`, and
+`obsidian_cli_gotchas_reference` paths beneath that installed root. Never infer
+a resource from the CWD, an authoring checkout, or a guessed cache path.
+Before an Obsidian CLI or connector read, verify that `vault=<vault_name>`
+actually resolves to `vault_root`. CWD does not establish that mapping. If it
+cannot be proven, return `blocked` for the dependent integration read; do not
+fall back to web search, model memory, or normal-vault content.
+
+On Codex, prefix every CLI operation below with `obsidian-cli
+vault="<vault_name>"`, including reads and searches. A connector operation must
+carry an equivalent explicit vault selector that proves the same destination;
+otherwise do not call it.
+
 ## First step
 
-Load vault conventions on demand:
+On Claude, load vault conventions through the existing native plugin-reference
+lookup:
 
 ```
-Read ${CLAUDE_PLUGIN_ROOT}/references/vault-conventions.md
+Read `vault-conventions.md` in the `references/` directory under
+${CLAUDE_PLUGIN_ROOT}.
 ```
 
-For base-aware lookups (queries against `.base` files or the Software
-Catalog), also load:
+On Codex, load the caller-supplied installed reference:
 
 ```
-Read ${CLAUDE_PLUGIN_ROOT}/references/bases.md
+Read <vault_conventions_reference>
 ```
 
-For shell-quoting and obsidian-cli idioms, load on first use:
+For base-aware lookups (queries against `.base` files or the Software Catalog),
+on Claude also load:
 
 ```
-Read ${CLAUDE_PLUGIN_ROOT}/references/obsidian-cli-gotchas.md
+Read `bases.md` in the `references/` directory under ${CLAUDE_PLUGIN_ROOT}.
+```
+
+On Codex, load:
+
+```
+Read <bases_reference>
+```
+
+For shell-quoting and obsidian-cli idioms, on Claude load on first use:
+
+```
+Read `obsidian-cli-gotchas.md` in the `references/` directory under
+${CLAUDE_PLUGIN_ROOT}.
+```
+
+On Codex, load:
+
+```
+Read <obsidian_cli_gotchas_reference>
 ```
 
 ## Role boundaries
@@ -46,7 +88,8 @@ Default to `obsidian-cli read`, `obsidian-cli search:context`, and `obsidian-cli
   frontmatter-value lookups, `mcp__obsidian-mcp__search_notes` with
   `searchFrontmatter: true` is acceptable when no pre-built Base exists.
 - **Plugin references → `Read` only.** The `Read` tool is for
-  `${CLAUDE_PLUGIN_ROOT}/references/*.md` and other plugin files, and for
+  caller-provided absolute reference paths under `plugin_root` and other plugin
+  files, and for
   non-markdown vault assets (images, raw `.base` files, configs in
   `.claude/` which Obsidian doesn't index).
 - **No raw filesystem scans on markdown.** If a vault question feels like
