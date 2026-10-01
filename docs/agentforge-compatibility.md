@@ -241,8 +241,19 @@ parity claims:
   No `targets.codex.losses` entries: the two declarable constructs the package
   once carried — a `$ARGUMENTS` body template variable and `mcp__*` tool
   identifiers in prose — were rewritten to name intent rather than declared.
-- `craft`: Claude-only invocation and tool-policy fields are stripped where
-  reported.
+- `craft`: 0.16.0 opts into a companion bundle for exactly
+  `craft:house-style-reviewer`, `craft:comment-reviewer`, and
+  `craft:copy-reviewer`. Explicit setup registers one selected scope; a fresh
+  successful selected-scope check precedes each exact native dispatch.
+  Installed Markdown procedures remain separately available, and explorer
+  labels such as `arch-explorer` do not register roles. Model and effort
+  inherit; Claude `sonnet` is not translated. Claude invocation and tool-policy
+  fields remain losses: the three reviewers' advisory no-write instructions
+  do not mechanically enforce tool access or sandbox policy on Codex.
+  Lucid integration references belong to a separate skill and grant no
+  connector capability. EM receives only a caller-contract adapter and remains
+  Claude-only. See the [Craft acceptance record](craft-codex-agent-acceptance.md)
+  for evidence and untested workflows.
 - `debate`: version 0.5.1 opts into a companion bundle for explicit setup of
   `debate:advocate`, `debate:fact-checker`, `debate:devils-advocate`, and
   `debate:synthesizer`. The shared Markdown procedures remain available;
