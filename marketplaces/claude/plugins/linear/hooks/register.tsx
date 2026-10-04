@@ -10,7 +10,8 @@ const TEAM_KEYS = 'teamKeys'
 const ISSUE_TOOLS = ['mcp__linear-server__get_issue', 'mcp__linear-server__save_issue']
 const IDENTIFIER = /^[A-Z][A-Z0-9]{1,9}-\d+$/
 const MENTION = /\b[A-Z]{2,10}-\d+\b/g
-const GLYPH = '◩'
+// Nerd Font md-ticket (U+F0516); Linear's own logo is in no terminal font.
+const GLYPH = '\u{F0516}'
 
 type Engine = EngineInterface
 

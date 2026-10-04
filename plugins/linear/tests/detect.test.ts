@@ -57,13 +57,13 @@ const band = async ($: Engine) => {
 test('a get_issue result becomes the active ticket, title dimmed beside it', async ($, on) => {
   world(on)
   await getIssue($, 'JUN-468')
-  expect(await band($)).toBe('◩ JUN-468 Phone-width pass on the SPA (gated: desktop usable)')
+  expect(await band($)).toBe('\u{F0516} JUN-468 Phone-width pass on the SPA (gated: desktop usable)')
 })
 
 test('a prompt mention of a known team key is tracked; unknown keys are not', async ($, on) => {
   world(on, { teamKeys: ['JUN'] })
   await submit($, 'Pick up JUN-12, it is UTF-8 safe')
-  expect(await band($)).toBe('◩ JUN-12')
+  expect(await band($)).toBe('\u{F0516} JUN-12')
 })
 
 test('a prompt before any key is known tracks nothing, and the band stays empty', async ($, on) => {
@@ -78,7 +78,7 @@ test('both signals stack most recent first, and compose injects them', async ($,
   world(on)
   await getIssue($, 'JUN-468')
   await submit($, 'also JUN-470 please')
-  expect(await band($)).toBe('◩ JUN-470 +1')
+  expect(await band($)).toBe('\u{F0516} JUN-470 +1')
   const { sections } = await $.prompt.compose(COMPOSE)
   const mine = sections.find(s => s.id === `${PLUGIN}:active`)
   expect(mine?.scope).toBe('session')
@@ -91,7 +91,7 @@ test('/ticket drop and clear empty the set', async ($, on) => {
   await submit($, 'and JUN-470')
   const dropped = await ticket($, 'drop jun-470')
   expect(dropped.text).toBe('Dropped JUN-470.')
-  expect(await band($)).toMatch(/^◩ JUN-468 /)
+  expect(await band($)).toMatch(/^\u{F0516} JUN-468 /u)
   await ticket($, 'clear')
   expect(await band($)).toBe('')
 })
