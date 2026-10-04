@@ -2,7 +2,7 @@
   "schema": "agentforge.codex-agent-bundle/v2",
   "package": {
     "id": "linear",
-    "version": "0.9.1"
+    "version": "0.9.2"
   },
   "agents": [
     {
