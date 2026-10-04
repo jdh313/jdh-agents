@@ -1,0 +1,31 @@
+{
+  "name": "penpot",
+  "version": "0.1.0",
+  "description": "Drive Penpot through its MCP plugin without the silent failures: text edits that render stale until forced to re-layout, async page switching, suspended-tab hangs, and saving named versions before irreversible edits and after settled design decisions.",
+  "author": {
+    "name": "Jacob Hoehler"
+  },
+  "license": "Apache-2.0",
+  "keywords": [
+    "penpot",
+    "design",
+    "mcp",
+    "gotchas",
+    "versioning"
+  ],
+  "interface": {
+    "displayName": "Penpot",
+    "shortDescription": "Penpot MCP gotchas and versioning",
+    "longDescription": "Gotchas for driving Penpot through its MCP plugin (stale text rendering, async page switching, suspended tabs) and the rule to save named versions before irreversible edits and after settled design decisions.",
+    "developerName": "Jacob Hoehler",
+    "category": "Productivity",
+    "capabilities": [
+      "Read",
+      "Write",
+      "Interactive"
+    ],
+    "defaultPrompt": [
+      "Save a Penpot version for these changes."
+    ]
+  }
+}
