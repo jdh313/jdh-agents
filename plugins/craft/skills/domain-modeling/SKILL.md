@@ -4,8 +4,8 @@ description: Build and sharpen a project's domain model. Use when discussing cod
 upstream:
   repo: mattpocock/skills
   path: skills/engineering/domain-modeling
-  reviewed_sha: 321658273cb1
-  reviewed: 2026-08-29
+  reviewed_sha: d80fa0f4ebe0
+  reviewed: 2026-10-04
   status: reviewed
 allowed-tools:
   - Read

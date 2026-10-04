@@ -1,6 +1,6 @@
 # Upstream divergences — improve-codebase-architecture
 
-_Upstream: `mattpocock/skills` · `skills/engineering/improve-codebase-architecture` · ledger current as of `reviewed_sha: 321658273cb1`_
+_Upstream: `mattpocock/skills` · `skills/engineering/improve-codebase-architecture` · ledger current as of `reviewed_sha: d80fa0f4ebe0`_
 
 Intentional divergences from upstream. Reviewed via `skillsmith:upstream-review` (2026-07-27) — do not re-flag these as findings. Read by `upstream-review` only; never referenced from `SKILL.md`.
 
@@ -18,6 +18,7 @@ The grilling-loop structure is upstream behavior, kept. Upstream itself moved to
 | changed | Explore subagent dispatch: upstream's bare spawn → named `arch-explorer` with bounded task, inputs and deliverables. | Names the agent so it stays addressable via SendMessage during the grilling loop; unnamed agents cannot be continued without full re-dispatch. (Citation note, 2026-08-29: this row originally quoted upstream's `subagent_type=Explore`, which no longer exists — `14bfbbd8654a` made the dispatch harness-neutral and `c0d69015e0cc` trimmed it to a bare "spawn a sub-agent". Our elaboration is additive to that neutral instruction, not a contradiction of it.) |
 | not-added | `disallowed-tools:` for source-editing restriction | Considered but skipped: skill legitimately writes to gitignored `.docs/` (report). No tool-level carve-out available for "tracked source only." |
 | changed | Step 3 grilling loop dispatches `Skill(craft:grill)`, matching upstream's `run the /grilling skill`. Local addition: the loop is scoped to the picked candidate, and factual questions route to the `arch-explorer` subagent rather than to the user. | Resolves a dangling reference. This step previously read "drop into a grilling conversation" — prose naming a discipline no skill in this marketplace defined, because `grilling` had never been ported. Recorded as a backfilled divergence on 2026-07-27 and closed the same day by porting it as `craft:grill`. The `arch-explorer` routing is local: it makes `grill`'s look-it-up-don't-ask move concrete when an exploration subagent already holds the codebase context. |
+| changed | Domain-glossary file name stays `CONTEXT.md` (with `CONTEXT-MAP.md`). Upstream renamed the convention to `GLOSSARY.md` / `GLOSSARY-MAP.md` in `d80fa0f4ebe0` (2026-09-17); that commit changed file names only, no behavior. | Adjudicated 2026-10-04 at drift review. Existing consumer repos already carry `CONTEXT*.md` glossaries, and 35 files across six plugins in this marketplace read the name; renaming here would orphan every existing glossary for no behavioral gain. Kept for compatibility with what is already written, not on the merits of the name. Revisit if the whole marketplace and its consumer repos are renamed in one pass. |
 
 Adopted from upstream at `697d4ce9742d` (2026-07-27), now equivalent and needing no divergence row: the step-1 **YAGNI scoping gate** (`45afd80` — take the user's named direction, else find hot spots via `git log --oneline`), placed ahead of the `/ground` call since it determines the area to ground in; and the "design tree" → "decision tree" rename (`3bb587f`).
 
@@ -58,3 +59,5 @@ link paths. The retired skill's own divergence record — including that its
 glossary body was itself consolidated from a former `references/LANGUAGE.md`
 that predated upstream's restructuring — is preserved in git history at
 `plugins/craft/skills/codebase-design/UPSTREAM.md`.
+
+Pin advanced to `d80fa0f4ebe0` on 2026-10-04: the only upstream commit touching this path since `321658273cb1` was the `CONTEXT.md` → `GLOSSARY.md` rename, verified line by line to change file names only. The local name is kept; see the file-name row above.

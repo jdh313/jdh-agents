@@ -4,8 +4,8 @@ description: Re-pitch a message that did not land, with enough context to follow
 upstream:
   repo: mattpocock/skills
   path: skills/productivity/wait-what
-  reviewed_sha: 5c89081d4bbe
-  reviewed: 2026-08-29
+  reviewed_sha: d80fa0f4ebe0
+  reviewed: 2026-10-04
   status: reviewed
 disable-model-invocation: true
 ---

@@ -1,6 +1,6 @@
 # Upstream divergences — tdd
 
-_Upstream: `mattpocock/skills` · `skills/engineering/tdd` · ledger current as of `reviewed_sha: 321658273cb1`_
+_Upstream: `mattpocock/skills` · `skills/engineering/tdd` · ledger current as of `reviewed_sha: d80fa0f4ebe0`_
 
 Intentional divergences from upstream. Reviewed via `skillsmith:upstream-review` (2026-07-09) — do not re-flag these as findings. Read by `upstream-review` only; never referenced from `SKILL.md`.
 
@@ -8,7 +8,7 @@ The reference-only shape (what-a-good-test-is, seams, anti-patterns, rules-of-th
 
 | Kind | What | Why |
 |------|------|-----|
-| changed | Planning grounding: generic "domain glossary" → **CONTEXT.md** (upstream has since converged on CONTEXT.md too); "respect ADRs in the area" → invoke **`/ground`** to surface the **NDR atoms** governing the area | Routes the upstream's grounding step into this repo's concrete NDR decision-ledger primitive instead of generic ADRs. |
+| changed | Planning grounding: generic "domain glossary" → **CONTEXT.md** (upstream converged on `CONTEXT.md`, then renamed it `GLOSSARY.md` in `d80fa0f4ebe0`; see the file-name row); "respect ADRs in the area" → invoke **`/ground`** to surface the **NDR atoms** governing the area | Routes the upstream's grounding step into this repo's concrete NDR decision-ledger primitive instead of generic ADRs. |
 | changed | Seam vocabulary is **referenced** at [`../../CODEBASE-DESIGN.md`](../../CODEBASE-DESIGN.md) rather than defined inline (upstream defines seam inline) | De-dupes the shared `craft`-plugin architecture glossary (Module/Interface/Depth/Seam); one source of truth across sibling skills (`improve-codebase-architecture`, `grok`). Was a `Skill(craft:codebase-design)` dispatch until 2026-08-24, when that skill was retired to a plugin-root reference file — see `improve-codebase-architecture/UPSTREAM.md` § "Vocabulary re-divergence". Per `ndr:6x3v6p` the use-these-terms-exactly rule is now restated inline here; the link carries only the definitions. |
 | changed | Refactor stage points at this repo's **`/code-review` + `/simplify`** tooling; upstream points at its own `code-review` skill | Names the concrete review tooling that lives in this marketplace. |
 | added | `effort: high` frontmatter field | Multi-phase red → green loops are reasoning-intensive; high effort engages deeper model reasoning for the full skill duration. |
@@ -18,5 +18,8 @@ The reference-only shape (what-a-good-test-is, seams, anti-patterns, rules-of-th
 | adopted (2026-07-09) | **Seam concept adopted** ("test only at pre-agreed seams, confirmed with the user before any test is written"). | Adopted upstream's seam framing for where tests go; vocabulary dispatched to `codebase-design` (see divergence row above). |
 | adopted (2026-07-09) | **Tautological-test anti-pattern added** in both `SKILL.md` (anti-patterns) and `tests.md` (BAD/GOOD pair). | Adopted upstream's addition — expected values must come from an independent source of truth, not a recomputation of the code. |
 | adopted (2026-07-09) | **`deep-modules.md` and `interface-design.md` retired** (`trash`), superseded by dispatch to the shared `craft:codebase-design` skill. | The shared skill now owns the deep-module / interface / seam / depth vocabulary; the tdd-local copies were duplication. |
+| changed | Domain-glossary file name stays `CONTEXT.md` (with `CONTEXT-MAP.md`). Upstream renamed the convention to `GLOSSARY.md` / `GLOSSARY-MAP.md` in `d80fa0f4ebe0` (2026-09-17); that commit changed file names only, no behavior. | Adjudicated 2026-10-04 at drift review. Existing consumer repos already carry `CONTEXT*.md` glossaries, and 35 files across six plugins in this marketplace read the name; renaming here would orphan every existing glossary for no behavioral gain. Kept for compatibility with what is already written, not on the merits of the name. Revisit if the whole marketplace and its consumer repos are renamed in one pass. |
 
 Pin advanced to `697d4ce9742d` on 2026-07-27 with no ledger change: the only upstream commit touching this path since the previous pin was `697d4ce` "add Codex `agents/openai.yaml` metadata to every skill", verified via `--name-only` to add nothing but that sidecar. No-op for this adaptation — Codex manifests here are generated from `PACKAGE.yaml`.
+
+Pin advanced to `d80fa0f4ebe0` on 2026-10-04: the only upstream commit touching this path since `321658273cb1` was the `CONTEXT.md` → `GLOSSARY.md` rename, verified line by line to change file names only. The local name is kept; see the file-name row above.
