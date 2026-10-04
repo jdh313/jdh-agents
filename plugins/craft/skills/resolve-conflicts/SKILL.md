@@ -5,8 +5,9 @@ upstream:
   repo: mattpocock/skills
   path: skills/engineering/resolving-merge-conflicts
   reviewed_sha: 321658273cb1
-  reviewed: 2026-08-29
-  status: reviewed
+  reviewed: 2026-10-04
+  status: upstream-removed
+  removed_sha: daa01d8aa68a
 allowed-tools:
   - Read
   - Grep

@@ -1,6 +1,8 @@
 # Upstream divergences — resolve-conflicts
 
-_Upstream: `mattpocock/skills` · `skills/engineering/resolving-merge-conflicts` (renamed) · ledger current as of `reviewed_sha: 321658273cb1`_
+_Upstream: `mattpocock/skills` · `skills/engineering/resolving-merge-conflicts` (renamed) · ledger frozen at `reviewed_sha: 321658273cb1`_
+
+**Upstream removed this skill** in `daa01d8aa68a` (2026-09-24, "No longer needed"). `reviewed_sha` stays frozen at `321658273cb1`, the last revision that existed upstream, and the skill is `status: upstream-removed`. There is nothing left to drift against, so this ledger takes no new rows: local changes from here on are ownership, not divergence. The MIT attribution survives the deletion.
 
 Intentional divergences from upstream. Reviewed via `skillsmith:upstream-review` (intake 2026-08-29) — do not re-flag these as findings. Read by `upstream-review` only; never referenced from `SKILL.md`.
 

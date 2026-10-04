@@ -1,10 +1,10 @@
 # Upstream divergences — domain-modeling
 
-_Upstream: `mattpocock/skills` · `skills/engineering/domain-modeling` · ledger current as of `reviewed_sha: 321658273cb1`_
+_Upstream: `mattpocock/skills` · `skills/engineering/domain-modeling` · ledger current as of `reviewed_sha: d80fa0f4ebe0`_
 
 Intentional divergences from upstream. Reviewed via `skillsmith:upstream-review` (2026-07-09; drift review 2026-08-29) — do not re-flag these as findings. Read by `upstream-review` only; never referenced from `SKILL.md`.
 
-The active-discipline framing, the four conversation moves (challenge against the glossary / sharpen fuzzy language / discuss concrete scenarios / cross-reference with code), the update-inline / don't-batch rule, the "CONTEXT.md is a glossary and nothing else" constraint, and the 3-part decision-worthiness gate (hard-to-reverse / surprising-without-context / real-trade-off) are upstream discipline, kept. Only the decision *destination* and the CONTEXT.md format details diverge.
+The active-discipline framing, the four conversation moves (challenge against the glossary / sharpen fuzzy language / discuss concrete scenarios / cross-reference with code), the update-inline / don't-batch rule, the "the glossary file is a glossary and nothing else" constraint (upstream now names that file `GLOSSARY.md`; see the file-name row), and the 3-part decision-worthiness gate (hard-to-reverse / surprising-without-context / real-trade-off) are upstream discipline, kept. Only the decision *destination*, the glossary file name, and the format details diverge.
 
 | Kind | What | Why |
 |------|------|-----|
@@ -15,9 +15,12 @@ The active-discipline framing, the four conversation moves (challenge against th
 | changed | Scenario-testing move scoped to terminology / concept-boundary finding rather than upstream's broader "domain relationships" | Keeps the move pointed at glossary governance, not a general test plan. Consistent with `grill-with-docs`. |
 | added | `CONTEXT-FORMAT.md` sibling absorbed from `grill-with-docs/CONTEXT-FORMAT.md` (the more-evolved copy: `_See_:` link conventions, the "Flag ambiguities explicitly" rule + `## Flagged ambiguities` section, the "a repo earns a CONTEXT.md" worthiness gate). Content unchanged — ownership moves to `domain-modeling`. | Upstream's restructuring makes `domain-modeling` the owner of the CONTEXT.md format; `grill-with-docs` becomes a consumer of that format rather than its definer. |
 | added | Attribution appended to `description`; `upstream:` provenance block; composition notes with `/capture-decision`, `craft:grill-with-docs`, `/drift-check` | Matches this repo's adapted-skill conventions and records ecosystem integration. |
+| changed | Domain-glossary file name stays `CONTEXT.md` (with `CONTEXT-MAP.md` and the `CONTEXT-FORMAT.md` sibling). Upstream renamed the convention to `GLOSSARY.md` / `GLOSSARY-MAP.md` / `GLOSSARY-FORMAT.md` in `d80fa0f4ebe0` (2026-09-17); that commit changed file names only, no behavior. | Adjudicated 2026-10-04 at drift review. Existing consumer repos already carry `CONTEXT*.md` glossaries, and 35 files across six plugins in this marketplace read the name; renaming here would orphan every existing glossary for no behavioral gain. Kept for compatibility with what is already written, not on the merits of the name. Revisit if the whole marketplace and its consumer repos are renamed in one pass. |
 
 ## Provenance / absorption note
 
 `CONTEXT-FORMAT.md` here is the canonical copy, absorbed from the former `grill-with-docs/CONTEXT-FORMAT.md`. As of Phase 2 (2026-07-09) the `grill-with-docs` copy was deleted and `grill-with-docs/SKILL.md` now dispatches to this skill for CONTEXT.md maintenance — `domain-modeling` is the sole owner of the format.
 
 Pin advanced to `697d4ce9742d` on 2026-07-27 with no ledger change: the only upstream commit touching this path since the previous pin was `697d4ce` "add Codex `agents/openai.yaml` metadata to every skill", verified via `--name-only` to add nothing but that sidecar. No-op for this adaptation — Codex manifests here are generated from `PACKAGE.yaml`.
+
+Pin advanced to `d80fa0f4ebe0` on 2026-10-04: the only upstream commit touching this path since `321658273cb1` was the `CONTEXT.md` → `GLOSSARY.md` rename, verified line by line to change file names only. The local name is kept; see the file-name row above.
