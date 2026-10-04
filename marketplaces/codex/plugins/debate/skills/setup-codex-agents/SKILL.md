@@ -64,6 +64,14 @@ Project registration needs write access to `<project-root>/.codex`. If a
 managed permission profile denies that directory, request access or run this
 visible script in a terminal authorized to write it, then rerun `check`.
 
+## Register every installed plugin at once
+
+When the user asks to set up every installed plugin at once, run
+`agentforge sync-codex-agents --scope user` (add `--dry-run` to preview). It
+installs or updates the roles of every enabled plugin that ships a Codex agent
+bundle; treat a nonzero result as a failure, as above. The per-plugin script
+above remains available.
+
 ## Use a registered role
 
 Before claiming that a role is registered or dispatching it, run the selected

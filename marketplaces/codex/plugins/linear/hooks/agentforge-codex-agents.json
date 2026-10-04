@@ -1,0 +1,16 @@
+{
+  "description": "Reports when linear Codex agent roles are not registered or current.",
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "sh \"${PLUGIN_ROOT}/.agentforge/check-codex-agents.sh\"",
+            "timeout": 10
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -20,16 +20,16 @@
 
 set -euo pipefail
 
-AGENTFORGE_VERSION="1.2.0"
+AGENTFORGE_VERSION="1.3.0"
 
 # sha256 of each published asset for AGENTFORGE_VERSION, taken from the release's
 # own SHA256SUMS. Verified against the downloaded bytes before the binary is ever
 # executed, so a compromised or truncated download fails closed.
 sha256_for() {
   case "$1" in
-    darwin-arm64) echo "67107b2a96892a1a3429010bbb8475d61c4100e1ac01783367e23aef402c2d54" ;;
-    linux-arm64)  echo "6c18babe7d7b11dd6e581468b32091a8e7667ef73c67ca7cd4017a2cc5ae2e1f" ;;
-    linux-x64)    echo "6c40a48b42066b4323eb0b3adaf88f926576a69667364ef952ec877ad770b335" ;;
+    darwin-arm64) echo "f76c0a9fc33c8c91315c46575a4eb4c4926e1e38e06350728d539b82fc4b12f8" ;;
+    linux-arm64)  echo "1415f103c8a4023c388af1ce7e47c8264c2813524d8310ab2dcbbaea8852d61e" ;;
+    linux-x64)    echo "fc49fb4cf2dbd09864bed38ae60a3ef987148e034d71ef26000c40b37fac7dd9" ;;
     *)            echo "" ;;
   esac
 }

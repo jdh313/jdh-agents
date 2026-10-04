@@ -1,6 +1,6 @@
 {
   "name": "debate",
-  "version": "0.5.1",
+  "version": "0.5.2",
   "description": "Dialectical decision analysis: dispatch parallel advocate agents to research opposing perspectives, optionally fact-check claims, challenge the consensus with devil's advocacy, and independently synthesize a verdict. Three modes (Quick/Standard/Deep) control pipeline depth. Not for factual lookups or simple preferences.",
   "author": {
     "name": "Jacob Hoehler"
@@ -18,6 +18,7 @@
     "trade-offs",
     "deliberation"
   ],
+  "hooks": "./hooks/agentforge-codex-agents.json",
   "interface": {
     "displayName": "Debate",
     "shortDescription": "Get a researched, opinionated verdict",

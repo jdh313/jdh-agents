@@ -2,7 +2,7 @@
   "schema": "agentforge.codex-agent-bundle/v2",
   "package": {
     "id": "debate",
-    "version": "0.5.1"
+    "version": "0.5.2"
   },
   "agents": [
     {

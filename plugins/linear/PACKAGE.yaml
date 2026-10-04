@@ -1,17 +1,27 @@
 schema: agentforge.package/v1
 id: linear
-defaults: {"name": "linear", "version": "0.9.1", "description": "Linear workflow conventions for a small two-person team. Owns ticket creation defaults (including assignee), status flow semantics, label set, title shape, collaboration conventions, and MCP call patterns. Composes with spec-flow (which uses Linear as a contract host but defers to this plugin for the conventions). Includes a doctor skill for workspace setup validation, and a linear-ops agent that executes decided ticket writes in isolated context — resolving identifiers, applying the MCP silent-failure workarounds, and verifying what landed.", "author": {"name": "Jacob Hoehler"}, "license": "Apache-2.0", "keywords": ["linear", "issue-tracking", "workflow", "conventions", "tickets", "mcp", "spec-flow"]}
+defaults: {"name": "linear", "version": "0.10.1", "description": "Linear workflow conventions for a small two-person team. Owns ticket creation defaults (including assignee), status flow semantics, label set, title shape, collaboration conventions, and MCP call patterns. Composes with spec-flow (which uses Linear as a contract host but defers to this plugin for the conventions). Includes a doctor skill for workspace setup validation, and a linear-ops agent that executes decided ticket writes in isolated context — resolving identifiers, applying the MCP silent-failure workarounds, and verifying what landed.", "author": {"name": "Jacob Hoehler"}, "license": "Apache-2.0", "keywords": ["linear", "issue-tracking", "workflow", "conventions", "tickets", "mcp", "spec-flow"]}
 artifacts:
   - {type: skill, pattern: 'skills/*/SKILL.md'}
   - {type: agent, pattern: 'agents/*.md'}
+  - {type: hook, pattern: hooks/hooks.json}
 payloads:
   include:
     - {source: references/}
 targets:
-  claude: {}
+  claude:
+    native:
+      types: ./types/index.d.ts
+    payloads:
+      include:
+        - {source: hooks/register.tsx}
+        - {source: types/index.d.ts}
   codex:
     codex-agent-bundle: true
     losses:
+      - construct: hook-module
+        state: stripped
+        note: The ticket-tracking mod (hooks/register.tsx) is a Claude Code function-hook module; Codex hooks run shell commands only, so Codex users get the skills and agent without it.
       - construct: mcp-tool-reference
         state: retained-unenforced
         note: Skills name mcp__linear-server__* tools that do not exist on Codex; the ticket conventions still apply to whatever Linear access the user has configured.
