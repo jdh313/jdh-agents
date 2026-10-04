@@ -28,9 +28,18 @@ For reviewing more than one adapted skill in a session, dispatch the
 everything inline. This keeps the comparison state (fetched upstream bytes,
 ledger reads, classification work) isolated per skill and out of this skill's
 context, so the session stays interactive — you can adjudicate each finding
-before moving to the next skill. Codex plugin packages do not register that
-agent role; on Codex, run the same read-only procedure inline, one skill at a
-time, unless the host explicitly exposes a registered role.
+before moving to the next skill.
+
+On Codex, the native route requires a user-selected setup of
+`skillsmith:upstream-reviewer` in the selected scope. Follow the active
+installed plugin's `RUNTIME.md` to locate the companion helper from this
+installed `SKILL.md` path; do not guess a cache path or use an authoring
+checkout. Immediately before each dispatch, run that selected-scope check in a
+fresh session. Only a current successful result permits the exact
+`agent_type: "skillsmith:upstream-reviewer"`; do not set a dispatch model or
+effort. A failed or stale check blocks native dispatch. The user may separately
+choose the installed Markdown/procedure fallback with no `agent_type`; it does
+not register a role. The existing Claude route remains unchanged.
 
 ```
 @upstream-reviewer skill_path=<path> upstream_repo=<owner/name> upstream_path=<path> reviewed_sha=<sha> ledger_path=<path or empty>
@@ -38,14 +47,22 @@ time, unless the host explicitly exposes a registered role.
 
 ## Codex execution contract
 
-The Codex path preserves the review's boundaries even without the Claude role
-dispatch. Read the adapted skill, its ledger, and the upstream bytes; use
-`gh api` and `base64` when available; compare behavior rather than copying
-text; and return findings for adjudication. Do not write the skill, ledger,
-provenance block, or any other file during review. Apply an accepted fix only
-after the review result has returned, then run the publication verify loop.
-When the upstream source cannot be fetched, report that as an external blocker
-instead of guessing from memory.
+The native `skillsmith:upstream-reviewer` route and the separately selected
+installed Markdown/procedure fallback preserve the review's boundaries. Give
+one invocation exactly one `skill_path`, `upstream_repo`, `upstream_path`,
+`reviewed_sha`, and `ledger_path`; never combine comparison state from multiple
+skills. Read the adapted skill, its ledger, and the upstream bytes; use `gh api`
+and `base64` when available; compare behavior rather than copying text; and
+return findings for adjudication. Do not write the skill, ledger, provenance
+block, or any other file during review. Apply an accepted fix only after the
+review result has returned, then run the publication verify loop. When the
+upstream source cannot be fetched, report that as an external blocker instead
+of guessing from memory.
+
+Codex does not mechanically retain the Claude agent's tool allowlist. Its
+read-only classification boundary remains procedure guidance; the caller's
+sandbox and approval policy remain separate. Do not fabricate a Codex tool
+filter from Claude frontmatter.
 
 The agent is read-only: it returns findings but never writes. After you adjudicate, apply fixes and update the provenance block yourself (step 9 below).
 
@@ -140,7 +157,7 @@ Don't record plain `kept` — equivalence is the default and needs no entry. The
    - Update the `upstream:` block: `reviewed_sha` → the SHA from step 2, `reviewed` → today, `status` → `reviewed`. For intake, write the block for the first time.
    - Append any newly-confirmed intentional divergences to `UPSTREAM.md` and update its "ledger current as of `reviewed_sha`" line. Create the ledger if this is the first full review (e.g. promoting a `baseline`).
 
-10. **Run the marketplace verify loop** if any file changed — bump the plugin's `plugin.json` version, then recompile and verify:
+10. **Run the marketplace verify loop** if any file changed — bump the plugin's authoritative `PACKAGE.yaml` version, then recompile and verify:
    ```bash
    scripts/agentforge.sh compile MARKETPLACE.yaml --out marketplaces
    scripts/agentforge.sh check MARKETPLACE.yaml --out marketplaces --claude-native

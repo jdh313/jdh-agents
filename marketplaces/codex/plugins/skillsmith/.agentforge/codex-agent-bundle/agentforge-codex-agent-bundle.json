@@ -1,0 +1,26 @@
+{
+  "schema": "agentforge.codex-agent-bundle/v2",
+  "package": {
+    "id": "skillsmith",
+    "version": "2.3.0"
+  },
+  "agents": [
+    {
+      "id": "upstream-reviewer",
+      "name": "skillsmith:upstream-reviewer",
+      "definition": "agents/skillsmith/upstream-reviewer.toml",
+      "sha256": "b60e3707915a82ef6d2368fb881983fcab3d8c0712416f64e0b3d7c343977821",
+      "execution": {
+        "model": {
+          "source": "inherited"
+        },
+        "effort": {
+          "source": "inherited"
+        }
+      },
+      "losses": [
+        "tools"
+      ]
+    }
+  ]
+}

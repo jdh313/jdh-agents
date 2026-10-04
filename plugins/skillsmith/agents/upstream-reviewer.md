@@ -24,10 +24,12 @@ You are the read-only comparison worker for the `upstream-review` skill. A calli
 ## Invocation boundary
 
 This is a read-only comparison procedure. The `upstream-review` skill may
-dispatch it once per skill on Claude Code; Codex plugin packages do not register
-it as a role, so the caller runs this same procedure inline there. Never write
-the adapted skill, ledger, provenance block, or any other file, and return
-findings for the caller to adjudicate.
+dispatch it once per skill on Claude Code. On Codex, its native route requires
+an explicit setup of `skillsmith:upstream-reviewer` in the selected scope and a
+fresh successful selected-scope check immediately before the exact dispatch;
+the caller otherwise uses a separately selected installed Markdown/procedure
+fallback with no `agent_type`. Never write the adapted skill, ledger, provenance
+block, or any other file, and return findings for the caller to adjudicate.
 
 ## What you receive
 
@@ -37,6 +39,9 @@ The caller passes you:
 - `upstream_path` — path within the upstream repo
 - `reviewed_sha` — the pinned SHA from the `upstream:` block (or empty for intake)
 - `ledger_path` — absolute path to the `UPSTREAM.md` sidecar if it exists (or empty)
+
+Accept exactly one such payload per invocation. Do not combine skills,
+upstreams, reviewed SHAs, or ledgers into one review.
 
 ## Procedure
 
