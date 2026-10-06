@@ -334,6 +334,7 @@ Full example with all optional fields:
 | `MARKETPLACE.yaml` | Marketplace identity, publications, enrollment | Authoritative maintained metadata |
 | `plugins/[name]/PACKAGE.yaml` | Package metadata and target overlays | Authoritative maintained metadata |
 | `.claude-plugin/marketplace.json` | Root copy of the Claude publication — what `marketplace add jdh313/jdh-agents` reads | Generated and committed by `agentforge compile` |
+| `.agents/plugins/marketplace.json` | Root copy of the Codex publication — what Codex's git marketplace source (`jdh313/jdh-agents` on GitHub) reads; without it Codex falls back to the Claude root copy | Generated and committed by `agentforge compile` |
 | `marketplaces/claude/` | Complete Claude marketplace root — the directory a local install is pointed at | Generated and committed by `agentforge compile` |
 | `marketplaces/codex/` | Complete Codex marketplace root — the directory Codex is pointed at | Generated and committed by `agentforge compile` |
 | `scripts/agentforge.sh` | Pinned-compiler wrapper: version + per-platform sha256, fetch, verify, exec | The only way to run the compiler; CI runs this same script |

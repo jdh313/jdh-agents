@@ -1,0 +1,212 @@
+{
+  "name": "jdh-agents",
+  "interface": {
+    "displayName": "CC Marketplace"
+  },
+  "plugins": [
+    {
+      "name": "coach",
+      "source": {
+        "source": "local",
+        "path": "./marketplaces/codex/plugins/coach"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Productivity"
+    },
+    {
+      "name": "commit",
+      "source": {
+        "source": "local",
+        "path": "./marketplaces/codex/plugins/commit"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Developer Tools"
+    },
+    {
+      "name": "compass",
+      "source": {
+        "source": "local",
+        "path": "./marketplaces/codex/plugins/compass"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Productivity"
+    },
+    {
+      "name": "craft",
+      "source": {
+        "source": "local",
+        "path": "./marketplaces/codex/plugins/craft"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Developer Tools"
+    },
+    {
+      "name": "debate",
+      "source": {
+        "source": "local",
+        "path": "./marketplaces/codex/plugins/debate"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Productivity"
+    },
+    {
+      "name": "feedback",
+      "source": {
+        "source": "local",
+        "path": "./marketplaces/codex/plugins/feedback"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Developer Tools"
+    },
+    {
+      "name": "introspect",
+      "source": {
+        "source": "local",
+        "path": "./marketplaces/codex/plugins/introspect"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Developer Tools"
+    },
+    {
+      "name": "langfuse",
+      "source": {
+        "source": "local",
+        "path": "./marketplaces/codex/plugins/langfuse"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Developer Tools"
+    },
+    {
+      "name": "librarian",
+      "source": {
+        "source": "local",
+        "path": "./marketplaces/codex/plugins/librarian"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Productivity"
+    },
+    {
+      "name": "linear",
+      "source": {
+        "source": "local",
+        "path": "./marketplaces/codex/plugins/linear"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Productivity"
+    },
+    {
+      "name": "penpot",
+      "source": {
+        "source": "local",
+        "path": "./marketplaces/codex/plugins/penpot"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Productivity"
+    },
+    {
+      "name": "pm",
+      "source": {
+        "source": "local",
+        "path": "./marketplaces/codex/plugins/pm"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Productivity"
+    },
+    {
+      "name": "shake-tune",
+      "source": {
+        "source": "local",
+        "path": "./marketplaces/codex/plugins/shake-tune"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Productivity"
+    },
+    {
+      "name": "skillsmith",
+      "source": {
+        "source": "local",
+        "path": "./marketplaces/codex/plugins/skillsmith"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Developer Tools"
+    },
+    {
+      "name": "spec-flow",
+      "source": {
+        "source": "local",
+        "path": "./marketplaces/codex/plugins/spec-flow"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Developer Tools"
+    },
+    {
+      "name": "teach",
+      "source": {
+        "source": "local",
+        "path": "./marketplaces/codex/plugins/teach"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Productivity"
+    },
+    {
+      "name": "workspaces",
+      "source": {
+        "source": "local",
+        "path": "./marketplaces/codex/plugins/workspaces"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Developer Tools"
+    }
+  ]
+}
