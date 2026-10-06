@@ -104,7 +104,7 @@ test('fj pr create is tracked from its flags, CI read from the head commit', asy
   const toasts: string[] = []
   const command = 'fj -H forgejo.example pr create -r jacob/jdh-agents --base main --head pr-watch --body-file b.md "feat"'
   const answers: Answers = {
-    [`$ ${command}`]: 'created pull request #11: feat[pr-watch]: watch PR CI\n',
+    [`$ ${command}`]: 'created pull request #\u206811\u2069: \u2068feat[pr-watch]: watch PR CI\u2069\n',
     'fj -H forgejo.example pr view jacob/jdh-agents#11': FJ_VIEW,
     'git rev-parse --verify --quiet refs/remotes/origin/pr-watch^{commit}': `${SHA}\n`,
     'fj -H forgejo.example actions tasks -r jacob/jdh-agents': tasks('running'),
@@ -149,7 +149,7 @@ test('parsers: remotes in every spelling, fj view, tasks, and a create that infe
   expect(remoteRepo('https://forgejo.example/jacob/jdh-agents')).toEqual({ host: 'forgejo.example', repo: 'jacob/jdh-agents' })
   expect(parseFjView(FJ_VIEW)).toEqual({ title: 'feat[pr-watch]: watch PR CI', head: 'pr-watch', state: 'open' })
   expect(checksForCommit(parseFjTasks(tasks('success')), SHA)).toEqual([{ name: 'validate', state: 'pass' }])
-  expect(parseFjCreate('fj pr create --head x "t"', 'created pull request #7: t', { host: 'h.example', repo: 'o/r' })).toEqual({
+  expect(parseFjCreate('fj pr create --head x "t"', 'created pull request #\u20687\u2069: \u2068t\u2069', { host: 'h.example', repo: 'o/r' })).toEqual({
     forge: 'forgejo',
     host: 'h.example',
     repo: 'o/r',

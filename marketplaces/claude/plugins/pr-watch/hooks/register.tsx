@@ -58,7 +58,8 @@ export const parseGhCreate = (command: string, output: string): Parsed | undefin
   return pr?.forge === 'github' ? { ...pr, head: flagOf(command, '--head', '-H') } : undefined
 }
 
-// A `fj pr create` prints `created pull request #N: <title>`; the host and
+// A `fj pr create` prints `created pull request #N: <title>`, isolates and
+// all (see `plain`); the host and
 // repo come from its flags, or from `remote` when it inferred them.
 export const parseFjCreate = (
   command: string,
@@ -66,7 +67,7 @@ export const parseFjCreate = (
   remote?: { host: string; repo: string },
 ): Parsed | undefined => {
   if (!FJ_CREATE.test(command)) return undefined
-  const created = output.match(/created pull request #(\d+): ?(.*)/)
+  const created = plain(output).match(/created pull request #(\d+): ?(.*)/)
   if (!created) return undefined
   const host = flagOf(command, '-H', '--host') ?? remote?.host
   const repo = flagOf(command, '-r', '--repo') ?? remote?.repo
