@@ -85,6 +85,23 @@ Two more optional keys control message conventions:
 
 If unspecified, the plugin auto-detects all four from the repo state: it samples recent commits and keeps the trailer / in-summary refs when ≥60% of history uses them. **Precedence: repo CLAUDE.md > user CLAUDE.md > history.** A user-level mandate to add `Co-Authored-By:` is honored unless the repo declares otherwise.
 
+## Pi
+
+Install the local package (loaded in place, without copying):
+
+```bash
+pi install ~/Projects/jdh-agents/plugins/commit
+```
+
+Requires `jq` on `PATH`. Restart Pi after installation. The extension guards
+Pi's built-in `bash` tool by passing its command to the unchanged safety hook;
+the shell script remains the single source of destructive-VCS rules.
+
+Pi fails closed if the guard is missing, not executable, exceeds five seconds,
+or exits unexpectedly, unlike Codex's fail-open hook behavior. The script's
+own malformed-input behavior is unchanged; the extension supplies valid JSON.
+User shell commands entered with `!` / `!!` are not intercepted.
+
 ## Safety Hook
 
 `plugins/commit/hooks/destructive-vcs-guard.sh` is a `PreToolUse`/`Bash` hook that blocks the commands listed under "Safety-first" above, including when a recognized global flag (`git -C`/`-c`/`--git-dir`/`--work-tree`, `jj --repository`/`-R`) separates the binary from the subcommand. It fails open (allows) if the hook input isn't parseable JSON. The hook fires only when the plugin is enabled. Override by running the destructive command from your own terminal — Claude can't bypass it.
