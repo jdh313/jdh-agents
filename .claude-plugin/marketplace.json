@@ -494,8 +494,8 @@
     },
     {
       "name": "workspaces",
-      "version": "0.1.1",
-      "description": "Teaches agents that isolated per-agent checkouts exist in jj-colocated repos via `jjx` (jj's equivalent of a git worktree), and how to drive it: `jjx open <slug>` creates or idempotently resumes a managed sibling workspace and prints its path on stdout, `--from <revset>` bases it on an explicit revision instead of the caller's uncommitted state, `jjx open --unique <slug>` forces a fresh workspace for fan-out, `jjx add <path>` adds an existing checkout at an explicit path, and `jjx rm <path>` cleans up without discarding unsaved work. The single skill exists to be found by the failure it prevents — an agent about to conclude that parallel isolated work isn't possible in a jj repo, or reaching for a plain git worktree instead.",
+      "version": "0.2.0",
+      "description": "Teaches agents that isolated per-agent checkouts exist in jj-colocated repos via `jjx` (jj's equivalent of a git worktree), and how to drive it: `jjx open <slug>` creates or idempotently resumes a managed sibling workspace and prints its path on stdout, `--from <revset>` bases it on an explicit revision instead of the caller's uncommitted state, `jjx open --unique <slug>` forces a fresh workspace for fan-out, `jjx add <path>` adds an existing checkout at an explicit path, and `jjx rm <path>` cleans up without discarding unsaved work. The single skill exists to be found by the failure it prevents — an agent about to conclude that parallel isolated work isn't possible in a jj repo, or reaching for a plain git worktree instead. A Claude Code mod shows which subagents work in which workspace: a pane grouped by workspace, opened by `/spaces` or when a subagent first lands in one, placing each agent from the `<repo>-spaces/<slug>` paths in its spawn prompt and its own tool calls.",
       "author": {
         "name": "Jacob Hoehler"
       },
@@ -511,6 +511,7 @@
         "isolation",
         "fan-out"
       ],
+      "types": "./types/index.d.ts",
       "source": "./marketplaces/claude/plugins/workspaces"
     }
   ],
