@@ -1,0 +1,15 @@
+schema: agentforge.package/v1
+id: pr-watch
+defaults: {"name": "pr-watch", "version": "0.1.1", "description": "A Claude Code mod that watches the pull requests a session opens and the CI on their heads, on GitHub and Forgejo. A successful `gh pr create` or `fj pr create` adds the PR to a pane; a 20-second timer then asks the forge's own CLI for state and checks (`gh pr view --json statusCheckRollup` on GitHub; `fj pr view` plus `fj actions tasks` matched to the head commit on Forgejo), so each CLI's existing login is the only credential involved. A toast fires when CI passes or fails and when a PR is merged or closed. `/prs` opens the pane, `/prs add <url>` watches an existing PR, `/prs refresh` polls now, and `/prs clear` drops merged and closed ones.", "author": {"name": "Jacob Hoehler"}, "license": "Apache-2.0", "keywords": ["pull-request", "ci", "github", "forgejo", "gh", "fj", "mod", "status"]}
+artifacts:
+  - {type: hook, pattern: hooks/hooks.json}
+targets:
+  claude:
+    native:
+      types: ./types/index.d.ts
+    payloads:
+      include:
+        - {source: hooks/register.tsx}
+        - {source: types/index.d.ts}
+# Claude only: the package is a single function-hook module, and Codex hooks
+# run shell commands only, so a Codex projection would ship nothing.
