@@ -10,8 +10,8 @@ packages today, against nineteen for Claude. Eight of those sixteen — `commit`
 `craft`, `langfuse`, `librarian`, `linear`, `spec-flow`, `teach`, and `workspaces` — have passed
 fresh-task smoke tests (ndr:v0a3bm); the rest are compiled and enrolled with
 runtime acceptance still outstanding. Claude Code remains the default
-surface for every plugin, and the only surface for the three Claude-only
-packages (`attention-workflow`, `em`, `teardown`).
+surface for every plugin, and the only surface for the two Claude-only
+packages (`em`, `teardown`).
 The repository publishes both runtimes from one source: `marketplaces/claude/`
 is what a Claude install resolves (remotely, via the root manifest) and
 `marketplaces/codex/` is what a Codex install resolves from a local clone.
