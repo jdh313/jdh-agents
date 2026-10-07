@@ -50,7 +50,7 @@ jdh-agents/
 ├── scripts/                      # Automation utilities
 │   ├── agentforge.sh             # Pinned-compiler wrapper (version + sha256)
 │   ├── privacy-scan.sh           # History privacy gate (pinned Betterleaks)
-│   └── tests/                    # Gate self-test + attention-workflow behavior
+│   └── tests/                    # Gate self-test
 └── README.md
 ```
 

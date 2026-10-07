@@ -86,10 +86,8 @@ declarations, never from generated output or prose elsewhere in the repository.
 - Codex enrolls sixteen: `coach`, `commit`, `compass`, `craft`, `debate`,
   `feedback`, `introspect`, `langfuse`, `librarian`, `linear`, `pm`,
   `shake-tune`, `skillsmith`, `spec-flow`, `teach`, and `workspaces`.
-- `attention-workflow` and `teardown` are the two packages that
-  do not declare Codex support. Each omission is a decision with a stated
-  reason, not an oversight; `attention-workflow` is held out on a structural
-  incompatibility, `teardown` on missing acceptance evidence. See the entries
+- `teardown` does not declare Codex support. The omission is a decision with
+  a stated reason, not an oversight: missing acceptance evidence. See the entry
   below.
 
 **Being in the Codex publication proves compilation, not behavior.** It means
@@ -126,16 +124,7 @@ span and generation tagged `claude-code` with model `claude-opus-5` and the
 matching Claude release. These observed traces close the earlier zero-turn
 parser incompatibility; compilation alone did not.
 
-`attention-workflow` is **deliberately not enrolled for Codex** for a
-related reason. Its central claim is about plugin-bundled hook behavior on a
-fresh runtime, and this repository's Codex publication does not pre-authorize
-bundled hooks — the user reviews and trusts them separately. A Codex projection
-therefore could not exercise the default structural-guard behavior at all, so
-enrolling it would publish a package whose load-bearing guarantee is silently
-absent (`ndr:7gf4vb`, `ndr:v0a3bm`).
-
-`teardown` is **not enrolled for Codex pending acceptance**, which is a
-different state from the two above. Its native mapping is ready — an
+`teardown` is **not enrolled for Codex pending acceptance**. Its native mapping is ready — an
 `agent-tools-filter` loss for the surveyor's read-only allowlist and an
 `mcp-tool-reference` loss for the `obsidian-mcp` calls — but no projection has
 been exercised on a fresh Codex runtime. Enrolling first would ship an
@@ -154,8 +143,7 @@ an empty or untested package merely because its definition validates.
   types. Claude preserves those artifacts directly.
 - Package-root references, `craft/CONTEXT.md`, and arbitrary skill sidecars are
   supplied payloads.
-- The commit guard and Langfuse hook companions are projected to both runtimes;
-  the attention-workflow hooks and state helper remain Claude-only payloads.
+- The commit guard and Langfuse hook companions are projected to both runtimes.
 - Native plugin manifests are represented by canonical defaults and target
   overlays, never copied as payloads.
 - Plugin READMEs stay in the source repository but are intentionally excluded
@@ -163,11 +151,9 @@ an empty or untested package merely because its definition validates.
 - Symbolic links are not supported as package payload sources. The enrolled
   inventory contains none.
 
-AgentForge derives executable intent from source mode. The commit guard, the
-Langfuse tripwire, and the two attention-workflow hook scripts are the
-executable payloads and compile as `0755`; all other compiled files normalize to
-`0644`. `attention-workflow`'s `scripts/aw_state.py` is invoked as
-`python3 <path>` by the skill and the verifier agent, so it is a plain payload.
+AgentForge derives executable intent from source mode. The commit guard and the
+Langfuse tripwire are the executable payloads and compile as `0755`; all other
+compiled files normalize to `0644`.
 
 ## Claude compatibility
 

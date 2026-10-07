@@ -31,7 +31,7 @@ jdh-agents/
 ├── scripts/                  # Automation tooling
 │   ├── agentforge.sh         # Fetches + sha256-verifies the pinned compiler
 │   ├── privacy-scan.sh       # History secret/privacy gate (pinned Betterleaks)
-│   └── tests/                # Gate self-test + attention-workflow behavior
+│   └── tests/                # Gate self-test
 └── .github/workflows/        # CI/CD automation
     └── validate.yml          # GitHub Actions workflow
 ```
@@ -67,8 +67,9 @@ tooling expect at runtime.
 - `git` — `scripts/privacy-scan.sh` scans committed history, so it needs the
   repository's commits (in CI, `actions/checkout` with `fetch-depth: 0`)
 - [`uv`](https://docs.astral.sh/uv/) — only to run
-  `scripts/tests/test_attention_workflow.py`, which declares its own `pytest`
-  dependency in a PEP 723 header. The repo declares no project, so there is
+  `scripts/tests/test_introspect_usage_report.py` and
+  `scripts/tests/test_langfuse_hook.py`, which declare their own dependencies in
+  PEP 723 headers. The repo declares no project, so there is
   nothing to install and no lockfile to sync.
 
 **Per plugin.** Most plugins are self-contained, but several are inert or
@@ -83,7 +84,6 @@ installing one and wondering why it does nothing:
 | `teach` | Obsidian vault + `obsidian-cli`; DEVONthink MCP server (optional) |
 | `pm` | Obsidian vault; Linear MCP server; `ndr` on `PATH` |
 | `linear`, `spec-flow` | Linear MCP server (`spec-flow` also uses Context7) |
-| `attention-workflow` | Linear or Fibery MCP server |
 | `em` | A tracker (Linear MCP server, Fibery MCP server, or `gh`) and a VCS; `ndr`, `workspaces`, `craft`, `pm` optional |
 | `craft` | `gh`, `git`/`jj`, `ndr`; IaC skills additionally want `tflint`, `checkov`, `trivy`, `infracost` |
 | `langfuse` | A Langfuse account + `uv` on `PATH` (the Stop hook runs via `uv run`) |
