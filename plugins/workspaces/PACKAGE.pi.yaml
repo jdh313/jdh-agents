@@ -2,7 +2,7 @@ schema: agentforge.package/v1
 id: workspaces-pi
 defaults:
   name: workspaces-pi
-  version: 0.1.0
+  version: 0.1.1
   description: Opt-in native jjx workspace provider for Pi subagents, with retained checkout and jj registration.
   author:
     name: Jacob Hoehler

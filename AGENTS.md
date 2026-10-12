@@ -21,6 +21,19 @@ packages declared in `MARKETPLACE.yaml`. Declared hooks are translated into
 Codex's handler schema; Codex skips plugin-bundled hooks until the user reviews
 and trusts the definition.
 
+## Standalone Pi packages
+
+`plugins/*/PACKAGE.pi.yaml` declares standalone Pi packages independently of the
+Claude/Codex marketplace. Source stays under `plugins/`; generated packages under
+`packages/pi/<plugin>/` are committed outputs and must never be hand-edited.
+Run `scripts/pi-packages.sh compile` and `scripts/pi-packages.sh check` using
+local AgentForge 2.1.0 (`$HOME/Projects/agentforge`, or `AGENTFORGE_PROJECT`).
+Each generated package directory is an owned snapshot; keep settings and
+consumer dependencies outside it. Do not put Pi output under `marketplaces/`,
+which the separate marketplace compiler replaces. Commit source and regenerated
+Pi output together. Installation/activation is a separate explicit user action;
+dotfiles/settings reference packages here rather than duplicating their code.
+
 ## Landing the Plane (Session Completion)
 
 **When ending a work session**, you MUST complete ALL steps below. Work is NOT complete until `git push` succeeds.

@@ -1,0 +1,38 @@
+{
+  "name": "workspaces-pi",
+  "version": "0.1.1",
+  "description": "Opt-in native jjx workspace provider for Pi subagents, with retained checkout and jj registration.",
+  "keywords": [
+    "pi-package",
+    "jj",
+    "jujutsu",
+    "jjx",
+    "workspace"
+  ],
+  "peerDependencies": {
+    "@earendil-works/pi-coding-agent": "*",
+    "@gotgenes/pi-subagents": "23.4.0"
+  },
+  "pi": {
+    "extensions": [
+      "./pi/extension.ts"
+    ],
+    "skills": [
+      "./skills/workspaces"
+    ],
+    "prompts": [],
+    "themes": []
+  },
+  "author": {
+    "name": "Jacob Hoehler"
+  },
+  "license": "Apache-2.0",
+  "engines": {
+    "node": ">=22"
+  },
+  "peerDependenciesMeta": {
+    "@gotgenes/pi-subagents": {
+      "optional": true
+    }
+  }
+}
