@@ -1,7 +1,7 @@
 # EM in Pi — experimental standalone package
 
 `../PACKAGE.pi.yaml` projects the canonical scope/lead skills using skill-local
-Pi overrides as **em-scope** and **em-lead**. Independent Pi version 0.1.0;
+Pi overrides as **em-scope** and **em-lead**. Independent Pi version 0.1.1;
 canonical `PACKAGE.yaml` metadata and Claude workflows remain unchanged.
 No marketplace enrollment, native extension, permission guard or bundled agent
 roles. This is a bounded instruction adapter, not full Claude parity.
@@ -42,14 +42,16 @@ Run from this source repository with local AgentForge 2.1.0, **not** the shared
 pinned wrapper:
 
 ```sh
-OUT="$(mktemp -d "${TMPDIR:-/tmp}/em-pi-package.XXXXXX")"
+OUT="$PWD/packages/pi/em"
 bun run "$HOME/Projects/agentforge/src/cli.ts" package compile \
   plugins/em/PACKAGE.pi.yaml --target pi --out "$OUT"
 bun run "$HOME/Projects/agentforge/src/cli.ts" package check \
   plugins/em/PACKAGE.pi.yaml --target pi --out "$OUT"
 ```
 
-Output is an AgentForge-owned snapshot outside the source tree: generated
+The durable output is an AgentForge-owned snapshot separate from `plugins/em/`;
+commit regenerated output with source changes. `scripts/pi-packages.sh compile`
+and `scripts/pi-packages.sh check` handle all declared Pi packages. It contains generated
 package.json, two renamed skill roots, references/config.md, and these four
 Pi Markdown files. Only declared payloads ship; canonical Claude dispatch,
 verification and MCP-ID tracker references are not Pi operational payloads.
@@ -59,7 +61,8 @@ name; relative paths address the **projected** names, not source directories.
 
 ## Explicit invocation after separate operator activation
 
-For a one-session trial without settings changes, from the consumer repo:
+For a one-session trial without settings changes, from the consumer repo
+(set OUT to the absolute path of this repository's `packages/pi/em`):
 
 ```sh
 pi -e "$OUT"

@@ -1,0 +1,24 @@
+{
+  "name": "em-pi",
+  "version": "0.1.1",
+  "description": "Experimental Pi EM scope and lead skills with explicit capability, tracker, dispatch and isolation adapters; static packaging verified, no formal runtime acceptance.",
+  "keywords": [
+    "pi-package",
+    "engineering-manager",
+    "orchestration",
+    "tickets"
+  ],
+  "pi": {
+    "extensions": [],
+    "skills": [
+      "./skills/em-lead",
+      "./skills/em-scope"
+    ],
+    "prompts": [],
+    "themes": []
+  },
+  "author": {
+    "name": "Jacob Hoehler"
+  },
+  "license": "Apache-2.0"
+}

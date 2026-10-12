@@ -26,6 +26,8 @@ jdh-agents/
 │   └── codex/                # Self-contained Codex marketplace root (16 packages)
 │       ├── .agents/plugins/marketplace.json
 │       └── plugins/[name]/
+├── packages/pi/              # Committed standalone Pi output (em, workspaces)
+│   └── [plugin-name]/        # Generated package.json + skills/native payloads
 ├── .betterleaks.toml         # Privacy-gate rules
 ├── .betterleaks-baseline.json  # Pre-existing findings, accepted once
 ├── scripts/                  # Automation tooling
@@ -133,6 +135,28 @@ codex plugin add spec-flow@jdh-agents
 
 Both publications keep the marketplace name `jdh-agents`, so an existing
 install survives the repoint: only the path each runtime resolves changes.
+
+### Pi packages
+
+Pi authoring source also lives in `plugins/`, with standalone `PACKAGE.pi.yaml`
+definitions. Generated, committed packages live in `packages/pi/`, outside the
+Claude/Codex marketplace compiler's owned snapshot. Dotfiles/settings reference
+those package paths; they do not need copies of the implementation.
+
+```bash
+# Authoring: local AgentForge 2.1.0 source + Bun, not the marketplace pin
+scripts/pi-packages.sh compile
+scripts/pi-packages.sh check
+
+# Separate, explicit activation from this repository (not done by the scripts)
+pi install "$PWD/packages/pi/workspaces"
+pi install "$PWD/packages/pi/em"
+```
+
+See [Pi package layout and activation](packages/pi/README.md) for prerequisites,
+load order, opt-in isolation, and runtime limits. Local packages load in place;
+recompile and restart/reload Pi after source changes. No live settings or trust
+changes happen during compilation/checking.
 
 ### Root manifest
 

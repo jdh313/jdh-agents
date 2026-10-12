@@ -1,7 +1,7 @@
 # Workspaces in Pi — bounded native provider
 
 Standalone `../PACKAGE.pi.yaml` packages the canonical skill's Pi-only override
-plus one native extension and its helper. Independent Pi version **0.1.0**;
+plus one native extension and its helper. Independent Pi version **0.1.1**;
 Claude/Codex `workspaces` 0.2.0 content and hooks remain unchanged. No `/spaces`
 UI, generic spawner, cleanup command, or upstream patch is included.
 
@@ -125,12 +125,16 @@ protected. Removal does not cascade to child workspaces.
 Use local AgentForge **2.1.0**, not the unchanged pinned 1.3.0 wrapper:
 
 ```sh
-OUT="$(mktemp -d "${TMPDIR:-/tmp}/workspaces-pi-package.XXXXXX")"
+OUT="$PWD/packages/pi/workspaces"
 bun run "$HOME/Projects/agentforge/src/cli.ts" package compile \
   plugins/workspaces/PACKAGE.pi.yaml --target pi --out "$OUT"
 bun run "$HOME/Projects/agentforge/src/cli.ts" package check \
   plugins/workspaces/PACKAGE.pi.yaml --target pi --out "$OUT"
 ```
+
+Commit this durable output with source changes. `scripts/pi-packages.sh compile`
+and `scripts/pi-packages.sh check` handle all declared Pi packages; the Pi output
+is separate from the marketplace compiler's owned `marketplaces/` snapshot.
 
 Exactly five files: generated `package.json`, projected
 `skills/workspaces/SKILL.md`, `pi/extension.ts`, `pi/provider.ts`, `pi/README.md`.

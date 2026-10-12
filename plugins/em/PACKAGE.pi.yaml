@@ -2,7 +2,7 @@ schema: agentforge.package/v1
 id: em-pi
 defaults:
   name: em-pi
-  version: 0.1.0
+  version: 0.1.1
   description: Experimental Pi EM scope and lead skills with explicit capability, tracker, dispatch and isolation adapters; static packaging verified, no formal runtime acceptance.
   author:
     name: Jacob Hoehler
