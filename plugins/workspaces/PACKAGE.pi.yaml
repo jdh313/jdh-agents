@@ -1,0 +1,31 @@
+schema: agentforge.package/v1
+id: workspaces-pi
+defaults:
+  name: workspaces-pi
+  version: 0.1.0
+  description: Opt-in native jjx workspace provider for Pi subagents, with retained checkout and jj registration.
+  author:
+    name: Jacob Hoehler
+  license: Apache-2.0
+  keywords: [pi-package, jj, jujutsu, jjx, workspace]
+artifacts:
+  - {type: skill, pattern: 'skills/*/SKILL.md'}
+targets:
+  pi:
+    native:
+      engines:
+        node: '>=22'
+      peerDependencies:
+        '@earendil-works/pi-coding-agent': '*'
+        '@gotgenes/pi-subagents': '23.4.0'
+      peerDependenciesMeta:
+        '@gotgenes/pi-subagents':
+          optional: true
+      pi:
+        extensions: ['./pi/extension.ts']
+    payloads:
+      include:
+        - source: pi/extension.ts
+        - source: pi/provider.ts
+        - source: pi/README.md
+      # Tests are source-only, never packaged or extension-discovered.
