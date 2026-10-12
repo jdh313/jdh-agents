@@ -1,0 +1,21 @@
+schema: agentforge.package/v1
+id: em-pi
+defaults:
+  name: em-pi
+  version: 0.1.0
+  description: Experimental Pi EM scope and lead skills with explicit capability, tracker, dispatch and isolation adapters; static packaging verified, no formal runtime acceptance.
+  author:
+    name: Jacob Hoehler
+  license: Apache-2.0
+  keywords: [pi-package, engineering-manager, orchestration, tickets]
+artifacts:
+  - {type: skill, pattern: 'skills/*/SKILL.md'}
+targets:
+  pi:
+    payloads:
+      include:
+        - {source: references/config.md}
+        - {source: pi/README.md}
+        - {source: pi/runtime.md}
+        - {source: pi/trackers.md}
+        - {source: pi/dispatch-verify.md}
