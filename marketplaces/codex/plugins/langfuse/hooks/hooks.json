@@ -16,6 +16,10 @@
           {
             "type": "command",
             "command": "bash \"${PLUGIN_ROOT}/hooks/babysitter_spawn_tripwire.sh\""
+          },
+          {
+            "type": "command",
+            "command": "uv run --quiet \"${PLUGIN_ROOT}/hooks/langfuse_hook.py\" --session-start"
           }
         ]
       }

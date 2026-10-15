@@ -1,7 +1,7 @@
 {
   "name": "langfuse",
-  "version": "1.4.0",
-  "description": "Sends Claude Code and Codex session traces to Langfuse via a Stop hook — per-turn traces with prompts, generations, tool observations, and backdated timestamps. Includes a SessionStart tripwire that marks programmatically-spawned sessions.",
+  "version": "1.5.0",
+  "description": "Sends Claude Code and Codex session traces to Langfuse via a Stop hook — per-turn traces with prompts, generations, tool observations, and backdated timestamps. Includes a SessionStart tripwire that marks programmatically-spawned sessions, and an opt-in Claude Code human follow-up observation for self-hosted Langfuse.",
   "author": {
     "name": "Jacob Hoehler"
   },
@@ -37,6 +37,12 @@
       "type": "boolean",
       "title": "Debug logging",
       "description": "Write verbose logs to ~/.claude/state/langfuse_hook.log",
+      "default": false
+    },
+    "CC_LANGFUSE_FOLLOWUP_ENABLED": {
+      "type": "boolean",
+      "title": "Human follow-up observations",
+      "description": "Export each typed human follow-up plus the preceding user request and assistant response as a separate observation to the configured self-hosted Langfuse. Refused for langfuse.com hosts. Claude Code only.",
       "default": false
     }
   }

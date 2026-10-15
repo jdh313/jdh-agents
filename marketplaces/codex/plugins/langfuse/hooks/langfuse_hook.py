@@ -1009,6 +1009,543 @@ def emit_turn(
         trace_span.update(output={"role": "assistant", "content": final_assistant_text})
         trace_span.end(end_time=_to_ns(turn_end_ts or last_assistant_ts or user_ts))
 
+# ----------------- Human follow-up observations (Claude Code only) -----------------
+# A second, independently gated pass: one SPAN per genuine human submission,
+# carrying the preceding request/response window. Contract: human-followup v1
+# (docs/langfuse-human-followup-contract.md). It never touches turn state.
+
+FOLLOWUP_NAME = "Claude Code Human Follow-up"
+FOLLOWUP_SOURCE = "claude-code-feedback"
+FOLLOWUP_TAGS = ["claude-code", "claude-code-feedback"]
+FOLLOWUP_STATE_FILE = STATE_DIR / "langfuse_followup_state.json"
+FOLLOWUP_LOCK_FILE = STATE_DIR / "langfuse_followup.lock"
+FOLLOWUP_MAX_CANDIDATES = 50
+FOLLOWUP_RECENT_UUIDS = 200
+FOLLOWUP_INTERACTIVE_ENTRYPOINTS = ("cli", "claude-desktop")
+FOLLOWUP_REDACTION = "[redacted-langfuse-secret]"
+_INTERRUPT_PREFIX = "[Request interrupted by user"
+
+_SYSTEM_REMINDER_RE = re.compile(r"<system-reminder>.*?</system-reminder>", re.DOTALL)
+_COMMAND_NAME_RE = re.compile(r"<command-name>\s*(/?[^<]+?)\s*</command-name>")
+_COMMAND_ARGS_RE = re.compile(r"<command-args>(.*?)</command-args>", re.DOTALL)
+_LANGFUSE_KEY_RE = r"\b[sp]k-lf-[\w-]+\b"
+
+
+@dataclass
+class FollowupConfig:
+    public_key: str
+    secret_key: str
+    base_url: str
+
+
+def _env_disabled(name: str) -> bool:
+    return os.environ.get(name, "").strip().lower() in ("false", "0")
+
+
+def _is_self_hosted_url(base_url: str) -> bool:
+    """http(s), no userinfo/query/fragment, and not langfuse.com or a subdomain."""
+    from urllib.parse import urlsplit
+    try:
+        parts = urlsplit(base_url)
+        host = (parts.hostname or "").rstrip(".").lower()
+        _ = parts.port  # raises ValueError on a malformed port
+    except ValueError:
+        return False
+    if parts.scheme not in ("http", "https") or not host:
+        return False
+    if parts.username is not None or parts.password is not None or "@" in parts.netloc:
+        return False
+    if parts.query or parts.fragment:
+        return False
+    return host != "langfuse.com" and not host.endswith(".langfuse.com")
+
+
+def followup_config(runtime: Optional[str] = None) -> Optional[FollowupConfig]:
+    """Return the follow-up config only when every gate passes, else None."""
+    if (runtime or RUNTIME) != "claude-code":
+        return None
+    if _opt("CC_LANGFUSE_FOLLOWUP_ENABLED").strip().lower() != "true":
+        return None
+    if _env_disabled("LANGFUSE_CLAUDE_FEEDBACK_ENABLED") or _env_disabled("LANGFUSE_TRACING_ENABLED"):
+        return None
+    public_key = (_opt("LANGFUSE_PUBLIC_KEY") or _opt("CC_LANGFUSE_PUBLIC_KEY")).strip()
+    secret_key = (_opt("LANGFUSE_SECRET_KEY") or _opt("CC_LANGFUSE_SECRET_KEY")).strip()
+    base_url = (_opt("LANGFUSE_BASE_URL") or _opt("CC_LANGFUSE_BASE_URL")).strip()
+    if not public_key or not secret_key or not base_url:
+        return None
+    if any("op://" in v for v in (public_key, secret_key, base_url)):
+        return None
+    if not _is_self_hosted_url(base_url):
+        return None
+    return FollowupConfig(public_key=public_key, secret_key=secret_key, base_url=base_url)
+
+
+# --- Row classification (pure) ---
+def _followup_text_blocks(content: Any) -> str:
+    if isinstance(content, str):
+        return content
+    if isinstance(content, list):
+        return "\n".join(
+            b["text"] for b in content
+            if isinstance(b, dict) and b.get("type") == "text" and isinstance(b.get("text"), str)
+        )
+    return ""
+
+
+def normalize_human_text(content: Any) -> Tuple[str, str]:
+    """(text, submission_kind) for a human row; slash commands render as `/name args`."""
+    text = _SYSTEM_REMINDER_RE.sub("", _followup_text_blocks(content))
+    # Only the harness's own expansion starts with command tags; markup pasted
+    # inside a typed prompt stays a prompt.
+    m = _COMMAND_NAME_RE.search(text) if text.lstrip().startswith(("<command-message>", "<command-name>")) else None
+    if m:
+        name = m.group(1).strip()
+        if not name.startswith("/"):
+            name = "/" + name
+        am = _COMMAND_ARGS_RE.search(text)
+        args = am.group(1).strip() if am else ""
+        return (f"{name} {args}" if args else name), "slash_command"
+    return text.strip(), "prompt"
+
+
+def _is_human_origin_row(row: Dict[str, Any]) -> bool:
+    """A human submission of any shape: the boundary an ancestry walk must stop at."""
+    if not isinstance(row, dict) or row.get("type") != "user":
+        return False
+    origin = row.get("origin")
+    if not isinstance(origin, dict) or origin.get("kind") != "human":
+        return False
+    if row.get("isMeta") or row.get("isSidechain") or row.get("isCompactSummary"):
+        return False
+    return row.get("toolUseResult") is None and not is_tool_result(row)
+
+
+def is_genuine_human_row(row: Dict[str, Any], session_id: str) -> bool:
+    """Typed human input in this interactive main session (no cursor/ledger checks)."""
+    if not _is_human_origin_row(row):
+        return False
+    if row.get("entrypoint") not in FOLLOWUP_INTERACTIVE_ENTRYPOINTS:
+        return False
+    if row.get("sessionId") != session_id:
+        return False
+    uuid = row.get("uuid")
+    if not isinstance(uuid, str) or not uuid:
+        return False
+    return bool(normalize_human_text(get_content(row))[0])
+
+
+def _followup_parent(row: Dict[str, Any]) -> Optional[str]:
+    parent = row.get("parentUuid")
+    if isinstance(parent, str) and parent:
+        return parent
+    if row.get("type") == "system" and row.get("subtype") == "compact_boundary":
+        logical = row.get("logicalParentUuid")
+        if isinstance(logical, str) and logical:
+            return logical
+    return None
+
+
+def _is_interrupt_row(row: Dict[str, Any]) -> bool:
+    if row.get("type") != "user":
+        return False
+    return _followup_text_blocks(get_content(row)).lstrip().startswith(_INTERRUPT_PREFIX)
+
+
+def _iso_z(ts: datetime) -> str:
+    return ts.astimezone(timezone.utc).isoformat().replace("+00:00", "Z")
+
+
+# --- Candidate collection + pairing (pure) ---
+@dataclass
+class FollowupRecord:
+    session_id: str
+    followup_uuid: str
+    followup_ts: datetime
+    followup_text: str
+    submission_kind: str
+    preceding_uuid: str
+    preceding_text: str
+    response_text: str
+    assistant_entry_id: str
+    assistant_message_id: Optional[str]
+    agent_model: Optional[str]
+    interrupted_before_followup: bool
+
+
+@dataclass
+class FollowupOutcome:
+    """One processed candidate: a record to emit, or a skip reason."""
+    uuid: str
+    timestamp: datetime
+    record: Optional[FollowupRecord] = None
+    skip_reason: Optional[str] = None
+
+
+def pair_followup(
+    row: Dict[str, Any],
+    index: Dict[str, Dict[str, Any]],
+    session_id: str,
+    started_at: datetime,
+) -> Tuple[Optional[FollowupRecord], Optional[str]]:
+    """Walk the ancestry of a candidate to its nearest genuine human row."""
+    uuid = row["uuid"]
+    seen = {uuid}
+    between: List[Dict[str, Any]] = []  # rows strictly between h and r, newest first
+    cur = _followup_parent(row)
+    human: Optional[Dict[str, Any]] = None
+    while True:
+        if cur is None:
+            return None, "no_preceding_human"
+        if cur in seen:
+            return None, "cyclic_ancestry"
+        seen.add(cur)
+        anc = index.get(cur)
+        if anc is None:
+            return None, "missing_ancestry"
+        anc_session = anc.get("sessionId")
+        if anc_session is not None and anc_session != session_id:
+            return None, "foreign_session_on_path"
+        if _is_human_origin_row(anc):
+            # Stop at the nearest submission even when it is not exportable
+            # (e.g. image-only): walking past it would pair this follow-up with
+            # a response to a different request.
+            if not is_genuine_human_row(anc, session_id):
+                return None, "preceding_human_not_eligible"
+            human = anc
+            break
+        between.append(anc)
+        cur = _followup_parent(anc)
+
+    human_ts = parse_ts(human)
+    if human_ts is None or human_ts < started_at:
+        return None, "preceding_before_session_start"
+
+    # Last assistant message.id group with non-empty text, nearest to r.
+    target_mid: Optional[str] = None
+    for anc in between:
+        if get_role(anc) != "assistant" or anc.get("type") != "assistant":
+            continue
+        if _followup_text_blocks(get_content(anc)).strip():
+            target_mid = get_message_id(anc) or f"uuid:{anc.get('uuid')}"
+            break
+    if target_mid is None:
+        return None, "no_assistant_text"
+
+    group = [
+        anc for anc in between
+        if anc.get("type") == "assistant"
+        and (get_message_id(anc) or f"uuid:{anc.get('uuid')}") == target_mid
+    ]
+    group_chrono = list(reversed(group))
+    response = "\n".join(
+        t for t in (_followup_text_blocks(get_content(g)) for g in group_chrono) if t
+    )
+    last_row = group[0]
+    model = next(
+        (g["message"].get("model") for g in group_chrono
+         if isinstance(g.get("message"), dict) and g["message"].get("model")),
+        None,
+    )
+    followup_text, kind = normalize_human_text(get_content(row))
+    preceding_text, _ = normalize_human_text(get_content(human))
+    return FollowupRecord(
+        session_id=session_id,
+        followup_uuid=uuid,
+        followup_ts=parse_ts(row),  # type: ignore[arg-type]  # candidates always parse
+        followup_text=followup_text,
+        submission_kind=kind,
+        preceding_uuid=human["uuid"],
+        preceding_text=preceding_text,
+        response_text=response,
+        assistant_entry_id=str(last_row.get("uuid") or ""),
+        assistant_message_id=get_message_id(last_row),
+        agent_model=model,
+        interrupted_before_followup=any(_is_interrupt_row(b) for b in between),
+    ), None
+
+
+def plan_followups(
+    rows: List[Dict[str, Any]],
+    session_id: str,
+    session_state: Dict[str, Any],
+    max_candidates: int = FOLLOWUP_MAX_CANDIDATES,
+) -> List[FollowupOutcome]:
+    """Eligible candidates (oldest first, capped), each paired or given a skip reason."""
+    started_at = parse_ts(session_state.get("started_at"))
+    if started_at is None:
+        return []
+    cursor = parse_ts(session_state.get("cursor")) or started_at
+    recent = set(session_state.get("recent_uuids") or [])
+
+    index: Dict[str, Dict[str, Any]] = {}
+    candidates: List[Tuple[datetime, int, Dict[str, Any]]] = []
+    seen_candidates: set = set()
+    for pos, row in enumerate(rows):
+        if not isinstance(row, dict):
+            continue
+        uuid = row.get("uuid")
+        if isinstance(uuid, str) and uuid:
+            index[uuid] = row
+    for pos, row in enumerate(rows):
+        if not is_genuine_human_row(row, session_id):
+            continue
+        uuid = row["uuid"]
+        if uuid in recent or uuid in seen_candidates:
+            continue
+        ts = parse_ts(row)
+        if ts is None or ts < started_at or ts < cursor:
+            continue
+        seen_candidates.add(uuid)
+        candidates.append((ts, pos, row))
+    candidates.sort(key=lambda c: (c[0], c[1]))
+
+    outcomes: List[FollowupOutcome] = []
+    for ts, _pos, row in candidates[:max_candidates]:
+        try:
+            record, reason = pair_followup(row, index, session_id, started_at)
+        except Exception as e:  # malformed rows must not wedge the cursor
+            record, reason = None, f"pairing_error:{type(e).__name__}"
+        outcomes.append(FollowupOutcome(uuid=row["uuid"], timestamp=ts, record=record, skip_reason=reason))
+    return outcomes
+
+
+# --- Observation building (pure) ---
+def mask_credentials(text: str, config: FollowupConfig) -> str:
+    alternatives = [re.escape(v) for v in (config.public_key, config.secret_key) if v]
+    alternatives.append(_LANGFUSE_KEY_RE)
+    return re.sub("|".join(alternatives), FOLLOWUP_REDACTION, text, flags=re.ASCII)
+
+
+def _bounded(text: str, config: FollowupConfig) -> Tuple[str, Dict[str, Any]]:
+    masked = mask_credentials(text, config)
+    exported = masked[:MAX_CHARS]
+    return exported, {
+        "original_chars": len(masked),
+        "exported_chars": len(exported),
+        "truncated": len(masked) > MAX_CHARS,
+    }
+
+
+def build_followup_observation(
+    record: FollowupRecord,
+    config: FollowupConfig,
+    harness_version: Optional[str],
+) -> Dict[str, Any]:
+    request, request_meta = _bounded(record.preceding_text, config)
+    response, response_meta = _bounded(record.response_text, config)
+    latest, latest_meta = _bounded(record.followup_text, config)
+    submitted_at = _iso_z(record.followup_ts)
+    return {
+        "name": FOLLOWUP_NAME,
+        "trace_name": FOLLOWUP_NAME,
+        "session_id": record.session_id,
+        "tags": list(FOLLOWUP_TAGS),
+        "start_time": record.followup_ts,
+        "input": {"preceding_user_request": request, "assistant_response": response},
+        "output": {"latest_user_message": latest},
+        "metadata": {
+            "source": FOLLOWUP_SOURCE,
+            "contract": "human-followup",
+            "contract_version": 1,
+            "schema_version": 1,
+            "harness": "claude-code",
+            "harness_version": harness_version,
+            "agent_model": record.agent_model,
+            "session_id": record.session_id,
+            "followup_entry_id": record.followup_uuid,
+            "preceding_user_entry_id": record.preceding_uuid,
+            "assistant_entry_id": record.assistant_entry_id,
+            "assistant_message_id": record.assistant_message_id,
+            "submission_kind": record.submission_kind,
+            "submitted_at": submitted_at,
+            "interrupted_before_followup": record.interrupted_before_followup,
+            "capture_semantics": "transcript-ancestry",
+            "max_chars_per_field": MAX_CHARS,
+            "truncation": {
+                "preceding_user_request": request_meta,
+                "assistant_response": response_meta,
+                "latest_user_message": latest_meta,
+            },
+        },
+    }
+
+
+def emit_followup(langfuse: Langfuse, observation: Dict[str, Any], user_id: str) -> None:
+    """Emit one follow-up as its own trace (root SPAN), backdated to the submission."""
+    with propagate_attributes(
+        session_id=observation["session_id"],
+        trace_name=observation["trace_name"],
+        tags=observation["tags"],
+        user_id=user_id,
+    ):
+        span = _start_backdated(
+            langfuse,
+            name=observation["name"],
+            as_type="span",
+            start_time=observation["start_time"],
+            input=observation["input"],
+            metadata=observation["metadata"],
+        )
+        span.update(output=observation["output"])
+        span.end(end_time=_to_ns(observation["start_time"]))
+
+
+# --- State (independent of turn state) ---
+def load_followup_state() -> Dict[str, Any]:
+    try:
+        if not FOLLOWUP_STATE_FILE.exists():
+            return {}
+        data = json.loads(FOLLOWUP_STATE_FILE.read_text(encoding="utf-8"))
+        return data if isinstance(data, dict) else {}
+    except Exception:
+        return {}
+
+
+def save_followup_state(state: Dict[str, Any]) -> None:
+    cutoff = datetime.now(timezone.utc) - timedelta(days=30)
+    for k in list(state.keys()):
+        entry = state.get(k)
+        updated = parse_ts(entry.get("updated")) if isinstance(entry, dict) else None
+        if updated is not None and updated < cutoff:
+            del state[k]
+    STATE_DIR.mkdir(parents=True, exist_ok=True)
+    tmp = FOLLOWUP_STATE_FILE.with_suffix(".tmp")
+    tmp.write_text(json.dumps(state, indent=2, sort_keys=True), encoding="utf-8")
+    os.replace(tmp, FOLLOWUP_STATE_FILE)
+
+
+def _new_followup_session(now: datetime) -> Dict[str, Any]:
+    stamp = _iso_z(now)
+    return {"started_at": stamp, "cursor": stamp, "recent_uuids": [], "updated": stamp}
+
+
+def read_transcript_rows(transcript_path: Path) -> List[Dict[str, Any]]:
+    rows: List[Dict[str, Any]] = []
+    with open(transcript_path, "r", encoding="utf-8", errors="replace") as f:
+        for line in f:
+            line = line.strip()
+            if not line:
+                continue
+            try:
+                row = json.loads(line)
+            except Exception:
+                continue
+            if isinstance(row, dict):
+                rows.append(row)
+    return rows
+
+
+def _is_subagent_context(payload: Dict[str, Any], transcript_path: Optional[Path]) -> bool:
+    if extract_agent_context(payload if isinstance(payload, dict) else {}).get("agent_id"):
+        return True
+    return transcript_path is not None and transcript_path.parent.name == "subagents"
+
+
+def run_followup_pass(
+    payload: Dict[str, Any],
+    session_id: Optional[str],
+    transcript_path: Optional[Path],
+    *,
+    emit: Any,
+    now: Optional[datetime] = None,
+    harness_version: Optional[str] = None,
+    config: Optional[FollowupConfig] = None,
+) -> Dict[str, int]:
+    """Stop-time follow-up pass. `emit(observation)` sends one observation.
+
+    Delivery is at-most-once: the cursor and ledger are persisted for every
+    planned candidate *before* any emit, so a crash or emit failure can never
+    cause a resend (Langfuse v4 would duplicate it, not merge it).
+    """
+    summary = {"emitted": 0, "skipped": 0, "failed": 0}
+    config = config or followup_config()
+    if config is None or not session_id or transcript_path is None:
+        return summary
+    if _is_subagent_context(payload, transcript_path):
+        return summary
+    now = now or datetime.now(timezone.utc)
+
+    with FileLock(FOLLOWUP_LOCK_FILE):
+        state = load_followup_state()
+        sess = state.get(session_id)
+        if not isinstance(sess, dict) or parse_ts(sess.get("started_at")) is None:
+            # Enabled mid-session or SessionStart missed: no historical backfill.
+            state[session_id] = _new_followup_session(now)
+            save_followup_state(state)
+            return summary
+        if not transcript_path.exists():
+            return summary
+        outcomes = plan_followups(read_transcript_rows(transcript_path), session_id, sess)
+        if not outcomes:
+            return summary
+        cursor = parse_ts(sess.get("cursor")) or parse_ts(sess["started_at"])
+        recent = [u for u in (sess.get("recent_uuids") or []) if isinstance(u, str)]
+        for o in outcomes:
+            if cursor is None or o.timestamp > cursor:
+                cursor = o.timestamp
+            recent.append(o.uuid)
+        sess["cursor"] = _iso_z(cursor) if cursor else sess.get("cursor")
+        sess["recent_uuids"] = recent[-FOLLOWUP_RECENT_UUIDS:]
+        sess["updated"] = _iso_z(now)
+        state[session_id] = sess
+        save_followup_state(state)
+
+    for o in outcomes:
+        if o.record is None:
+            summary["skipped"] += 1
+            debug(f"follow-up {o.uuid} skipped: {o.skip_reason}")
+            continue
+        try:
+            emit(build_followup_observation(o.record, config, harness_version))
+            summary["emitted"] += 1
+        except Exception as e:
+            summary["failed"] += 1
+            info(f"emit_followup failed: {type(e).__name__}")
+    return summary
+
+
+def run_followup_pass_safely(
+    langfuse: Langfuse,
+    payload: Dict[str, Any],
+    session_id: Optional[str],
+    transcript_path: Optional[Path],
+    user_id: str,
+) -> None:
+    """Never raises, never prints; isolates the follow-up pass from the turn pass."""
+    try:
+        if followup_config() is None:
+            return
+        summary = run_followup_pass(
+            payload, session_id, transcript_path,
+            emit=lambda obs: emit_followup(langfuse, obs, user_id),
+            harness_version=_get_runtime_version(),
+        )
+        if summary["emitted"] or summary["failed"]:
+            info(f"Follow-up pass: emitted={summary['emitted']} skipped={summary['skipped']} failed={summary['failed']}")
+    except Exception as e:
+        info(f"follow-up pass failed: {type(e).__name__}")
+
+
+def session_start_main() -> int:
+    """SessionStart: record started_at (earliest wins). Prints nothing, no client."""
+    try:
+        if followup_config() is None:
+            return 0
+        payload = read_hook_payload()
+        session_id, _ = extract_session_and_transcript(payload if isinstance(payload, dict) else {})
+        if not session_id:
+            return 0
+        with FileLock(FOLLOWUP_LOCK_FILE):
+            state = load_followup_state()
+            sess = state.get(session_id)
+            if isinstance(sess, dict) and parse_ts(sess.get("started_at")) is not None:
+                return 0
+            state[session_id] = _new_followup_session(datetime.now(timezone.utc))
+            save_followup_state(state)
+    except Exception as e:
+        info(f"follow-up session-start failed: {type(e).__name__}")
+    return 0
+
 # ----------------- Main -----------------
 def main() -> int:
     start = time.time()
@@ -1183,6 +1720,11 @@ def main() -> int:
         return 0
 
     finally:
+        # Follow-up pass runs after the turn pass (even when it found no new
+        # rows) and before flush; it is isolated and can never change the
+        # turn state or the exit code.
+        if langfuse is not None:
+            run_followup_pass_safely(langfuse, payload, session_id, transcript_path, user_id)
         # Cap flush+shutdown at 5s so a slow/unreachable Langfuse can't stall Claude Code.
         if langfuse is not None:
             try:
@@ -1199,4 +1741,6 @@ def main() -> int:
                 pass
 
 if __name__ == "__main__":
+    if "--session-start" in sys.argv[1:]:
+        sys.exit(session_start_main())
     sys.exit(main())

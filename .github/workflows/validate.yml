@@ -72,3 +72,6 @@ jobs:
 
       - name: Behavioral tests (Langfuse dual-runtime parser)
         run: uv run scripts/tests/test_langfuse_hook.py
+
+      - name: Behavioral tests (Langfuse human follow-up pass)
+        run: uv run scripts/tests/test_langfuse_followup.py

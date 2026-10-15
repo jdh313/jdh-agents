@@ -21,7 +21,7 @@ The shared hook accepts Claude Code transcript rows and Codex rollout rows. Six 
 
 ## userConfig
 
-The `userConfig` surface is identical to upstream — existing `pluginConfigs` work without changes:
+The `userConfig` surface is upstream's plus one opt-in switch — existing `pluginConfigs` work without changes:
 
 | Key | Required | Description |
 |-----|----------|-------------|
@@ -29,6 +29,36 @@ The `userConfig` surface is identical to upstream — existing `pluginConfigs` w
 | `LANGFUSE_PUBLIC_KEY` | Yes | Project public key (`pk-lf-...`) |
 | `LANGFUSE_BASE_URL` | No | Defaults to `https://us.cloud.langfuse.com` |
 | `CC_LANGFUSE_DEBUG` | No | Write verbose logs to `~/.claude/state/langfuse_hook.log` |
+| `CC_LANGFUSE_FOLLOWUP_ENABLED` | No | Opt in to human follow-up observations (Claude Code only, self-hosted Langfuse only; see below). Default `false` |
+
+## Human follow-up observations (Claude Code only)
+
+An opt-in second pass in the same Stop hook exports one Langfuse observation per genuine human submission, so an evaluator can judge how the person reacted to the previous answer. It conforms to the `human-followup` v1 contract in [`docs/langfuse-human-followup-contract.md`](../../docs/langfuse-human-followup-contract.md).
+
+**What is exported**, per follow-up, as its own trace named `Claude Code Human Follow-up` (observation type `SPAN`, tags `claude-code` and `claude-code-feedback`, `metadata.source = claude-code-feedback`):
+
+- input: `{"preceding_user_request", "assistant_response"}` — the previous human request and the last text the assistant gave before the follow-up
+- output: `{"latest_user_message"}` — the follow-up itself; a typed slash command is rendered as `/name args`
+- each field has Langfuse keys masked, then is truncated to 20,000 characters, with the counts in `metadata.truncation`
+
+**Switches.** It runs only when all of these hold:
+
+- `CC_LANGFUSE_FOLLOWUP_ENABLED` is `true` (default `false`)
+- the kill switch `LANGFUSE_CLAUDE_FEEDBACK_ENABLED` is not `false`/`0`, and `LANGFUSE_TRACING_ENABLED` is not `false`/`0`
+- both keys are set and nothing is an unresolved `op://` reference
+- the base URL is a plain `http`/`https` URL without credentials, query, or fragment, **and is self-hosted**: any `langfuse.com` host, including the default `https://us.cloud.langfuse.com`, disables it
+
+**Smoke runs.** Set `LANGFUSE_TRACING_ENVIRONMENT=claude-code-feedback-smoke`; the contract's evaluation rule excludes that environment.
+
+**State.** `~/.claude/state/langfuse_followup_state.json` (own lock, independent of turn state) records each session's start, a timestamp cursor, and the last 200 processed entry IDs. A second `SessionStart` command (`langfuse_hook.py --session-start`) records the session start and prints nothing.
+
+**Limitations:**
+
+- Stop-triggered: a follow-up is exported when the turn it starts ends, not when it is typed. The last follow-up of a session that ends without another completed turn is lost.
+- The first follow-up after a resume or fork is skipped: its preceding exchange is copied history from another session.
+- Requires `origin.kind == "human"` on transcript rows (Claude Code >= ~2.1.291); older transcripts produce nothing. Subagents, programmatic (`sdk-cli`) sessions, teammate messages, and notifications are excluded.
+- At-most-once delivery: a candidate is marked processed before it is sent and is never retried, because Langfuse would duplicate a resent observation rather than merge it.
+- Codex is not implemented; under Codex the pass is a no-op. Codex still lists the extra `SessionStart` command for hook review.
 
 ## Codex setup and trust
 
