@@ -4,7 +4,7 @@ A decision card for jj commit operations — read this once and you should not n
 
 ## What's different from git (one paragraph)
 
-In jj, the working copy *is* a commit (called the "current change", denoted `@`). There's no staging area. Every edit you make is already part of `@`. You commit by **describing** `@` and creating a new empty change on top (`jj commit -m "..."`, or the two-step `jj describe -m "..."` + `jj new`). You "split" by moving some of `@`'s content into a separate commit. Bookmarks are jj's equivalent of git branches; they don't move automatically, so you advance them deliberately before `jj git push`.
+In jj, the working copy *is* a commit (called the "current change", denoted `@`). There's no staging area. Every edit you make is already part of `@`. You commit by **describing** `@` and creating a new empty change on top (`jj commit -m "..."`, or the two-step `jj describe -m "..."` + `jj new`). You "split" by moving some of `@`'s content into a separate commit. Bookmarks are jj's equivalent of git branches; they don't move automatically, so you advance them deliberately before pushing.
 
 ## Checking state
 
@@ -40,9 +40,9 @@ Pick the row that matches what you want to do.
 | List bookmarks | `jj bookmark list` | Or `jj b l`. |
 | Move a bookmark to a revision | `jj bookmark move <name> --to <revset>` | E.g. `jj bookmark move main --to @-` to point main at the parent of the working copy. |
 | Create a new bookmark at current change | `jj bookmark create <name> -r @-` | Usually point at `@-` (last described change), not `@` (empty working copy). |
-| Push tracked bookmarks to git | `jj git push` | Pushes bookmarks ahead of their remote counterparts. |
-| Push a specific bookmark | `jj git push --bookmark <name>` | Force-with-lease semantics. Safe by default. |
-| Push the current change as an ad-hoc branch | `jj git push --change @-` | Generates a `push-XXX` bookmark from the change ID. |
+| Push tracked bookmarks to git | `jj push` | Pushes bookmarks ahead of their remote counterparts. |
+| Push a specific bookmark | `jj push --bookmark <name>` | Force-with-lease semantics. Safe by default. |
+| Push the current change as an ad-hoc branch | `jj push --change @-` | Generates a `push-XXX` bookmark from the change ID. |
 | Undo the last jj operation | `jj undo` | jj's operation log makes mistakes recoverable — use this freely. |
 
 ## `jj split` -m semantics (subtle, get it wrong every time without this)
@@ -157,7 +157,7 @@ Working as a stack of described changes (one reviewable slice per commit):
 - **Mid-stack edits don't need rebases:** fix from `@` with `jj absorb` or `jj squash --into <rev>`; jj rebases all descendants automatically. This is the workflow git's fixup/autosquash approximates manually.
 - **Conflicts don't stop you:** a mid-stack rewrite may leave descendants conflicted — jj records the conflict *in* the commit and `jj log` marks it. Resolve with `jj new <conflicted-rev>`, fix the files, `jj squash`.
 - **One bookmark per reviewable slice:** `jj bookmark create <name> -r <rev>`, advance with `jj bookmark move <name> --to <rev>` after rewrites (bookmarks don't follow rewritten commits to new heads automatically — check `jj log` for where they point).
-- **Push:** `jj git push` pushes all ahead bookmarks; `jj git push --change <rev>` for an ad-hoc `push-*` bookmark per slice.
+- **Push:** `jj push` pushes all ahead bookmarks; `jj push --change <rev>` for an ad-hoc `push-*` bookmark per slice.
 - Keep `@` as an empty undescribed change on top of the stack between tasks (`jj new` after each described slice).
 
 ## Hard rules for agent use
@@ -193,6 +193,8 @@ Final history (newest first):
 
 ## Pushing work to a git remote
 
+**Push with `jj push`, not `jj git push`.** `jj push` is a user alias for `jj git push` that runs the repo's pre-push checks first, so a push that skips it can land commits those checks would have rejected. It takes the same arguments (`--bookmark`, `--change`, ...). Confirm the alias exists once per session with `jj config get aliases.push`; only if that fails, fall back to `jj git push` and tell the user the pre-push checks did not run. Every push command in this reference assumes the alias.
+
 ```bash
 # 1. Make sure a bookmark points at the change you want to push
 jj bookmark list                                  # which bookmarks exist?
@@ -200,15 +202,15 @@ jj bookmark move main --to @-                     # advance main to last describ
 # (or create one: jj bookmark create feature-x -r @-)
 
 # 2. Push
-jj git push --bookmark main
+jj push --bookmark main
 # Or push everything that's ahead:
-jj git push
+jj push
 ```
 
 For ad-hoc pushes without managing bookmarks:
 
 ```bash
-jj git push --change @-       # generates a push-<changeid> bookmark and pushes it
+jj push --change @-           # generates a push-<changeid> bookmark and pushes it
 ```
 
 ## Recovery: I think I lost work
