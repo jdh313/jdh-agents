@@ -107,7 +107,7 @@ Remove unused imports from auth module
 
 ## House Style
 
-- **`Co-Authored-By:` footers follow the detected policy** (see `detection.md`). Default: strip — AI/tool-generated footers (e.g. `Co-Authored-By: Claude ...` or any bot footer) are always stripped, since the VCS already records authorship. Keep human pairing footers — one `Co-Authored-By: Name <email>` line per human co-author, **only when two people genuinely paired on the same commit** (live coding, mob session) — when the policy is `keep`, CLAUDE.md mandates it, or repo history consistently carries it. For separately-authored commits, no footer is needed.
+- **`Co-Authored-By:` trailers follow `detection.md` ("Co-Authored-By trailers")**: keep the AI attribution trailer the runtime or user guidance supplies, verbatim, unless the repo declares `strip`; add a human pairing trailer only when two people genuinely paired and the policy is `keep`.
 - No trailing period on the summary line.
 - **Issue refs follow the detected placement** (see `detection.md`). Default: out of the summary, in the PR description. Keep `(TEAM-123)`/`#123` in the summary when CLAUDE.md declares `Issue refs: summary` or history consistently uses it (e.g. a Linear/Jira integration keys off the subject).
 
@@ -121,7 +121,7 @@ Remove unused imports from auth module
 - Include issue numbers in summary: `#123 resolve bug` — *unless the repo convention is `summary` (see House Style)*
 - Exceed 5 lines in body
 - Repeat WHAT in the body (the diff shows what)
-- Append AI/tool `Co-Authored-By:` footers (e.g. bot or Claude footers) — *human pairing footers are allowed when the policy is `keep` (see House Style)*
+- Invent, reword, or change the model name in an AI `Co-Authored-By:` trailer; copy the supplied line exactly, or add none
 
 **Do:**
 - Keep summary concise and descriptive

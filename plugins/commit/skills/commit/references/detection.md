@@ -6,7 +6,7 @@ Canonical detection algorithm for the commit skill. The SKILL.md points here ins
 
 1. **VCS**: `git` or `jj` (Jujutsu)
 2. **Commit style**: `conventional` (e.g. `feat: add login`) or `freeform` (e.g. `Add login`)
-3. **Co-Authored-By policy**: `keep` or `strip` (default `strip`)
+3. **Co-Authored-By policy**: `keep` or `strip` (see "Co-Authored-By trailers" below; it governs AI and human trailers differently)
 4. **Issue-ref placement**: `summary` or `pr` (default `pr`)
 
 All four can be declared in repository agent guidance; otherwise auto-detect from repo state.
@@ -66,12 +66,12 @@ If ≥60% of sampled subjects are conventional → `conventional`. Otherwise →
 
 Only for whatever Step 1 didn't declare. Sample the same recent commits (use full messages, not just subjects, for the trailer check):
 
-- **Co-Authored-By:** if ≥60% of recent commit messages carry a `Co-Authored-By:` trailer → `keep`; otherwise → `strip`.
+- **Co-Authored-By (human pairing trailers only):** if ≥60% of recent commit messages carry a human `Co-Authored-By:` trailer → `keep`; otherwise → `strip`. History never removes an AI attribution trailer (see below).
 - **Issue refs:** if ≥60% of recent subjects carry a ticket key (`(TEAM-123)`, `#123`) → `summary`; otherwise → `pr`.
 
-**Precedence: applicable repository guidance > user guidance > history.** A
-user-level mandate to add `Co-Authored-By:` is honored unless the repo declares
-otherwise.
+**Precedence: applicable repository guidance > user guidance > history.** The
+runtime's attribution instruction (e.g. Claude Code's system reminder that says
+"End git commit messages with: Co-Authored-By: ...") counts as user guidance.
 
 ## Step 4 — Load matching references
 
@@ -87,8 +87,17 @@ otherwise.
 
 ## House style (both VCSes, both message styles)
 
-- **`Co-Authored-By:` footers** follow the detected policy (Step 1, else Step 3b). Default `strip` — AI/tool-generated footers (e.g. `Co-Authored-By: Claude ...` or bot footers) are always stripped; the VCS records authorship separately. Honor `keep` (repository-guidance mandate or history) by preserving one `Co-Authored-By: Name <email>` per human co-author when two people genuinely paired on the commit. Default solo commit: no footer.
+- **`Co-Authored-By:` trailers**: see "Co-Authored-By trailers" below.
 - **No trailing period** on the summary line.
 - **Imperative mood** ("add" not "added" or "adds").
 - **Body ≤5 lines**, explains WHY (the diff shows WHAT).
 - **Issue numbers in the summary** follow the detected placement (Step 1, else Step 3b). Default `pr` — refs belong in the PR description, not the subject. Honor `summary` when repository guidance declares it or history consistently uses it.
+
+## Co-Authored-By trailers
+
+Two kinds, decided separately:
+
+- **AI attribution trailer** (e.g. `Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>`): add it when user guidance or the runtime's attribution instruction supplies one, copied verbatim, never with the model name edited or guessed. Omit it only when repository guidance declares `- Co-Authored-By: strip`. If nothing supplies one, add none: never invent a trailer. Repo history does not override it, so a repo whose past commits carry no trailer still gets one.
+- **Human pairing trailer** (`Co-Authored-By: Name <email>`): add one line per human co-author only when two people genuinely paired on the commit, and only when the policy is `keep` (repository guidance, else Step 3b history). A teammate who only reviewed is not a co-author.
+
+When reviewing a message (Workflow C), flag a missing or edited AI trailer the same way as a missing human one.

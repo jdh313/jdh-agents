@@ -41,7 +41,7 @@ Detection order (canonical algorithm lives in `skills/commit/references/detectio
 
 Applied to every generated message:
 
-- `Co-Authored-By:` footers follow the detected policy (default strip) — AI/tool footers (e.g. Claude, bots) are always stripped; human co-author footers (`Co-Authored-By: Name <email>`) are kept when the policy is `keep` and two people genuinely paired on the commit; omit for solo work — see Configuration
+- `Co-Authored-By:` trailers: the AI attribution line your runtime or guidance supplies (e.g. Claude Code's "End git commit messages with" reminder) is kept verbatim unless the repo declares `strip`; human co-author trailers (`Co-Authored-By: Name <email>`) are added only when the policy is `keep` and two people genuinely paired — see Configuration
 - No trailing period on the summary
 - Imperative mood
 - Body ≤5 lines, explains WHY (the diff shows WHAT)
@@ -76,14 +76,14 @@ Two more optional keys control message conventions:
 
 ```markdown
 ## VCS
-- Co-Authored-By: keep   # keep | strip (default strip)
+- Co-Authored-By: keep   # keep | strip (human trailers default strip; strip here also drops the AI trailer)
 - Issue refs: summary    # summary | pr (default pr)
 ```
 
-- **`Co-Authored-By`** — `keep` preserves the `Co-Authored-By:` trailer; `strip` removes it.
+- **`Co-Authored-By`** — `keep` adds human pairing trailers; `strip` removes every `Co-Authored-By:` trailer, including the AI attribution one.
 - **`Issue refs`** — `summary` keeps a ticket key like `(TEAM-153)` / `#123` in the subject (useful when a Linear/Jira integration parses it); `pr` keeps refs out of the subject.
 
-If unspecified, the plugin auto-detects all four from the repo state: it samples recent commits and keeps the trailer / in-summary refs when ≥60% of history uses them. **Precedence: repo CLAUDE.md > user CLAUDE.md > history.** A user-level mandate to add `Co-Authored-By:` is honored unless the repo declares otherwise.
+If unspecified, the plugin auto-detects all four from the repo state: it samples recent commits and keeps human trailers / in-summary refs when ≥60% of history uses them. **Precedence: repo CLAUDE.md > user CLAUDE.md (and the runtime's attribution instruction) > history.** History never removes the AI attribution trailer; only a repo `strip` declaration does.
 
 ## Pi
 
