@@ -74,6 +74,26 @@ If applying *one half* of these would leave the repo broken or red, they're a si
 
 **Don't over-split.** A typo fix and the test that catches the same typo are one commit. **Don't under-split.** A 200-line diff doing two unrelated things is two commits, even if "they both touched billing.py."
 
+### Where Commits Land
+
+Decide this before creating any commit, and never move other work silently.
+
+1. **Base:** list the commits between trunk and the working copy (see "Where the commit lands" in your VCS recipe). If any were not made in this session and the request did not name them, list them and ask once: stack the new commits on top of them, or start a new stack on trunk. A request or caller args that name the base skip the question.
+2. **After a rebase onto trunk, re-check state:** files ignored on the old base can show up as new files. Leave them out of the commits and report them.
+3. **Bookmarks / branches:** follow repository guidance or the request when either says how to name or move them. Otherwise ask after the commits exist, offering the exact command. Never move `main` or any other bookmark without one of those.
+4. **Remotes that disagree:** if `main`, `main@origin`, or another remote's `main` point at different commits, report it in the final message and leave it alone.
+5. **Push only when asked, to the default remote:** push only when the request says to. The target is the repo's default remote unless the request names another; never push anywhere else. When not pushing, end with the one command that would push (see "Pushing" in your VCS recipe), not a list of options.
+
+### Commit Only Your Own Changes
+
+The working copy may hold edits from another session, from before this session, or from a build. Commit only yours.
+
+1. **Your paths:** the files this session edited, or the files the request names, are the commit's scope. Commit them by explicit path (see "Committing only your paths" in your VCS recipe) and leave every other change where it is. A request that says to commit everything (e.g. "commit everything in @") overrides this.
+2. **Report the rest:** the final message lists, in one line, the paths left uncommitted.
+3. **Shared files:** if another session also edited a file in your scope, a path-level split cannot separate the two sets of edits, and a hunk-level split needs an interactive editor. Only then, ask once how to proceed.
+4. **Don't move the working copy:** another session may be writing in this checkout. Commit, split, and retrofit from where the working copy is; the VCS recipe names the commands that keep it in place.
+5. **Build output stays out:** generated files (`result` symlinks, cache directories, anything over the VCS size limit) never go into a commit. Offer an ignore-file entry as its own commit.
+
 ### Commit Message Quality
 
 Regardless of style (conventional or freeform), good commit messages:
@@ -90,21 +110,23 @@ See the loaded style reference for style-specific rules.
 
 Use when the user wants changes split into multiple atomic commits.
 
-1. **Detect and check state** — run detection, then inspect current changes (see "Checking state" in your VCS recipe).
+1. **Detect and check state** — run detection, then inspect current changes (see "Checking state" in your VCS recipe) and settle the base per "Where Commits Land".
 2. **Identify atomic units** — apply the bundle-vs-split rules above. Present the recommended split with reasoning grounded in those rules ("bundling X with Y because reverting X alone would break Z" / "splitting A from B because A is a pure formatter sweep"). Get user confirmation.
 3. **Create commits one unit at a time** — follow the "Splitting" recipe in your VCS recipe. If two logical changes share a file, use the "Two logical changes in one file" recipe instead of bundling by default.
 4. **Compose each message** from the loaded style reference.
 5. **Verify** — confirm via the recipe's verification commands that every change landed in a commit and nothing was lost.
+6. **Bookmarks** — handle per "Where Commits Land" step 3.
 
 ## Workflow B: Single Commit
 
 Use when the user wants one commit for current changes.
 
-1. **Detect and check state.**
+1. **Detect and check state**, and settle the base per "Where Commits Land".
 2. **Analyze changes** — what changed, why, and whether it is ONE atomic unit. If not atomic, say so and offer Workflow A instead.
 3. **Compose the message** from the loaded style reference.
 4. **Create the commit** per your VCS recipe.
 5. **Verify** the commit exists and the remaining state is what you expect.
+6. **Bookmarks** — handle per "Where Commits Land" step 3.
 
 ## Workflow C: Review and Improve Message
 

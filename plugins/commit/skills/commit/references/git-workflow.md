@@ -15,6 +15,18 @@ git diff --staged     # staged changes — prefer this as the "diff peek" source
 git log --oneline -10 # recent history
 ```
 
+## Where the commit lands
+
+Policy lives in SKILL.md "Where Commits Land"; these are the commands.
+
+```bash
+git log --oneline origin/main..HEAD   # commits between trunk and HEAD; any not made this session -> ask
+git switch -c <slug> origin/main      # user chose a new stack: uncommitted edits carry over if they apply cleanly
+git rev-parse main origin/main        # do local and remote main agree? report, don't fix
+```
+
+Creating or moving a branch is the bookmark step: follow repository guidance or the request, otherwise ask.
+
 ## Operation → Command
 
 | Goal | Command | Notes |
@@ -115,6 +127,7 @@ Git has no native stacked-change support — descendants don't follow rewrites:
 
 - One branch per reviewable slice; restack dependents with `git rebase --onto <new-base> <old-base> <branch>` after rewriting a lower slice.
 - After any rewrite of pushed work, push with `git push --force-with-lease` (never bare `--force`), and only with user confirmation.
+- Push only when asked, to the branch's configured upstream or `origin` (`git push -u origin <branch>` for a new branch); never another remote unless the request names it.
 - For real stacked-PR workflows, dedicated tools (`gh`, git-spice, graphite) manage the restacking — don't hand-roll beyond two slices.
 
 ## Hard rules for agent use
@@ -126,3 +139,4 @@ Git has no native stacked-change support — descendants don't follow rewrites:
 2. **Never discard working-tree changes** — `git restore` (without `--staged`), `git checkout -- <path>`, `git reset --hard` are hook-blocked. Stash or commit instead.
 3. **Never rewrite pushed commits without explicit user confirmation** — amend, fixup, autosquash, and rebase are local-only operations by default.
 4. **Verify staging before every commit** (`git diff --staged`) and **state after** (`git status`).
+5. **Stage only your own paths** (`git add <your paths>`), never `git add -A`, `git add .`, or `git commit -a` when the tree holds edits you didn't make. Report the unstaged remainder. Don't switch branches or stash in a checkout another session may be writing in. Leave build output (`result`, cache directories) unstaged and offer a `.gitignore` entry as its own commit.

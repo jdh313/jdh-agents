@@ -16,6 +16,34 @@ jj log --limit 10  # recent history / stack shape
 
 There is no staging area, so there's no staged-vs-unstaged distinction: `jj diff` is the whole picture.
 
+## Committing only your paths
+
+Policy lives in SKILL.md "Commit Only Your Own Changes"; these are the commands.
+
+```bash
+jj split <your paths> -m "msg"   # your files become @- (described); everything else stays in @
+jj commit <your paths> -m "msg"  # same effect when the remainder should start a fresh @
+jj status                        # the remainder: report these paths, don't touch them
+```
+
+Both leave `@` as the working copy, so a session writing in this checkout keeps writing into `@`. **Don't move `@`** in a checkout another session may share: no `jj edit <rev>`, no `jj new <rev>`. Retrofit from `@` with `jj absorb` or `jj squash --from @ --into <rev> <paths>`. If you need a new change somewhere else, create it without moving `@`: `jj new --no-edit --insert-before @`.
+
+Build output that jj auto-tracked (a nix `result` symlink, a cache directory): leave it out of the paths above, add it to `.gitignore` in its own commit if the user agrees, then `jj file untrack <path>`. Untrack only after the path is ignored, or jj tracks it again on the next snapshot.
+
+## Where the commit lands
+
+Policy lives in SKILL.md "Where Commits Land"; these are the commands.
+
+```bash
+jj log -r 'trunk()..@-'                    # commits between trunk and @; any not made this session -> ask
+jj rebase -r @ -d 'trunk()'                # user chose a new stack: move only @, never the foreign commits
+jj status                                  # re-check: ignored-on-old-base files may now show as added
+jj log -r 'main | main@origin | remote_bookmarks(exact:"main")' --no-graph \
+  -T 'commit_id.short() ++ " " ++ bookmarks ++ "\n"'   # do the mains agree? report, don't fix
+```
+
+A file that appeared only because of the rebase stays out of every commit: name explicit paths when you `jj split` or `jj commit`, and report the leftovers. Don't `jj file untrack` it unless it is already ignored on trunk.
+
 ## Operation → Command
 
 Pick the row that matches what you want to do.
@@ -35,8 +63,8 @@ Pick the row that matches what you want to do.
 | Fix the description on `@`'s parent | `jj describe -r @- -m "new msg"` | `@-` is the parent of the working copy. |
 | Fix the description on any commit | `jj describe -r <revset> -m "new msg"` | jj rewrites cleanly even for old changes. |
 | Create a new empty change on top of current | `jj new` | Working copy moves to the new empty child. |
-| Create a new change on top of a specific commit | `jj new <revset>` | E.g. `jj new main` to start fresh from main. |
-| Resume working on an old change | `jj new <revset>` then make edits — or `jj edit <revset>` | Prefer `jj new`; `jj edit` is discouraged by jj itself. |
+| Create a new change on top of a specific commit | `jj new <revset>` | E.g. `jj new main` to start fresh from main. Moves `@`: not in a shared checkout (see "Committing only your paths"). |
+| Resume working on an old change | `jj new <revset>` then make edits — or `jj edit <revset>` | Prefer `jj new`; `jj edit` is discouraged by jj itself. Both move `@`: not in a shared checkout. |
 | List bookmarks | `jj bookmark list` | Or `jj b l`. |
 | Move a bookmark to a revision | `jj bookmark move <name> --to <revset>` | E.g. `jj bookmark move main --to @-` to point main at the parent of the working copy. |
 | Create a new bookmark at current change | `jj bookmark create <name> -r @-` | Usually point at `@-` (last described change), not `@` (empty working copy). |
@@ -168,7 +196,8 @@ Working as a stack of described changes (one reviewable slice per commit):
    - `jj commit -i` (interactive) → opens diff editor
    - `jj squash -i` → opens diff editor
 2. **Never use `jj restore` or `jj abandon` on a non-empty change** — both discard content. The commit plugin's hook blocks these.
-3. **Verify with `jj log` after each split/squash.** jj rewrites history cleanly, so a wrong-shape rewrite is reversible with `jj undo` — but only if you notice in time.
+3. **Commit by explicit path and keep `@` in place** — see "Committing only your paths".
+4. **Verify with `jj log` after each split/squash.** jj rewrites history cleanly, so a wrong-shape rewrite is reversible with `jj undo` — but only if you notice in time.
 
 ## Splitting a mixed change into atomic commits (full example)
 
@@ -195,14 +224,15 @@ Final history (newest first):
 
 **Push with `jj push`, not `jj git push`.** `jj push` is a user alias for `jj git push` that runs the repo's pre-push checks first, so a push that skips it can land commits those checks would have rejected. It takes the same arguments (`--bookmark`, `--change`, ...). Confirm the alias exists once per session with `jj config get aliases.push`; only if that fails, fall back to `jj git push` and tell the user the pre-push checks did not run. Every push command in this reference assumes the alias.
 
+**Target the default remote.** Bare `jj push` uses jj's default remote (`git.push` config, else `origin`); don't pass `--remote` unless the request names another remote. If the pre-push checks fail because the sandbox blocks a cache path (e.g. `~/.cache/uv`), report it and ask before rerunning outside the sandbox; never fall back to `jj git push` to get around it.
+
 ```bash
 # 1. Make sure a bookmark points at the change you want to push
 jj bookmark list                                  # which bookmarks exist?
-jj bookmark move main --to @-                     # advance main to last described change
-# (or create one: jj bookmark create feature-x -r @-)
+jj bookmark create feature-x -r @-                # name the stack (only per SKILL.md "Where Commits Land" step 3)
 
 # 2. Push
-jj push --bookmark main
+jj push --bookmark feature-x
 # Or push everything that's ahead:
 jj push
 ```
