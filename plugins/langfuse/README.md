@@ -15,7 +15,7 @@ The shared hook accepts Claude Code transcript rows and Codex rollout rows. Six 
 - **(a) Richer tags + user_id** — `propagate_attributes` now receives `user_id` (from `LANGFUSE_USER_ID` env var or `$USER`) and runtime, working-directory, and permission-mode tags.
 - **(b) Trace name with content preview** — Trace name format changes from `"Claude Code - Turn N"` to `"[Turn N] <60-char snippet>"` (or `"[/cmd] [Turn N] <snippet>"` for slash-command turns), making the Langfuse dashboard scannable at a glance.
 - **(c) Leaner trace metadata** — Dropped redundant `session_id` and `user_text` keys from the trace metadata dict; kept `source`, `turn_number`, `transcript_path`, and `assistant_message_count`.
-- **(d) `as_type="agent"` for orchestration tools** — Tool observations for `Skill`, `Agent`, and `Task` tool calls are tagged as `"agent"` observations instead of `"tool"` so they render correctly in the Langfuse UI.
+- **(d) `as_type="agent"` for orchestration tools** — Tool observations for `Agent` and `Task` tool calls are tagged as `"agent"` observations instead of `"tool"` so they render correctly in the Langfuse UI.
 - **(e) `level="ERROR"` on failed tools** — Tool observations are automatically flagged `ERROR` when the result has `is_error=true`, contains `"Error: "` in the output string, or the output starts with an HTTP 4xx/5xx status code.
 - **(f) `release=` on Langfuse constructor** — Passes the active CLI version (`claude --version` or `codex --version`, cached per process) as the `release` field. Override with `LANGFUSE_RELEASE`.
 
@@ -59,6 +59,24 @@ An opt-in second pass in the same Stop hook exports one Langfuse observation per
 - Requires `origin.kind == "human"` on transcript rows (Claude Code >= ~2.1.291); older transcripts produce nothing. Subagents, programmatic (`sdk-cli`) sessions, teammate messages, and notifications are excluded.
 - At-most-once delivery: a candidate is marked processed before it is sent and is never retried, because Langfuse would duplicate a resent observation rather than merge it.
 - Codex is not implemented; under Codex the pass is a no-op. Codex still lists the extra `SessionStart` command for hook review.
+
+## Skill version attribution (Claude Code only)
+
+The hook sets `langfuse.observation.skills_available` so Langfuse can link observations to skill versions. The attribute is a JSON list of `{"name", "version"}` objects, set on every generation and on `Skill` and `Read` tool observations. Other tool observations do not carry it.
+
+`Skill` and `Read` observations are named with the raw tool name, because Langfuse matches skill loads on it. Other tools keep the `Tool: <name>` form.
+
+`Skill` calls are recorded as tool observations. In live traces, a `Skill` observation registered a skill load as a tool and registered none as an agent.
+
+**What is reported.** Each immediate, non-hidden subdirectory of `~/.claude/skills` that contains `SKILL.md`, matched by folder to an entry in the fixed lockfile `~/.claude/skills/langfuse-skills.lock`:
+
+- a skill with a lockfile entry and an integer version is reported with its name and version
+- a skill with no lockfile entry, or an entry with no usable version, is reported by name only
+- a missing or invalid lockfile means name-only entries, and tracing continues
+
+**Versions follow what is installed on the machine.** The lockfile moves only when `skills update` runs, so a version newly published to Langfuse is not attributed until then.
+
+Codex does not set this attribute. Its tool observations keep the `Tool: <name>` form, and a Codex `Skill` call stays an agent observation.
 
 ## Codex setup and trust
 
