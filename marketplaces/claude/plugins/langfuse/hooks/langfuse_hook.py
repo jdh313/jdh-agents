@@ -45,6 +45,10 @@ else:
 LOG_FILE = STATE_DIR / "langfuse_hook.log"
 STATE_FILE = STATE_DIR / "langfuse_state.json"
 LOCK_FILE = STATE_DIR / "langfuse_state.lock"
+SKILLS_DIR = Path.home() / ".claude" / "skills"
+SKILLS_LOCKFILE_NAME = "langfuse-skills.lock"
+SKILLS_AVAILABLE_ATTR = "langfuse.observation.skills_available"
+SKILL_LOADING_TOOLS = ("Skill", "Read")
 
 def _opt(name: str) -> str:
     """Read a plugin userConfig value (CLAUDE_PLUGIN_OPTION_<NAME>) with a fallback to a plain env var."""
@@ -763,6 +767,69 @@ def _get_runtime_version():
     return _RUNTIME_VERSION
 
 
+# ----------------- Skill version attribution (Claude Code only) -----------------
+
+def _read_skills_lockfile(lockfile: Path) -> Dict[str, Dict[str, Any]]:
+    """Map lockfile entries by their `path`; unusable data yields no entries."""
+    try:
+        data = json.loads(lockfile.read_text(encoding="utf-8"))
+    except FileNotFoundError:
+        return {}
+    except Exception as e:
+        debug(f"skills lockfile unreadable: {e!r}")
+        return {}
+    skills = data.get("skills") if isinstance(data, dict) else None
+    if not isinstance(skills, list):
+        debug("skills lockfile has an unexpected shape")
+        return {}
+    return {
+        entry["path"]: entry
+        for entry in skills
+        if isinstance(entry, dict) and isinstance(entry.get("path"), str)
+    }
+
+
+def discover_available_skills(skills_dir: Path) -> List[Dict[str, Any]]:
+    """Installed skills as `{"name", "version"?}`, sorted by name. Never raises."""
+    entries = _read_skills_lockfile(skills_dir / SKILLS_LOCKFILE_NAME)
+    skills: List[Dict[str, Any]] = []
+    try:
+        for child in skills_dir.iterdir():
+            if child.name.startswith(".") or not (child / "SKILL.md").is_file():
+                continue
+            entry = entries.get(child.name, {})
+            name = entry.get("name")
+            skill: Dict[str, Any] = {
+                "name": name if isinstance(name, str) and name else child.name,
+            }
+            version = entry.get("version")
+            if isinstance(version, int) and not isinstance(version, bool):
+                skill["version"] = version
+            skills.append(skill)
+    except FileNotFoundError:
+        pass
+    except Exception as e:
+        debug(f"skill discovery failed: {e!r}")
+    return sorted(skills, key=lambda s: s["name"])
+
+
+def skills_available_value() -> Optional[str]:
+    """The skills_available attribute value, or None when there is nothing to set."""
+    if RUNTIME != "claude-code":
+        return None
+    skills = discover_available_skills(SKILLS_DIR)
+    return json.dumps(skills) if skills else None
+
+
+def _set_skills_available(observation: Any, value: Optional[str]) -> None:
+    if value is None:
+        return
+    try:
+        observation._otel_span.set_attribute(SKILLS_AVAILABLE_ATTR, value)
+    except Exception as e:
+        debug(f"set skills_available failed: {e!r}")
+
+
 # ----------------- Langfuse emit -----------------
 def _to_ns(ts: Optional[datetime]) -> Optional[int]:
     """Convert a datetime to OTel-style nanoseconds since epoch."""
@@ -838,6 +905,8 @@ def emit_turn(
 
     # Edit (b): compose trace name with content preview
     trace_name = _compose_trace_name(turn_num, user_text_raw)
+
+    skills_available = skills_available_value()
 
     # Edit (a): user_id + richer tags including cwd and mode
     with propagate_attributes(
@@ -933,6 +1002,7 @@ def emit_turn(
                 parent_otel_span=parent_otel_span,
                 **gen_kwargs,
             )
+            _set_skills_available(gen_span, skills_available)
 
             # Tool observations: nested under this generation. Each starts when the assistant
             # emitted the tool_use (am_ts) and ends when its tool_result row arrived.
@@ -958,8 +1028,11 @@ def emit_turn(
                 if tr_ts is not None:
                     batch_result_ts.append(tr_ts)
 
-                # Edit (d): as_type="agent" for orchestration tools
-                tool_as_type = "agent" if tname in ("Skill", "Agent", "Task") else "tool"
+                loads_skills = RUNTIME == "claude-code" and tname in SKILL_LOADING_TOOLS
+
+                # Edit (d): as_type="agent" for orchestration tools. Claude's Skill is a
+                # tool: Langfuse registered no skill load from a Skill span typed agent.
+                tool_as_type = "agent" if tname in ("Agent", "Task", "Skill") and not loads_skills else "tool"
 
                 # Edit (e): level="ERROR" when tool failed
                 is_error = bool(tr_entry and tr_entry.get("is_error"))
@@ -970,7 +1043,8 @@ def emit_turn(
 
                 tool_span = _start_backdated(
                     langfuse,
-                    name=f"Tool: {tname}",
+                    # Raw name for these two: Langfuse matches skill loads on the tool name.
+                    name=tname if loads_skills else f"Tool: {tname}",
                     as_type=tool_as_type,
                     start_time=am_ts,
                     parent_otel_span=gen_span._otel_span,
@@ -983,6 +1057,8 @@ def emit_turn(
                     },
                     **extra_kwargs,
                 )
+                if loads_skills:
+                    _set_skills_available(tool_span, skills_available)
                 tool_span.update(output=out_trunc)
                 tool_span.end(end_time=_to_ns(tr_ts or am_ts))
 

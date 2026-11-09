@@ -1,6 +1,6 @@
 {
   "name": "langfuse",
-  "version": "1.5.0",
+  "version": "1.6.0",
   "description": "Sends Claude Code and Codex session traces to Langfuse via a Stop hook — per-turn traces with prompts, generations, tool observations, and backdated timestamps. Includes a SessionStart tripwire that marks programmatically-spawned sessions, and an opt-in Claude Code human follow-up observation for self-hosted Langfuse.",
   "author": {
     "name": "Jacob Hoehler"
