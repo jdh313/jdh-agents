@@ -69,9 +69,8 @@ tooling expect at runtime.
 - `git` — `scripts/privacy-scan.sh` scans committed history, so it needs the
   repository's commits (in CI, `actions/checkout` with `fetch-depth: 0`)
 - [`uv`](https://docs.astral.sh/uv/) — only to run
-  `scripts/tests/test_introspect_usage_report.py` and
-  `scripts/tests/test_langfuse_hook.py`, which declare their own dependencies in
-  PEP 723 headers. The repo declares no project, so there is
+  `scripts/tests/test_introspect_usage_report.py`, which declares its own
+  dependencies in a PEP 723 header. The repo declares no project, so there is
   nothing to install and no lockfile to sync.
 
 **Per plugin.** Most plugins are self-contained, but several are inert or
@@ -88,7 +87,6 @@ installing one and wondering why it does nothing:
 | `linear`, `spec-flow` | Linear MCP server (`spec-flow` also uses Context7) |
 | `em` | A tracker (Linear MCP server, Fibery MCP server, or `gh`) and a VCS; `ndr`, `workspaces`, `craft`, `pm` optional |
 | `craft` | `gh`, `git`/`jj`, `ndr`; IaC skills additionally want `tflint`, `checkov`, `trivy`, `infracost` |
-| `langfuse` | A Langfuse account + `uv` on `PATH` (the Stop hook runs via `uv run`) |
 | `skillsmith` | `gh` on `PATH` (for upstream-review) |
 | `pr-watch` | `gh` (GitHub) and/or `fj` (Forgejo) on `PATH`, each already logged in; `git` for Forgejo head commits |
 | `introspect` | Local Claude Code transcripts under `~/.claude/projects/`; invocable from Claude Code or Codex, but does not parse Codex rollout files |
@@ -119,11 +117,11 @@ git clone https://github.com/jdh313/jdh-agents
 /plugin marketplace add /path/to/jdh-agents/marketplaces/claude
 ```
 
-Codex local marketplace. Fifteen of the nineteen packages declare
+Codex local marketplace. Sixteen of the nineteen packages declare
 `targets.codex` and are therefore enrolled -- enrollment means the package
 compiled and published for Codex, not that it was exercised on a Codex runtime.
-Six have a passing fresh-task smoke test on top of that: the four installed
-below plus `librarian` and `teach`.
+Seven have a passing fresh-task smoke test on top of that: the four installed
+below plus `librarian`, `teach`, and `workspaces`.
 
 ```bash
 codex plugin marketplace add /path/to/jdh-agents/marketplaces/codex
@@ -299,7 +297,7 @@ unlikely to be merged — forking is a first-class answer.
   template.
 - **Something is unsafe:** report it privately — see [`SECURITY.md`](SECURITY.md).
   Read the threat model there before installing; plugins are instructions and
-  scripts your agent executes with your permissions, and three of them ship
+  scripts your agent executes with your permissions, and four of them ship
   hooks that run automatically.
 - **You want to change something:** [`CONTRIBUTING.md`](CONTRIBUTING.md) covers
   what lands, the pinned-compiler workflow, and the install trap behind most
@@ -311,10 +309,9 @@ Apache-2.0 (see [`LICENSE`](LICENSE)).
 
 Portions are derived from third-party work under other terms — notably twelve
 skills across `craft`, `pm`, `skillsmith`, and `teach` adapted from
-[`mattpocock/skills`](https://github.com/mattpocock/skills) (MIT), and the
-`langfuse` plugin, forked from
-[`langfuse/Claude-Observability-Plugin`](https://github.com/langfuse/Claude-Observability-Plugin)
-(MIT). Both upstreams' notices are reproduced in full. Required notices, the full MIT text, and a per-skill provenance table are in
+[`mattpocock/skills`](https://github.com/mattpocock/skills) (MIT). The
+upstream's notice is reproduced in full. Required notices, the full MIT text,
+and a per-skill provenance table are in
 [`THIRD-PARTY-NOTICES.md`](THIRD-PARTY-NOTICES.md). Each adapted skill also
 carries `upstream:` provenance in its frontmatter and an `UPSTREAM.md` ledger of
 intentional divergences.

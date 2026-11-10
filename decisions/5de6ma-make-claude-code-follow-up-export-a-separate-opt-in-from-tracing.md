@@ -9,8 +9,7 @@ project: jdh-agents
 labels:
   - scope
 binds:
-  - plugins/langfuse/hooks/langfuse_hook.py
-  - plugins/langfuse/PACKAGE.yaml
+  - docs/langfuse-human-followup-contract.md
 supersedes: []
 superseded_by: []
 derived_from:
@@ -27,7 +26,7 @@ Claude Code follow-up export runs only when the `CC_LANGFUSE_FOLLOWUP_ENABLED` p
 
 ## Scope
 
-- Binds: the follow-up pass of the `langfuse` plugin's Claude Code hook.
+- Binds: the follow-up pass of transponder's Claude Code exporter.
 - Does not bind: turn-tracing export, which keeps its own switches.
 
 ## Commitments
@@ -44,6 +43,7 @@ Claude Code follow-up export runs only when the `CC_LANGFUSE_FOLLOWUP_ENABLED` p
 - A follow-up observation holds the person's verbatim message, the preceding request, and the full assistant response.
 - Every observation that matches the evaluation rule is forwarded to an external model provider for scoring.
 - People who already run the plugin enabled tracing before follow-up export existed.
+- On 2026-11-10 the follow-up exporter moved to transponder, and this repository stopped carrying it when the `langfuse` plugin was retired (JUN-668).
 
 ## Why
 

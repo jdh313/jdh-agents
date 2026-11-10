@@ -38,7 +38,7 @@ Several harnesses export it. This document fixes the shape they share, so one ev
 
 ## Claude Code mapping
 
-Exporter: the `langfuse` plugin's Stop hook (`plugins/langfuse/hooks/langfuse_hook.py`), opt-in via `CC_LANGFUSE_FOLLOWUP_ENABLED`, self-hosted Langfuse only.
+Exporter: transponder's Claude Code Stop hook ([`forgejo.cluster.jdh.onl/jacob/transponder`](https://forgejo.cluster.jdh.onl/jacob/transponder)), opt-in via `CC_LANGFUSE_FOLLOWUP_ENABLED`, self-hosted Langfuse only. Until 2026-11-10 the exporter was this marketplace's retired `langfuse` plugin (JUN-668).
 
 | Contract field | Claude Code value |
 |----------------|-------------------|

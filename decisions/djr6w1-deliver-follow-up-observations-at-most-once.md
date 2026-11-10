@@ -9,7 +9,7 @@ project: jdh-agents
 labels:
   - architecture
 binds:
-  - plugins/langfuse/hooks/langfuse_hook.py
+  - docs/langfuse-human-followup-contract.md
 supersedes: []
 superseded_by: []
 derived_from:
@@ -39,6 +39,7 @@ Before emitting anything, the exporter saves its per-session cursor and its ledg
 - The Langfuse SDK gives each span a fresh random span ID, so re-emitting the same follow-up creates a second observation rather than overwriting the first.
 - The Stop hook flushes the SDK on a background thread capped at 5 seconds and swallows flush errors, so it cannot tell a lost send from a delivered one.
 - The evaluation rule scores every matching observation at model cost, and each observation counts in the score rates.
+- On 2026-11-10 the follow-up exporter moved to transponder, and this repository stopped carrying it when the `langfuse` plugin was retired (JUN-668).
 
 ## Why
 

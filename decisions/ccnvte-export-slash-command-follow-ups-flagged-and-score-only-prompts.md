@@ -9,7 +9,6 @@ project: jdh-agents
 labels:
   - scope
 binds:
-  - plugins/langfuse/hooks/langfuse_hook.py
   - docs/langfuse-human-followup-contract.md
 supersedes: []
 superseded_by: []
@@ -44,6 +43,7 @@ The Claude Code exporter exports a typed slash command as a follow-up, rendered 
 - Claude Code records a typed plugin or skill command as a human-origin user row wrapped in `<command-message>` / `<command-name>` tags.
 - A typed command usually starts a workflow, such as a plugin update or a decision capture, rather than reacting to the previous answer.
 - The evaluator judges how the previous answer landed by reading the person's next message.
+- On 2026-11-10 the follow-up exporter moved to transponder, and this repository stopped carrying it when the `langfuse` plugin was retired (JUN-668).
 
 ## Why
 

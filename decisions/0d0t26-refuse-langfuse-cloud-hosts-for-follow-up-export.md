@@ -10,7 +10,7 @@ labels:
   - scope
   - deployment
 binds:
-  - plugins/langfuse/hooks/langfuse_hook.py
+  - docs/langfuse-human-followup-contract.md
 supersedes: []
 superseded_by: []
 derived_from:
@@ -26,7 +26,7 @@ When the configured Langfuse base URL's host is `langfuse.com` or one of its sub
 
 ## Scope
 
-- Binds: the follow-up pass of the `langfuse` plugin's Claude Code hook.
+- Binds: the follow-up pass of transponder's Claude Code exporter.
 - Does not bind: turn-tracing export, which sends to any configured base URL.
 
 ## Commitments
@@ -43,6 +43,7 @@ When the configured Langfuse base URL's host is `langfuse.com` or one of its sub
 - The plugin is published from a public repository, and other installers may point it at Langfuse Cloud.
 - A follow-up observation holds verbatim human messages and full assistant responses.
 - The only Langfuse deployment this exporter was built and verified against is self-hosted.
+- On 2026-11-10 the follow-up exporter moved to transponder, and this repository stopped carrying it when the `langfuse` plugin was retired (JUN-668).
 
 ## Why
 

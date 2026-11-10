@@ -1,7 +1,8 @@
 """Shared Langfuse access for the eval scripts.
 
 Credentials come from 1Password at run time rather than the environment: the
-langfuse plugin's secret is injected only into its own hook process and
+tracing hook's secret (transponder, formerly the ``langfuse`` plugin) is loaded
+only into its own hook process and
 ``CLAUDE_CODE_SUBPROCESS_ENV_SCRUB`` strips it from ordinary subprocesses, so
 there is no ambient copy for a script to read.
 """

@@ -6,8 +6,8 @@ Enrollment and runtime acceptance are different things, and this document
 tracks both. The authoritative enrollment is the `codex` publication in
 `MARKETPLACE.yaml`: it runs `mode: all-compatible`, so every package that
 declares a `targets.codex` block is compiled and published. That is sixteen
-packages today, against nineteen for Claude. Eight of those sixteen — `commit`,
-`craft`, `langfuse`, `librarian`, `linear`, `spec-flow`, `teach`, and `workspaces` — have passed
+packages today, against nineteen for Claude. Seven of those sixteen — `commit`,
+`craft`, `librarian`, `linear`, `spec-flow`, `teach`, and `workspaces` — have passed
 fresh-task smoke tests (ndr:v0a3bm); the rest are compiled and enrolled with
 runtime acceptance still outstanding. Claude Code remains the default
 surface for every plugin, and the only surface for the two Claude-only
@@ -141,7 +141,8 @@ been exercised on a fresh Codex runtime. The results are dated records of what
 was observed then, not standing guarantees, and a later version of the same
 package inherits nothing from them.
 
-Eight packages have passed fresh-task smoke tests. `librarian` is recorded in
+Seven enrolled packages have passed fresh-task smoke tests, and so had the
+now-retired `langfuse` package (recorded below). `librarian` is recorded in
 `agentforge/docs/librarian-agent-acceptance.md` and `teach` is recorded below;
 the other four:
 
@@ -159,7 +160,8 @@ as evidence about the package as it stood then.
 
 Additional fresh-task Codex acceptance:
 
-- `langfuse` (1.4.0, 2026-09-21, codex-cli 0.155.1): a clean install from the
+- `langfuse` (1.4.0, 2026-09-21, codex-cli 0.155.1; retired 2026-11-10,
+  `ndr:a1s7hf`): a clean install from the
   generated Codex publication into an isolated Codex home loaded the translated
   `Stop` and `SessionStart` hooks after explicit review and trust. A fresh
   one-turn session produced `Processed 1 turns` locally. A read-only Langfuse
@@ -280,6 +282,6 @@ Expand Codex support plugin by plugin, and keep the two halves of that
 expansion distinct. A package enters the Codex publication when it declares
 `targets.codex`, its manifest validates, and its platform-specific primitives
 have native mappings or declared losses. It reaches runtime acceptance only
-after a fresh-task smoke test passes. Eight of the sixteen enrolled packages are
+after a fresh-task smoke test passes. Nine of the sixteen enrolled packages are
 at the first stage and not the second (`ndr:v0a3bm`); publication membership
 should not be read as the second.

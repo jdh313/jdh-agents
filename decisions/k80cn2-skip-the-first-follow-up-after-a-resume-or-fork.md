@@ -9,8 +9,7 @@ project: jdh-agents
 labels:
   - scope
 binds:
-  - plugins/langfuse/hooks/langfuse_hook.py
-  - plugins/langfuse/hooks/hooks.json
+  - docs/langfuse-human-followup-contract.md
 supersedes: []
 superseded_by: []
 derived_from:
@@ -39,6 +38,7 @@ The Claude Code exporter records a start time for each session, at SessionStart 
 - A resumed or forked Claude Code session's transcript can carry rows from the earlier session under the new session ID.
 - The exporter's cursor and dedupe ledger are stored per session ID.
 - Turning the feature on mid-session leaves earlier turns without any exporter state.
+- On 2026-11-10 the follow-up exporter moved to transponder, and this repository stopped carrying it when the `langfuse` plugin was retired (JUN-668).
 
 ## Why
 
