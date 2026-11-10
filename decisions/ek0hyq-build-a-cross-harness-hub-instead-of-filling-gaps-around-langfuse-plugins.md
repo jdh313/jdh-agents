@@ -9,8 +9,7 @@ project: jdh-agents
 labels:
   - architecture
   - scope
-binds:
-  - plugins/langfuse/**
+binds: []
 supersedes: []
 superseded_by: []
 derived_from:
@@ -53,6 +52,7 @@ informed_by:
 - No tool found pairs a genuine human reply with the exchange before it.
 - Codex documents native logs and metrics but no spans. Claude Code's native traces are beta and redact content by default.
 - Langfuse was the only confirmed consumer on 2026-11-09, and what a Grafana view should show was undecided.
+- On 2026-11-10 the existing hook was removed from this repository when the `langfuse` plugin was retired; transponder is now the only capture path (JUN-668).
 
 ## Why
 

@@ -53,8 +53,8 @@ The merge gate also applies the runtime-native checks that are available:
 
 Generated publication roots are committed, not disposable.
 `agentforge compile MARKETPLACE.yaml --out marketplaces` compiles complete
-publications into `marketplaces/claude/` (226 managed files, 18 packages) and
-`marketplaces/codex/` (218 managed files, 16 packages), and each root is
+publications into `marketplaces/claude/` (236 managed files, 19 packages) and
+`marketplaces/codex/` (267 managed files, 16 packages), and each root is
 self-contained enough for its runtime to be pointed directly at it. `check`
 diffs the whole tree — content and executable bits — against the committed one;
 it never writes.
@@ -71,7 +71,7 @@ skill-local `agents/openai.yaml` containing
 `policy.allow_implicit_invocation: false`. Supplied sidecars remain subject to
 AgentForge's normal collision policy and cannot silently replace generated
 policy. jdh-agents owns verifying those compiler results across the real
-18-package corpus and validating the sixteen declared Codex packages; it does
+19-package corpus and validating the sixteen declared Codex packages; it does
 not duplicate the translation in repository tooling.
 
 ## Target enrollment
@@ -82,9 +82,9 @@ both publications run `mode: all-compatible`, so a package is enrolled exactly
 when it declares support for that target. Counts below are read from those
 declarations, never from generated output or prose elsewhere in the repository.
 
-- Claude enrolls all eighteen packages with `all-compatible`.
+- Claude enrolls all nineteen packages with `all-compatible`.
 - Codex enrolls sixteen: `coach`, `commit`, `compass`, `craft`, `debate`,
-  `feedback`, `introspect`, `langfuse`, `librarian`, `linear`, `pm`,
+  `feedback`, `introspect`, `librarian`, `linear`, `penpot`, `pm`,
   `shake-tune`, `skillsmith`, `spec-flow`, `teach`, and `workspaces`.
 - `teardown` does not declare Codex support. The omission is a decision with
   a stated reason, not an oversight: missing acceptance evidence. See the entry
@@ -95,7 +95,7 @@ the package declared the target, compiled, and is drift-clean against the
 committed tree. It does not mean a fresh Codex runtime was exercised, that
 stripped Claude constructs have working equivalents, or that a smoke test
 passed. Fresh-runtime acceptance is tracked per package under `ndr:v0a3bm` and
-recorded in `docs/dual-agent-operating-model.md`; on the current record eight of
+recorded in `docs/dual-agent-operating-model.md`; on the current record seven of
 the sixteen have passed one. Read the two facts separately.
 
 `feedback` carries a **native mapping but not yet fresh-runtime acceptance**.
@@ -105,13 +105,17 @@ set. The Codex smoke test in TEAM-342 has not been run — no Codex runtime was
 available — so under `ndr:v0a3bm` this package is enrolled on the mapping half
 of the gate only. Treat its Codex support as unverified until that test runs.
 
-`langfuse` is **enrolled and fresh-runtime accepted for Codex** at 1.4.0. Its
-shared parser dispatches on Claude transcript rows and Codex `response_item`
+`langfuse` was retired from this marketplace on 2026-11-10 (JUN-668); tracing
+now comes from `transponder`, which the operator's dotfiles install on the
+personal host. The record below is kept as history.
+
+`langfuse` was **enrolled and fresh-runtime accepted for Codex** at 1.4.0. Its
+shared parser dispatched on Claude transcript rows and Codex `response_item`
 payloads, preserving message, tool-call, tool-result, timestamp, model,
 release, session, and runtime metadata without exporting reasoning rows. State
-and logs resolve under the active runtime home, and missing credentials remain
-fail-open. Codex still requires the user to inspect and trust bundled hooks;
-that trust is separate from consent to export prompts, responses, and tool data.
+and logs resolved under the active runtime home, and missing credentials stayed
+fail-open. Codex required the user to inspect and trust bundled hooks; that
+trust was separate from consent to export prompts, responses, and tool data.
 
 Fresh acceptance on 2026-09-21 installed the generated Codex package into an
 isolated Codex home and ran Codex CLI 0.155.1 with the reviewed hooks enabled.
@@ -143,7 +147,7 @@ an empty or untested package merely because its definition validates.
   types. Claude preserves those artifacts directly.
 - Package-root references, `craft/CONTEXT.md`, and arbitrary skill sidecars are
   supplied payloads.
-- The commit guard and Langfuse hook companions are projected to both runtimes.
+- The commit guard hook companion is projected to both runtimes.
 - Native plugin manifests are represented by canonical defaults and target
   overlays, never copied as payloads.
 - Plugin READMEs stay in the source repository but are intentionally excluded
@@ -151,13 +155,13 @@ an empty or untested package merely because its definition validates.
 - Symbolic links are not supported as package payload sources. The enrolled
   inventory contains none.
 
-AgentForge derives executable intent from source mode. The commit guard and the
-Langfuse tripwire are the executable payloads and compile as `0755`; all other
-compiled files normalize to `0644`.
+AgentForge derives executable intent from source mode. The commit guard is the
+executable payload and compiles as `0755`; all other compiled files normalize
+to `0644`.
 
 ## Claude compatibility
 
-All eighteen packages compile for Claude and pass `claude plugin validate
+All nineteen packages compile for Claude and pass `claude plugin validate
 --strict`. The canonical marketplace omits three legacy generated metadata
 fields—`metadata.homepage`, `metadata.totalPlugins`, and
 `metadata.lastUpdated`—because current strict validation reports them as

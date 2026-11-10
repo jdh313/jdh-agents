@@ -1,7 +1,7 @@
 ---
 id: "wkentm"
 title: Build agent observability in its own transponder repo
-status: current
+status: superseded
 decision_date: 2026-11-09
 author: Jacob Hoehler
 conviction: strong
@@ -9,10 +9,10 @@ project: jdh-agents
 labels:
   - repo-shape
   - scope
-binds:
-  - plugins/langfuse/**
+binds: []
 supersedes: []
-superseded_by: []
+superseded_by:
+  - a1s7hf
 derived_from:
   - Claude Code session 036b78d0-a5d9-4f7a-acb7-60bcd2eb8550 (2026-11-09)
 informed_by:

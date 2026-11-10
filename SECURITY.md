@@ -35,21 +35,15 @@ Concretely, an installed plugin can:
 - Put instructions into your agent's context that shape what it does, including
   what files it reads and what commands it proposes.
 - Ship **hooks that run automatically**, without a prompt, on session or tool
-  events. Two plugins do: `commit` and `langfuse`.
+  events. `commit`, `linear`, `pr-watch`, and `workspaces` do.
 - Ship scripts that a skill invokes through `Bash`, subject to your permission
   settings.
 - Reach whatever your agent can reach — your filesystem, your MCP servers, your
   connected integrations.
 
-Two consequences worth stating plainly:
-
-- **Read before you install.** Everything is plain text in `plugins/`. The
-  hooks are short; read those first. `marketplaces/` is compiled output of the
-  same content.
-- **`langfuse` exports telemetry.** It is an observability plugin: it sends
-  conversation traces to the Langfuse instance you configure. That is its
-  purpose, not a defect — but it means installing it routes conversation content
-  somewhere. Do not install it without deciding where that is.
+One consequence is worth stating plainly: **read before you install.**
+Everything is plain text in `plugins/`. The hooks are short; read those first.
+`marketplaces/` is compiled output of the same content.
 
 Several plugins are built to touch private data (an Obsidian vault, a Linear
 workspace) by design. Grant them access deliberately.

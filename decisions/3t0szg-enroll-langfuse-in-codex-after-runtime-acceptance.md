@@ -1,7 +1,7 @@
 ---
 id: "3t0szg"
 title: Enroll langfuse in Codex after runtime acceptance
-status: current
+status: superseded
 decision_date: 2026-09-21
 author: Jacob Hoehler
 conviction: strong
@@ -10,10 +10,11 @@ labels:
   - scope
   - write-side
 binds:
-  - plugins/langfuse/**
+  - docs/agentforge-compatibility.md
 supersedes:
   - 7gf4vb
-superseded_by: []
+superseded_by:
+  - rdyz4c
 derived_from:
   - fibery:Project_Tracking/Task/110
 informed_by:
@@ -53,6 +54,7 @@ informed_by:
 - Non-interactive ancestor command lines can contain prompt text and therefore cannot be exported as tripwire metadata.
 - Fresh Codex CLI 0.155.1 and Claude Code 2.1.278 acceptance runs each produced one parsed turn and remotely queryable observations with the expected session, runtime, model, and release metadata.
 - The Codex acceptance run also produced a remotely queryable programmatic-spawn observation for `SessionStart`.
+- On 2026-11-10 the `langfuse` package was retired from this marketplace, and Codex enrollment of transponder's hooks moved to the operator's dotfiles, personal host only (JUN-668).
 
 ## Why
 

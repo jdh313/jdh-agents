@@ -10,7 +10,7 @@ labels:
   - scope
   - write-side
 binds:
-  - plugins/langfuse/PACKAGE.yaml
+  - docs/agentforge-compatibility.md
 supersedes: []
 superseded_by:
   - 3t0szg

@@ -23,8 +23,8 @@ Usage::
     uv run scripts/evals/mine_pairs.py --per-skill 3   # tighter sampling
 
 Note: utterances are your own prompts and may contain anything you typed,
-including secrets. They go only to the self-hosted instance the langfuse
-plugin already streams full prompts to.
+including secrets. They go only to the self-hosted instance that transponder
+(formerly the ``langfuse`` plugin) already streams full prompts to.
 """
 
 from __future__ import annotations
