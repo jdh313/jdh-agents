@@ -89,7 +89,7 @@ The orthogonal-axes mental model:
 - **Project + milestone + cycle** = actively committed (normal active state)
 - **Project + milestone, no cycle** = backlog (scoped, not yet pulled)
 - **Project, no milestone, no cycle** = parked in-project (explicit phase stretch / known-deferred)
-- **Parking Lot project, no milestone, no cycle** = parked out-of-project (future-phase work). Bare no-project is **not** a legal parked state — the Linear MCP `save_issue` tool has no project-removal path anyway (see the `linear` plugin's `references/mcp-gotchas.md` § 6), so parked tickets are reassigned to the Parking Lot project instead.
+- **Parking Lot project, no milestone, no cycle** = parked out-of-project (future-phase work). Bare no-project is **not** a legal parked state; parked tickets are reassigned to the Parking Lot project instead.
 - **No milestone, in cycle** = ❌ orphan. `pm:groom` flags these as Missing-fields.
 
 ## Composes with
