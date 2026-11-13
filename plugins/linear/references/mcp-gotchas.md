@@ -138,7 +138,7 @@ Re-saving clean markdown does **not** remove them — the comment entity owns th
 
 ---
 
-## 6. `save_issue` has no project-removal path
+## 6. `project: ""` is a silent no-op; clear with `project: null`
 
 **Broken:**
 
@@ -147,15 +147,47 @@ mcp__linear-server__save_issue({id: "TEAM-123", project: ""})
 → success-shaped response; issue still assigned to its project
 ```
 
-Passing an empty string for `project` is a **silent no-op** — no error, no change. There is no value that clears the project assignment via MCP.
+Passing an empty string for `project` is a **silent no-op** — no error, no change.
 
-**Working:** Reassign to another project instead (e.g. `project: "Parking Lot"`), or clear the field in the Linear UI.
+**Working:**
 
-**Cause:** The tool treats empty/falsy `project` as "not provided" rather than "set to null" — same missing-null-path class as `estimate` (§3).
+```
+mcp__linear-server__save_issue({id: "TEAM-123", project: null})
+→ project cleared
+```
 
-**Practical rule:** Don't plan workflows around moving a ticket to bare no-project via MCP. Mostly moot for this team anyway: per `pm`'s `layer-policy.md` (2026-06-05), bare no-project is no longer a legal parked state — parked tickets go to the Parking Lot project, which `save_issue` handles fine.
+Pass JSON `null`, not the string `"null"`. The hosted MCP's `save_issue` schema types `project` as `string | null`, documented as "Null to remove".
+
+**Cause:** The tool treats an empty/falsy string as "not provided"; only JSON `null` means "remove".
+
+**Practical rule:** Clear a project with `null`, never `""`. Verify with a re-query, since the save response may show the pre-write issue (§7).
 
 **Caught 2026-06-05** during the weekly grooming pass, attempting to unfile a ticket before the Parking Lot project existed.
+
+**Corrected 2026-11-12:** `project: null` cleared the project on 9 tickets during the clr project re-split, confirmed by a `list_issues` by project.
+
+---
+
+## 7. `save_issue` can return the pre-write issue
+
+**Broken:**
+
+```
+mcp__linear-server__save_issue({id: "TEAM-123", project: "New Project"})
+→ response shows the old project and an updatedAt from before the call
+```
+
+An update (moving a project, adding a label) can return the old project or labels and a pre-call `updatedAt`, although the write landed.
+
+**Working:** Re-query with `get_issue` (or `list_issues` filtered by the field, e.g. by project) and compare the field you wrote. An unchanged `updatedAt` alone proves nothing.
+
+**Cause:** Unknown; observed on the hosted `linear-server` MCP.
+
+**Why it bites:** A caller that trusts the response retries writes that already succeeded, or reports a failure that didn't happen.
+
+**Practical rule:** Treat an unchanged field in the save response as "unverified", not "failed". Never retry before re-querying.
+
+**Caught 2026-11-12**, about 17:05-17:15 UTC, during the clr project re-split: nine `save_issue` calls (eight project moves and one label add) returned stale data; re-querying showed every write had landed.
 
 ---
 

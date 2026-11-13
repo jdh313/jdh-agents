@@ -183,6 +183,12 @@ against the intent:
 - State, priority, project, and milestone match what was asked.
 - The body is non-empty and its first line is the aim the caller sent.
 
+The `save_issue` response is not the evidence: it can show the issue as it was
+before the write (`mcp-gotchas.md` §7). Confirm a write that matters with a
+re-query (`get_issue`, or `list_issues` filtered by the field) before reporting
+it. An unchanged field in the save response is "unverified", not "failed" —
+re-query before reporting or retrying.
+
 A mismatch is a finding you report, not a problem you fix by guessing.
 
 ### 5. Apply declared relations and required handoffs
