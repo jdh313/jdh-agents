@@ -88,6 +88,7 @@ milestone: <name, or omit>
 
 ## Relations
 parent: TEAM-N                 # => parentId; the parent must have no parentId
+blockedBy TEAM-N               # => blockedBy; TEAM-N already exists and blocks this ticket
 blocks TEAM-N
 relatedTo TEAM-N
 
@@ -95,6 +96,10 @@ relatedTo TEAM-N
 gotchas: <the installed `mcp-gotchas.md` absolute path, or its verbatim content>
 layer policy: <the installed PM `layer-policy.md` absolute path, or its verbatim content; required when declaring a parent>
 ```
+
+On a create, `blockedBy` names tickets that already exist and block this one,
+so a blockers-first publish sets every edge on the child's own create; `blocks`
+is for wiring an existing ticket forward.
 
 For `update` / `transition` / `comment`, a `## Target` block naming the ticket
 ID replaces `## Fields` where fields are unchanged.
@@ -147,8 +152,13 @@ save_issue(
     assignee="me",              # omit the parameter entirely for unassigned
     description="<caller's body>",
     # parentId="<validated parent ID>",  # include on this write when declared
+    # blockedBy=["TEAM-N"],              # declared relations; append-only
+    # blocks=["TEAM-N"],
+    # relatedTo=["TEAM-N"],
 )
 ```
+
+The relation params are append-only: they add edges and never remove one.
 
 Omit `assignee` entirely for the shared team queue — do not pass a null.
 
@@ -162,6 +172,8 @@ against the intent:
   a label was silently dropped — report it, do not retry blindly.
 - State, priority, project, and milestone match what was asked.
 - The body is non-empty and its first line is the aim the caller sent.
+- Every declared relation (`parentId`, `blockedBy`, `blocks`, `relatedTo`) is
+  present on re-query. Report a missing one under `## Discrepancies`.
 
 The `save_issue` response is not the evidence: it can show the issue as it was
 before the write (`mcp-gotchas.md` §7). Confirm a write that matters with a
@@ -176,7 +188,9 @@ A mismatch is a finding you report, not a problem you fix by guessing.
 For a create or field update, include a declared, validated `parentId` in the
 initial `save_issue`; never create an orphan and attach its parent afterward.
 For an existing-ticket `link` operation, apply its declared parent as
-`parentId`. Apply `blocks` / `relatedTo` only as the caller declared them. When a declared assignment or routing sends a ticket
+`parentId`. Apply `blockedBy` / `blocks` / `relatedTo` only as the caller
+declared them; when declared on a create, pass them on the same `save_issue`
+call as the create. When a declared assignment or routing sends a ticket
 to someone other than the caller, post one comment @-mentioning that person.
 For a declared `comment` operation, post only the caller's supplied body. Do
 not add any other follow-up write.
