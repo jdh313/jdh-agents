@@ -9,7 +9,8 @@ preflight first. Names below are selection preferences, not installed roles.
 | Unit | Preference | Permitted coding fallback |
 |---|---|---|
 | Known bounded fix, <=3 files, copying established pattern | available junior-dev | general-purpose with identical guardrails |
-| >=4 files, design/migration/cross-cutting or unknown cause | available senior-dev | general-purpose with identical guardrails |
+| >=4 files, migration/cross-cutting or unknown cause | available senior-dev | general-purpose with identical guardrails |
+| Open design call not settled inline (lead step 5) | available senior-dev, read-only except design file | general-purpose, no writes except design file |
 | Read-only diagnosis/review | general-purpose or available senior-dev | general-purpose, explicitly no writes |
 | Bulk reading | available bulk-reader | available Explore, else read-only general-purpose |
 
