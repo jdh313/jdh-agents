@@ -120,12 +120,36 @@ Choose from what the ticket and the code show. Several can combine.
 
 State the shape you chose and why in one line when you first report.
 
-## 5. Dispatch
+## 5. Settle design calls
+
+Settle every design call before any implementation dispatch, so a worker is
+picked for the work that remains, not for the design.
+
+1. **List the design calls** the work contains: choices with more than one
+   defensible answer that change what an implementer writes, such as module
+   layout, interface shape, where a lock goes, or refusal order.
+2. **A call is settled** when the brief, the ticket, its comments, or a current
+   `ndr` head already answers it. Cite the source. A settled call is never a
+   reason to pick a stronger worker.
+3. **Settle each open call** before dispatching:
+   - A small call: settle it yourself, inline.
+   - A large one: dispatch one design-only worker (per
+     `../../references/dispatch.md`), read-only except for the design file,
+     whose deliverable is the design file.
+   - A genuine fork with no defensible default is not yours to settle: ask the
+     user, per operating rule 2.
+4. **Write the result** to `<TICKET>-design.md` in the session scratchpad (where
+   dispatch report files go), never the repo. Give each call its answer and its
+   source. Every implementation dispatch names that file as an input. A call
+   that binds future work also goes to `/capture-decision`.
+5. **Then pick implementers per lane**, sized by the remaining work.
+
+## 6. Dispatch
 
 Write every dispatch per `../../references/dispatch.md`: goal, inputs,
 governing rules, workspace, guardrails, done criteria, and a report file.
 
-## 6. Verify
+## 7. Verify
 
 Per `../../references/verify.md`: scope diff, the load-bearing claim, tests
 re-run yourself, and each `Done when` bullet matched to evidence. A failed
@@ -134,7 +158,7 @@ the cause is beyond it.
 
 Then run the review fan-out and dispose of every finding, per the same file.
 
-## 7. Stop before anything outward-facing
+## 8. Stop before anything outward-facing
 
 Report the state: what landed (commits, files), how each `Done when` bullet is
 met, findings and their disposition, and the decisions captured. Then ask

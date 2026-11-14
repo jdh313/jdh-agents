@@ -84,14 +84,24 @@ targets:
          alone, then implementation), or read-only diagnosis before a fix.
          Give the reason in one line. Isolation is mandatory for editing work;
          missing readiness is a blocker, not permission to use parent cwd.
-      5. Dispatch and collect per `../../pi/dispatch-verify.md`. Parallel lanes
+      5. Settle design calls before any implementation dispatch: list choices
+         with more than one defensible answer that change what an implementer
+         writes. One the brief, ticket, comments or a current ndr head answers
+         is settled (cite it) and never a reason for a stronger worker. Settle
+         open ones inline (small) or via one design-only worker, read-only
+         except the design file (large); ask the user on a genuine fork. Write
+         each answer and source to `<TICKET>-design.md` in the session scratch
+         path, never the repo; name it in every implementation dispatch; route
+         calls binding future work to NDR capture. Size implementers by the
+         remaining work.
+      6. Dispatch and collect per `../../pi/dispatch-verify.md`. Parallel lanes
          run in the background with separate provider-bound checkouts. Never
          dispatch whole-repo generators/formatters concurrently.
-      6. Verify actual diff/code, rerun relevant tests yourself, match every
+      7. Verify actual diff/code, rerun relevant tests yourself, match every
          criterion to evidence, and dispose of review findings. Correction of
          a completed workspace child must follow the explicit stop/manual
          recovery in that adapter, not an invented same-agent resume.
-      7. Report files/revisions, criterion evidence, findings/dispositions,
+      8. Report files/revisions, criterion evidence, findings/dispositions,
          captured decisions and blocked checks. **Stop before push, PR, merge,
          or any further tracker write.** Request separate same-turn approval.
 ---
@@ -183,12 +193,36 @@ Choose from what the ticket and the code show. Several can combine.
 
 State the shape you chose and why in one line when you first report.
 
-## 5. Dispatch
+## 5. Settle design calls
+
+Settle every design call before any implementation dispatch, so a worker is
+picked for the work that remains, not for the design.
+
+1. **List the design calls** the work contains: choices with more than one
+   defensible answer that change what an implementer writes, such as module
+   layout, interface shape, where a lock goes, or refusal order.
+2. **A call is settled** when the brief, the ticket, its comments, or a current
+   `ndr` head already answers it. Cite the source. A settled call is never a
+   reason to pick a stronger worker.
+3. **Settle each open call** before dispatching:
+   - A small call: settle it yourself, inline.
+   - A large one: dispatch one design-only worker (per
+     `../../references/dispatch.md`), read-only except for the design file,
+     whose deliverable is the design file.
+   - A genuine fork with no defensible default is not yours to settle: ask the
+     user, per operating rule 2.
+4. **Write the result** to `<TICKET>-design.md` in the session scratchpad (where
+   dispatch report files go), never the repo. Give each call its answer and its
+   source. Every implementation dispatch names that file as an input. A call
+   that binds future work also goes to `/capture-decision`.
+5. **Then pick implementers per lane**, sized by the remaining work.
+
+## 6. Dispatch
 
 Write every dispatch per `../../references/dispatch.md`: goal, inputs,
 governing rules, workspace, guardrails, done criteria, and a report file.
 
-## 6. Verify
+## 7. Verify
 
 Per `../../references/verify.md`: scope diff, the load-bearing claim, tests
 re-run yourself, and each `Done when` bullet matched to evidence. A failed
@@ -197,7 +231,7 @@ the cause is beyond it.
 
 Then run the review fan-out and dispose of every finding, per the same file.
 
-## 7. Stop before anything outward-facing
+## 8. Stop before anything outward-facing
 
 Report the state: what landed (commits, files), how each `Done when` bullet is
 met, findings and their disposition, and the decisions captured. Then ask

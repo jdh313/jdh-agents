@@ -8,7 +8,8 @@ the dispatch did not forbid.
 | Work | Agent |
 |---|---|
 | Bounded fix, known cause, at most three files, or a change that copies an existing pattern | `junior-dev` |
-| Four or more files, a design call, a migration, or an unknown cause | `senior-dev` |
+| Four or more files, a migration, or an unknown cause | `senior-dev` |
+| An open design call the lead does not settle inline (see lead step 5) | `senior-dev`, read-only except the design file |
 | Diagnosis or review with no edits | `general-purpose` |
 | Bulk reading where only the conclusion matters | `bulk-reader` when installed, else `Explore` |
 
@@ -18,9 +19,10 @@ guardrails. Say which substitution you made.
 ## Picking the model
 
 **`haiku` is the default, not the fallback.** Reach for `sonnet` only when the
-unit genuinely needs judgment: an unknown cause, a design call, cross-cutting
-work. Go past `sonnet` only when the user says so. Verification by diff is what
-makes the cheap default safe, so never skip it because the model was cheap.
+unit genuinely needs judgment: an unknown cause, an unsettled design call,
+cross-cutting work. Go past `sonnet` only when the user says so. Verification by
+diff is what makes the cheap default safe, so never skip it because the model
+was cheap.
 
 ## Every dispatch prompt names
 
