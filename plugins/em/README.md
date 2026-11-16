@@ -35,7 +35,7 @@ when the cause is unknown. See `skills/lead/SKILL.md`.
 
 | Tracker | Adapter | Status |
 |---|---|---|
-| Linear | `references/trackers/linear.md` | Uses the `linear` plugin's conventions and `linear-ops` agent when installed |
+| Linear | `references/trackers/linear.md` | Uses the user-level `linear` skill's conventions, when installed, and the `pm` plugin's `linear-ops` agent when installed |
 | Fibery | `references/trackers/fibery.md` | Unverified; discovers the workspace schema at runtime |
 | GitHub Issues | `references/trackers/github.md` | Reads via `gh`; Projects status unverified |
 
@@ -49,7 +49,7 @@ All optional; each step that uses one is skipped when it is absent.
 
 - **pm**: shapes the tickets em executes; `lead` recommends `pm:breakdown` for
   a ticket too big for one session.
-- **linear**: Linear conventions and the `linear-ops` write agent.
+- **linear**: the user-level `linear` skill's Linear conventions, when installed. The `linear-ops` write agent ships with `pm`.
 - **ndr**: decision grounding before code, capture after.
 - **workspaces**: isolated jj checkouts for parallel lanes.
 - **craft**: the pre-PR reviewer fan-out.

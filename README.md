@@ -20,10 +20,10 @@ jdh-agents/
 │       ├── PACKAGE.yaml      # Canonical AgentForge package definition
 │       └── ...               # Plugin files (commands, agents, skills, etc.)
 ├── marketplaces/             # Compiler output — committed, never hand-edited
-│   ├── claude/               # Self-contained Claude marketplace root (19 packages)
+│   ├── claude/               # Self-contained Claude marketplace root (18 packages)
 │   │   ├── .claude-plugin/marketplace.json
 │   │   └── plugins/[name]/
-│   └── codex/                # Self-contained Codex marketplace root (16 packages)
+│   └── codex/                # Self-contained Codex marketplace root (15 packages)
 │       ├── .agents/plugins/marketplace.json
 │       └── plugins/[name]/
 ├── packages/pi/              # Committed standalone Pi output (em, workspaces)
@@ -84,7 +84,7 @@ installing one and wondering why it does nothing:
 | `compass` | Obsidian vault + `obsidian-cli`; Kagi MCP server (optional, for research) |
 | `teach` | Obsidian vault + `obsidian-cli`; DEVONthink MCP server (optional) |
 | `pm` | Obsidian vault; Linear MCP server; `ndr` on `PATH` |
-| `linear`, `spec-flow` | Linear MCP server (`spec-flow` also uses Context7) |
+| `spec-flow` | Linear MCP server and Context7 |
 | `em` | A tracker (Linear MCP server, Fibery MCP server, or `gh`) and a VCS; `ndr`, `workspaces`, `craft`, `pm` optional |
 | `craft` | `gh`, `git`/`jj`, `ndr`; IaC skills additionally want `tflint`, `checkov`, `trivy`, `infracost` |
 | `skillsmith` | `gh` on `PATH` (for upstream-review) |
@@ -117,17 +117,16 @@ git clone https://github.com/jdh313/jdh-agents
 /plugin marketplace add /path/to/jdh-agents/marketplaces/claude
 ```
 
-Codex local marketplace. Sixteen of the nineteen packages declare
+Codex local marketplace. Fifteen of the eighteen packages declare
 `targets.codex` and are therefore enrolled -- enrollment means the package
 compiled and published for Codex, not that it was exercised on a Codex runtime.
-Seven have a passing fresh-task smoke test on top of that: the four installed
+Six have a passing fresh-task smoke test on top of that: the three installed
 below plus `librarian`, `teach`, and `workspaces`.
 
 ```bash
 codex plugin marketplace add /path/to/jdh-agents/marketplaces/codex
 codex plugin add commit@jdh-agents
 codex plugin add craft@jdh-agents
-codex plugin add linear@jdh-agents
 codex plugin add spec-flow@jdh-agents
 ```
 

@@ -35,8 +35,8 @@ Before writing any ticket, read:
 - `../../references/issue-body.md`: the five body slots.
 - `../../references/layer-policy.md`: which layers exist, when to split a
   ticket into subissues, and when a new parent earns its keep.
-- The `linear` plugin's skill and its `references/mcp-gotchas.md`, when
-  installed: team, labels, status vocabulary, and the silent-failure modes
+- The user-level `linear` skill, when installed, and this plugin's
+  `references/mcp-gotchas.md`: team, labels, status vocabulary, and the silent-failure modes
   (grouped labels, team-gated estimates, cycle filters).
 - The repo's `.claude/rules/*.md` and per-surface `CLAUDE.md` files. They are
   binding on ticket content; cite them in bodies where they settle a question.
@@ -89,17 +89,18 @@ order.
 ## Writes go through `linear-ops`
 
 Before any `linear-ops` dispatch or literal procedure fallback, read the
-installed `linear` skill and supply its exact installed gotchas path/content
-(and the PM layer policy for a parent). For a Codex dispatch, follow that
-skill's **Codex registered-role dispatch** contract: a current selected-scope
-check permits only exact `linear:linear-ops`; use only the explicitly chosen
-Markdown fallback with `agent_type` omitted.
+user-level `linear` skill, when installed, and supply this plugin's installed
+`references/mcp-gotchas.md` path or content (and the PM layer policy for a
+parent). Codex has no registered `linear-ops` role: on Codex, skip dispatch and
+follow the structural fallback below.
 
-Every Linear write is dispatched to the `linear` plugin's `linear-ops` agent,
-with the composed body and a stated intent. Reads use the Linear MCP tools
-directly. Without the `linear` plugin, say so and stop before the first write.
+Every Linear write is dispatched to this plugin's `linear-ops` agent, with the
+composed body and a stated intent. Reads use the Linear MCP tools directly. On
+Codex, which has no registered `linear-ops` role, follow the procedure in
+`agents/linear-ops.md` literally; if that file is unreadable, say so and stop
+before the first write.
 
-## Traps not covered by the linear plugin
+## Traps not covered by the `linear` skill
 
 - **A branch name containing a ticket key can auto-transition that ticket**
   (push to In Review, merge to Done) when the GitHub integration is on. Never

@@ -101,5 +101,5 @@ The orthogonal-axes mental model:
 
 ## See also
 
-- **`linear`** (linear plugin) — title, labels, priority, status flow, and milestone-naming mechanics.
+- **`linear`** (the user-level skill, when installed) — title, labels, priority, status flow, and milestone-naming mechanics.
 - **Project agent guidance** (`AGENTS.md` / `CLAUDE.md`) — when to open a ticket at all.

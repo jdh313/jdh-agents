@@ -1,5 +1,7 @@
 # AgentForge compatibility
 
+> Note (2026-11-16): linear plugin retired 2026-11-16; linear-ops moved to pm, Claude-only. The text below is left as written.
+
 `MARKETPLACE.yaml` and each plugin's `PACKAGE.yaml` are the authoritative
 AgentForge collection definitions. Native Claude and Codex manifests remain
 committed at the repository paths consumed by both runtimes, but they are now

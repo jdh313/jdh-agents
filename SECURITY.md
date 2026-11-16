@@ -35,7 +35,7 @@ Concretely, an installed plugin can:
 - Put instructions into your agent's context that shape what it does, including
   what files it reads and what commands it proposes.
 - Ship **hooks that run automatically**, without a prompt, on session or tool
-  events. `commit`, `linear`, `pr-watch`, and `workspaces` do.
+  events. `commit`, `pr-watch`, and `workspaces` do.
 - Ship scripts that a skill invokes through `Bash`, subject to your permission
   settings.
 - Reach whatever your agent can reach — your filesystem, your MCP servers, your

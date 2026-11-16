@@ -197,6 +197,6 @@ the heading rendering inside the description.
   (title, project, priority, labels). That file covers the fields *around* a
   ticket; this one covers what goes *inside* the body.
 - **`layer-policy.md`** — the layers above a ticket (milestones, projects).
-- **`linear`** (linear plugin) — Linear-specific mechanics: label values, status
+- **`linear`** (the user-level skill, when installed) — Linear-specific mechanics: label values, status
   flow, MCP call patterns, priority semantics. It defers to this file for the
   body and carries no template of its own.

@@ -1,6 +1,6 @@
 ---
 name: linear-ops
-description: Executes a decided Linear write — resolves team/project/label/state/milestone identifiers, applies the documented MCP silent-failure workarounds, calls save_issue, and returns the ticket identity. Receives a composed body and a stated intent; never authors body prose and never chooses a ticket's labels or scope on its own judgment. Dispatched by `pm:author`, `pm:breakdown`, and `pm:chart`, so the identifier lookups and their empty-response failure modes stay out of the caller's context. Writes to Linear; touches nothing else.
+description: Executes a decided Linear write — resolves team/project/label/state/milestone identifiers, applies the documented MCP silent-failure workarounds, calls save_issue, and returns the ticket identity. Receives a composed body and a stated intent; never authors body prose and never chooses a ticket's labels or scope on its own judgment. Dispatched by `pm:author`, `pm:breakdown`, `pm:chart`, and `pm:lead`, so the identifier lookups and their empty-response failure modes stay out of the caller's context. Writes to Linear; touches nothing else.
 model: haiku
 color: blue
 tools:
@@ -22,11 +22,8 @@ tools:
 
 This file is both a Claude Code agent definition and a reusable operator
 procedure. A Codex plugin installation exposes this Markdown procedure but does
-not register a named role. Codex callers use `linear:linear-ops` only after the
-current selected-scope registration check in the `linear` skill; an explicitly
-chosen generic-procedure fallback embeds this installed body without
-`agent_type`, while the existing inline procedure path follows the installed
-Markdown body literally.
+not register a named role, so Codex callers follow the installed Markdown body
+literally, inline, as the structural fallback the `pm` skills describe.
 
 ## Role
 

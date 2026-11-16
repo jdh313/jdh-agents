@@ -18,7 +18,7 @@ description: >-
 
 ## Overview
 
-Decompose a goal / plan / spec / vault note into independently-grabbable Linear tickets using **vertical slices** — tracer bullets that cut through every layer end-to-end, not horizontal slices of one layer. Optionally grounds the breakdown against current ndr heads first so slices don't conflict with settled architecture. Publishes in dependency order via the linear plugin with native Linear blocks/blocked-by relations.
+Decompose a goal / plan / spec / vault note into independently-grabbable Linear tickets using **vertical slices** — tracer bullets that cut through every layer end-to-end, not horizontal slices of one layer. Optionally grounds the breakdown against current ndr heads first so slices don't conflict with settled architecture. Publishes in dependency order via the `linear-ops` agent with native Linear blocks/blocked-by relations.
 
 This is the multi-ticket-from-a-plan skill. For one-shot single-ticket drafting, use `pm:author`.
 
@@ -93,11 +93,10 @@ When the source is a spec-flow contract, breakdown grows it into a **nested cont
 7. **Publish in dependency order via `linear-ops`.** Save blockers first so children can reference real `TEAM-N` IDs in the Linear blocks/blocked-by relation. Each slice's `## Relations` declares `blockedBy <TEAM-N>` for every already-published slice it depends on — never `blocks` on a ticket that is already published — so every edge lands on the child's own create. **One dispatch per slice** — the agent takes a single intent block and returns a single ticket, so the loop is sequential: publish a slice, capture its returned `TEAM-N`, then name it in the next slice's `## Relations`. Compose each intent block as `linear-ops`'s own definition specifies (operation, team, fields, body, relations) and pass the body verbatim — the agent does not author prose, and anything you leave for it to fill in comes back blocked. For each slice:
 
    Before any `linear-ops` dispatch or literal procedure fallback, read the
-   installed `linear` skill and supply its exact installed gotchas path/content
-   and this parent's PM layer policy. For a Codex dispatch, follow that skill's
-   **Codex registered-role dispatch** contract: a current selected-scope check
-   permits only exact `linear:linear-ops`; use only the explicitly chosen
-   Markdown fallback with `agent_type` omitted.
+   user-level `linear` skill, when installed, and supply this plugin's installed
+   `references/mcp-gotchas.md` path or content and this parent's PM layer
+   policy. Codex has no registered `linear-ops` role: on Codex, skip dispatch
+   and follow the structural fallback below.
 
    - Compose body per `references/issue-body.md`: a one-line aim, then `## Why now`, `## Sketch`, `## Done when`, `## Context` — omitting every slot that has nothing to say.
    - **Write the title and body in the project's domain glossary vocabulary.** If the repo has a `CONTEXT.md` glossary, use its terms rather than inventing synonyms — a ticket that renames the domain costs the implementer a translation step, and drifts the glossary by example.
@@ -108,7 +107,7 @@ When the source is a spec-flow contract, breakdown grows it into a **nested cont
    - **Assignee:** Omit `assignee` by default — breakdown produces independently-grabbable slices that either person can pull from the shared team queue. Set `assignee` only for slices the user explicitly pre-assigned during the quiz. (See the `linear` skill's collaboration conventions for the accept ritual.)
    - From the agent's `## Result` block, capture the returned `TEAM-N` for the `blockedBy` lines of the slices that depend on it. Surface its `## Discrepancies` block verbatim when non-empty — a silently dropped label is exactly the failure the agent's verify step exists to catch, and swallowing it here defeats it.
 
-   **Structural fallback:** if no registered `linear-ops` collaborator is available, do not reimplement the write and do not improvise one. Availability of a *dispatchable* collaborator is a runtime registration question, and some runtimes register none. The procedure itself is not runtime-dependent: wherever the linear plugin is installed, its `agents/linear-ops.md` ships with it — read that file and follow it literally, then report the result in the shape the collaborator would have returned, including any `## Discrepancies`. Only where the linear plugin is absent entirely is there nothing to follow: say so, and hand the composed slices to the `linear` skill's create operation, or to the user to paste.
+   **Structural fallback:** if no registered `linear-ops` collaborator is available, do not reimplement the write and do not improvise one. Availability of a *dispatchable* collaborator is a runtime registration question, and some runtimes register none. The procedure itself is not runtime-dependent: wherever this plugin is installed, its `agents/linear-ops.md` ships with it — read that file and follow it literally, then report the result in the shape the collaborator would have returned, including any `## Discrepancies`. Codex has no registered `linear-ops` role, so this fallback is the Codex path. Only where that file is unreadable is there nothing to follow: say so, and hand the composed slices to the user-level `linear` skill's create operation, when installed, or to the user to paste.
 
 7a. **Write the fog to the parent** (parent-hosted breakdowns only). Anything the quiz surfaced that failed the phrase-it-now test goes to the parent's `## Not yet specified` — one line per patch, as loose as the view allows. Write it in the parent's own words, not sharpened; sharpening it here is the same mistake as ticketing it.
 
@@ -174,8 +173,8 @@ Granularity right? Dependencies correct? Anything to merge or split? Anyone to p
 - **`ndr:ground`** (external ndr plugin — ships from its own separate marketplace) — grounding pass before slicing. Surfaces current decision heads relevant to the goal's area. Optional: without it, slice from the source + conversation alone.
 - **`ndr:decisions`** (external ndr plugin) — used when the source argument is an `ndr:` reference.
 - **`ndr:capture-decision`** (external ndr plugin) — recommended after a `Decision`-type slice's call is made.
-- **`linear-ops`** (linear plugin agent) — performs the actual ticket saves. Resolves team/project/label/state/milestone identifiers and applies this integration's silent-failure workarounds, one dispatch per slice.
-- **`linear`** (linear plugin) — owns the team conventions the slices are composed against (labels, priority semantics, title shape, parent shape).
+- **`linear-ops`** (this plugin's agent) — performs the actual ticket saves. Resolves team/project/label/state/milestone identifiers and applies this integration's silent-failure workarounds, one dispatch per slice.
+- **`linear`** (the user-level skill, when installed) — owns the team conventions the slices are composed against (labels, priority semantics, title shape, parent shape).
 - **`spec-flow:draft`** (spec-flow plugin) — optional handoff for slices that warrant a contract-tracked workflow, via `/spec-flow draft`.
 - **`spec-flow:close`** (spec-flow plugin) — the other half of the fog loop. On a slice close it notices sharpened fog and recommends the graduation pass back here; at parent-close it drains whatever never graduated. This skill never closes anything.
 - **`Explore` agent** (built-in) — optional codebase exploration in step 3.

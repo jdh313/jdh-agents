@@ -23,7 +23,7 @@ informed_by: []
 
 ## Decision
 
-AgentForge publications enroll a plugin only for runtimes where its native mapping and fresh-runtime acceptance have been verified. The current collection enrolls all fifteen packages for Claude and the five accepted pilots—commit, craft, librarian, linear, and spec-flow—for Codex.
+AgentForge publications enroll a plugin only for runtimes where its native mapping and fresh-runtime acceptance have been verified. The collection enrolled all fifteen packages for Claude and the five accepted pilots—commit, craft, librarian, linear, and spec-flow—for Codex. The `linear` package left the catalog on 2026-11-16 (its `linear-ops` agent moved to `pm`, Claude-only), leaving four of those pilots enrolled for Codex.
 
 ## Scope
 

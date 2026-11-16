@@ -7,7 +7,7 @@ Linear operations. Each issue is paired with the working shape and a one-line
 cause. **Read before calling Linear from any skill** — these failures return
 success-shaped responses with empty or wrong data instead of erroring.
 
-Universal — applies to `linear`, `spec-flow:*`, or any direct Linear MCP usage.
+Universal — applies to the `linear` skill, `spec-flow:*`, the `pm` skills, or any direct Linear MCP usage.
 
 ---
 
