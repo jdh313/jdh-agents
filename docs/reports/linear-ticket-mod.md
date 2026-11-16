@@ -1,5 +1,7 @@
 # Linear ticket mod
 
+> Note (2026-11-16): linear plugin retired 2026-11-16; linear-ops moved to pm, Claude-only. The text below is left as written.
+
 Status: **shipped in `linear` v0.10.0 for Claude only**, on top of the AgentForge v1.3.0 pin. The work is committed locally and not pushed.
 
 ## What shipped

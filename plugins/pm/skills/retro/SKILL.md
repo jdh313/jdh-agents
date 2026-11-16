@@ -189,7 +189,7 @@ Things flagged in chat or session notes that need an owner:
 
 ## Composes with
 
-- **`linear`** (linear plugin) — retro reads Linear state (tickets, cycles) and writes the retro output to a Linear document.
+- **`linear`** (the user-level skill, when installed) — retro reads Linear state (tickets, cycles) and writes the retro output to a Linear document.
 - **`note-editor`** (external librarian setup) — performs the optional vault write when present. Honors frontmatter/folder conventions; creates the `Retros/` folder on first invocation.
 - **`vault-reader`** (external librarian setup) — optional alternative to inline vault reads for the session-note + prior-retro pass. Useful when the read scope is large.
 - **`ndr:decisions`** (external ndr plugin) — optional: dispatch when the retro narrative needs the current state of a referenced decision (e.g. confirming a cancellation reason).

@@ -10,7 +10,8 @@ description: >-
   the same punch list to this cycle's recurring grooming child issue as the
   cycle log. Proposes actions only — never applies state transitions, never
   closes tickets, never edits the bodies of groomed tickets. The user reviews
-  and applies any changes manually via the `linear` skill.
+  and applies any changes manually via the user-level `linear` skill, when
+  installed.
 ---
 
 # groom
@@ -34,7 +35,7 @@ The bet: classification is mechanical (rule-based) and tedious, so the skill doe
 ## Procedure
 
 1. **Locate the log issue.** If an argument was passed (e.g. `TEAM-128`), use that. Otherwise, query Linear for the most recently updated open issue in team `TEAM` matching the grooming-recurrence pattern (title contains "groom" OR label `grooming`). Confirm with the user before writing — one-line prompt, e.g. "Write log to TEAM-128?".
-2. Pull active cycle issues via `mcp__linear-server__list_cycles` + `list_issues` filtered by the current cycle. **Resolve the current cycle's numeric name (e.g. `"2"`) via `list_cycles({type: "current"})` first, then pass that to `list_issues({cycle: "2"})` — `cycle: "current"` silently returns `[]`.** See the `linear` plugin's `references/mcp-gotchas.md` § 1 for the failure mode and other Linear MCP gotchas. Capture state, priority, `updatedAt`, blocker links, and `assignee`.
+2. Pull active cycle issues via `mcp__linear-server__list_cycles` + `list_issues` filtered by the current cycle. **Resolve the current cycle's numeric name (e.g. `"2"`) via `list_cycles({type: "current"})` first, then pass that to `list_issues({cycle: "2"})` — `cycle: "current"` silently returns `[]`.** See `references/mcp-gotchas.md` § 1 for the failure mode and other Linear MCP gotchas. Capture state, priority, `updatedAt`, blocker links, and `assignee`.
 3. Pull backlog issues filtered to the active project. Sort by `updatedAt` descending. Capture `assignee` on each.
 3a. **Build a per-person WIP map.** From the cycle issues pulled in step 2, group by assignee: how many tickets per person are in progress / todo / unassigned. Keep it lightweight — count, not capacity math. Use this to inform pull-in recommendations: flag pull-in candidates as "ready for anyone" (unassigned, no blockers) vs "blocked on @person" (blocked by a ticket assigned to a specific person). Surface the WIP map in the output (see Output format below).
 4. Classify each ticket into exactly ONE bucket per the taxonomy below. Precedence when multiple criteria match: **NDR-moot > Missing fields > Stale > Push-out > Pull-in**.
@@ -119,6 +120,6 @@ Replace-on-write each run. Rerunning the same week overwrites with the latest sw
 
 ## Composes with
 
-- **`linear`** (linear plugin) — the user applies any approved transitions via this skill after reviewing the punch list. Do not call it from within `groom`.
+- **`linear`** (the user-level skill, when installed) — the user applies any approved transitions via this skill after reviewing the punch list. Do not call it from within `groom`.
 - **`ndr:decisions`** (external ndr plugin — ships from its own separate marketplace) — supersession-aware lookup. Dispatch when a ticket body or title contains an `ndr:` reference, to decide if the ticket belongs in the NDR-moot bucket. Optional: without it, skip the NDR-moot bucket.
 - **`vault-reader`** (external librarian setup) — optional for the vault-unfiled pass. Inline vault search is sufficient.

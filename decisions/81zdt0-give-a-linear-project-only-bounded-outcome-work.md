@@ -15,9 +15,8 @@ binds:
   - plugins/pm/skills/groom/SKILL.md
   - plugins/pm/skills/breakdown/SKILL.md
   - plugins/pm/skills/retro/SKILL.md
-  - plugins/linear/skills/linear/SKILL.md
-  - plugins/linear/agents/linear-ops.md
-  - plugins/linear/references/mcp-gotchas.md
+  - plugins/pm/agents/linear-ops.md
+  - plugins/pm/references/mcp-gotchas.md
 supersedes: []
 superseded_by: []
 derived_from:
@@ -33,7 +32,7 @@ A Linear project holds only work toward a bounded outcome with an end, and a tic
 
 ## Scope
 
-- Binds: every project choice and project check made by the `pm` and `linear` plugins: the `linear` skill, the `linear-ops` agent, `pm:breakdown`, `pm:groom`, `pm:retro`, and the layer-policy and issue-shape references.
+- Binds: every project choice and project check made by the `pm` and `linear` plugins: the `linear` skill, the `linear-ops` agent, `pm:breakdown`, `pm:groom`, `pm:retro`, and the layer-policy and issue-shape references. (The `linear` plugin left this catalog on 2026-11-16: `linear-ops` moved to `pm`, and the `linear` skill is now user-level, outside this repo.)
 - Does not bind: sub-issue nesting, which `ndr:v6hzfv` governs, or the milestone, cycle and initiative layers.
 
 ## Commitments

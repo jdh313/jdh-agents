@@ -4,7 +4,7 @@ What a well-formed ticket carries **around** its body: the fields that must be
 set for it to be workable. Source of truth for the Missing-fields bucket in
 `pm:groom`.
 
-The body itself is `issue-body.md`. Defers to `linear` (linear plugin) for
+The body itself is `issue-body.md`. Defers to the user-level `linear` skill, when installed, for
 title shape, label values, priority semantics, and status flow.
 
 ## Required fields
@@ -60,5 +60,5 @@ block on.
 
 - **`issue-body.md`** — what goes inside the body. Tracker-agnostic.
 - **`layer-policy.md`** — the layers above a ticket (milestones, projects).
-- **`linear`** (linear plugin) — Linear-specific mechanics: label values,
+- **`linear`** (the user-level skill, when installed) — Linear-specific mechanics: label values,
   status flow, priority semantics, MCP call patterns.

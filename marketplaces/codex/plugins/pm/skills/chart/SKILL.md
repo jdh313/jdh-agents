@@ -9,8 +9,8 @@ description: >-
   plan", "work the map", "what's next on the map", or hands over a loose idea
   whose shape isn't visible yet. Names the destination first, publishes a map
   ticket plus `Decision` / `Spike` / `Chore` question tickets in dependency
-  order via the linear plugin, and routes each resolution to an ndr atom via
-  `/capture-decision`. Charts questions, not work — once the route is clear,
+  order via the `linear-ops` agent, and routes each resolution to an ndr atom
+  via `/capture-decision`. Charts questions, not work — once the route is clear,
   `pm:breakdown` slices it. Adapted from mattpocock/skills (MIT, © 2026 Matt
   Pocock).
 ---
@@ -151,17 +151,16 @@ The user invokes with a loose idea.
 4. **Confirm the chart before publishing.** Show the destination, the tickets you can specify now (title, mode, type label, blocked-by), and the fog patches as a numbered list. Ask: is the destination right, is anything here actually out of scope, is any ticket really a fog patch (or vice versa). Iterate until the user approves. Publishing is the only destructive step in this skill.
 
    Before any `linear-ops` dispatch or literal procedure fallback, read the
-   installed `linear` skill and supply its exact installed gotchas path/content
-   and this parent's PM layer policy. For a Codex dispatch, follow that skill's
-   **Codex registered-role dispatch** contract: a current selected-scope check
-   permits only exact `linear:linear-ops`; use only the explicitly chosen
-   Markdown fallback with `agent_type` omitted.
+   user-level `linear` skill, when installed, and supply this plugin's installed
+   `references/mcp-gotchas.md` path or content and this parent's PM layer
+   policy. Codex has no registered `linear-ops` role: on Codex, skip dispatch
+   and follow the structural fallback below.
 
-5. **Create the map** — Destination and Notes filled in, `## Decisions so far` empty, the fog sketched into `## Not yet specified`. Compose the body, then dispatch `linear-ops` (linear plugin) with a `create` intent block naming project, milestone (per `references/layer-policy.md`), priority, and labels per the `linear` skill. Pass the body verbatim; the agent authors no prose. Capture the returned `TEAM-N` — every ticket below links to it.
+5. **Create the map** — Destination and Notes filled in, `## Decisions so far` empty, the fog sketched into `## Not yet specified`. Compose the body, then dispatch `linear-ops` (this plugin's agent) with a `create` intent block naming project, milestone (per `references/layer-policy.md`), priority, and labels per the user-level `linear` skill, when installed. Pass the body verbatim; the agent authors no prose. Capture the returned `TEAM-N` — every ticket below links to it.
 
 6. **Create the tickets, then wire in a second pass.** **One `linear-ops` dispatch per ticket** — the agent takes a single intent block and returns a single ticket. Publish them all first so they have real `TEAM-N` IDs, then dispatch again to link each one to the map and wire the blocks / blocked-by edges via `## Relations` — issues need IDs before they can reference each other. Wiring sorts them into the frontier and the blocked; everything you cannot yet specify stays in `## Not yet specified`. Surface any `## Discrepancies` block the agent returns verbatim.
 
-   **Structural fallback:** if no registered `linear-ops` collaborator is available, do not reimplement the write and do not improvise one. Availability of a *dispatchable* collaborator is a runtime registration question, and some runtimes register none. The procedure itself is not runtime-dependent: wherever the linear plugin is installed, its `agents/linear-ops.md` ships with it — read that file and follow it literally, then report the result in the shape the collaborator would have returned, including any `## Discrepancies`. Only where the linear plugin is absent entirely is there nothing to follow: say so, and hand the composed map and tickets to the `linear` skill's create operation, or to the user to paste.
+   **Structural fallback:** if no registered `linear-ops` collaborator is available, do not reimplement the write and do not improvise one. Availability of a *dispatchable* collaborator is a runtime registration question, and some runtimes register none. The procedure itself is not runtime-dependent: wherever this plugin is installed, its `agents/linear-ops.md` ships with it — read that file and follow it literally, then report the result in the shape the collaborator would have returned, including any `## Discrepancies`. Codex has no registered `linear-ops` role, so this fallback is the Codex path. Only where that file is unreadable is there nothing to follow: say so, and hand the composed map and tickets to the user-level `linear` skill's create operation, when installed, or to the user to paste.
 
 7. **Fire the research subagents.** For each research-mode ticket just created, dispatch a subagent in parallel — `Explore` for questions answerable inside the repo, a web-research agent for anything outside it. Each returns its findings to this session; you post them as a resolution comment via a `linear-ops` `comment` dispatch. Research agents have no Linear write access of their own.
 
@@ -204,8 +203,8 @@ The map is done when no open tickets remain and `## Not yet specified` holds not
 - **`craft:prototype`** (craft plugin) — resolves a prototype-mode ticket.
 - **`ndr:ground`** (external ndr plugin) — grounding pass before charting, so the map does not re-decide settled architecture.
 - **`ndr:capture-decision`** (external ndr plugin) — captures each `Decision`-mode resolution as an atom.
-- **`linear-ops`** (linear plugin agent) — performs every Linear write this skill makes: the map, each ticket, the relation wiring, the resolution comments, and the completed-state transitions. One dispatch per operation.
-- **`linear`** (linear plugin) — owns the Spike-vs-Decision boundary test, the label set, the status flow, and the accept ritual this skill claims tickets with.
+- **`linear-ops`** (this plugin's agent) — performs every Linear write this skill makes: the map, each ticket, the relation wiring, the resolution comments, and the completed-state transitions. One dispatch per operation.
+- **`linear`** (the user-level skill, when installed) — owns the Spike-vs-Decision boundary test, the label set, the status flow, and the accept ritual this skill claims tickets with.
 - **`pm:to-questionnaire`** (this plugin) — turns a `Chore` ticket blocked on someone else's knowledge into a document they can fill in async.
 - **`pm:breakdown`** (this plugin) — the downstream half of the handoff chain, once the route is clear.
 - **`spec-flow:draft`** (spec-flow plugin) — the alternative handoff when the destination is a single contract-shaped change.

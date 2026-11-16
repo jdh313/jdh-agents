@@ -1,5 +1,7 @@
 # Dual-agent operating model
 
+> Note (2026-11-16): linear plugin retired 2026-11-16; linear-ops moved to pm, Claude-only. The text below is left as written.
+
 ## Status
 
 Enrollment and runtime acceptance are different things, and this document

@@ -1,5 +1,7 @@
 # Linear registered Codex agent acceptance
 
+> Note (2026-11-16): linear plugin retired 2026-11-16; linear-ops moved to pm, Claude-only. The text below is left as written.
+
 Date: 2026-10-01. Migration order: Linear → Craft → Librarian; only Linear
 roles are migrated here. PM receives four caller-contract links and a patch
 bump, with no role migration. No branch push or release is authorized.

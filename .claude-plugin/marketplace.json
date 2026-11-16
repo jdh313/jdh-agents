@@ -159,7 +159,7 @@
     },
     {
       "name": "em",
-      "version": "1.1.0",
+      "version": "1.1.1",
       "description": "Engineering-manager skills for executing tracked work, with no fixed lifecycle. `scope` scopes one ticket (fetch, ground in decisions, read the touched code, ask only the questions nothing else can answer) and stops at a brief. `lead` takes any work reference, checks from the ticket body whether it is already shaped, picks an execution shape (inline, one worker, parallel workspaces, test-first), dispatches, and verifies every result by diff before a pre-push stop. Tracker-agnostic: Linear, Fibery, and GitHub Issues through per-tracker adapters, selected by the reference form or a repo-local `.em.toml`. Pairs with the pm plugin, which shapes the tickets em executes.",
       "author": {
         "name": "Jacob Hoehler"
@@ -268,26 +268,6 @@
       }
     },
     {
-      "name": "linear",
-      "version": "0.10.3",
-      "description": "Linear workflow conventions for a small two-person team. Owns ticket creation defaults (including assignee), status flow semantics, label set, title shape, collaboration conventions, and MCP call patterns. Composes with spec-flow (which uses Linear as a contract host but defers to this plugin for the conventions). Includes a doctor skill for workspace setup validation, and a linear-ops agent that executes decided ticket writes in isolated context — resolving identifiers, applying the MCP silent-failure workarounds, and verifying what landed.",
-      "author": {
-        "name": "Jacob Hoehler"
-      },
-      "license": "Apache-2.0",
-      "keywords": [
-        "linear",
-        "issue-tracking",
-        "workflow",
-        "conventions",
-        "tickets",
-        "mcp",
-        "spec-flow"
-      ],
-      "types": "./types/index.d.ts",
-      "source": "./marketplaces/claude/plugins/linear"
-    },
-    {
       "name": "penpot",
       "version": "0.1.0",
       "description": "Drive Penpot through its MCP plugin without the silent failures: text edits that render stale until forced to re-layout, async page switching, suspended-tab hangs, and saving named versions before irreversible edits and after settled design decisions.",
@@ -306,8 +286,8 @@
     },
     {
       "name": "pm",
-      "version": "0.14.3",
-      "description": "PM helpers for team Linear workflows. Skills for a PM-mode planning session (read the real state, slice work into cold-handoff tickets, confirm every write), single-ticket authoring (a short shaping interview, body composed to the shared issue-body spec), the weekly grooming loop (per-person WIP), plan-to-tickets breakdown (assignee-aware), chart-first mapping of efforts too large to plan in one session, questionnaires that pull a blocking decision out of someone else's head, and end-of-cycle retro notes (attribution + Linear-first output). Composes with the linear plugin; ndr and librarian integrations are optional externals.",
+      "version": "0.15.0",
+      "description": "PM helpers for team Linear workflows. Skills for a PM-mode planning session (read the real state, slice work into cold-handoff tickets, confirm every write), single-ticket authoring (a short shaping interview, body composed to the shared issue-body spec), the weekly grooming loop (per-person WIP), plan-to-tickets breakdown (assignee-aware), chart-first mapping of efforts too large to plan in one session, questionnaires that pull a blocking decision out of someone else's head, and end-of-cycle retro notes (attribution + Linear-first output). Ships the linear-ops agent and the Linear MCP gotchas reference; composes with the user-level linear skill when installed; ndr and librarian integrations are optional externals.",
       "author": {
         "name": "Jacob Hoehler"
       },

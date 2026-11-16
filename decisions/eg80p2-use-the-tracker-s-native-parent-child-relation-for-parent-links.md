@@ -11,8 +11,7 @@ labels:
   - scope
 binds:
   - plugins/pm/references/layer-policy.md
-  - plugins/linear/skills/linear/SKILL.md
-  - plugins/linear/agents/linear-ops.md
+  - plugins/pm/agents/linear-ops.md
   - plugins/pm/skills/**
 supersedes: []
 superseded_by: []
@@ -33,7 +32,7 @@ When a tracker has a native parent/child relation (Linear `parentId`, GitHub sub
 
 ## Commitments
 
-- The `linear` skill and `linear-ops` write `parentId` for a declared parent and no longer refuse it.
+- The `linear` skill and `linear-ops` write `parentId` for a declared parent and no longer refuse it. (The `linear` plugin left this catalog on 2026-11-16: `linear-ops` moved to `pm`, and the `linear` skill is now user-level, outside this repo.)
 - Callers keep declaring only *that* a ticket has a parent; the tracker-owning skill decides the mechanism.
 - A new tracker adapter documents its native parent relation, or states that it has none.
 

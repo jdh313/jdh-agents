@@ -113,7 +113,7 @@ The questionnaire exists to unblock a decision, so route what comes back rather 
 - **`pm:breakdown`** (this plugin) — for answers that turn out to be a whole goal rather than a single fact.
 - **`ndr:capture-decision`** (external ndr plugin) — captures the decision the answers unblock.
 - **`spec-flow:capture`** (spec-flow plugin) — files a single piece of revealed work without ceremony.
-- **`linear`** (linear plugin) — conventions for the ticket the questionnaire is attached to, and for publishing a shared copy.
+- **`linear`** (the user-level skill, when installed) — conventions for the ticket the questionnaire is attached to, and for publishing a shared copy.
 
 ## See also
 

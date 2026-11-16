@@ -6,7 +6,7 @@ description: >-
   properly", "open a ticket", "turn this into a ticket", "make a proper ticket
   out of this", or wants a single issue authored to spec rather than captured
   raw. Runs a short shaping interview for the two obligated body slots, composes
-  the body per `references/issue-body.md`, and hands the publish to the linear
+  the body per `references/issue-body.md`, and hands the publish to this
   plugin's `linear-ops` agent. One ticket only — use `pm:breakdown` to slice a
   goal into many, or `spec-flow:capture` to file a raw thought with no questions
   asked.
@@ -49,8 +49,8 @@ answering reflexively.
 - **Does NOT own:**
   - **Linear mechanics.** Label values, status flow, priority semantics,
     title shape, milestone naming, and every MCP call pattern belong to the
-    `linear` plugin's `linear` skill. This skill decides *what the ticket
-    says*; that skill decides *how Linear stores it*.
+    user-level `linear` skill, when installed. This skill decides *what the
+    ticket says*; that skill decides *how Linear stores it*.
   - **The write itself.** That goes to `linear-ops` (below).
   - **Whether to open a ticket at all.** That is the project's own floor rule.
 
@@ -129,13 +129,12 @@ it before Linear does.
 ### 5. Publish
 
 Before any `linear-ops` dispatch or literal procedure fallback, read the
-installed `linear` skill and supply its exact installed gotchas path/content
-(and the PM layer policy for a parent). For a Codex dispatch, follow that
-skill's **Codex registered-role dispatch** contract: a current selected-scope
-check permits only exact `linear:linear-ops`; use only the explicitly chosen
-Markdown fallback with `agent_type` omitted.
+user-level `linear` skill, when installed, and supply this plugin's installed
+`references/mcp-gotchas.md` path or content (and the PM layer policy for a
+parent). Codex has no registered `linear-ops` role: on Codex, skip dispatch and
+follow the structural fallback below.
 
-Dispatch `linear-ops` (linear plugin) with the intent block its own definition
+Dispatch `linear-ops` (this plugin's agent) with the intent block its own definition
 specifies: operation, team, fields, body, relations. Pass the body verbatim —
 the agent does not author prose, and anything you leave for it to fill in comes
 back blocked.
@@ -144,12 +143,13 @@ back blocked.
 available, do not reimplement the write and do not improvise one. Availability
 of a *dispatchable* collaborator is a runtime registration question, and some
 runtimes register none. The procedure itself is not runtime-dependent:
-wherever the linear plugin is installed, its `agents/linear-ops.md` ships with
-it — read that file and follow it literally, then report the result in the
-shape the collaborator would have returned, including any `## Discrepancies`.
-Only where the linear plugin is absent entirely is there nothing to follow:
-say so, and hand the composed ticket to the `linear` skill's create operation,
-or to the user to paste.
+wherever this plugin is installed, its `agents/linear-ops.md` ships with it —
+read that file and follow it literally, then report the result in the shape the
+collaborator would have returned, including any `## Discrepancies`. Codex has
+no registered `linear-ops` role, so this fallback is the Codex path. Only where
+that file is unreadable is there nothing to follow: say so, and hand the
+composed ticket to the user-level `linear` skill's create operation, when
+installed, or to the user to paste.
 
 ### 6. Report
 
@@ -170,10 +170,10 @@ all be checked on the same day is usually several tickets.
 
 ## Composes with
 
-- **`linear-ops`** (linear plugin) — performs the write. Owns identifier
+- **`linear-ops`** (this plugin's agent) — performs the write. Owns identifier
   resolution, the MCP silent-failure workarounds, and post-write verification.
-- **`linear`** (linear plugin) — the conventions behind the fields this skill
-  infers. Consult it for label values, title shape, priority, and status flow.
+- **`linear`** (the user-level skill, when installed) — the conventions behind
+  the fields this skill infers. Consult it for label values, title shape, priority, and status flow.
 - **`../../references/issue-body.md`** — the body spec. Definitional.
 - **`../../references/issue-shape.md`** — the required-field checklist around
   the body.

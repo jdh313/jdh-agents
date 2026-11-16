@@ -2,8 +2,9 @@
 
 Read this when the resolved tracker is `linear`. It says **how to address
 Linear**. Ticket conventions (team, labels, priority, status vocabulary, MCP
-gotchas) belong to the `linear` plugin; read its skill when it is installed
-rather than restating it here.
+gotchas) belong to the user-level `linear` skill, when installed; read it
+rather than restating it here. The MCP gotchas reference ships with the `pm`
+plugin (`references/mcp-gotchas.md`).
 
 ## Identity
 
@@ -39,7 +40,7 @@ automation is wired, merging does that.
 
 ## Writes go through `linear-ops` when present
 
-If the `linear` plugin is installed, dispatch its `linear-ops` agent for every
+If the `pm` plugin is installed, dispatch its `linear-ops` agent for every
 write so its identifier lookups and silent-failure workarounds apply. Every
 Linear write is outward-facing: confirm it with the user in the same turn. The
 one exception is `em:lead` marking the ticket it was invoked on as in

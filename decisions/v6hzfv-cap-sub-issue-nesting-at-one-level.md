@@ -11,8 +11,7 @@ labels:
   - scope
 binds:
   - plugins/pm/references/layer-policy.md
-  - plugins/linear/skills/linear/SKILL.md
-  - plugins/linear/agents/linear-ops.md
+  - plugins/pm/agents/linear-ops.md
 supersedes: []
 superseded_by: []
 derived_from:
@@ -35,7 +34,7 @@ A parent's children never have children of their own. A child that is still too 
 ## Commitments
 
 - `linear-ops` refuses to set a parent that is itself a subissue, and says so rather than nesting further.
-- The `linear` skill flattens a deeper caller tree under the top parent, or promotes a branch, and reports which.
+- The `linear` skill flattens a deeper caller tree under the top parent, or promotes a branch, and reports which. (The `linear` plugin left this catalog on 2026-11-16: `linear-ops` moved to `pm`, and the `linear` skill is now user-level, outside this repo.)
 - `pm:retro` flags nesting deeper than one level as a layer-policy violation.
 
 ## Revisit if

@@ -1,8 +1,9 @@
 schema: agentforge.package/v1
 id: pm
-defaults: {"name": "pm", "version": "0.14.3", "description": "PM helpers for team Linear workflows. Skills for a PM-mode planning session (read the real state, slice work into cold-handoff tickets, confirm every write), single-ticket authoring (a short shaping interview, body composed to the shared issue-body spec), the weekly grooming loop (per-person WIP), plan-to-tickets breakdown (assignee-aware), chart-first mapping of efforts too large to plan in one session, questionnaires that pull a blocking decision out of someone else's head, and end-of-cycle retro notes (attribution + Linear-first output). Composes with the linear plugin; ndr and librarian integrations are optional externals.", "author": {"name": "Jacob Hoehler"}, "license": "Apache-2.0", "keywords": ["pm", "project-management", "planning", "linear", "author", "tickets", "grooming", "breakdown", "chart", "mapping", "questionnaire", "cycle", "retro"]}
+defaults: {"name": "pm", "version": "0.15.0", "description": "PM helpers for team Linear workflows. Skills for a PM-mode planning session (read the real state, slice work into cold-handoff tickets, confirm every write), single-ticket authoring (a short shaping interview, body composed to the shared issue-body spec), the weekly grooming loop (per-person WIP), plan-to-tickets breakdown (assignee-aware), chart-first mapping of efforts too large to plan in one session, questionnaires that pull a blocking decision out of someone else's head, and end-of-cycle retro notes (attribution + Linear-first output). Ships the linear-ops agent and the Linear MCP gotchas reference; composes with the user-level linear skill when installed; ndr and librarian integrations are optional externals.", "author": {"name": "Jacob Hoehler"}, "license": "Apache-2.0", "keywords": ["pm", "project-management", "planning", "linear", "author", "tickets", "grooming", "breakdown", "chart", "mapping", "questionnaire", "cycle", "retro"]}
 artifacts:
   - {type: skill, pattern: 'skills/*/SKILL.md'}
+  - {type: agent, pattern: 'agents/*.md'}
 authoring-keys: [upstream]
 payloads:
   include:
@@ -11,13 +12,23 @@ targets:
   claude: {}
   codex:
     losses:
+      - construct: agent-tools-filter
+        state: stripped
+        note: >-
+          The linear-ops agent is Claude-only for now: pm ships no Codex agent
+          bundle, so Codex registers no linear-ops role and exposes only the
+          Markdown procedure, which the skills' structural fallback follows
+          literally. The tools: allowlist that mechanically confines the agent
+          to Linear operations is stripped, and nothing enforces it on Codex;
+          its Boundary section restates the same limits in body prose per
+          ndr:6x3v6p, so the constraint survives only as an instruction there.
       - construct: mcp-tool-reference
         state: retained-unenforced
         note: >-
           groom's step 2 documents a specific Linear MCP gotcha (`list_cycles({type:
           "current"})` must resolve the cycle's numeric name before it's passed to
           `list_issues({cycle: N})` — passing `cycle: "current"` directly silently
-          returns `[]`) and cites the linear plugin's `references/mcp-gotchas.md`.
+          returns `[]`) and cites this plugin's `references/mcp-gotchas.md`.
           That failure mode is tied to the exact Linear MCP tool shape and may not
           hold for whatever Linear access a Codex user has configured; the
           underlying advice (resolve the current cycle explicitly before filtering
