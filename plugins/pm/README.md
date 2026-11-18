@@ -19,6 +19,7 @@ On a solo or small-team project you act as your own project manager. The PM work
 
 ## Skills
 
+- **`intake`** — The front door. Takes an incoming feature request you paste in (a Slack thread, an email, meeting notes), restates it for confirmation, scores it against `references/intake-checklist.md`, and searches Linear and ndr for prior work. Drafts the open questions as a reply you send yourself, then proposes a Linear project and hands ticketing to `breakdown` or `chart`. Reads only what you paste and sends nothing. Confirms the project write and routes it through `linear-ops`.
 - **`lead`** — PM mode for a whole planning session. Reads the real state (project, open tickets, cited docs), measures before asserting, pushes back with evidence, and slices work into tickets good enough to hand off cold. Confirms every Linear write and routes it through `linear-ops`. Never codes, dispatches, or moves a ticket to In Progress — the `em` plugin's `em:lead` executes what it produces. Splits a merge-together change too big for one session into subissues, per `references/layer-policy.md`.
 - **`groom`** — Weekly backlog grooming sweep. Scans active cycle + backlog, optionally cross-refs ndr atoms and vault session notes, outputs a bucketed punch list and archives it to the cycle's recurring grooming child issue. Forward-looking.
 - **`retro`** — End-of-cycle retro note. Pulls the just-closed cycle, classifies tickets (shipped / carried / canceled / added-mid-cycle), surfaces patterns across recent cycles, and writes a retro to a Linear document by default (shared visibility), with an optional personal vault copy. Backward-looking. Pairs with `groom` on the same weekly cadence.
@@ -29,11 +30,11 @@ On a solo or small-team project you act as your own project manager. The PM work
 ### How they chain
 
 ```
-chart  →  breakdown  →  spec-flow / clearance
- charts        slices          implements
+intake  →  chart  →  breakdown  →  spec-flow / clearance
+ shapes     charts        slices          implements
 ```
 
-`chart` handles a goal whose shape is still fogged; `breakdown` handles one you can already name the parts of. The boundary test is whether you can list the work, or only the questions. `to-questionnaire` sits off to the side of both: it is what you reach for when the blocker is another person's knowledge.
+`intake` handles a request that came from someone else and is not yet shaped; it routes to `chart` or `breakdown` by the same boundary test. `chart` handles a goal whose shape is still fogged; `breakdown` handles one you can already name the parts of. The boundary test is whether you can list the work, or only the questions. `to-questionnaire` sits off to the side of both: it is what you reach for when the blocker is another person's knowledge.
 
 Planned for later versions:
 
@@ -43,6 +44,7 @@ Planned for later versions:
 ## References
 
 - **`references/issue-body.md`** — what goes *inside* a ticket body: five slots (a one-line aim, then `## Why now`, `## Sketch`, `## Done when`, `## Context`), with per-type fill guidance. Tracker-agnostic by construction — the same slots apply in Linear, Fibery, or anywhere else — and it is the single source of truth for ticket bodies across this marketplace. The user-level `linear` skill carries no template of its own.
+- **`references/intake-checklist.md`** — the seven things an incoming request must settle before it becomes a project (who, problem, done means, scope, urgency, dependencies, open forks), each scored answered / inferable / missing. `intake` scores against it, and its item headings are the section headings of the project description.
 - **`references/mcp-gotchas.md`** — silent-failure modes in the Linear MCP tool surface (cycle filters, grouped labels, full-body description replace). `agents/linear-ops.md` reads it before every write.
 - **`references/issue-shape.md`** — what a well-formed ticket carries *around* the body (required fields + anti-conventions). `groom` uses it for the Missing-fields and NDR-moot buckets. Defers to `linear` for title/label/priority/status mechanics.
 - **`references/layer-policy.md`** — what organizational layers the workspace uses (project / milestone / issue / cycle), when to split a ticket into one level of subissues, what layers are deliberately off by default (epic / parent ticket, initiative), and the decision criteria for promoting work between layers. Used by `groom` to flag orphan tickets, by `breakdown` to decide milestone assignment, and by `retro` to surface layer-policy adherence.
@@ -50,7 +52,7 @@ Planned for later versions:
 ## Composes with
 
 - **`linear`** (the user-level skill, when installed; not published in this marketplace) — `pm` skills propose; `linear` applies any approved transitions. `linear` also owns the Spike-vs-Decision boundary test that `chart` uses to type its map tickets.
-- **`linear-ops`** (`agents/linear-ops.md`, shipped here) — executes every decided Linear write: identifier resolution, the MCP silent-failure workarounds, and post-write verification. Claude-only: Codex has no registered `linear-ops` role and follows the skills' structural fallback (read the agent file and follow it literally).
+- **`linear-ops`** (`agents/linear-ops.md`, shipped here) — executes every decided Linear write, tickets and `intake`'s project create: identifier resolution, the MCP silent-failure workarounds, and post-write verification. Claude-only: Codex has no registered `linear-ops` role and follows the skills' structural fallback (read the agent file and follow it literally).
 - **craft** (`../craft/`) — `pm:chart` resolves its tickets through `craft:grill`, `craft:domain-modeling`, `craft:grill-with-docs`, and `craft:prototype`. Without craft, `chart` still charts and publishes, but each ticket is resolved by plain conversation.
 - **[spec-flow](../spec-flow/README.md)** — owns the canonical fog-of-war definition (`references/contract-template.md`) that `chart` and `breakdown` both apply, and receives the handoff once a map's route is clear.
 - **ndr** (external — ships from its own separate marketplace) — `pm:groom` calls `ndr:decisions` for supersession checks on tickets that reference ndr atoms. Optional: without it, the NDR-moot bucket and grounding passes are skipped.

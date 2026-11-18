@@ -1,12 +1,14 @@
 ---
 name: linear-ops
-description: Executes a decided Linear write — resolves team/project/label/state/milestone identifiers, applies the documented MCP silent-failure workarounds, calls save_issue, and returns the ticket identity. Receives a composed body and a stated intent; never authors body prose and never chooses a ticket's labels or scope on its own judgment. Dispatched by `pm:author`, `pm:breakdown`, `pm:chart`, and `pm:lead`, so the identifier lookups and their empty-response failure modes stay out of the caller's context. Writes to Linear; touches nothing else.
+description: Executes a decided Linear write — resolves team/project/label/state/milestone identifiers, applies the documented MCP silent-failure workarounds, calls save_issue (or save_project for a declared project create), and returns the ticket or project identity. Receives a composed body and a stated intent; never authors body prose and never chooses a ticket's labels or scope on its own judgment. Dispatched by `pm:author`, `pm:breakdown`, `pm:chart`, `pm:intake`, and `pm:lead`, so the identifier lookups and their empty-response failure modes stay out of the caller's context. Writes to Linear; touches nothing else.
 model: haiku
 color: blue
 tools:
   - mcp__linear-server__save_issue
+  - mcp__linear-server__save_project
   - mcp__linear-server__save_comment
   - mcp__linear-server__get_issue
+  - mcp__linear-server__get_project
   - mcp__linear-server__list_teams
   - mcp__linear-server__list_issues
   - mcp__linear-server__list_issue_labels
@@ -58,7 +60,10 @@ restated here, where it governs at runtime:
   have no `parentId`. If it is already a subissue, stop rather than nesting
   further.
 - **Never invent a project or milestone.** Resolve against what exists. Omit
-  a milestone rather than guessing one.
+  a milestone rather than guessing one. A project is created only by a
+  declared `create-project` operation, from the name, summary, and description
+  the caller supplied; never as a side effect of a ticket write whose project
+  did not resolve.
 - **Never transition a ticket the caller did not ask you to transition**, and
   never move a ticket to `Todo` or beyond as a side effect of some other write.
 - **Perform only the declared operation and declared relations.** Do not add a
@@ -86,7 +91,7 @@ The caller passes an intent block. Only `operation` is always required.
 
 ```markdown
 ## Operation
-create | update | transition | comment | link
+create | update | transition | comment | link | create-project
 
 ## Team
 <team key, or "resolve" if the caller could not determine it>
@@ -121,6 +126,16 @@ is for wiring an existing ticket forward.
 For `update` / `transition` / `comment`, a `## Target` block naming the ticket
 ID replaces `## Fields` where fields are unchanged.
 
+For `create-project`, a `## Project` block replaces `## Fields`, and `## Body`
+is the project description:
+
+```markdown
+## Project
+name: <exact project name>
+summary: <one sentence, at most 255 characters>
+target date: <ISO date, or omit>
+```
+
 ## Procedure
 
 ### 1. Read required supporting context
@@ -153,6 +168,7 @@ not need — an omitted milestone needs no `list_milestones` call.
 | state | `list_issue_statuses` | Confirm the state name exists on this team. |
 | milestone | `list_milestones` | Only when the caller named one. No match → stop; never guess. |
 | declared parent | `get_issue` | Before the write, confirm the parent has no `parentId`. Nested parent → stop and report. |
+| new project name | `list_projects` | `create-project` only. Query the name with `includeArchived: true`. A project of that exact name already exists → stop and report it; never create a second. |
 
 ### 3. Write
 
@@ -179,6 +195,18 @@ The relation params are append-only: they add edges and never remove one.
 
 Omit `assignee` entirely for the shared team queue — do not pass a null.
 
+For `create-project`:
+
+```python
+save_project(
+    name="<caller's name>",
+    addTeams=["<resolved team>"],   # required: a create names at least one team
+    summary="<caller's summary>",
+    description="<caller's body>",
+    # targetDate="<ISO date>",      # only when declared
+)
+```
+
 ### 4. Verify the write landed
 
 The gotchas exist because this integration reports success on partial writes.
@@ -197,6 +225,10 @@ before the write (`mcp-gotchas.md` §7). Confirm a write that matters with a
 re-query (`get_issue`, or `list_issues` filtered by the field) before reporting
 it. An unchanged field in the save response is "unverified", not "failed" —
 re-query before reporting or retrying.
+
+After a `create-project`, `get_project` the result: the name and summary match,
+the team is attached, and the description is non-empty with the caller's first
+line first.
 
 A mismatch is a finding you report, not a problem you fix by guessing.
 
@@ -238,6 +270,9 @@ TEAM-N — <title>
 ## Blocked on
 <what stopped you, and the values you observed — omit when not blocked>
 ```
+
+For `create-project`, `## Ticket` becomes `## Project` (the name, then the
+URL), and `## Applied` lists team, summary, and target date.
 
 Your final text is the return value the caller consumes, not a message to a
 human. Return the block; do not address the user.
