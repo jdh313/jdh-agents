@@ -168,7 +168,7 @@ Then invoke the route's skill:
   thought.
 
 Name the project in the handoff. Tickets are filed in it by name: a
-caller-named project wins over any `active` lookup (`ndr:81zdt0`).
+caller-named project is passed to `linear-ops` by name (`ndr:81zdt0`).
 
 Done when the project exists with its name and URL reported, and the route's
 skill has been invoked with the project named. On the `pm:author` route, done

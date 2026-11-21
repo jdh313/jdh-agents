@@ -42,6 +42,10 @@ restated here, where it governs at runtime:
   declared `create-project` operation, from the name, summary, and description
   the caller supplied; never as a side effect of a ticket write whose project
   did not resolve.
+- **Never choose a project.** The caller picks it per the project picker in
+  the PM `layer-policy.md` (`ndr:81zdt0`). On a create, an omitted project
+  means none; on an update, it leaves the project unchanged, and only an
+  explicit `null` clears it.
 - **Never transition a ticket the caller did not ask you to transition**, and
   never move a ticket to `Todo` or beyond as a side effect of some other write.
 - **Perform only the declared operation and declared relations.** Do not add a
@@ -80,7 +84,7 @@ state: <state name>
 labels: [<surface>, <Type>]        # bare child names, never colon-prefixed
 priority: <0-4>
 assignee: me | <username> | unassigned
-project: <name, or "active" to resolve the non-completed project>
+project: <exact project name; on create, omit for no project; on update, omit to leave it unchanged, or null to clear it>
 milestone: <name, or omit>
 
 ## Body
@@ -141,7 +145,6 @@ not need — an omitted milestone needs no `list_milestones` call.
 | Needed | Call | Note |
 |---|---|---|
 | team | `list_teams` | Use the caller's value. If `resolve` and exactly one team is visible, use it; if several, stop and ask. |
-| project `active` | `list_projects` | Pick the single non-completed project. Several or none → stop and report. |
 | labels | `list_issue_labels` | Confirm each named value exists. Missing → stop, report available values. |
 | state | `list_issue_statuses` | Confirm the state name exists on this team. |
 | milestone | `list_milestones` | Only when the caller named one. No match → stop; never guess. |
@@ -155,7 +158,7 @@ Pass real newlines in the body, never literal `\n` escapes.
 ```python
 save_issue(
     team="<resolved>",
-    project="<resolved>",
+    project="<resolved>",            # create: omit for none; update: omit = unchanged, JSON null clears (never ""; mcp-gotchas.md §6)
     title="<caller's title>",
     state="<caller's state>",
     labels=["<surface>", "<Type>"],

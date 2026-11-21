@@ -9,16 +9,18 @@ title shape, label values, priority semantics, and status flow.
 
 ## Required fields
 
-A ticket is "well-formed" when it has all six:
+A ticket is "well-formed" when it has all six, with #2 met by a repo or area label when the ticket has no project:
 
 1. **Title** — per `linear` conventions (`Area: noun-phrase` or bare noun-phrase)
-2. **Project** — assigned to the active phase project (rotates per phase)
+2. **Project** — set only when the project picker in `layer-policy.md` returns one; otherwise the ticket carries a repo or area label instead (`ndr:81zdt0`)
 3. **Priority** — set to one of `urgent` / `high` / `medium` / `low`; not `None`
 4. **Surface label** — exactly one of `pipeline`, `backend`, `frontend`, `infra`, `database`
 5. **Type label** — exactly one of `Bug`, `Feature`, `Improvement`, `Docs`, `Chore`, `Decision`, `Spike`
 6. **Body** — conforming to `issue-body.md`
 
-A ticket missing any of #1–6 lands in `pm:groom`'s Missing-fields bucket.
+A ticket missing any of #1 or #3–6 lands in `pm:groom`'s Missing-fields
+bucket. A missing project is not a missing field; a ticket with neither a
+project nor a repo or area label is **unhomed** and lands there too.
 
 ## What the body check covers
 
@@ -53,8 +55,8 @@ block on.
 
 | Skill | Use |
 |---|---|
-| `pm:groom` | Missing-fields bucket checks #1–6. The body half of #6 is checked against `issue-body.md`'s two obligated slots. |
-| `pm:breakdown` | Sets #1–5 on each published slice; composes the body per `issue-body.md`. |
+| `pm:groom` | Missing-fields bucket checks #1 and #3–6, and flags unhomed tickets (no project and no repo or area label). The body half of #6 is checked against `issue-body.md`'s two obligated slots. |
+| `pm:breakdown` | Sets #1–5 on each published slice (#2 per the `layer-policy.md` picker, else a repo or area label); composes the body per `issue-body.md`. |
 
 ## See also
 
