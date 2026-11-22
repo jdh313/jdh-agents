@@ -78,7 +78,7 @@ Synthesis half of the weekly rhythm — the chat output captures the story of th
 
 9. **Write the retro on approval.** Two outputs; Linear is primary:
 
-   - **Linear document (default — shared visibility):** Look up the active project in Linear. Create or replace a document in that project titled `Cycle Retro — <cycle-name>`. This is the shared team artifact; both collaborators can read and comment here.
+   - **Linear document (default — shared visibility):** Attach the document to the project the user named; otherwise attach it to the team (`save_document` takes a `team` parent). Create or replace a document there titled `Cycle Retro — <cycle-name>`. This is the shared team artifact; both collaborators can read and comment here.
    - **Personal vault copy (optional):** Write to `~/Loose Ends/Projects/<project>/Retros/YYYY-MM-DD Cycle Retro.md` only if the user requests it OR if Linear is unavailable. If the external `librarian` setup is present, dispatch its `note-editor` agent with the drafted content, target path, and frontmatter shape — it reads the vault `CLAUDE.md` and honors folder/frontmatter conventions. Without librarian, write the note directly (create the Retros folder on first write).
 
    Ask once: "Write to Linear and optionally the vault?" Let the user choose. Skip the write entirely if the user declines. If a retro document/note already exists for the target cycle, ask before overwriting.

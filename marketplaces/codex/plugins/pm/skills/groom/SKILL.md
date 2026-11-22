@@ -27,16 +27,16 @@ The bet: classification is mechanical (rule-based) and tedious, so the skill doe
 - **Linear team:** `TEAM` — substitute your team key. Single-team workspace.
 - **Grooming log anchor:** a recurring issue serves as the template; each cycle spawns a child issue (e.g. `TEAM-128`). The punch list is written to that child as the cycle log. This skill does NOT read the recurring template's body — the grooming procedure is encoded in this skill, not in Linear.
 - **Vault project root:** `~/Loose Ends/Projects/<project>/` — adjust to your vault layout. Skip the vault-unfiled bucket if you don't keep a vault.
-- **ndr atoms root:** `~/Loose Ends/Decisions/` — filter to atoms whose `project:` frontmatter matches the active project. Skip the NDR-moot bucket if you don't use the external `ndr` plugin.
+- **ndr atoms root:** `~/Loose Ends/Decisions/` — filter to atoms whose `project:` frontmatter names the repo being groomed (from the tickets' repo label). Skip the NDR-moot bucket if you don't use the external `ndr` plugin.
 - **Cycle cadence:** weekly, per your Linear workspace settings. Examples in this skill assume Thu→Wed — cycle closes Wed EOD, the new cycle starts Thursday, and grooming runs Thursday morning.
 - **Issue shape spec:** `../../references/issue-shape.md` (plugin reference). Defines what counts as a well-formed ticket; `../../references/issue-body.md` defines the body it points at. Load when classifying for the Missing-fields or NDR-moot buckets.
-- **Layer policy:** `../../references/layer-policy.md` (plugin reference). Defines the active layers (project / milestone / issue / cycle), the one-level subissue rule, the default-off ones (epic, initiative), and the legal states for a ticket. Load when flagging orphans (no milestone, in cycle) or evaluating whether a proposed parent ticket earns its keep.
+- **Layer policy:** `../../references/layer-policy.md` (plugin reference). Defines the active layers (project / milestone / issue / cycle), the one-level subissue rule, the default-off ones (epic, initiative), and the legal states for a ticket. Load when flagging orphans (project, no milestone, in cycle) or unhomed tickets (no project, no repo or area label) or evaluating whether a proposed parent ticket earns its keep.
 
 ## Procedure
 
 1. **Locate the log issue.** If an argument was passed (e.g. `TEAM-128`), use that. Otherwise, query Linear for the most recently updated open issue in team `TEAM` matching the grooming-recurrence pattern (title contains "groom" OR label `grooming`). Confirm with the user before writing — one-line prompt, e.g. "Write log to TEAM-128?".
 2. Pull active cycle issues via `mcp__linear-server__list_cycles` + `list_issues` filtered by the current cycle. **Resolve the current cycle's numeric name (e.g. `"2"`) via `list_cycles({type: "current"})` first, then pass that to `list_issues({cycle: "2"})` — `cycle: "current"` silently returns `[]`.** See `references/mcp-gotchas.md` § 1 for the failure mode and other Linear MCP gotchas. Capture state, priority, `updatedAt`, blocker links, and `assignee`.
-3. Pull backlog issues filtered to the active project. Sort by `updatedAt` descending. Capture `assignee` on each.
+3. Pull backlog issues by team (`TEAM`), with or without a project (`ndr:81zdt0`). Sort by `updatedAt` descending. Capture `assignee` on each.
 3a. **Build a per-person WIP map.** From the cycle issues pulled in step 2, group by assignee: how many tickets per person are in progress / todo / unassigned. Keep it lightweight — count, not capacity math. Use this to inform pull-in recommendations: flag pull-in candidates as "ready for anyone" (unassigned, no blockers) vs "blocked on @person" (blocked by a ticket assigned to a specific person). Surface the WIP map in the output (see Output format below).
 4. Classify each ticket into exactly ONE bucket per the taxonomy below. Precedence when multiple criteria match: **NDR-moot > Missing fields > Stale > Push-out > Pull-in**.
 5. For tickets whose body or title references `ndr:<atom-id>`, `ndr:#<slug>`, or `ndr:<area/topic>`, dispatch the `ndr:decisions` skill to resolve the supersession head. Flag any whose referenced atom has been superseded as `NDR-moot`. (Skip this step without the external `ndr` plugin.)
@@ -53,7 +53,7 @@ A ticket lands in exactly one bucket per session. Precedence when multiple match
 | **Pull-in** | Not in active cycle, no blockers, has done-when in description, priority ∈ {urgent, high} |
 | **Push-out** | In active cycle, blocked OR needs spec OR missing done-when |
 | **Stale** | Backlog, no updates in >14 days, priority ∈ {low, none} |
-| **Missing fields** | Per `references/issue-shape.md` #1–6: any required field absent (no priority, no project, no surface label, no type label, or — for status ≥ Todo — no `## Done when` section in description) |
+| **Missing fields** | Per `references/issue-shape.md` #1 and #3–6, plus unhomed: any required field absent (no priority, unhomed — no project and no repo or area label, no surface label, no type label, or — for status ≥ Todo — no `## Done when` section in description) |
 | **NDR-moot** | References a superseded ndr atom (confirmed via the `ndr:decisions` skill) |
 | **Vault-unfiled** | Work named in vault session notes (last 7 days) with no corresponding ticket |
 

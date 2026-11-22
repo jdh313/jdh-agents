@@ -8,9 +8,9 @@ Companion to `references/issue-shape.md` (per-ticket structure). This file cover
 
 **Three structural layers, one nesting level, one time-box.** Active layers:
 
-1. **Project** — the phase (e.g. a 60-day block of scoped work). One project per phase, plus a standing **Parking Lot** project for parked tickets. Each new phase gets its own project.
+1. **Project** — a bounded outcome with an end (e.g. a feature that ships, a migration that completes). Optional per ticket: a ticket with no project is legal, and ongoing work (bugs, chores, maintenance) has no project and is homed by a repo or area label plus a saved view (`ndr:81zdt0`).
 2. **Milestone** — a capability slice within the project with a "done as a unit" moment (e.g. `Auth perimeter`, `CI/CD from GitHub`, `Data Model`, `CRUD UI`). Linear orders these in the UI.
-3. **Issue** — the work unit, under its milestone.
+3. **Issue** — the work unit, under its milestone when it has a project.
 4. **Subissue** — a child of an issue via Linear's native `parentId`, one level deep. Used when a ticket is split into session-sized children, and for the children of an earned parent (see below).
 5. **Cycle** — weekly time-box, orthogonal to scope.
 
@@ -29,9 +29,17 @@ Layers above issue answer the question *"what scope group does this belong to?"*
 
 ### What goes in a project
 
-One project per phase. Reasoning: stakeholders greenlight phases as units; archival on phase close keeps current views clean; phase-as-project keeps issue counts navigable.
+Only work toward a bounded outcome with an end (`ndr:81zdt0`). Ongoing work — bugs, chores, maintenance — goes in the team backlog with no project, homed by a repo or area label and found by a saved view that queries that label.
 
-A long-lived "whole product = one project" shape was considered and rejected — it flattens the scope grain to labels and clutters views as phases accumulate.
+A long-lived catch-all project (a "whole product" or parking project) is rejected: it has no end, and Linear's own guidance advises against a project for ongoing work.
+
+**The project picker.** When a skill or agent picks a project for a ticket, the first matching rule wins:
+
+1. The caller or user named a project: use it.
+2. The ticket advances a bounded outcome a project owns (e.g. a `pm:breakdown` slice of that project's goal), or it is a bug in that project's own work (e.g. a regression in a feature the project shipped): use that project.
+3. Otherwise (unrelated bugs, chores, maintenance): no project, plus a repo or area label.
+
+Never pick a project by elimination (the only one still open), and never ask once to choose one. Other skills and agents cite this picker rather than restating it.
 
 ### What goes in a milestone
 
@@ -43,7 +51,7 @@ Entity slices (one milestone per domain entity) are the common alternative shape
 
 ### What goes in an issue
 
-Per `references/issue-shape.md`. The unit of work that ships in one or a few cycles, under its milestone.
+Per `references/issue-shape.md`. The unit of work that ships in one or a few cycles, under its milestone when it has a project.
 
 ### When to split an issue into subissues
 
@@ -88,14 +96,15 @@ The orthogonal-axes mental model:
 
 - **Project + milestone + cycle** = actively committed (normal active state)
 - **Project + milestone, no cycle** = backlog (scoped, not yet pulled)
-- **Project, no milestone, no cycle** = parked in-project (explicit phase stretch / known-deferred)
-- **Parking Lot project, no milestone, no cycle** = parked out-of-project (future-phase work). Bare no-project is **not** a legal parked state; parked tickets are reassigned to the Parking Lot project instead.
-- **No milestone, in cycle** = ❌ orphan. `pm:groom` flags these as Missing-fields.
+- **Project, no milestone, no cycle** = parked in-project (known-deferred)
+- **No project + repo or area label, no milestone, in or out of cycle** = ongoing work (legal). Milestones live inside projects, so a no-project ticket has no milestone by construction and is not an orphan (`ndr:81zdt0`).
+- **Project, no milestone, in cycle** = ❌ orphan. `pm:groom` flags these as Missing-fields.
+- **No project and no repo or area label** = ❌ unhomed: neither a project nor a saved view finds it. `pm:groom` flags these as Missing-fields.
 
 ## Composes with
 
 - **`references/issue-shape.md`** — per-ticket structure.
-- **`pm:groom`** — Missing-fields bucket uses the legal-states table above. Orphans (no milestone, in cycle) get surfaced for backfill.
+- **`pm:groom`** — Missing-fields bucket uses the legal-states table above. Orphans (project, no milestone, in cycle) and unhomed tickets get surfaced for backfill.
 - **`pm:breakdown`** — when slicing a goal into tickets, decide milestone assignment per "What goes in a milestone" above. Default to existing milestones; only propose a new one if the slice is a genuinely new capability with a "done as a unit" moment.
 - **`pm:retro`** — cycle retros surface "did we honor the layer policy?" — any orphans landed, any nesting deeper than one level, any epic that earned its keep.
 
