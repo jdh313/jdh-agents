@@ -22,7 +22,8 @@ would know it worked are all still missing.
 
 In order. *Usually answered by* says where to take a missing item first: the
 **requester** (a question for the reply the user sends) or the **user** (a question
-asked in-session, or a fact read from the repo or Linear).
+asked in-session, or a fact read from the repo or Linear). For the user's own
+idea, the user is the requester, so every *requester* item is asked in-session.
 
 ### Who
 

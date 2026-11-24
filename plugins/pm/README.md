@@ -19,7 +19,7 @@ On a solo or small-team project you act as your own project manager. The PM work
 
 ## Skills
 
-- **`intake`** — The front door. Takes an incoming feature request you paste in (a Slack thread, an email, meeting notes), restates it for confirmation, scores it against `references/intake-checklist.md`, and searches Linear and ndr for prior work. Drafts the open questions as a reply you send yourself, then proposes a Linear project and hands ticketing to `breakdown` or `chart`. Reads only what you paste and sends nothing. Confirms the project write and routes it through `linear-ops`.
+- **`intake`** — The front door. Takes a request, either one someone else made that you paste in (a Slack thread, an email, meeting notes) or an idea of your own, restates it for confirmation, scores it against `references/intake-checklist.md`, and searches Linear and ndr for prior work. Asks you the open questions; for someone else's request, drafts the ones only they can answer as a reply you send yourself. Then proposes a Linear project and hands ticketing to `breakdown` or `chart`. Reads only what you paste and sends nothing. Confirms the project write and routes it through `linear-ops`.
 - **`lead`** — PM mode for a whole planning session. Reads the real state (project, open tickets, cited docs), measures before asserting, pushes back with evidence, and slices work into tickets good enough to hand off cold. Confirms every Linear write and routes it through `linear-ops`. Never codes, dispatches, or moves a ticket to In Progress — the `em` plugin's `em:lead` executes what it produces. Splits a merge-together change too big for one session into subissues, per `references/layer-policy.md`.
 - **`groom`** — Weekly backlog grooming sweep. Scans active cycle + backlog, optionally cross-refs ndr atoms and vault session notes, outputs a bucketed punch list and archives it to the cycle's recurring grooming child issue. Forward-looking.
 - **`retro`** — End-of-cycle retro note. Pulls the just-closed cycle, classifies tickets (shipped / carried / canceled / added-mid-cycle), surfaces patterns across recent cycles, and writes a retro to a Linear document by default (shared visibility), with an optional personal vault copy. Backward-looking. Pairs with `groom` on the same weekly cadence.
@@ -34,7 +34,7 @@ intake  →  chart  →  breakdown  →  spec-flow / clearance
  shapes     charts        slices          implements
 ```
 
-`intake` handles a request that came from someone else and is not yet shaped; it routes to `chart` or `breakdown` by the same boundary test. `chart` handles a goal whose shape is still fogged; `breakdown` handles one you can already name the parts of. The boundary test is whether you can list the work, or only the questions. `to-questionnaire` sits off to the side of both: it is what you reach for when the blocker is another person's knowledge.
+`intake` handles a request that is not yet shaped, whether it came from someone else or from you; it routes to `chart` or `breakdown` by the same boundary test. `chart` handles a goal whose shape is still fogged; `breakdown` handles one you can already name the parts of. The boundary test is whether you can list the work, or only the questions. `to-questionnaire` sits off to the side of both: it is what you reach for when the blocker is another person's knowledge.
 
 Planned for later versions:
 
