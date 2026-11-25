@@ -162,7 +162,7 @@ Pass JSON `null`, not the string `"null"`. The hosted MCP's `save_issue` schema 
 
 **Practical rule:** Clear a project with `null`, never `""`. Verify with a re-query, since the save response may show the pre-write issue (§7).
 
-**Caught 2026-06-05** during the weekly grooming pass, attempting to unfile a ticket before the Parking Lot project existed.
+**Caught 2026-06-05** during the weekly grooming pass, while unfiling a ticket at a time when the plugins expected a standing Parking Lot project; `ndr:81zdt0` later retired that rule.
 
 **Corrected 2026-11-12:** `project: null` cleared the project on 9 tickets during the clr project re-split, confirmed by a `list_issues` by project.
 
